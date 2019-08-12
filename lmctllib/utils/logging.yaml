@@ -1,0 +1,36 @@
+---
+version: 1
+disable_existing_loggers: False
+formatters:
+    test:
+        format: "%(asctime)s - %(thread)d - %(name)s - %(levelname)s - %(message)s"
+    production:
+        format: "lmctl: %(message)s"
+
+handlers:
+    console:
+        class: logging.StreamHandler
+        level: INFO
+        formatter: production
+        stream: ext://sys.stdout
+
+loggers:
+    botocore:
+        level: INFO
+        handlers: [console]
+        propagate: yes
+    boto3:
+        level: INFO
+        handlers: [console]
+        propagate: yes
+    urllib3:
+        level: INFO
+        handlers: [console]
+        propagate: yes
+    paramiko:
+        level: INFO
+        handlers: [console]
+        propagate: yes
+root:
+    level: DEBUG
+    handlers: [console]
