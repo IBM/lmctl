@@ -56,4 +56,4 @@ Commands:
 
 ## Using Lmctl
 
-Please read the [User Guide](./docs/userguide.md)
+Please read the [User Guide](./docs/user_guide.md)
