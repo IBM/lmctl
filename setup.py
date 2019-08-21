@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='lmctl',
-    version='2.0.7',
+    version='2.0.7.1',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
