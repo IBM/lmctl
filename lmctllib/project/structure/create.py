@@ -54,6 +54,22 @@ class ProjectCreator:
         for vnfc in request.vnfcs:
             logger.info('Creating directory for VNFC: {0}'.format(vnfc))
             os.makedirs(project_tree.vnfcs().vnfcDirectory(vnfc))
+            os.makedirs(os.path.join(project_tree.vnfcs().vnfcDirectory(vnfc), 'descriptor'))
+            descriptor = {
+                'name': 'resource::{0}::{1}'.format(vnfc, request.version),
+                'description': 'Descriptor for {0}'.format(vnfc)
+            }
+            with open(os.path.join(project_tree.vnfcs().vnfcDirectory(vnfc), 'descriptor', '{0}.yml'.format(vnfc)), 'w') as descriptor_file:
+                yaml.dump(descriptor, descriptor_file, default_flow_style=False)
+            os.makedirs(os.path.join(project_tree.vnfcs().vnfcDirectory(vnfc), 'lifecycle'))
+            os.makedirs(os.path.join(project_tree.vnfcs().vnfcDirectory(vnfc), 'Meta-Inf'))
+            manifest = {
+                'name': vnfc,
+                'version': request.version,
+                'resource-manager': 'ansible'
+            }
+            with open(os.path.join(project_tree.vnfcs().vnfcDirectory(vnfc), 'Meta-Inf', 'manifest.MF'), 'w') as manifest_file:
+                yaml.dump(manifest, manifest_file, default_flow_style=False)
 
     def __createServiceDescriptor(self, request, project_tree):
         os.makedirs(project_tree.serviceDescriptor().directory())
@@ -68,6 +84,7 @@ class ProjectCreator:
         if not version:
             version = '1.0'
         descriptor.setName('assembly', descriptor_name, version)
+        descriptor.raw_descriptor['description'] = 'Descriptor for {0}'.format(descriptor_name)
         logger.info('Creating service descriptor with name: {0}'.format(descriptor.getName()))
         with open(project_tree.serviceDescriptor().descriptorFile(), 'w') as descriptor_file:
             yaml.dump(descriptor.raw_descriptor, descriptor_file, default_flow_style=False)
