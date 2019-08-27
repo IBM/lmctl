@@ -13,6 +13,7 @@ setup(
         'click',
         'requests',
         'ruamel.yaml',
+        'oyaml',
         'tabulate'
     ],
     entry_points='''

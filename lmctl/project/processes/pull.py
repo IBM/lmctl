@@ -11,7 +11,7 @@ class BackupTree(files.Tree):
         super().__init__(root_path)
 
     def __relative_child_backup_path(self):
-        return self.relative_path(StagingTree.CONTAINS_DIR)
+        return self.relative_path(BackupTree.CONTAINS_DIR)
 
     @property
     def subproject_backup_path(self):
@@ -71,7 +71,7 @@ class PullWorker:
             return
         for subproject in subprojects:
             self.journal.subproject(subproject.config.name)
-            child_backup_tree = self.backup_tree.gen_subproject_backup_tree(subproject.directory)
+            child_backup_tree = self.backup_tree.gen_subproject_backup_tree(subproject.config.directory)
             PullWorker(subproject, self.options, child_backup_tree, self.journal, self.env_sessions, self.references).work()
             self.journal.subproject_end(subproject.config.name)
 
