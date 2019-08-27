@@ -1,0 +1,9 @@
+schema: '2.0'
+name: contains_invalid_mismatch_descriptor_name
+version: '1.0'
+type: Assembly
+contains:
+  - name: sub_invalid_mismatch_descriptor_name
+    type: Resource
+    directory: sub_invalid_mismatch_descriptor_name
+    resource-manager: ansiblerm

@@ -1,0 +1,36 @@
+{
+  "name": "Start",
+  "description": "Start hello world service",
+  "stages": [
+    {
+      "name": "New Stage",
+      "steps": [
+        {
+          "stepDefinitionName": "LM_Intents_Sync::ChangeState",
+          "properties": {
+            "newState": "Active",
+            "assemblyName": "myfirstservice"
+          }
+        },
+        {
+          "stepDefinitionName": "LMUtils::SleepForTime",
+          "properties": {
+            "sleepTime": "20",
+            "timeUnit": "seconds"
+          }
+        }
+      ]
+    }
+  ],
+  "assemblyActors": [
+    {
+      "instanceName": "myfirstservice",
+      "assemblyDefinitionName": "helloworld",
+      "initialState": "Inactive",
+      "uninstallOnExit": true,
+      "provided": false
+    }
+  ],
+  "createdAt": "2018-11-30T11:55:49.32Z",
+  "lastModifiedAt": "2018-11-30T12:00:52.658Z"
+}

@@ -1,19 +1,22 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
+import json
+
+with open('lmctl/pkg_info.json') as fp:
+    _pkg_info = json.load(fp)
 
 setup(
     name='lmctl',
-    version='2.0.7.1',
-    packages=find_packages(),
+    version=_pkg_info['version'],
+    packages=find_namespace_packages(include=['lmctl*']),
     include_package_data=True,
     install_requires=[
         'click',
-        'paramiko',
-        'urllib3',
-        'oyaml',
-        'requests'
+        'requests',
+        'ruamel.yaml',
+        'tabulate'
     ],
     entry_points='''
         [console_scripts]
-        lmctl=lmctllib.installer:main_func
-    ''',
+        lmctl=lmctl.cli.entry:init_cli
+    '''
 )

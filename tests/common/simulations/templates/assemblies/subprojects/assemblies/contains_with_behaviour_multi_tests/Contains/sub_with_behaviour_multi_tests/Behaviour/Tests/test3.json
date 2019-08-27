@@ -1,0 +1,48 @@
+{
+  "name": "test3",
+  "description": "a test scenario",
+  "stages": [
+    {
+      "name": "Stage One",
+      "steps": [
+        {
+          "stepDefinitionName": "Utilities::SleepForTime",
+          "properties": {
+            "sleepTime": "20",
+            "timeUnit": "seconds"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stage Two",
+      "steps": [
+        {
+          "stepDefinitionName": "Utilities::SleepForTime",
+          "properties": {
+            "sleepTime": "20",
+            "timeUnit": "seconds"
+          }
+        },
+        {
+          "stepDefinitionName": "Utilities::SleepForTime",
+          "properties": {
+            "sleepTime": "20",
+            "timeUnit": "seconds"
+          }
+        }
+      ]
+    }
+  ],
+  "assemblyActors": [
+    {
+      "instanceName": "simple",
+      "assemblyConfigurationRef": "simple",
+      "initialState": "Active",
+      "uninstallOnExit": true,
+      "provided": false
+    }
+  ],
+  "createdAt": "2019-01-01T01:00:00.613Z",
+  "lastModifiedAt": "2019-01-02T01:00:00.613Z"
+}

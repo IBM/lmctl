@@ -1,0 +1,8 @@
+schema: '2.0'
+name: contains_with_behaviour
+version: '1.0'
+type: Assembly
+contains:
+  - name: sub_with_behaviour
+    type: Assembly
+    directory: sub_with_behaviour

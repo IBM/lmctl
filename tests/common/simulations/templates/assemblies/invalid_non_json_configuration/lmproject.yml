@@ -1,0 +1,4 @@
+schema: '2.0'
+name: invalid_non_json_configuration
+version: '1.0'
+type: Assembly

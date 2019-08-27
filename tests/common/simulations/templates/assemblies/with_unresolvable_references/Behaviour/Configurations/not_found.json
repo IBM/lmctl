@@ -1,0 +1,11 @@
+{
+  "name": "not_found",
+  "projectId": "$lmctl:/descriptor_name",
+  "description": "assembly config with a reference that cannot be resolved",
+  "properties": {
+    "a": "123"
+  },
+  "createdAt": "2019-01-01T01:00:00.613Z",
+  "lastModifiedAt": "2019-01-02T01:00:00.613Z",
+  "descriptorName": "$lmctl:/contains:/subZ:/descriptor_name"
+}

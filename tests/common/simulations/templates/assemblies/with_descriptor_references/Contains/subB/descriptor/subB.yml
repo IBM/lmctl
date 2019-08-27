@@ -1,0 +1,4 @@
+description: subB
+references:
+  subA:
+    type: $lmctl:/contains:/subA:/descriptor_name

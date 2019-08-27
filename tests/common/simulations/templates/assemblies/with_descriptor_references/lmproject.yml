@@ -1,0 +1,19 @@
+schema: '2.0'
+name: with_descriptor_references
+version: '1.0'
+type: Assembly
+contains:
+    - name: subA
+      directory: subA
+      type: Assembly
+      contains:
+          - name: subAA
+            directory: subAA
+            type: Assembly
+          - name: subAB
+            directory: subAB
+            type: Assembly
+    - name: subB
+      directory: subB
+      type: Resource
+      resource-manager: ansible-rm

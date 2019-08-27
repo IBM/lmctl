@@ -1,0 +1,8 @@
+schema: '2.0'
+name: contains_with_behaviour_multi_tests
+version: '1.0'
+type: Assembly
+contains:
+  - name: sub_with_behaviour_multi_tests
+    type: Assembly
+    directory: sub_with_behaviour_multi_tests

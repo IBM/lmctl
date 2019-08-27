@@ -1,0 +1,2 @@
+# Declare files that will always have unix line engings and so remove CRLF on checkout.
+*.sh text eol=lf
