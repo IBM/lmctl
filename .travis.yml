@@ -1,8 +1,17 @@
 language: python
 python:
-  - "3.6"
-  - "3.7"
+- '3.6'
+- '3.7'
 install:
-  - pip install .
+- pip install .
 script:
-  - python3 -m unittest discover
+- python3 -m unittest discover
+notifications:
+  email:
+    on_success: change 
+    on_failure: always 
+  slack:
+    on_success: change
+    on_failure: always
+    rooms:
+      secure: L43ValVmi3xYFOTLn07AMtnr4RdJePX4hPi+46W47P6ZOwB31GIlh+7zptjtrpv6UIG8XqOc317LZA+eHuPi15p00hNHeyS+127I/R0gcEAw+lkTgKV9FzsYcd+P1kjJAsePawBLZ8H1rpfoeEYI/bhdxIYf/62vdrdtzUyStN2OMz0m2O3WafD/v1d+ODZCmGQ2QfAfeg1OHJ7LHBF4A9pYkR2dKXir93qaQWmuqWn5p4QSV5xEib0vi0POfiPxZI/UG2zsYLQrSVMgAqE483r2nKcjBF63zOc8axTbicdr2TLeMoxJOCM1A4dSrDK9rFNh44O2XOgpjTu/ChOx+wCRoJmlisjgz690LQDsMGcER81Mj4zxU1XcbGzkycHrr4YCTHyAMmy3flTmjhW4TS7kkur1owX44h7h6VHxlOkRgPrDVcR7o90Y2QIcV0SxJHGhEE7hdSuesDuilj3pAd6qCx1pvkIL/06JxAqqEtYSa3AIu/EHAeAU7dilnx+Gs4Mi471ZQI6xY7OQDTYgmTtxe+KNFcOod1XSkgWYQuNqnATZLxa0VEHuWP84cts7ZX5MSIgWQvDa77eqzP58wR1bA3GjIIETGhvLthYWleKWuZmH4HBu0VCmtyWsrjMFJZZleIqilOlbG2Mk5S0fxDkVyrchC1iXkYiRR3EggCw=
