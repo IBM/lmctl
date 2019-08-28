@@ -81,7 +81,8 @@ class ConfigRewriter:
                 value = 'https'
                 if arm_config['secure_port'] is False:
                     value = 'http'
-            new_arm_config[key] = value
+            if key != 'onboarding_addr':
+                new_arm_config[key] = value
         return new_arm_config
 
 class ConfigParser:

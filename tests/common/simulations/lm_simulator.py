@@ -572,7 +572,7 @@ class SimResourcePkgDriver:
                 w.write(pkg_content)
             with zipfile.ZipFile(tmp_pkg, mode='r') as zip_reader:
                 zip_reader.extractall(tmp_dir)
-            descriptor_path = os.path.join(tmp_dir, 'Definitions', 'lm', 'resource.yml')
+            descriptor_path = os.path.join(tmp_dir, 'Definitions', 'lm', 'resource.yaml')
             with open(descriptor_path, 'r') as descriptor_file:
                 descriptor_content = yaml.safe_load(descriptor_file.read())
             return descriptor_content['name']

@@ -135,7 +135,11 @@ class Project(ProjectBase):
         if 'schema' not in config_dict or config_dict['schema'] == project_configs.SCHEMA_1_0:
             version = self.__attempt_to_determine_version()
             config_dict = project_configs.ProjectConfigRewriter(project_file_path, config_dict, version).rewrite()
-        return project_configs.ProjectConfigParser.from_dict(config_dict)
+        try:
+            return project_configs.ProjectConfigParser.from_dict(config_dict)
+        except project_configs.ProjectConfigError as e:
+            raise InvalidProjectError(str(e)) from e
+
 
     def __attempt_to_determine_version(self):
         try:

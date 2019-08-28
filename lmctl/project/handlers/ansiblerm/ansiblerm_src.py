@@ -97,6 +97,7 @@ class AnsibleRmSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate)
 
     def stage_sources(self, journal, source_stager):
         staging_tree = AnsibleRmCsarContentTree()
+        journal.event('Staging resource descriptor for {0} at {1}'.format(self.source_config.full_name, self.get_main_descriptor()))
         source_stager.stage_descriptor(self.get_main_descriptor(), staging_tree.gen_descriptor_file_path(self.source_config.full_name))
         included_items = [
             {'path': self.tree.lifecycle_path, 'alias': staging_tree.lifecycle_path},
@@ -110,6 +111,7 @@ class AnsibleRmSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate)
     def __stage_directories(self, journal, source_stager, items):
         for item in items:
             if os.path.exists(item['path']):
+                journal.event('Staging directory {0}'.format(item['path']))
                 source_stager.stage_tree(item['path'], item['alias'])
 
     def build_staged_source_delegate(self, staging_path):

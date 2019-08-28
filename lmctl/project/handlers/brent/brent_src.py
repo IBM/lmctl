@@ -41,15 +41,15 @@ class BrentSourceTree(files.Tree):
 
     @property
     def descriptor_file_path(self):
-        yml_path = self.resolve_relative_path(BrentSourceTree.DEFINITIONS_DIR_NAME, BrentSourceTree.LM_DIR_NAME, BrentSourceTree.DESCRIPTOR_FILE_NAME_YML)
         yaml_path = self.resolve_relative_path(BrentSourceTree.DEFINITIONS_DIR_NAME, BrentSourceTree.LM_DIR_NAME, BrentSourceTree.DESCRIPTOR_FILE_NAME_YAML)
-        if os.path.exists(yaml_path):
-            if os.path.exists(yml_path):
+        yml_path = self.resolve_relative_path(BrentSourceTree.DEFINITIONS_DIR_NAME, BrentSourceTree.LM_DIR_NAME, BrentSourceTree.DESCRIPTOR_FILE_NAME_YML)
+        if os.path.exists(yml_path):
+            if os.path.exists(yaml_path):
                 raise handlers_api.InvalidSourceError('Project has both a {0} file and a {1} file when there should only be one'.format(
-                    BrentSourceTree.DESCRIPTOR_FILE_NAME_YML, BrentSourceTree.DESCRIPTOR_FILE_NAME_YAML))
-            return yaml_path
-        else:
+                    BrentSourceTree.DESCRIPTOR_FILE_NAME_YAML, BrentSourceTree.DESCRIPTOR_FILE_NAME_YML))
             return yml_path
+        else:
+            return yaml_path
 
     @property
     def lifecycle_path(self):
@@ -207,6 +207,7 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
 
     def stage_sources(self, journal, source_stager):
         staging_tree = BrentResourcePackageContentTree()
+        journal.event('Staging Resource descriptor for {0} at {1}'.format(self.source_config.full_name, self.get_main_descriptor()))
         source_stager.stage_descriptor(self.get_main_descriptor(), staging_tree.descriptor_file_path)
         included_items = [
             {'path': self.tree.infrastructure_definitions_path, 'alias': staging_tree.infrastructure_definitions_path},
@@ -217,6 +218,7 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
     def __stage_directories(self, journal, source_stager, items):
         for item in items:
             if os.path.exists(item['path']):
+                journal.event('Staging directory {0}'.format(item['path']))
                 source_stager.stage_tree(item['path'], item['alias'])
 
     def build_staged_source_delegate(self, staging_path):

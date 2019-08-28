@@ -95,6 +95,7 @@ class LmSession:
         self.__topology_driver = None
         self.__behaviour_driver = None
         self.__deployment_location_driver = None
+        self.__resource_pkg_driver = None
 
     def __get_lm_security_ctrl(self):
         if self.env.is_secure:
@@ -163,3 +164,15 @@ class LmSession:
         if not self.__deployment_location_driver:
             self.__deployment_location_driver = lm_drivers.LmDeploymentLocationDriver(self.env.api_address, self.__get_lm_security_ctrl())
         return self.__deployment_location_driver
+
+    @property
+    def resource_pkg_driver(self):
+        """
+        Obtain a LmResourcePkgDriver configured for use against this LM environment
+
+        Returns:
+            LmResourcePkgDriver: a configured LmResourcePkgDriver for this LM environment
+        """
+        if not self.__resource_pkg_driver:
+            self.__resource_pkg_driver = lm_drivers.LmResourcePkgDriver(self.env.api_address, self.__get_lm_security_ctrl())
+        return self.__resource_pkg_driver

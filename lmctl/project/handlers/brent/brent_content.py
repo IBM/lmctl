@@ -15,7 +15,7 @@ class BrentPkgContentTree(files.Tree):
 
     @property
     def root_descriptor_file_path(self):
-        return self.resolve_relative_path('resource.yml')
+        return self.resolve_relative_path('resource.yaml')
 
 
 class BrentResourcePackageContentTree(files.Tree):
@@ -24,7 +24,7 @@ class BrentResourcePackageContentTree(files.Tree):
     INFRASTRUCTURE_DIR_NAME = 'infrastructure'
     INFRASTRUCTURE_MANIFEST_FILE_NAME = 'infrastructure.mf'
     LM_DIR_NAME = 'lm'
-    DESCRIPTOR_FILE_NAME_YML = 'resource.yml'
+    DESCRIPTOR_FILE_NAME_YML = 'resource.yaml'
     LIFECYCLE_DIR_NAME = 'Lifecycle'
     LIFECYCLE_MANIFEST_FILE_NAME = 'lifecycle.mf'
     
