@@ -11,14 +11,11 @@ class LmOnboardRmDriver(LmDriver):
     def __init__(self, lm_base, lm_security_ctrl=None):
         super().__init__(lm_base, lm_security_ctrl)
 
-    def update_rm(self, rm_name, rm_url):
+    def update_rm(self, rm_data):
+        rm_name = rm_data['name']
         url = '{0}/api/resource-managers/{1}'.format(self.lm_base, rm_name)
-        data = {
-            'name': rm_name,
-            'url': rm_url
-        }
         headers = self._configure_access_headers()
-        response = requests.put(url, json=data, headers=headers, verify=False)
+        response = requests.put(url, json=rm_data, headers=headers, verify=False)
         if response.status_code == 404:
             raise NotFoundException('No resource manager with name {0}'.format(rm_name))
         elif response.status_code == 200:

@@ -1,7 +1,7 @@
 from .common import Environment, EnvironmentConfigError, EnvironmentRuntimeError, get_value_or_default, value_or_default
 import lmctl.drivers.lm as lm_drivers
 
-CONFIG_KWARGS = ['secure', 'username', 'auth_host', 'auth_port', 'auth_protocol', 'password']
+CONFIG_KWARGS = ['secure', 'username', 'auth_host', 'auth_port', 'auth_protocol', 'password', 'brent_name']
 
 HTTP_PROTOCOL = 'http'
 HTTPS_PROTOCOL = 'https'
@@ -24,6 +24,7 @@ class LmEnvironment(Environment):
         if self.protocol not in SUPPORTED_PROTOCOLS:
             raise EnvironmentConfigError('LM environment cannot be configured with unsupported protocol \'{0}\'. Must be one of: {1}'.format(self.protocol, SUPPORTED_PROTOCOLS))
         self.__validate_for_unsupported_keys(kwargs)
+        self.brent_name = get_value_or_default(kwargs, 'brent_name', 'brent')
         self.secure = bool(get_value_or_default(kwargs, 'secure', False))
         self.username = get_value_or_default(kwargs, 'username', None)
         self.auth_host = get_value_or_default(kwargs, 'auth_host', self.host)

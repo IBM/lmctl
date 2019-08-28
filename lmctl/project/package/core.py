@@ -9,6 +9,7 @@ import lmctl.project.package.meta as pkg_metas
 import lmctl.project.processes.push as push_exec
 import lmctl.project.processes.testing as test_exec
 import lmctl.project.handlers.manager as handler_manager
+import lmctl.drivers.lm.base as lm_drivers
 
 ########################
 # Exceptions
@@ -189,16 +190,31 @@ class PkgContent(PkgContentBase):
             raise TestError(str(e)) from e
 
     def __post_process_updated_environments(self, env_sessions, options, journal):
+        updating_an_env = False
         if env_sessions.is_arm_updated():
-            arm_session = env_sessions.arm
+            updating_an_env = True
             lm_session = env_sessions.lm
-            onboarding_driver = lm_session.onboard_rm_driver
-            arm_onboarding_addr = '{0}/api/v1.0/resource-manager'.format(arm_session.env.onboarding_address)
-            journal.event('Refreshing LM ({0}) view of ansible-rm known as {1} with url {2}'.format(lm_session.env.address, arm_session.env.name, arm_onboarding_addr))
-            onboarding_driver.update_rm(arm_session.env.name, arm_onboarding_addr)
-        else:
+            arm_session = env_sessions.arm
+            self.__reonboard_rm(lm_session, arm_session.env.name, journal)
+        if env_sessions.is_brent_updated():
+            updating_an_env = True
+            lm_session = env_sessions.lm
+            brent_name = lm_session.env.brent_name
+            self.__reonboard_rm(lm_session, brent_name, journal)
+            
+        if not updating_an_env:
             journal.event('No environments to update')
 
+    def __reonboard_rm(self, lm_session, rm_name, journal):
+        onboarding_driver = lm_session.onboard_rm_driver
+        try:
+            rm_data = onboarding_driver.get_rm_by_name(rm_name)
+        except lm_drivers.NotFoundException as e:
+            msg = 'Could not find RM named \'{0}\' in LM environment'.format(rm_name)
+            journal.error_event(msg)
+            raise PushError(msg) from e
+        journal.event('Refreshing LM ({0}) view of RM known as {1} with url {2}'.format(lm_session.env.address, rm_name, rm_data['url']))
+        onboarding_driver.update_rm(rm_data)
 
 class ExpandedPkgTree(files.Tree):
 

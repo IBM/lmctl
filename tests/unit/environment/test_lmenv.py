@@ -47,7 +47,7 @@ class TestLmEnvironment(unittest.TestCase):
         self.assertEqual(config.password, 'secret')
         
     def test_init_with_all(self):
-        config = LmEnvironment('lm', 'test', 80, 'http', secure=True, username='user', password='secret', auth_host='auth', auth_port=81, auth_protocol='https')
+        config = LmEnvironment('lm', 'test', 80, 'http', secure=True, username='user', password='secret', auth_host='auth', auth_port=81, auth_protocol='https', brent_name='alt_brent')
         self.assertEqual(config.name, 'lm')
         self.assertEqual(config.host, 'test')
         self.assertEqual(config.port, 80)
@@ -57,9 +57,10 @@ class TestLmEnvironment(unittest.TestCase):
         self.assertEqual(config.auth_host, 'auth')
         self.assertEqual(config.auth_port, 81)
         self.assertEqual(config.auth_protocol, 'https')
+        self.assertEqual(config.brent_name, 'alt_brent')
 
-    def test_set_defaults_to_none(self):
-        config = LmEnvironment('lm', 'test', None, None, secure=True, username='user', auth_host=None, auth_port=None, auth_protocol=None)
+    def test_set_defaults_when_none(self):
+        config = LmEnvironment('lm', 'test', None, None, secure=True, username='user', auth_host=None, auth_port=None, auth_protocol=None, brent_name=None)
         self.assertEqual(config.name, 'lm')
         self.assertEqual(config.host, 'test')
         self.assertEqual(config.port, None)
@@ -69,9 +70,10 @@ class TestLmEnvironment(unittest.TestCase):
         self.assertEqual(config.auth_host, 'test')
         self.assertEqual(config.auth_port, None)
         self.assertEqual(config.auth_protocol, 'https')
+        self.assertEqual(config.brent_name, 'brent')
 
-    def test_set_defaults_to_empty(self):
-        config = LmEnvironment('lm', 'test', ' ', ' ', secure=True, username='user', auth_host=' ', auth_port=' ', auth_protocol=' ')
+    def test_set_defaults_when_empty(self):
+        config = LmEnvironment('lm', 'test', ' ', ' ', secure=True, username='user', auth_host=' ', auth_port=' ', auth_protocol=' ', brent_name=' ')
         self.assertEqual(config.name, 'lm')
         self.assertEqual(config.host, 'test')
         self.assertEqual(config.port, None)
@@ -81,6 +83,7 @@ class TestLmEnvironment(unittest.TestCase):
         self.assertEqual(config.auth_host, 'test')
         self.assertEqual(config.auth_port, None)
         self.assertEqual(config.auth_protocol, 'https')
+        self.assertEqual(config.brent_name, 'brent')
 
     def test_is_secure(self):
         insecure_env = LmEnvironment('lm', 'test', 80)

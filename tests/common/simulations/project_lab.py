@@ -102,8 +102,11 @@ PKG_ASSEMBLY_CONTAINS_ASSEMBLY_WITH_BEHAVIOUR = 'contains_with_behaviour-1.0.tgz
 PKG_ASSEMBLY_CONTAINS_ASSEMBLY_WITH_BEHAVIOUR_MULTI_TESTS = 'contains_with_behaviour_multi_tests-1.0.tgz'
 PKG_ASSEMBLY_CONTAINS_ARM_BASIC = 'contains_basic-1.0.tgz'
 PKG_ASSEMBLY_OLD_STYLE = 'old_style-1.0.tgz'
+PKG_ASSEMBLY_CONTAINS_BRENT_BASIC = 'contains_basic-1.0.tgz'
 
 PKG_ARM_BASIC = 'basic-1.0.tgz'
+
+PKG_BRENT_BASIC = 'basic-1.0.tgz'
 
 PKG_INVALID_ZIP = 'invalid_zip-1.0.zip'
 
@@ -345,6 +348,12 @@ class ProjectSimLab:
 
     def simulate_pkg_assembly_contains_arm_basic(self):
         return self.__sim_pkg(assembly_subproject_pkg_path(os.path.join(RESOURCE_TEMPLATES_GROUP, ANSIBLE_RM_RESOURCE_GROUP), PKG_ASSEMBLY_CONTAINS_ARM_BASIC))
+
+    def simulate_pkg_brent_basic(self):
+        return self.__sim_pkg(resource_pkg_path(BRENT_RESOURCE_GROUP, PKG_BRENT_BASIC))
+
+    def simulate_pkg_assembly_contains_brent_basic(self):
+        return self.__sim_pkg(assembly_subproject_pkg_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), PKG_ASSEMBLY_CONTAINS_BRENT_BASIC))
 
     def simulate_lm(self):
         return LmSimulator().start()

@@ -42,13 +42,6 @@ class ArmEnvironment(Environment):
             base += ':{0}'.format(self.port)
         return base
 
-    @property
-    def onboarding_address(self):
-        if self.onboarding_addr is not None:
-            return self.onboarding_addr
-        else:
-            return self.api_address
-
     def create_session_config(self):
         return ArmSessionConfig(self)
 

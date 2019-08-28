@@ -4,7 +4,7 @@ import zipfile
 import lmctl.files as files
 import lmctl.project.handlers.interface as handlers_api
 import lmctl.project.validation as project_validation
-from .brent_content import BrentCsarContentTree, BrentPkgContentTree
+from .brent_content import BrentResourcePackageContentTree, BrentPkgContentTree
 
 class BrentSourceTree(files.Tree):
 
@@ -206,7 +206,7 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
         return main_descriptor_path
 
     def stage_sources(self, journal, source_stager):
-        staging_tree = BrentCsarContentTree()
+        staging_tree = BrentResourcePackageContentTree()
         source_stager.stage_descriptor(self.get_main_descriptor(), staging_tree.descriptor_file_path)
         included_items = [
             {'path': self.tree.infrastructure_definitions_path, 'alias': staging_tree.infrastructure_definitions_path},
@@ -226,44 +226,44 @@ class BrentStagedSourceHandlerDelegate(handlers_api.ResourceStagedSourceHandlerD
 
     def __init__(self, root_path, source_config):
         super().__init__(root_path, source_config)
-        self.tree = BrentCsarContentTree(self.root_path)
+        self.tree = BrentResourcePackageContentTree(self.root_path)
 
     def compile_sources(self, journal, source_compiler):
         pkg_tree = BrentPkgContentTree()
-        self.__build_csar(journal, source_compiler, pkg_tree)
+        self.__build_res_pkg(journal, source_compiler, pkg_tree)
         self.__add_root_descriptor(journal, source_compiler, pkg_tree)
 
     def __add_root_descriptor(self, journal, source_compiler, pkg_tree):
         relative_root_descriptor_path = pkg_tree.root_descriptor_file_path
         source_compiler.compile_file(self.tree.descriptor_file_path, relative_root_descriptor_path)
 
-    def __build_csar(self, journal, source_compiler, pkg_tree):
-        csar_content_tree = BrentCsarContentTree()
-        relative_csar_path = pkg_tree.gen_csar_file_path(self.source_config.full_name)
-        full_csar_path = source_compiler.make_file_path(relative_csar_path)
-        journal.event('Creating CSAR for Resource {0}: {1}'.format(self.source_config.name, relative_csar_path))
-        with zipfile.ZipFile(full_csar_path, "w") as csar:
+    def __build_res_pkg(self, journal, source_compiler, pkg_tree):
+        res_pkg_content_tree = BrentResourcePackageContentTree()
+        relative_res_pkg_path = pkg_tree.gen_resource_package_file_path(self.source_config.full_name)
+        full_res_pkg_path = source_compiler.make_file_path(relative_res_pkg_path)
+        journal.event('Creating Resource package for {0}: {1}'.format(self.source_config.name, relative_res_pkg_path))
+        with zipfile.ZipFile(full_res_pkg_path, "w") as res_pkg:
             included_items = [
-                {'path': self.tree.definitions_path, 'alias': csar_content_tree.definitions_path, 'required': True},
-                {'path': self.tree.lifecycle_path, 'alias': csar_content_tree.lifecycle_path, 'required': True}
+                {'path': self.tree.definitions_path, 'alias': res_pkg_content_tree.definitions_path, 'required': True},
+                {'path': self.tree.lifecycle_path, 'alias': res_pkg_content_tree.lifecycle_path, 'required': True}
             ]
             for included_item in included_items:
-                self.__add_directory_if_exists(journal, csar, included_item)
+                self.__add_directory_if_exists(journal, res_pkg, included_item)
 
-    def __add_directory_if_exists(self, journal, csar, included_item):
+    def __add_directory_if_exists(self, journal, res_pkg, included_item):
         path = included_item['path']
         if os.path.exists(path):
-            journal.event('Adding directory to CSAR: {0}'.format(os.path.basename(path)))
-            csar.write(path, arcname=included_item['alias'])
+            journal.event('Adding directory to Resource package: {0}'.format(os.path.basename(path)))
+            res_pkg.write(path, arcname=included_item['alias'])
             rootlen = len(path) + 1
             for root, dirs, files in os.walk(path):
                 for filename in files:
                     full_path = os.path.join(root, filename)
-                    csar.write(full_path, arcname=os.path.join(included_item['alias'], full_path[rootlen:]))
+                    res_pkg.write(full_path, arcname=os.path.join(included_item['alias'], full_path[rootlen:]))
         else:
             if included_item['required']:
-                msg = 'Required directory for Resource CSAR not found: {0}'.format(path)
+                msg = 'Required directory for Resource package not found: {0}'.format(path)
                 journal.error_event(msg)
                 raise SourceHandlerError(msg)
             else:
-                journal.event('Skipping directory for Resource CSAR, not found: {0}'.format(path))
+                journal.event('Skipping directory for Resource package, not found: {0}'.format(path))

@@ -64,11 +64,6 @@ environments:
         ## - Default: https
         protocol: https
 
-        ## The address used by the LM in this group to contact the Ansible RM (i.e. the address the RM has been onboarded with)
-        ## - Optional
-        ## - Default: combines 'protocol', 'host' and 'port' as protocol://host:port
-        onboarding_addr: https://osslm-ansiblerm:8443
-
   ## Example of an additional environment called 'preProd'
   preProd:
     description: Pre-prod environment
@@ -85,9 +80,7 @@ environments:
         host: localhost
         port: 31091
         protocol: https
-        onboarding_addr: https://osslm-ansiblerm:8444
       edgerm:
         host: localhost
         port: 31092
         protocol: https
-        onboarding_addr: https://osslm-ansiblerm:8445

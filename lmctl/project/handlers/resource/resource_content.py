@@ -1,7 +1,8 @@
-from lmctl.project.types import ANSIBLE_RM_TYPES
+from lmctl.project.types import ANSIBLE_RM_TYPES, BRENT_RM_TYPES
 from lmctl.project.validation import ValidationResult, ValidationViolation
 import lmctl.project.handlers.interface as handlers_api 
 import lmctl.project.handlers.ansiblerm as arm_handlers
+import lmctl.project.handlers.brent as brent_handlers
 import lmctl.project.testing as project_testing 
 
 def determine_content_delegate(meta, root_path):
@@ -9,6 +10,8 @@ def determine_content_delegate(meta, root_path):
         rm_type = meta.resource_manager
         if rm_type in ANSIBLE_RM_TYPES:
             return arm_handlers.content_handler(root_path, meta)
+        elif rm_type in BRENT_RM_TYPES:
+            return brent_handlers.content_handler(root_path, meta)    
         else:
             raise handlers_api.InvalidContentTypeError('resource_manager on Resource \'{0}\' not supported: {1}'.format(meta.name, rm_type))
     else:

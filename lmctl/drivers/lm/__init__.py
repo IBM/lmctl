@@ -5,3 +5,4 @@ from .base import LmDriverException, NotFoundException
 from .onboarding import LmOnboardRmDriver
 from .security import LmSecurityCtrl, LmSecurityDriver
 from .topology import LmTopologyDriver
+from .resource_pkg import LmResourcePkgDriver

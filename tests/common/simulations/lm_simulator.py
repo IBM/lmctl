@@ -5,6 +5,11 @@ import lmctl.utils.descriptors as descriptor_utils
 import uuid
 import threading
 import time
+import tempfile
+import shutil
+import zipfile
+import yaml
+import os
 
 class NotFoundError(Exception):
     pass
@@ -81,6 +86,8 @@ class SimulatedLm:
         self.executions_by_scenario = {}
         self.scenario_execution_threads = {}
         self.execution_listener = ScenarioExecutionListener()
+        self.resource_packages = {}
+        self.rms = {}
         self.mock = MagicMock()
 
     def __get(self, entity_map, entity_id):
@@ -151,6 +158,31 @@ class SimulatedLm:
         self.mock.update_descriptor(descriptor)
         parsed_descriptor = descriptor_utils.DescriptorParser().read_from_str(descriptor)
         self.__update(self.descriptors, parsed_descriptor.get_name(), descriptor)
+
+    def add_resource_package(self, package_name, package_content):
+        self.mock.add_package(package_name, package_content)
+        self.__add(self.resource_packages, package_name, package_content)
+
+    def delete_resource_package(self, package_name):
+        self.mock.delete_package(package_name)
+        self.__delete(self.resource_packages, package_name)
+
+    def add_rm(self, rm):
+        self.mock.add_rm(rm)
+        self.__add(self.rms, rm['name'], rm)
+
+    def update_rm(self, rm):
+        self.mock.update_rm(rm)
+        self.__update(self.rms, rm['name'], rm)
+
+    def delete_rm(self, rm_name):
+        self.mock.delete_rm(rm_name)
+        self.__delete(self.rms, rm_name)
+
+    def get_rm(self, rm_name):
+        self.mock.get_rm(rm_name)
+        rm = self.__get(self.rms, rm_name)
+        return rm
 
     def get_project(self, project_id):
         self.mock.get_project(project_id)
@@ -325,10 +357,13 @@ class SimulatedLmSession(LmSession):
         self.__descriptor_driver = MagicMock()
         self.__descriptor_driver_sim = SimDescriptorDriver(self.sim)
         self.__onboard_rm_driver = MagicMock()
+        self.__onboard_rm_driver_sim = SimOnboardRmDriver(self.sim)
         self.__topology_driver = MagicMock()
         self.__behaviour_driver = MagicMock()
         self.__behaviour_driver_sim = SimBehaviourDriver(self.sim)
         self.__deployment_location_driver = MagicMock()
+        self.__resource_pkg_driver = MagicMock()
+        self.__resource_pkg_driver_sim = SimResourcePkgDriver(self.sim)
         self.__configure_mocks()
 
     def __configure_mocks(self):
@@ -350,7 +385,10 @@ class SimulatedLmSession(LmSession):
         self.__behaviour_driver.get_scenarios.side_effect = self.__behaviour_driver_sim.get_scenarios
         self.__behaviour_driver.execute_scenario.side_effect = self.__behaviour_driver_sim.execute_scenario
         self.__behaviour_driver.get_execution.side_effect = self.__behaviour_driver_sim.get_execution
-        
+        self.__resource_pkg_driver.onboard_package.side_effect = self.__resource_pkg_driver_sim.onboard_package
+        self.__resource_pkg_driver.delete_package.side_effect = self.__resource_pkg_driver_sim.delete_package
+        self.__onboard_rm_driver.update_rm.side_effect = self.__onboard_rm_driver_sim.update_rm
+        self.__onboard_rm_driver.get_rm_by_name.side_effect = self.__onboard_rm_driver_sim.get_rm_by_name
     @property
     def descriptor_driver(self):
         return self.__descriptor_driver
@@ -370,6 +408,10 @@ class SimulatedLmSession(LmSession):
     @property
     def deployment_location_driver(self):
         return self.__deployment_location_driver
+
+    @property
+    def resource_pkg_driver(self):
+        return self.__resource_pkg_driver
 
 
 class SimDescriptorDriver:
@@ -512,5 +554,64 @@ class SimBehaviourDriver:
             return self.sim_lm.get_execution(exec_id)
         except NotFoundError as e:
             raise lm_drivers.NotFoundException('No execution with id {0}'.format(exec_id))
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+class SimResourcePkgDriver:
+
+    def __init__(self, sim_lm):
+        self.sim_lm = sim_lm
+
+    def __get_resource_type_name(self, resource_pkg_path):
+        with open(resource_pkg_path, 'rb') as resource_pkg_contents:
+            pkg_content = resource_pkg_contents.read()
+        tmp_dir = tempfile.mkdtemp()
+        try:
+            tmp_pkg = os.path.join(tmp_dir, 'tmp.zip')
+            with open(tmp_pkg, 'wb') as w:
+                w.write(pkg_content)
+            with zipfile.ZipFile(tmp_pkg, mode='r') as zip_reader:
+                zip_reader.extractall(tmp_dir)
+            descriptor_path = os.path.join(tmp_dir, 'Definitions', 'lm', 'resource.yml')
+            with open(descriptor_path, 'r') as descriptor_file:
+                descriptor_content = yaml.safe_load(descriptor_file.read())
+            return descriptor_content['name']
+        finally:
+            shutil.rmtree(tmp_dir)
+
+    def onboard_package(self, resource_pkg_path):
+        package_name = self.__get_resource_type_name(resource_pkg_path)
+        try:
+            self.sim_lm.add_resource_package(package_name, resource_pkg_path)
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def delete_package(self, resource_type_name):
+        try:
+            self.sim_lm.delete_resource_package(resource_type_name)
+        except NotFoundError as e:
+            raise lm_drivers.NotFoundException('No resource package with name {0}'.format(resource_type_name))
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+class SimOnboardRmDriver:
+
+    def __init__(self, sim_lm):
+        self.sim_lm = sim_lm
+
+    def update_rm(self, rm_data):
+        rm_name = rm_data['name']
+        try:
+            self.sim_lm.update_rm(rm_data)
+        except NotFoundError as e:
+            raise lm_drivers.NotFoundException('No RM with name {0}'.format(rm_name))
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def get_rm_by_name(self, rm_name):
+        try:
+            return self.sim_lm.get_rm(rm_name)
+        except NotFoundError as e:
+            raise lm_drivers.NotFoundException('No RM with name {0}'.format(rm_name))
         except Exception as e:
             raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e

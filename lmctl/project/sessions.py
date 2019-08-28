@@ -8,6 +8,7 @@ class EnvironmentSessions:
         self.__arm = arm
         self.__lm_updated = False
         self.__arm_updated = False
+        self.__brent_updated = False
 
     @property
     def lm(self):
@@ -35,4 +36,12 @@ class EnvironmentSessions:
     def is_arm_updated(self):
         if self.__arm:
             return self.__arm_updated
+        return False
+
+    def mark_brent_updated(self):
+        self.__brent_updated = True
+
+    def is_brent_updated(self):
+        if self.__lm:
+            return self.__brent_updated
         return False

@@ -67,7 +67,7 @@ class TestBuildBrentProjects(ProjectSimTestCase):
         package_base_name = os.path.basename(pkg.path)
         self.assertEqual(package_base_name, 'basic-1.0.tgz')
         with self.assert_package(pkg) as pkg_tester:
-            pkg_tester.assert_has_file_path('basic.csar')
+            pkg_tester.assert_has_file_path('basic.zip')
             pkg_tester.assert_has_file(BRENT_DESCRIPTOR_YML_FILE, BASIC_DESCRIPTOR_YAML)
             pkg_tester.assert_has_meta({
                 'schema': '2.0',
@@ -76,7 +76,7 @@ class TestBuildBrentProjects(ProjectSimTestCase):
                 'type': 'Resource',
                 'resource-manager': 'brent'
             })
-            with self.assert_zip(pkg_tester.get_file_path('basic.csar')) as zip_tester:
+            with self.assert_zip(pkg_tester.get_file_path('basic.zip')) as zip_tester:
                 zip_tester.assert_has_directory(BRENT_DEFINITIONS_DIR)
                 inf_path = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR)
                 zip_tester.assert_has_directory(inf_path)
@@ -111,7 +111,7 @@ class TestBuildBrentSubprojects(ProjectSimTestCase):
         self.assertEqual(package_base_name, 'contains_basic-1.0.tgz')
         sub_brent_basic_path = os.path.join(PROJECT_CONTAINS_DIR, project_lab.SUBPROJECT_NAME_BRENT_BASIC)
         with self.assert_package(pkg) as pkg_tester:
-            pkg_tester.assert_has_file_path(os.path.join(sub_brent_basic_path, 'sub_basic-contains_basic.csar'))
+            pkg_tester.assert_has_file_path(os.path.join(sub_brent_basic_path, 'sub_basic-contains_basic.zip'))
             pkg_tester.assert_has_file(os.path.join(sub_brent_basic_path, BRENT_DESCRIPTOR_YML_FILE), SUB_BASIC_DESCRIPTOR_YAML)
             pkg_tester.assert_has_meta({
                 'schema': '2.0',
@@ -127,7 +127,7 @@ class TestBuildBrentSubprojects(ProjectSimTestCase):
                     }
                 ]
             })
-            with self.assert_zip(pkg_tester.get_file_path(os.path.join(sub_brent_basic_path, 'sub_basic-contains_basic.csar'))) as zip_tester:
+            with self.assert_zip(pkg_tester.get_file_path(os.path.join(sub_brent_basic_path, 'sub_basic-contains_basic.zip'))) as zip_tester:
                 zip_tester.assert_has_directory(BRENT_DEFINITIONS_DIR)
                 inf_path = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR)
                 zip_tester.assert_has_directory(inf_path)

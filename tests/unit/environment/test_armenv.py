@@ -60,12 +60,6 @@ class TestArmEnvironment(unittest.TestCase):
         env = ArmEnvironment('arm', 'test', None, 'http')
         self.assertEqual(env.address, 'http://test')
 
-    def test_onboarding_address(self):
-        env = ArmEnvironment('arm', 'test')
-        self.assertEqual(env.onboarding_address, 'https://test')
-        env = ArmEnvironment('arm', 'test', onboarding_addr='http://arm:80')
-        self.assertEqual(env.onboarding_address, 'http://arm:80')
-
     def test_create_session_config(self):
         env = ArmEnvironment('arm', 'test')
         session_config = env.create_session_config()

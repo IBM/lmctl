@@ -160,7 +160,7 @@ def list(project_path, element):
 @click.option('--name', help='Name of the Assembly/Resource managed in the project, by default the target directory name is used')
 @click.option('--version', default='1.0', help='Version of the Assembly managed in the project')
 @click.option('--type', 'project_type', default='Assembly', help='Type of service managed in the Project. Options: Assembly, NS (same as Assembly), VNF (same as Assembly), Resource')
-@click.option('--rm', default='ansiblerm', help='Resource projects only - type of Resource Manager this Resource supports')
+@click.option('--rm', default='lm', help='Resource projects only - type of Resource Manager this Resource supports')
 @click.option('--contains', nargs=2, type=click.Tuple([str, str]), multiple=True, help='Subprojects to initiate under this project. Must specify 2 values separated by spaces: type name. For a Resource subproject, you may set the rm by including it it in the type value using the format \'type::rm\' e.g. Resource::ansiblerm. If no rm is set then the value of the --rm option will be used instead')
 @click.option('--servicetype', help='(Deprecated: use --type instead) type of Service managed in the Project (NS or VNF)')
 @click.option('--vnfc', 'vnfcs', multiple=True, help='(Deprecated, use --contains instead) names of VNFCs (Resources) to initate under this project')
