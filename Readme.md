@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/accanto-systems/lmctl.svg?branch=master)](https://travis-ci.com/accanto-systems/lmctl)
+
 # Lifecycle Manager Controller (lmctl) command line tools
 
 This project provides a set of tools to automate the management of Stratoss&trade; Lifecycle Manager (Stratoss LM) environments and the tasks required to deploy VNFs and Network Services.
