@@ -1,0 +1,6 @@
+#from .ansiblerm_content import AnsibleRmContentHandlerDelegate
+from .brent_src import BrentSourceHandlerDelegate, BrentSourceCreatorDelegate
+
+source_creator = BrentSourceCreatorDelegate
+source_handler = BrentSourceHandlerDelegate
+#content_handler = AnsibleRmContentHandlerDelegate

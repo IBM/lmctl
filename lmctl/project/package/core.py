@@ -112,12 +112,15 @@ class Pkg:
                 with tarfile.open(content_tgz, mode='r:gz') as content_tar:
                     content_tar.extractall(pkg_tree.content_path)
         if not os.path.exists(meta_file_path):
-            raise InvalidPkgMetaError('Could not find meta file at path: {0}'.format(meta_file_path))
+            raise InvalidPackageError('Could not find meta file at path: {0}'.format(meta_file_path))
         with open(meta_file_path, 'rt') as f:
             config_dict = yaml.safe_load(f.read())
         if not config_dict:
             config_dict = {}
-        return pkg_metas.PkgMetaParser.from_dict(config_dict)
+        try:
+            return pkg_metas.PkgMetaParser.from_dict(config_dict)
+        except pkg_metas.PkgMetaError as e:
+            raise InvalidPackageError(str(e)) from e
 
     def __attempt_to_determine_version(self):
         try:

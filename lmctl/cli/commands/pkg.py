@@ -23,7 +23,7 @@ PUSH_HEADER = 'Push'
 def push(package, environment, config, armname, pwd):
     """Pushes an existing Assembly/Resource package to a target LM (and ARM) environment"""
     logger.debug('Pushing package at: {0}'.format(package))
-    pkg = pkgs.Pkg(package)
+    pkg = lifecycle_cli.open_pkg(package)
     env_sessions = lifecycle_cli.build_sessions_for_project(project.config, environment, pwd, armname, config)
     controller = lifecycle_cli.ExecutionController(PUSH_HEADER)
     controller.start(pkg.path)

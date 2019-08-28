@@ -34,12 +34,25 @@ ARM_METAINF_DIR = 'Meta-Inf'
 ARM_MANIFEST_FILE = 'manifest.MF'
 ARM_TEST_DIR = 'tests'
 
+BRENT_DEFINITIONS_DIR = 'Definitions'
+BRENT_INFRASTRUCTURE_DIR = 'infrastructure'
+BRENT_DESCRIPTOR_DIR = 'lm'
+BRENT_LIFECYCLE_DIR = 'Lifecycle'
+BRENT_DESCRIPTOR_YML_FILE = 'resource.yml'
+BRENT_INFRASTRUCTURE_MANIFEST_FILE = 'infrastructure.mf'
+BRENT_LIFECYCLE_MANIFEST_FILE = 'lifecycle.mf'
+BRENT_LIFECYCLE_ANSIBLE_DIR = 'ansible'
+BRENT_LIFECYCLE_ANSIBLE_SCRIPTS_DIR = 'scripts'
+BRENT_LIFECYCLE_ANSIBLE_CONFIG_DIR = 'config'
+
+
 class ProjectSimTestCase(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         self.simlab = ProjectSimLab()
         super().__init__(*args, **kwargs)
-
+        self.maxDiff = None
+    
     def tearDown(self):
         self.simlab.destroySims()
 

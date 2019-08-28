@@ -51,7 +51,10 @@ class PkgProcess:
                     pkg_tar.add(full_path, arcname=os.path.join(content_dir, full_path[rootlen:]))
             pkg_tar.add(pkg_meta_file_path, arcname=pkg_tree.pkg_meta_file_name)
         self.__clear_compile_directory()
-        return pkgs.Pkg(pkg_path)
+        try:
+            return pkgs.Pkg(pkg_path)
+        except pkgs.InvalidPackageError as e:
+            raise PkgProcessError(str(e)) from e
 
     def __clear_compile_directory(self):
         files.remove_directory(self.content_tree.root_path)
@@ -64,7 +67,10 @@ class PkgProcess:
         builder.version(self.project.config.version)
         builder.resource_manager(self.project.config.resource_manager)
         self.__add_child_projects_to_pkg_meta(self.project.config, builder)
-        pkg_meta = builder.build()
+        try:
+            pkg_meta = builder.build()
+        except pkg_metas.PkgMetaError as e:
+           raise PkgProcessError(str(e)) from e
         with open(pkg_meta_file_path, 'w') as pkg_meta_file:
             yaml.dump(pkg_meta.to_dict(), pkg_meta_file, default_flow_style=False, sort_keys=False)
         return pkg_meta_file_path

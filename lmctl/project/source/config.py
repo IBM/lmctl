@@ -8,9 +8,6 @@ import lmctl.utils.descriptors as descriptor_utils
 SCHEMA_1_0 = '1.0'
 SCHEMA_2_0 = '2.0'
 
-
-
-
 class ProjectConfigError(Exception):
     pass
 
@@ -87,8 +84,8 @@ class ProjectConfigBase(ProjectConfig):
             if project_type == types.RESOURCE_PROJECT_TYPE:
                 raise ProjectConfigError('resource_manager must be defined when type is {0}'.format(types.RESOURCE_PROJECT_TYPE))
         else:
-            if resource_manager not in types.ANSIBLE_RM_TYPES:
-                raise ProjectConfigError('resource_manager type not supported, must be one of: {0}'.format(types.ANSIBLE_RM_TYPES))
+            if resource_manager not in types.SUPPORTED_RM_TYPES:
+                raise ProjectConfigError('resource_manager type not supported, must be one of: {0}'.format(types.SUPPORTED_RM_TYPES_GROUPED))
         self._resource_manager = resource_manager
 
     @property

@@ -8,6 +8,9 @@ SCHEMA_1_0 = '1.0'
 SCHEMA_2_0 = '2.0'
 
 
+class PkgMetaError(Exception):
+    pass
+
 class PkgMeta:
 
     def __init__(self):
@@ -54,20 +57,20 @@ class PkgMetaBase(PkgMeta):
 
     def __init__(self, name, content_type, resource_manager=None, subpkg_entries=None):
         if not name:
-            raise ValueError('name must be defined')
+            raise PkgMetaError('name must be defined')
         self._name = name
         if not content_type:
-            raise ValueError('content_type must be defined')
+            raise PkgMetaError('content_type must be defined')
         self._content_type = content_type
         if not subpkg_entries:
             subpkg_entries = []
         self._subpkg_entries = subpkg_entries
         if not resource_manager:
             if self.is_resource_content():
-                raise ValueError('resource_manager must be defined when type is {0}'.format(types.RESOURCE_PROJECT_TYPE))
+                raise PkgMetaError('resource_manager must be defined when type is {0}'.format(types.RESOURCE_PROJECT_TYPE))
         else:
-            if resource_manager not in types.ANSIBLE_RM_TYPES:
-                raise ValueError('resource_manager type not supported, must be one of: {0}'.format(types.ANSIBLE_RM_TYPES))
+            if resource_manager not in types.SUPPORTED_RM_TYPES:
+                raise PkgMetaError('resource_manager type not supported, must be one of: {0}'.format(types.SUPPORTED_RM_TYPES_GROUPED))
         self._resource_manager = resource_manager
 
     @property

@@ -8,6 +8,7 @@ GENERAL_TEMPLATES_GROUP = 'general'
 ASSEMBLY_TEMPLATES_GROUP = 'assemblies'
 RESOURCE_TEMPLATES_GROUP = 'resources'
 ANSIBLE_RM_RESOURCE_GROUP = 'ansiblerm'
+BRENT_RESOURCE_GROUP = 'brent'
 
 SUBPROJECTS_GROUP = 'subprojects'
 
@@ -37,6 +38,15 @@ ASSEMBLY_CONTAINS_INVALID_ARM_NO_DESCRIPTOR = 'contains_invalid_no_descriptor'
 ASSEMBLY_CONTAINS_INVALID_ARM_NO_LIFECYCLE = 'contains_invalid_no_lifecycle'
 ASSEMBLY_CONTAINS_INVALID_ARM_NO_MANIFEST = 'contains_invalid_no_manifest'
 ASSEMBLY_CONTAINS_INVALID_ARM_MISMATCH_DESCRIPTOR_NAME = 'contains_invalid_mismatch_descriptor_name'
+ASSEMBLY_CONTAINS_BRENT_BASIC = 'contains_basic'
+ASSEMBLY_CONTAINS_INVALID_BRENT_NO_DEFINITIONS = 'contains_invalid_no_definitions'
+ASSEMBLY_CONTAINS_INVALID_BRENT_NO_INFRASTRUCTURE = 'contains_invalid_no_infrastructure'
+ASSEMBLY_CONTAINS_INVALID_BRENT_NO_INFRASTRUCTURE_MANIFEST = 'contains_invalid_no_infrastructure_manifest'
+ASSEMBLY_CONTAINS_INVALID_BRENT_NO_LM_DEFINITIONS = 'contains_invalid_no_lm_definitions'
+ASSEMBLY_CONTAINS_INVALID_BRENT_NO_LM_DESCRIPTOR = 'contains_invalid_no_lm_descriptor'
+ASSEMBLY_CONTAINS_INVALID_BRENT_MISMATCH_DESCRIPTOR_NAME = 'contains_invalid_mismatch_descriptor_name'
+ASSEMBLY_CONTAINS_INVALID_BRENT_NO_LIFECYCLE = 'contains_invalid_no_lifecycle'
+ASSEMBLY_CONTAINS_INVALID_BRENT_NO_LIFECYCLE_MANIFEST = 'contains_invalid_no_lifecycle_manifest'
 ASSEMBLY_WITH_OLD_STYLE = 'old_style'
 ASSEMBLY_WITH_DESCRIPTOR_REFERENCES = 'with_descriptor_references'
 ASSEMBLY_WITH_BEHAVIOUR_REFERENCES = 'with_behaviour_references'
@@ -57,12 +67,31 @@ SUBPROJECT_NAME_INVALID_ARM_NO_DESCRIPTOR = 'sub_invalid_no_descriptor'
 SUBPROJECT_NAME_INVALID_ARM_NO_LIFECYCLE = 'sub_invalid_no_lifecycle'
 SUBPROJECT_NAME_INVALID_ARM_NO_MANIFEST = 'sub_invalid_no_manifest'
 SUBPROJECT_NAME_INVALID_ARM_MISMATCH_DESCRIPTOR_NAME = 'sub_invalid_mismatch_descriptor_name'
+SUBPROJECT_NAME_BRENT_BASIC = 'sub_basic'
+SUBPROJECT_NAME_INVALID_BRENT_MISMATCH_DESCRIPTOR_NAME = 'sub_invalid_mismatch_descriptor_name'
+SUBPROJECT_NAME_INVALID_BRENT_NO_DEFINITIONS = 'sub_invalid_no_definitions'
+SUBPROJECT_NAME_INVALID_BRENT_NO_INFRASTRUCTURE = 'sub_invalid_no_infrastructure'
+SUBPROJECT_NAME_INVALID_BRENT_NO_INFRASTRUCTURE_MANIFEST = 'sub_invalid_no_infrastructure_manifest'
+SUBPROJECT_NAME_INVALID_BRENT_NO_LM_DEFINITIONS = 'sub_invalid_no_lm_definitions'
+SUBPROJECT_NAME_INVALID_BRENT_NO_DESCRIPTOR = 'sub_invalid_no_lm_descriptor'
+SUBPROJECT_NAME_INVALID_BRENT_NO_LIFECYCLE = 'sub_invalid_no_lifecycle'
+SUBPROJECT_NAME_INVALID_BRENT_NO_LIFECYCLE_MANIFEST = 'sub_invalid_no_lifecycle_manifest'
 
 ARM_BASIC = 'basic'
 INVALID_ARM_NO_DESCRIPTOR = 'invalid_no_descriptor'
 INVALID_ARM_NO_LIFECYCLE = 'invalid_no_lifecycle'
 INVALID_ARM_NO_MANIFEST = 'invalid_no_manifest'
 INVALID_ARM_MISMATCH_DESCRIPTOR_NAME = 'invalid_mismatch_descriptor_name'
+
+BRENT_BASIC = 'basic'
+INVALID_BRENT_NO_DEFINITIONS = 'invalid_no_definitions'
+INVALID_BRENT_NO_INFRASTRUCTURE = 'invalid_no_infrastructure'
+INVALID_BRENT_NO_INFRASTRUCTURE_MANIFEST = 'invalid_no_infrastructure_manifest'
+INVALID_BRENT_NO_LM_DEFINITIONS = 'invalid_no_lm_definitions'
+INVALID_BRENT_NO_LM_DESCRIPTOR = 'invalid_no_lm_descriptor'
+INVALID_BRENT_MISMATCH_DESCRIPTOR_NAME = 'invalid_mismatch_lm_descriptor_name'
+INVALID_BRENT_NO_LIFECYCLE = 'invalid_no_lifecycle'
+INVALID_BRENT_NO_LIFECYCLE_MANIFEST = 'invalid_no_lifecycle_manifest'
 
 PKG_ASSEMBLY_BASIC = 'basic-1.0.tgz'
 PKG_ASSEMBLY_WITH_BEHAVIOUR = 'with_behaviour-1.0.tgz'
@@ -199,6 +228,60 @@ class ProjectSimLab:
 
     def simulate_assembly_contains_invalid_assembly_invalid_json_test(self):
         return self.__sim_project(assembly_subproject_template_path(ASSEMBLY_TEMPLATES_GROUP, ASSEMBLY_CONTAINS_INVALID_ASSEMBLY_INVALID_JSON_TEST))
+
+    def simulate_brent_basic(self):
+        return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, BRENT_BASIC))
+
+    def simulate_invalid_brent_mismatch_descriptor_name(self):
+        return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, INVALID_BRENT_MISMATCH_DESCRIPTOR_NAME))
+
+    def simulate_invalid_brent_no_definitions(self):
+        return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, INVALID_BRENT_NO_DEFINITIONS))
+
+    def simulate_invalid_brent_no_infrastructure(self):
+        return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, INVALID_BRENT_NO_INFRASTRUCTURE))
+
+    def simulate_invalid_brent_no_infrastructure_manifest(self):
+        return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, INVALID_BRENT_NO_INFRASTRUCTURE_MANIFEST))
+
+    def simulate_invalid_brent_no_lm_definitions(self):
+        return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, INVALID_BRENT_NO_LM_DEFINITIONS))
+
+    def simulate_invalid_brent_no_lm_descriptor(self):
+        return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, INVALID_BRENT_NO_LM_DESCRIPTOR))
+
+    def simulate_invalid_brent_no_lifecycle(self):
+        return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, INVALID_BRENT_NO_LIFECYCLE))
+
+    def simulate_invalid_brent_no_lifecycle_manifest(self):
+        return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, INVALID_BRENT_NO_LIFECYCLE_MANIFEST))
+
+    def simulate_assembly_contains_brent_basic(self):
+        return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), ASSEMBLY_CONTAINS_BRENT_BASIC))
+
+    def simulate_assembly_contains_invalid_brent_mismatch_descriptor_name(self):
+        return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), ASSEMBLY_CONTAINS_INVALID_BRENT_MISMATCH_DESCRIPTOR_NAME))
+
+    def simulate_assembly_contains_invalid_brent_no_definitions(self):
+        return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), ASSEMBLY_CONTAINS_INVALID_BRENT_NO_DEFINITIONS))
+
+    def simulate_assembly_contains_invalid_brent_no_infrastructure(self):
+        return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), ASSEMBLY_CONTAINS_INVALID_BRENT_NO_INFRASTRUCTURE))
+
+    def simulate_assembly_contains_invalid_brent_no_infrastructure_manifest(self):
+        return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), ASSEMBLY_CONTAINS_INVALID_BRENT_NO_INFRASTRUCTURE_MANIFEST))
+
+    def simulate_assembly_contains_invalid_brent_no_lm_definitions(self):
+        return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), ASSEMBLY_CONTAINS_INVALID_BRENT_NO_LM_DEFINITIONS))
+
+    def simulate_assembly_contains_invalid_brent_no_lm_descriptor(self):
+        return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), ASSEMBLY_CONTAINS_INVALID_BRENT_NO_LM_DESCRIPTOR))
+
+    def simulate_assembly_contains_invalid_brent_no_lifecycle(self):
+        return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), ASSEMBLY_CONTAINS_INVALID_BRENT_NO_LIFECYCLE))
+
+    def simulate_assembly_contains_invalid_brent_no_lifecycle_manifest(self):
+        return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), ASSEMBLY_CONTAINS_INVALID_BRENT_NO_LIFECYCLE_MANIFEST))
 
     def simulate_arm_basic(self):
         return self.__sim_project(resource_template_path(ANSIBLE_RM_RESOURCE_GROUP, ARM_BASIC))

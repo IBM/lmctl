@@ -1,0 +1,9 @@
+schema: '2.0'
+name: contains_invalid_no_lm_descriptor
+version: '1.0'
+type: Assembly
+contains:
+  - name: sub_invalid_no_lm_descriptor
+    type: Resource
+    directory: sub_invalid_no_lm_descriptor
+    resource-manager: brent
