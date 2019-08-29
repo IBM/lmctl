@@ -4,6 +4,8 @@ import lmctl.project.source.core as project_sources
 import lmctl.project.package.core as pkgs
 import lmctl.cli.output as output
 import lmctl.cli.ctlmgmt as ctlmgmt
+import lmctl.drivers.lm.base as lm_drivers
+import lmctl.drivers.arm as arm_drivers
 import logging
 from lmctl.project.sessions import EnvironmentSessions, EnvironmentSelectionError
 from lmctl.project.types import ANSIBLE_RM_TYPES
@@ -251,7 +253,7 @@ class ExecutionController:
         except project_sources.BuildValidationError as e:
             self.process_validation_result(e.validation_result)
             return self.end_with_failure(ValidationReporter().error_report(e.validation_result))  # Should not reach
-        except (project_sources.ProjectError, pkgs.PackageError, EnvironmentSelectionError) as e:
+        except (project_sources.ProjectError, pkgs.PackageError, EnvironmentSelectionError, lm_drivers.LmDriverException, arm_drivers.AnsibleRmDriverException) as e:
             self.include_failure(str(e))
             return self.finalise()
         return response
