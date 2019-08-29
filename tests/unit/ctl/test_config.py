@@ -89,12 +89,10 @@ environments:
         host: 127.0.0.1
         port: 1111
         protocol: https
-        onboarding_addr: http://127.0.0.1
       second:
         host: 127.0.0.2
         port: 2222
         protocol: http
-        onboarding_addr: http://127.0.0.2
 """
 class TestConfigRewriter(unittest.TestCase):
 
@@ -204,14 +202,12 @@ class TestConfigRewriter(unittest.TestCase):
                         'first': {
                             'host': '127.0.0.1',
                             'protocol': 'https',
-                            'port': 1111,
-                            'onboarding_addr': 'http://127.0.0.1'
+                            'port': 1111
                         },
                         'second': {
                             'host': '127.0.0.2',
                             'protocol': 'http',
-                            'port': 2222,
-                            'onboarding_addr': 'http://127.0.0.2'
+                            'port': 2222
                         }
                     }
                 }

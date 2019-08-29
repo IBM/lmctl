@@ -190,6 +190,7 @@ def create(location, name, version, project_type, rm, contains, servicetype, vnf
 
 def __process_subprojects(subprojects, vnfcs, default_rm_type):
     subproject_requests = []
+    rm = None
     for subproject in subprojects:
         project_type_ref, name = subproject
         if '::' in project_type_ref:
