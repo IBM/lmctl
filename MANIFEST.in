@@ -1,1 +1,1 @@
-include myconfig.yaml Readme.md lmctllib/utils/logging.yaml
+include example-config.yaml lmctl/utils/logging.yaml lmctl/pkg_info.json

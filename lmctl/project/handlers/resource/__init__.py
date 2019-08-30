@@ -1,0 +1,6 @@
+from .resource_content import ResourceContentHandler
+from .resource_src import ResourceSourceHandler, ResourceSourceCreator
+
+source_creator = ResourceSourceCreator
+source_handler = ResourceSourceHandler
+content_handler = ResourceContentHandler

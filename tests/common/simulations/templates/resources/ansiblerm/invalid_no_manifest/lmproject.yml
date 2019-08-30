@@ -1,0 +1,5 @@
+schema: '2.0'
+name: invalid_no_manifest
+version: '1.0'
+type: Resource
+resource-manager: ansiblerm

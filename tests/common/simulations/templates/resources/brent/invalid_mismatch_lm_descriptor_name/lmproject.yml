@@ -1,0 +1,5 @@
+schema: '2.0'
+name: invalid_mismatch_lm_descriptor_name
+version: '1.0'
+type: Resource
+resource-manager: brent

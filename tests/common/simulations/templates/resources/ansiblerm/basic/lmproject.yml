@@ -1,0 +1,5 @@
+schema: '2.0'
+name: basic
+version: '1.0'
+type: Resource
+resource-manager: ansiblerm

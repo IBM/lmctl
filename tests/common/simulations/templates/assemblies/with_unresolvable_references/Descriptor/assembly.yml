@@ -1,0 +1,7 @@
+description: with references
+composition:
+  subZ:
+    type: $lmctl:/contains:/subZ:/descriptor_name
+references:
+  subY:
+    type: $lmctl:/contains:/subY:/descriptor_name

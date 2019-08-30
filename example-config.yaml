@@ -1,0 +1,86 @@
+###################################################################################################
+## Example lmctl configuration file
+###################################################################################################
+environments:
+  ## Each section provides configuration for a named environment. In this example a 'dev' environment is created
+  dev:
+    ## Useful description shown when running 'lmctl env list'
+    description: My private dev environment
+
+    ## Each environment must configure access to ALM
+    ## (Required)
+    lm:
+      ## The host address of the LM API
+      ## - Required
+      host: app.lm
+
+      ## The port of the LM API. Leave empty if LM is accessible through host only
+      ## - Optional
+      port: 32443
+
+      ## Set if the environment is accessed through HTTPs or HTTP
+      ## - Optional
+      ## - Default: https
+      protocol: https
+
+      ## Set to true if the environment is secure and requires authentication to use the APIs
+      ## - Optional
+      ## - Default: false
+      secure: true
+
+      ## The host address of the LM Username Auth API
+      ## - Optional
+      ## - Default: uses value of 'host'
+      auth_host: ui.lm
+
+      ## The port of the LM Username Auth API
+      ## - Optional
+      ## - Default: uses value of 'port'
+      auth_port: 32443
+
+      ## The username to authenticate with
+      ## - Required - if 'secure' is true
+      username: jack
+
+      ## The password for the above user
+      ## - Optional - only needed if 'secure' is true and
+      ##              may be provided on the command line to avoid storing in plain-text
+      password:
+
+    ## If planning to manage Resource projects which make use of intended for an Ansible RM then access must be configured
+    arm:
+      ## Multiple Ansible RMs are separated by name
+      defaultrm:
+        ## The host address of the Ansible RM API
+        ## - Required
+        host: localhost
+
+        ## The port of the Ansible RM API. Leave empty if the RM is accessible through host only
+        ## - Optional
+        port: 31081
+
+        ## Set if the environment is accessed through HTTPs or HTTP
+        ## - Optional
+        ## - Default: https
+        protocol: https
+
+  ## Example of an additional environment called 'preProd'
+  preProd:
+    description: Pre-prod environment
+    alm:
+      host: otherhost
+      port: 32443
+      protocol: https
+      secure: true
+      auth_host: other_ui_host
+      auth_port: 32443
+      username: jack
+    arm:
+      corerm:
+        host: localhost
+        port: 31091
+        protocol: https
+      edgerm:
+        host: localhost
+        port: 31092
+        protocol: https

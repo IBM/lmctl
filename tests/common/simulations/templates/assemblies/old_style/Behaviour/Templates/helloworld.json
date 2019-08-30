@@ -1,0 +1,8 @@
+{
+    "name": "helloworld",
+    "description": "a updated description",
+    "descriptorName": "assembly::hello-world-service::1.0",
+    "properties": {},
+    "createdAt": "2018-11-30T11:56:15.613Z",
+    "lastModifiedAt": "2018-11-30T11:56:15.613Z"
+}

@@ -1,0 +1,10 @@
+{
+  "name": "simple",
+  "description": "a simple assembly config",
+  "properties": {
+    "a": "123"
+  },
+  "createdAt": "2019-01-01T01:00:00.613Z",
+  "lastModifiedAt": "2019-01-02T01:00:00.613Z",
+  "descriptorName": "assembly::sub_with_behaviour-contains_with_behaviour::1.0"
+}

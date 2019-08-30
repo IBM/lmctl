@@ -1,0 +1,6 @@
+from .ansiblerm_content import AnsibleRmContentHandlerDelegate
+from .ansiblerm_src import AnsibleRmSourceHandlerDelegate, AnsibleRmSourceCreatorDelegate
+
+source_creator = AnsibleRmSourceCreatorDelegate
+source_handler = AnsibleRmSourceHandlerDelegate
+content_handler = AnsibleRmContentHandlerDelegate

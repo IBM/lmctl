@@ -1,0 +1,4 @@
+schema: '2.0'
+name: invalid_no_descriptor
+version: '1.0'
+type: Assembly

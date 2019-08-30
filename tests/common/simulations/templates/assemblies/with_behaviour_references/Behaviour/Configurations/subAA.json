@@ -1,0 +1,11 @@
+{
+  "name": "subAA",
+  "projectId": "$lmctl:/descriptor_name",
+  "description": "assembly config for subAA project",
+  "properties": {
+    "a": "123"
+  },
+  "createdAt": "2019-01-01T01:00:00.613Z",
+  "lastModifiedAt": "2019-01-02T01:00:00.613Z",
+  "descriptorName": "$lmctl:/contains:/subA:/contains:/subAA:/descriptor_name"
+}

@@ -1,0 +1,6 @@
+description: subAB
+composition:
+  subB:
+    type: $lmctl:/contains:/subB:/descriptor_name
+  another:
+    type: resource::another::1.0
