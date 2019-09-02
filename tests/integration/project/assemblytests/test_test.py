@@ -65,15 +65,25 @@ class TestTestAssemblyPkgs(ProjectSimTestCase):
         env_sessions = EnvironmentSessions(lm_session)
         result = pkg.push(env_sessions, push_options).test(env_sessions, test_options)
         self.assertEqual(len(result.suite_report.entries), 3)
-        self.assertEqual(result.suite_report.entries[0].test_name, 'test')
-        self.assertEqual(result.suite_report.entries[0].result, TEST_STATUS_PASSED)
-        self.assertIsNone(result.suite_report.entries[0].detail)
-        self.assertEqual(result.suite_report.entries[1].test_name, 'test2')
-        self.assertEqual(result.suite_report.entries[1].result, TEST_STATUS_PASSED)
-        self.assertIsNone(result.suite_report.entries[1].detail)
-        self.assertEqual(result.suite_report.entries[2].test_name, 'test3')
-        self.assertEqual(result.suite_report.entries[2].result, TEST_STATUS_PASSED)
-        self.assertIsNone(result.suite_report.entries[2].detail)
+        test1_entry = None
+        test2_entry = None
+        test3_entry = None
+        for entry in result.suite_report.entries:
+            if entry.test_name == 'test':
+                test1_entry = entry
+            elif entry.test_name == 'test2':
+                test2_entry = entry
+            elif entry.test_name == 'test3':
+                test3_entry = entry
+        self.assertEqual(test1_entry.test_name, 'test')
+        self.assertEqual(test1_entry.result, TEST_STATUS_PASSED)
+        self.assertIsNone(test1_entry.detail)
+        self.assertEqual(test2_entry.test_name, 'test2')
+        self.assertEqual(test2_entry.result, TEST_STATUS_PASSED)
+        self.assertIsNone(test2_entry.detail)
+        self.assertEqual(test3_entry.test_name, 'test3')
+        self.assertEqual(test3_entry.result, TEST_STATUS_PASSED)
+        self.assertIsNone(test3_entry.detail)
         scenarios_on_project = lm_sim.get_scenarios_on_project('assembly::with_behaviour_multi_tests::1.0')
         expected_calls = []
         for scenario in scenarios_on_project:
@@ -92,15 +102,25 @@ class TestTestAssemblyPkgs(ProjectSimTestCase):
         env_sessions = EnvironmentSessions(lm_session)
         result = pkg.push(env_sessions, push_options).test(env_sessions, test_options)
         self.assertEqual(len(result.suite_report.entries), 3)
-        self.assertEqual(result.suite_report.entries[0].test_name, 'test')
-        self.assertEqual(result.suite_report.entries[0].result, TEST_STATUS_PASSED)
-        self.assertIsNone(result.suite_report.entries[0].detail)
-        self.assertEqual(result.suite_report.entries[1].test_name, 'test2')
-        self.assertEqual(result.suite_report.entries[1].result, TEST_STATUS_FAILED)
-        self.assertEqual(result.suite_report.entries[1].detail, 'test2 failed: Mocked Error')
-        self.assertEqual(result.suite_report.entries[2].test_name, 'test3')
-        self.assertEqual(result.suite_report.entries[2].result, TEST_STATUS_PASSED)
-        self.assertIsNone(result.suite_report.entries[2].detail)
+        test1_entry = None
+        test2_entry = None
+        test3_entry = None
+        for entry in result.suite_report.entries:
+            if entry.test_name == 'test':
+                test1_entry = entry
+            elif entry.test_name == 'test2':
+                test2_entry = entry
+            elif entry.test_name == 'test3':
+                test3_entry = entry
+        self.assertEqual(test1_entry.test_name, 'test')
+        self.assertEqual(test1_entry.result, TEST_STATUS_PASSED)
+        self.assertIsNone(test1_entry.detail)
+        self.assertEqual(test2_entry.test_name, 'test2')
+        self.assertEqual(test2_entry.result, TEST_STATUS_FAILED)
+        self.assertEqual(test2_entry.detail, 'test2 failed: Mocked Error')
+        self.assertEqual(test3_entry.test_name, 'test3')
+        self.assertEqual(test3_entry.result, TEST_STATUS_PASSED)
+        self.assertIsNone(test3_entry.detail)
 
 
 class TestTestAssemblyPkgsSubcontent(ProjectSimTestCase):
@@ -175,15 +195,25 @@ class TestTestAssemblyPkgsSubcontent(ProjectSimTestCase):
         self.assertEqual(len(result.sub_reports), 1)
         sub_report = result.sub_reports[0]
         self.assertEqual(len(sub_report.suite_report.entries), 3)
-        self.assertEqual(sub_report.suite_report.entries[0].test_name, 'test')
-        self.assertEqual(sub_report.suite_report.entries[0].result, TEST_STATUS_PASSED)
-        self.assertIsNone(sub_report.suite_report.entries[0].detail)
-        self.assertEqual(sub_report.suite_report.entries[1].test_name, 'test2')
-        self.assertEqual(sub_report.suite_report.entries[1].result, TEST_STATUS_PASSED)
-        self.assertIsNone(sub_report.suite_report.entries[1].detail)
-        self.assertEqual(sub_report.suite_report.entries[2].test_name, 'test3')
-        self.assertEqual(sub_report.suite_report.entries[2].result, TEST_STATUS_PASSED)
-        self.assertIsNone(sub_report.suite_report.entries[2].detail)
+        test1_entry = None
+        test2_entry = None
+        test3_entry = None
+        for entry in sub_report.suite_report.entries:
+            if entry.test_name == 'test':
+                test1_entry = entry
+            elif entry.test_name == 'test2':
+                test2_entry = entry
+            elif entry.test_name == 'test3':
+                test3_entry = entry
+        self.assertEqual(test1_entry.test_name, 'test')
+        self.assertEqual(test1_entry.result, TEST_STATUS_PASSED)
+        self.assertIsNone(test1_entry.detail)
+        self.assertEqual(test2_entry.test_name, 'test2')
+        self.assertEqual(test2_entry.result, TEST_STATUS_PASSED)
+        self.assertIsNone(test2_entry.detail)
+        self.assertEqual(test3_entry.test_name, 'test3')
+        self.assertEqual(test3_entry.result, TEST_STATUS_PASSED)
+        self.assertIsNone(test3_entry.detail)
         scenarios_on_project = lm_sim.get_scenarios_on_project('assembly::sub_with_behaviour_multi_tests-contains_with_behaviour_multi_tests::1.0')
         expected_calls = []
         for scenario in scenarios_on_project:
