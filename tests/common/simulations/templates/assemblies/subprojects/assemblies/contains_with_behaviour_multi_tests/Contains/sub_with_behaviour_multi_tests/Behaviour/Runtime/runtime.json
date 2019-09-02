@@ -1,0 +1,26 @@
+{
+  "name": "runtime",
+  "description": "a runtime scenario",
+  "stages": [
+    {
+      "name": "Stage One",
+      "steps": [
+        {
+          "stepDefinitionName": "Utilities::SleepForTime",
+          "properties": {
+            "sleepTime": "20",
+            "timeUnit": "seconds"
+          }
+        }
+      ]
+    }
+  ],
+  "assemblyActors": [
+    {
+      "instanceName": "ExistingProvidedAssembly",
+      "provided": true
+    }
+  ],
+  "createdAt": "2019-01-01T01:00:00.613Z",
+  "lastModifiedAt": "2019-01-02T01:00:00.613Z"
+}

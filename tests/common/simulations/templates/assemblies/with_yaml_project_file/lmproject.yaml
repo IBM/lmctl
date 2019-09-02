@@ -1,0 +1,4 @@
+schema: '2.0'
+name: with_yaml_project_file
+version: '1.0'
+type: Assembly

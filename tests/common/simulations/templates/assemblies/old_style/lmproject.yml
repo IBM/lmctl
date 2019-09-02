@@ -1,0 +1,13 @@
+name: old_style
+vnfcs:
+  definitions:
+    vnfcA:
+      directory: vnfcA
+    vnfcB:
+      directory: vnfcB
+  packages:
+    ansible-rm-vnfcs:
+      packaging-type: ansible-rm
+      executions:
+      - vnfc: vnfcA
+      - vnfc: vnfcB

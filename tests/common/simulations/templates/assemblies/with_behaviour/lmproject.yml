@@ -1,0 +1,4 @@
+schema: '2.0'
+name: with_behaviour
+version: '1.0'
+type: Assembly

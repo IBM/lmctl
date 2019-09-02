@@ -1,0 +1,4 @@
+description: subAA
+composition:
+  subZ:
+    type: $lmctl:/contains:/subZ:/descriptor_name

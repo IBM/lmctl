@@ -1,0 +1,4 @@
+schema: '2.0'
+name: with_unresolvable_references
+version: '1.0'
+type: Assembly

@@ -1,0 +1,9 @@
+schema: '2.0'
+name: contains_invalid_no_lifecycle_manifest
+version: '1.0'
+type: Assembly
+contains:
+  - name: sub_invalid_no_lifecycle_manifest
+    type: Resource
+    directory: sub_invalid_no_lifecycle_manifest
+    resource-manager: brent

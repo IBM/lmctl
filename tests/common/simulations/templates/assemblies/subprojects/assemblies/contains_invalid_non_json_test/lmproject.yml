@@ -1,0 +1,8 @@
+schema: '2.0'
+name: contains_invalid_non_json_test
+version: '1.0'
+type: Assembly
+contains:
+  - name: sub_invalid_non_json_test
+    type: Assembly
+    directory: sub_invalid_non_json_test
