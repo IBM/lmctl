@@ -10,8 +10,8 @@ The tool may also be used to manage deployment locations in Stratoss LM environm
 
 # Using LMCTL
 
-To start using LMCTL read the [User Guide](http://servicelifecyclemanager.com/reference/lmctl)
+To start using LMCTL read the [User Guide](./docs/index.md)
 
 # Development Docs
 
-For documentation related to developing LMCTL please see the [development docs](./docs/index.md)
+For documentation related to developing LMCTL please see the [development docs](./developer_docs/index.md)
