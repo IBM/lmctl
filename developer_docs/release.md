@@ -29,3 +29,31 @@ Upload the whl file to pypi using `twine` (note: this command will ask for your 
 ```
 python3 -m twine upload dist/<whl file>.whl
 ```
+
+## 4. Package the docs
+
+Create a TAR of the docs directory:
+
+```
+tar -cvzf lmctl-<release version number>-docs.tgz docs/ --transform s/docs/lmctl-<release version number>-docs/
+```
+
+## 5. Create release on Github
+
+5.1 Navigate to Releases on the Github repository for this project and create a new release.
+
+5.2 Ensure the version tag and title correspond with the version number set in the pkg_info file earlier. Include release notes in the description of the release.
+
+5.3 Attach the docs archive to the release
+
+## 6. Set next development version
+
+Set the version of the next development version in `lmctl/pkg_info.json` (push this change to Github).
+
+Usually the next dev version should be an minor increment of the previous, with `dev0` added. For example, after releasing 2.1.0 it would be:
+
+```
+{
+  "version": "2.2.0.dev0"
+}
+```
