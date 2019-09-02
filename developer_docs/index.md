@@ -13,3 +13,7 @@ python3 -m unittest
 ```
 
 This will auto-discover the tests in the `tests` directory.
+
+# Release
+
+[Release](./release.md)
