@@ -46,7 +46,23 @@ tar -cvzf lmctl-<release version number>-docs.tgz docs/ --transform s/docs/lmctl
 
 5.3 Attach the docs archive to the release
 
-## 6. Set next development version
+## 6. Release JNLP Slave Docker Image
+
+6.1 Navigate to `docker/jenkins-jnlp-slave`
+
+6.2 Build the docker image, setting the version argument to the release version:
+
+```
+docker build --build-arg LMCTL_VERSION=2.1.0 -t accanto/lmctl-jnlp-slave:2.1.0 .
+```
+
+6.3 Push docker image to dockerhub:
+
+```
+docker push accanto/lmctl-jnlp-slave:2.1.0
+```
+
+## 7. Set next development version
 
 Set the version of the next development version in `lmctl/pkg_info.json` (push this change to Github).
 
