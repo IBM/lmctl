@@ -17,17 +17,19 @@ class LmResourcePkgDriver(LmDriver):
 
     def onboard_package(self, resource_pkg_path):
         url = self.__packages_api()
+        headers = self._configure_access_headers()
         with open(resource_pkg_path, 'rb') as resource_pkg:
             files = {'file': resource_pkg}
-            response = requests.post(url, files=files, verify=False)
+            response = requests.post(url, headers=headers, files=files, verify=False)
             if response.status_code == 201:
                 return True
             else:
                 self._raise_unexpected_status_exception(response)
 
     def delete_package(self, resource_type_name):
-        url = self.__package_api(resource_type_name)
-        response = requests.delete(url, verify=False)
+        url = self.__package_api(resource_type_name) 
+        headers = self._configure_access_headers()
+        response = requests.delete(url, headers=headers, verify=False)
         if response.status_code == 404:
             raise NotFoundException('Package does not exist: {0}'.format(resource_type_name))
         elif response.status_code == 204:
