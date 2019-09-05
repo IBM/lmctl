@@ -95,6 +95,7 @@ class LmSession:
         self.__topology_driver = None
         self.__behaviour_driver = None
         self.__deployment_location_driver = None
+        self.__brent_driver = None
         self.__resource_pkg_driver = None
 
     def __get_lm_security_ctrl(self):
@@ -176,3 +177,15 @@ class LmSession:
         if not self.__resource_pkg_driver:
             self.__resource_pkg_driver = lm_drivers.LmResourcePkgDriver(self.env.api_address, self.__get_lm_security_ctrl())
         return self.__resource_pkg_driver
+
+    @property
+    def brent_driver(self):
+        """
+        Obtain a LmResourcePkgDriver configured for use against this LM environment
+
+        Returns:
+            LmResourcePkgDriver: a configured LmResourcePkgDriver for this LM environment
+        """
+        if not self.__brent_driver:
+            self.__brent_driver = lm_drivers.LmBrentDriver(self.env.api_address, self.__get_lm_security_ctrl())
+        return self.__brent_driver
