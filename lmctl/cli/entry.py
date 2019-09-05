@@ -20,4 +20,5 @@ def init_cli():
     cli.add_command(lmctl_commands.project)
     cli.add_command(lmctl_commands.pkg)
     cli.add_command(lmctl_commands.deployment)
+    cli.add_command(lmctl_commands.brent)
     cli()
