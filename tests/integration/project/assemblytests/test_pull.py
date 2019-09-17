@@ -8,6 +8,13 @@ from tests.common.project_testing import (ProjectSimTestCase,
 from lmctl.project.source.core import Project, PullOptions
 from lmctl.project.sessions import EnvironmentSessions
 
+DESCRIPTOR_WITH_UNRESOLVABLE_COMPONENT = """\
+description: includes an component not part of this project
+composition:
+  other:
+    type: resource::other_descriptor::1.0
+"""
+
 PULLED_SIMPLE_ASSEMBLY_CONFIGURATION = """\
 {
   "projectId": "$lmctl:/descriptor_name",
@@ -163,7 +170,19 @@ class TestPullAssemblyProjects(ProjectSimTestCase):
         project_assertions = self.assert_project(project_sim.as_project())
         project_assertions.assert_has_no_backup(os.path.join(ASSEMBLY_DESCRIPTOR_DIR, ASSEMBLY_DESCRIPTOR_YML_FILE))
         project_assertions.assert_has_file(os.path.join(ASSEMBLY_DESCRIPTOR_DIR, ASSEMBLY_DESCRIPTOR_YML_FILE), current_descriptor_content)
-        
+    
+    def test_pull_descriptor_with_unresolvable_descriptor_name(self):
+        project_sim = self.simlab.simulate_assembly_basic()
+        with open(os.path.join(project_sim.path, ASSEMBLY_DESCRIPTOR_DIR, ASSEMBLY_DESCRIPTOR_YML_FILE), 'r') as current_descriptor:
+            current_descriptor_content = current_descriptor.read()
+        lm_sim = self.simlab.simulate_lm()
+        lm_sim.add_descriptor('name: assembly::basic::1.0\n'+DESCRIPTOR_WITH_UNRESOLVABLE_COMPONENT)
+        lm_session = lm_sim.as_mocked_session()
+        self.__exec_pull(project_sim, lm_session)
+        project_assertions = self.assert_project(project_sim.as_project())
+        project_assertions.assert_has_backup(os.path.join(ASSEMBLY_DESCRIPTOR_DIR, ASSEMBLY_DESCRIPTOR_YML_FILE), current_descriptor_content)
+        project_assertions.assert_has_file(os.path.join(ASSEMBLY_DESCRIPTOR_DIR, ASSEMBLY_DESCRIPTOR_YML_FILE), DESCRIPTOR_WITH_UNRESOLVABLE_COMPONENT)
+
     def test_pull_behaviour_configuration(self):
         project_sim = self.simlab.simulate_assembly_with_behaviour()
         with open(os.path.join(project_sim.path, ASSEMBLY_BEHAVIOUR_DIR, ASSEMBLY_CONFIGURATIONS_DIR, 'simple.json'), 'r') as current_configuration:
