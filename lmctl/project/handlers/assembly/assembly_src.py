@@ -257,7 +257,7 @@ class AssemblySourceHandler(handlers_api.SourceHandler):
         if os.path.exists(descriptor_path):
             self.__backup_descriptor(journal, backup_tool, backup_tree, descriptor_path)
         journal.event('Saving pulled descriptor to {0}'.format(descriptor_path))
-        descriptor = descriptor_mutations.DescriptorPullMutator(references).apply(descriptor)
+        descriptor = descriptor_mutations.DescriptorPullMutator(references, journal).apply(descriptor)
         descriptors.DescriptorParser().write_to_file(descriptor, descriptor_path)
 
     def __backup_descriptor(self, journal, backup_tool, backup_tree, descriptor_path):
