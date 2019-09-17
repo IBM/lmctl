@@ -9,7 +9,12 @@ logger = logging.getLogger(__name__)
 
 
 def get_ctl(config_path=None):
-    return ctl_config.get_ctl(config_path)
+    try:
+        ctl_config.get_ctl(config_path)
+    except (ctl_config.ConfigParserError, ctl_config.ConfigError) as e:
+        output.printer.error('Error: Failed to load configuration - {0}'.format(str(e)))
+        logger.exception(str(e))
+        exit(1)
 
 def get_environment_group(environment_group_name, config_path=None):
     try:
