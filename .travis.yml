@@ -2,6 +2,7 @@ branches:
   only:
   - master
   - develop
+  - /^support\/.*$/
 language: python
 python:
 - '3.6'
