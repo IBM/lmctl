@@ -36,8 +36,9 @@ class DescriptorStageMutator(Mutator):
 
 class DescriptorPullMutator(Mutator):
 
-    def __init__(self, config_references):
+    def __init__(self, config_references, journal):
         self.config_references = config_references
+        self.journal = journal
 
     def apply(self, descriptor):
         descriptor.remove_name()
