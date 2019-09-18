@@ -71,13 +71,13 @@ github_changelog_generator accanto-systems/lmctl
 7.2 Build the docker image, setting the version argument to the release version:
 
 ```
-docker build --build-arg LMCTL_VERSION=2.1.0 -t accanto/lmctl-jnlp-slave:2.1.0 .
+docker build --build-arg LMCTL_VERSION=<release version number> -t accanto/lmctl-jnlp-slave:<release version number> .
 ```
 
 7.3 Push docker image to dockerhub:
 
 ```
-docker push accanto/lmctl-jnlp-slave:2.1.0
+docker push accanto/lmctl-jnlp-slave:<release version number>
 ```
 
 ## 8. Set next development version
