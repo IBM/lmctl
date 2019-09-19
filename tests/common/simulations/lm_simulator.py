@@ -88,6 +88,8 @@ class SimulatedLm:
         self.execution_listener = ScenarioExecutionListener()
         self.resource_packages = {}
         self.rms = {}
+        self.deployment_locations = {}
+        self.deployment_locations_by_rm = {}
         self.vim_drivers = {}
         self.lifecycle_drivers = {}
         self.mock = MagicMock()
@@ -185,6 +187,40 @@ class SimulatedLm:
         self.mock.get_rm(rm_name)
         rm = self.__get(self.rms, rm_name)
         return rm
+
+    def get_deployment_location(self, deployment_location_id):
+        self.mock.get_deployment_location(deployment_location_id)
+        dl = self.__get(self.deployment_locations, deployment_location_id)
+        return dl
+    
+    def add_deployment_location(self, deployment_location):
+        self.mock.add_deployment_location(deployment_location)
+        if 'id' not in deployment_location:
+            deployment_location = deployment_location.copy()
+            deployment_location['id'] = str(uuid.uuid4())
+        self.__add(self.deployment_locations, deployment_location['id'], deployment_location)
+        self.__add_relation(self.deployment_locations_by_rm, deployment_location['resourceManager'], self.rms, deployment_location['id'], self.deployment_locations)
+        return deployment_location
+
+    def delete_deployment_location(self, deployment_location):
+        self.mock.delete_deployment_location(deployment_location)
+        self.__delete(self.deployment_locations, deployment_location)
+
+    def get_deployment_locations(self):
+        self.mock.get_deployment_locations()
+        dl_list = []
+        for dl_id, dl in self.deployment_locations:
+            dl_list.append(dl)
+        return dl_list
+
+    def get_deployment_locations_by_name(self, dl_name):
+        self.mock.get_deployment_locations_by_name(dl_name)
+        dl_list = []
+        for dl_id, dl in self.deployment_locations.items():
+            if 'name' in dl:
+                if dl['name'] == dl_name:
+                    dl_list.append(dl)
+        return dl_list
 
     def get_project(self, project_id):
         self.mock.get_project(project_id)
@@ -414,6 +450,7 @@ class SimulatedLmSession(LmSession):
         self.__behaviour_driver = MagicMock()
         self.__behaviour_driver_sim = SimBehaviourDriver(self.sim)
         self.__deployment_location_driver = MagicMock()
+        self.__deployment_location_driver_sim = SimDeploymentLocationDriver(self.sim)
         self.__resource_pkg_driver = MagicMock()
         self.__resource_pkg_driver_sim = SimResourcePkgDriver(self.sim)
         self.__vim_driver_mgmt_driver = MagicMock()
@@ -445,6 +482,10 @@ class SimulatedLmSession(LmSession):
         self.__resource_pkg_driver.delete_package.side_effect = self.__resource_pkg_driver_sim.delete_package
         self.__onboard_rm_driver.update_rm.side_effect = self.__onboard_rm_driver_sim.update_rm
         self.__onboard_rm_driver.get_rm_by_name.side_effect = self.__onboard_rm_driver_sim.get_rm_by_name
+        self.__deployment_location_driver.get_locations.side_effect = self.__deployment_location_driver_sim.get_locations
+        self.__deployment_location_driver.get_locations_by_name.side_effect = self.__deployment_location_driver_sim.get_locations_by_name
+        self.__deployment_location_driver.add_location.side_effect = self.__deployment_location_driver_sim.add_location
+        self.__deployment_location_driver.delete_location.side_effect = self.__deployment_location_driver_sim.delete_location
         self.__vim_driver_mgmt_driver.add_vim_driver.side_effect = self.__vim_driver_mgmt_driver_sim.add_vim_driver
         self.__vim_driver_mgmt_driver.delete_vim_driver.side_effect = self.__vim_driver_mgmt_driver_sim.delete_vim_driver
         self.__vim_driver_mgmt_driver.get_vim_driver.side_effect = self.__vim_driver_mgmt_driver_sim.get_vim_driver
@@ -756,5 +797,36 @@ class SimOnboardRmDriver:
             return self.sim_lm.get_rm(rm_name)
         except NotFoundError as e:
             raise lm_drivers.NotFoundException('No RM with name {0}'.format(rm_name))
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+class SimDeploymentLocationDriver:
+
+    def __init__(self, sim_lm):
+        self.sim_lm = sim_lm
+
+    def get_locations(self):
+        try:
+            return self.sim_lm.get_deployment_locations()
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def get_locations_by_name(self, dl_name):
+        try:
+            return self.sim_lm.get_deployment_locations_by_name(dl_name)
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def add_location(self, deployment_location):
+        try:
+            return self.sim_lm.add_deployment_location(deployment_location)
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def delete_location(self, deployment_location_id):
+        try:
+            return self.sim_lm.delete_deployment_location(deployment_location_id)
+        except NotFoundError as e:
+            raise lm_drivers.NotFoundException('No deployment location with id {0}'.format(deployment_location_id))
         except Exception as e:
             raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e

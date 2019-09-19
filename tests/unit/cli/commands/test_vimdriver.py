@@ -26,6 +26,8 @@ class TestVimDriverCommands(command_testing.CommandTestCase):
         expected_output += '\n| {0} | Openstack            | http://mockdriver.example.com |'.format(expected_id)
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        mock_vim_mgmt_driver = self.mock_create_lm_session.return_value.vim_driver_mgmt_driver
+        mock_vim_mgmt_driver.add_vim_driver.assert_called_once_with({'baseUri': 'http://mockdriver.example.com', 'infrastructureType': 'Openstack'})
 
     def test_add_with_type(self):
         result = self.runner.invoke(vimdriver_cmds.add, ['TestEnv', '--url', 'http://mockdriver.example.com', '--type', 'Kubernetes'])
@@ -38,7 +40,9 @@ class TestVimDriverCommands(command_testing.CommandTestCase):
         expected_output += '\n| {0} | Kubernetes           | http://mockdriver.example.com |'.format(expected_id)
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
-
+        mock_vim_mgmt_driver = self.mock_create_lm_session.return_value.vim_driver_mgmt_driver
+        mock_vim_mgmt_driver.add_vim_driver.assert_called_once_with({'baseUri': 'http://mockdriver.example.com', 'infrastructureType': 'Kubernetes'})
+        
     def test_add_with_config(self):
         result = self.runner.invoke(vimdriver_cmds.add, ['TestEnv', '--url', 'http://mockdriver.example.com', '--config', 'my/config/file'])
         self.assert_no_errors(result)
@@ -105,7 +109,9 @@ class TestVimDriverCommands(command_testing.CommandTestCase):
         expected_output += '\nDeleted VIM driver: {0}'.format(vim_driver_id)
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
-
+        mock_vim_mgmt_driver = self.mock_create_lm_session.return_value.vim_driver_mgmt_driver
+        mock_vim_mgmt_driver.delete_vim_driver.assert_called_once_with(vim_driver_id)
+        
     def test_delete_with_config(self):
         vim_driver_id = '123'
         self.lm_sim.add_vim_driver({'id': vim_driver_id})
@@ -143,7 +149,10 @@ class TestVimDriverCommands(command_testing.CommandTestCase):
         expected_output += '\nDeleted VIM driver: {0}'.format(vim_driver_id)
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
-    
+        mock_vim_mgmt_driver = self.mock_create_lm_session.return_value.vim_driver_mgmt_driver
+        mock_vim_mgmt_driver.get_vim_driver_by_type.assert_called_once_with('Openstack')
+        mock_vim_mgmt_driver.delete_vim_driver.assert_called_once_with(vim_driver_id)
+        
     def test_delete_by_type_not_found(self):
         result = self.runner.invoke(vimdriver_cmds.delete, ['TestEnv', '--type', 'Openstack'])
         self.assert_has_system_exit(result)
@@ -167,7 +176,9 @@ class TestVimDriverCommands(command_testing.CommandTestCase):
         expected_output += '\n|  123 | Openstack            | example.com |'
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
-
+        mock_vim_mgmt_driver = self.mock_create_lm_session.return_value.vim_driver_mgmt_driver
+        mock_vim_mgmt_driver.get_vim_driver.assert_called_once_with(vim_driver_id)
+        
     def test_get_with_config(self):
         vim_driver_id = '123'
         self.lm_sim.add_vim_driver({'id': vim_driver_id, 'infrastructureType': 'Openstack', 'baseUri': 'example.com'})
@@ -196,7 +207,7 @@ class TestVimDriverCommands(command_testing.CommandTestCase):
         expected_output = 'LM error occured: No VIM driver with id 987'
         self.assert_output(result, expected_output)
 
-    def test_delete_by_type(self):
+    def test_get_by_type(self):
         vim_driver_id = '123'
         self.lm_sim.add_vim_driver({'id': vim_driver_id, 'infrastructureType': 'Openstack', 'baseUri': 'example.com'})
         result = self.runner.invoke(vimdriver_cmds.get, ['TestEnv', '--type', 'Openstack'])
@@ -206,7 +217,9 @@ class TestVimDriverCommands(command_testing.CommandTestCase):
         expected_output += '\n|  123 | Openstack            | example.com |'
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
-    
+        mock_vim_mgmt_driver = self.mock_create_lm_session.return_value.vim_driver_mgmt_driver
+        mock_vim_mgmt_driver.get_vim_driver_by_type.assert_called_once_with('Openstack')
+        
     def test_get_by_type_not_found(self):
         result = self.runner.invoke(vimdriver_cmds.get, ['TestEnv', '--type', 'Openstack'])
         self.assert_has_system_exit(result)

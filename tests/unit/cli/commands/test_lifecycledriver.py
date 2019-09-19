@@ -26,6 +26,8 @@ class TestLifecycleDriverCommands(command_testing.CommandTestCase):
         expected_output += '\n| {0} | Ansible | http://mockdriver.example.com |'.format(expected_id)
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        mock_lifecycle_mgmt_driver = self.mock_create_lm_session.return_value.lifecycle_driver_mgmt_driver
+        mock_lifecycle_mgmt_driver.add_lifecycle_driver.assert_called_once_with({'baseUri': 'http://mockdriver.example.com', 'type': 'Ansible'})
 
     def test_add_with_type(self):
         result = self.runner.invoke(lifecycledriver_cmds.add, ['TestEnv', '--url', 'http://mockdriver.example.com', '--type', 'Shell'])
@@ -38,6 +40,8 @@ class TestLifecycleDriverCommands(command_testing.CommandTestCase):
         expected_output += '\n| {0} | Shell  | http://mockdriver.example.com |'.format(expected_id)
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        mock_lifecycle_mgmt_driver = self.mock_create_lm_session.return_value.lifecycle_driver_mgmt_driver
+        mock_lifecycle_mgmt_driver.add_lifecycle_driver.assert_called_once_with({'baseUri': 'http://mockdriver.example.com', 'type': 'Shell'})
 
     def test_add_with_config(self):
         result = self.runner.invoke(lifecycledriver_cmds.add, ['TestEnv', '--url', 'http://mockdriver.example.com', '--config', 'my/config/file'])
@@ -105,6 +109,8 @@ class TestLifecycleDriverCommands(command_testing.CommandTestCase):
         expected_output += '\nDeleted lifecycle driver: {0}'.format(lifecycle_driver_id)
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        mock_lifecycle_mgmt_driver = self.mock_create_lm_session.return_value.lifecycle_driver_mgmt_driver
+        mock_lifecycle_mgmt_driver.delete_lifecycle_driver.assert_called_once_with(lifecycle_driver_id)
 
     def test_delete_with_config(self):
         lifecycle_driver_id = '123'
@@ -143,7 +149,10 @@ class TestLifecycleDriverCommands(command_testing.CommandTestCase):
         expected_output += '\nDeleted lifecycle driver: {0}'.format(lifecycle_driver_id)
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
-    
+        mock_lifecycle_mgmt_driver = self.mock_create_lm_session.return_value.lifecycle_driver_mgmt_driver
+        mock_lifecycle_mgmt_driver.get_lifecycle_driver_by_type.assert_called_once_with('Ansible')
+        mock_lifecycle_mgmt_driver.delete_lifecycle_driver.assert_called_once_with(lifecycle_driver_id)
+
     def test_delete_by_type_not_found(self):
         result = self.runner.invoke(lifecycledriver_cmds.delete, ['TestEnv', '--type', 'Ansible'])
         self.assert_has_system_exit(result)
@@ -167,6 +176,8 @@ class TestLifecycleDriverCommands(command_testing.CommandTestCase):
         expected_output += '\n|  123 | Ansible | example.com |'
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        mock_lifecycle_mgmt_driver = self.mock_create_lm_session.return_value.lifecycle_driver_mgmt_driver
+        mock_lifecycle_mgmt_driver.get_lifecycle_driver.assert_called_once_with(lifecycle_driver_id)
 
     def test_get_with_config(self):
         lifecycle_driver_id = '123'
@@ -196,7 +207,7 @@ class TestLifecycleDriverCommands(command_testing.CommandTestCase):
         expected_output = 'LM error occured: No lifecycle driver with id 987'
         self.assert_output(result, expected_output)
 
-    def test_delete_by_type(self):
+    def test_get_by_type(self):
         lifecycle_driver_id = '123'
         self.lm_sim.add_lifecycle_driver({'id': lifecycle_driver_id, 'type': 'Ansible', 'baseUri': 'example.com'})
         result = self.runner.invoke(lifecycledriver_cmds.get, ['TestEnv', '--type', 'Ansible'])
@@ -206,7 +217,9 @@ class TestLifecycleDriverCommands(command_testing.CommandTestCase):
         expected_output += '\n|  123 | Ansible | example.com |'
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
-    
+        mock_lifecycle_mgmt_driver = self.mock_create_lm_session.return_value.lifecycle_driver_mgmt_driver
+        mock_lifecycle_mgmt_driver.get_lifecycle_driver_by_type.assert_called_once_with('Ansible')
+
     def test_get_by_type_not_found(self):
         result = self.runner.invoke(lifecycledriver_cmds.get, ['TestEnv', '--type', 'Ansible'])
         self.assert_has_system_exit(result)

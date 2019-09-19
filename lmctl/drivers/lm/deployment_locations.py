@@ -47,7 +47,11 @@ class LmDeploymentLocationDriver(LmDriver):
         headers = self._configure_access_headers()
         response = requests.post(url, headers=headers, json=deployment_location, verify=False)
         if response.status_code == 201:
-            return True
+            location_header = response.headers['location']
+            location_parts = location_header.split('/')
+            deployment_location_id = location_parts[len(location_parts-1)]
+            deployment_location['id'] = deployment_location_id
+            return deployment_location
         else:
             self._raise_unexpected_status_exception(response)
 
@@ -57,5 +61,7 @@ class LmDeploymentLocationDriver(LmDriver):
         response = requests.delete(url, headers=headers, verify=False)
         if response.status_code == 204:
             return True
+        elif response.status_code == 404:
+            raise NotFoundException('No deployment location with id {0}'.format(driver_id))
         else:
             self._raise_unexpected_status_exception(response)
