@@ -88,6 +88,8 @@ class SimulatedLm:
         self.execution_listener = ScenarioExecutionListener()
         self.resource_packages = {}
         self.rms = {}
+        self.vim_drivers = {}
+        self.lifecycle_drivers = {}
         self.mock = MagicMock()
 
     def __get(self, entity_map, entity_id):
@@ -344,6 +346,56 @@ class SimulatedLm:
                         step_report['status'] = 'PENDING'
         return stage_reports
 
+    def get_vim_driver(self, driver_id):
+        self.mock.get_vim_driver(driver_id)
+        vim_driver = self.__get(self.vim_drivers, driver_id)
+        return vim_driver
+
+    def get_vim_driver_by_type(self, inf_type):
+        self.mock.get_vim_driver_by_type(inf_type)
+        for driver_id, driver in self.vim_drivers.items():
+            if 'infrastructureType' in driver:
+                if driver['infrastructureType'] == inf_type:
+                    return driver
+        raise NotFoundError('VIM driver with type {0} not found'.format(inf_type))
+
+    def add_vim_driver(self, vim_driver):
+        self.mock.add_vim_driver(vim_driver)
+        if 'id' not in vim_driver:
+            vim_driver = vim_driver.copy()
+            vim_driver['id'] = str(uuid.uuid4())
+        self.__add(self.vim_drivers, vim_driver['id'], vim_driver)
+        return vim_driver
+       
+    def delete_vim_driver(self, vim_driver):
+        self.mock.delete_vim_driver(vim_driver)
+        self.__delete(self.vim_drivers, vim_driver)
+
+    def get_lifecycle_driver(self, driver_id):
+        self.mock.get_lifecycle_driver(driver_id)
+        lifecycle_driver = self.__get(self.lifecycle_drivers, driver_id)
+        return lifecycle_driver
+
+    def get_lifecycle_driver_by_type(self, lifecycle_type):
+        self.mock.get_lifecycle_driver_by_type(lifecycle_type)
+        for driver_id, driver in self.lifecycle_drivers.items():
+            if 'type' in driver:
+                if driver['type'] == lifecycle_type:
+                    return driver
+        raise NotFoundError('Lifecycle driver with type {0} not found'.format(inf_type))
+
+    def add_lifecycle_driver(self, lifecycle_driver):
+        self.mock.add_lifecycle_driver(lifecycle_driver)
+        if 'id' not in lifecycle_driver:
+            lifecycle_driver = lifecycle_driver.copy()
+            lifecycle_driver['id'] = str(uuid.uuid4())
+        self.__add(self.lifecycle_drivers, lifecycle_driver['id'], lifecycle_driver)
+        return lifecycle_driver
+       
+    def delete_lifecycle_driver(self, lifecycle_driver):
+        self.mock.delete_lifecycle_driver(lifecycle_driver)
+        self.__delete(self.lifecycle_drivers, lifecycle_driver)
+
     def as_mocked_session(self):
         return SimulatedLmSession(self)
 
@@ -364,6 +416,10 @@ class SimulatedLmSession(LmSession):
         self.__deployment_location_driver = MagicMock()
         self.__resource_pkg_driver = MagicMock()
         self.__resource_pkg_driver_sim = SimResourcePkgDriver(self.sim)
+        self.__vim_driver_mgmt_driver = MagicMock()
+        self.__vim_driver_mgmt_driver_sim = SimVimDriverMgmtDriver(self.sim)
+        self.__lifecycle_driver_mgmt_driver = MagicMock()
+        self.__lifecycle_driver_mgmt_driver_sim = SimLifecycleDriverMgmtDriver(self.sim)
         self.__configure_mocks()
 
     def __configure_mocks(self):
@@ -389,6 +445,15 @@ class SimulatedLmSession(LmSession):
         self.__resource_pkg_driver.delete_package.side_effect = self.__resource_pkg_driver_sim.delete_package
         self.__onboard_rm_driver.update_rm.side_effect = self.__onboard_rm_driver_sim.update_rm
         self.__onboard_rm_driver.get_rm_by_name.side_effect = self.__onboard_rm_driver_sim.get_rm_by_name
+        self.__vim_driver_mgmt_driver.add_vim_driver.side_effect = self.__vim_driver_mgmt_driver_sim.add_vim_driver
+        self.__vim_driver_mgmt_driver.delete_vim_driver.side_effect = self.__vim_driver_mgmt_driver_sim.delete_vim_driver
+        self.__vim_driver_mgmt_driver.get_vim_driver.side_effect = self.__vim_driver_mgmt_driver_sim.get_vim_driver
+        self.__vim_driver_mgmt_driver.get_vim_driver_by_type.side_effect = self.__vim_driver_mgmt_driver_sim.get_vim_driver_by_type
+        self.__lifecycle_driver_mgmt_driver.add_lifecycle_driver.side_effect = self.__lifecycle_driver_mgmt_driver_sim.add_lifecycle_driver
+        self.__lifecycle_driver_mgmt_driver.delete_lifecycle_driver.side_effect = self.__lifecycle_driver_mgmt_driver_sim.delete_lifecycle_driver
+        self.__lifecycle_driver_mgmt_driver.get_lifecycle_driver.side_effect = self.__lifecycle_driver_mgmt_driver_sim.get_lifecycle_driver
+        self.__lifecycle_driver_mgmt_driver.get_lifecycle_driver_by_type.side_effect = self.__lifecycle_driver_mgmt_driver_sim.get_lifecycle_driver_by_type
+        
     @property
     def descriptor_driver(self):
         return self.__descriptor_driver
@@ -413,6 +478,84 @@ class SimulatedLmSession(LmSession):
     def resource_pkg_driver(self):
         return self.__resource_pkg_driver
 
+    @property
+    def vim_driver_mgmt_driver(self):
+        return self.__vim_driver_mgmt_driver
+
+    @property
+    def lifecycle_driver_mgmt_driver(self):
+        return self.__lifecycle_driver_mgmt_driver
+
+
+class SimVimDriverMgmtDriver:
+    def __init__(self, sim_lm):
+        self.sim_lm = sim_lm
+
+    def add_vim_driver(self, vim_driver):
+        try:
+            added_vim_driver = self.sim_lm.add_vim_driver(vim_driver)
+            return added_vim_driver
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def delete_vim_driver(self, driver_id):
+        try:
+            self.sim_lm.delete_vim_driver(driver_id)
+        except NotFoundError as e:
+            raise lm_drivers.NotFoundException('No VIM driver with id {0}'.format(driver_id))
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def get_vim_driver(self, driver_id):
+        try:
+            return self.sim_lm.get_vim_driver(driver_id)
+        except NotFoundError as e:
+            raise lm_drivers.NotFoundException('No VIM driver with id {0}'.format(driver_id))
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def get_vim_driver_by_type(self, inf_type):
+        try:
+            return self.sim_lm.get_vim_driver_by_type(inf_type)
+        except NotFoundError as e:
+            raise lm_drivers.NotFoundException('No VIM driver with infrastructure type {0}'.format(inf_type))
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+class SimLifecycleDriverMgmtDriver:
+    def __init__(self, sim_lm):
+        self.sim_lm = sim_lm
+
+    def add_lifecycle_driver(self, lifecycle_driver):
+        try:
+            added_lifecycle_driver = self.sim_lm.add_lifecycle_driver(lifecycle_driver)
+            return added_lifecycle_driver
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def delete_lifecycle_driver(self, driver_id):
+        try:
+            self.sim_lm.delete_lifecycle_driver(driver_id)
+        except NotFoundError as e:
+            raise lm_drivers.NotFoundException('No lifecycle driver with id {0}'.format(driver_id))
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def get_lifecycle_driver(self, driver_id):
+        try:
+            return self.sim_lm.get_lifecycle_driver(driver_id)
+        except NotFoundError as e:
+            raise lm_drivers.NotFoundException('No lifecycle driver with id {0}'.format(driver_id))
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def get_lifecycle_driver_by_type(self, inf_type):
+        try:
+            return self.sim_lm.get_lifecycle_driver_by_type(inf_type)
+        except NotFoundError as e:
+            raise lm_drivers.NotFoundException('No lifecycle driver with infrastructure type {0}'.format(inf_type))
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
 
 class SimDescriptorDriver:
     def __init__(self, sim_lm):

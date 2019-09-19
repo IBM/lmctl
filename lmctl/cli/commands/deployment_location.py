@@ -77,7 +77,7 @@ def delete(environment, name, config, pwd):
     dl_driver = get_dl_driver(environment, config, pwd)
     dl_list = dl_driver.get_locations_by_name(name)
     if len(dl_list) == 0:
-        click.echo('No deployment location with name: {0}'.format(name), err=True)
+        click.echo('Error: No deployment location with name: {0}'.format(name), err=True)
         exit(1)
     matched_dl = dl_list[0]
     dl_id = matched_dl['id']

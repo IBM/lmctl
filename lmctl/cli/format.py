@@ -27,19 +27,28 @@ class Format(ABC):
     def convert_list(self, element_list):
         pass
 
+    @abstractmethod
+    def convert_element(self, element):
+        pass
+
 
 class JsonFormat(Format):
 
     def convert_list(self, element_list):
         data = {'items': element_list}
-        return json.dumps(data)
+        return json.dumps(data, indent=2)
 
+    def convert_element(self, element):
+        return json.dumps(element, indent=2)
 
 class YamlFormat(Format):
 
     def convert_list(self, element_list):
         data = {'items': element_list}
         return yaml.dump(data)
+
+    def convert_element(self, element):
+        return yaml.dump(element)
 
 
 class TableFormat(Format):
@@ -53,6 +62,10 @@ class TableFormat(Format):
         for element in element_list:
             table_data.append(self.__element_to_table_row(element))
         return tabulate(table_data, headers=self.headers, tablefmt='orgtbl')
+
+    def convert_element(self, element):
+        return self.convert_list([element])
+
 
     def __element_to_table_row(self, element):
         table_row = self.row_processor(element)
