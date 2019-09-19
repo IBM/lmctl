@@ -30,8 +30,8 @@ class LmLifecycleDriverMgmtDriver(LmDriver):
         else:
             self._raise_unexpected_status_exception(response)
 
-    def delete_lifecycle_driver(self, id):
-        url = self.__lifecycle_driver_by_id_api(id)
+    def delete_lifecycle_driver(self, driver_id):
+        url = self.__lifecycle_driver_by_id_api(driver_id)
         headers = self._configure_access_headers()
         response = requests.delete(url, headers=headers, verify=False)
         if response.status_code == 204:

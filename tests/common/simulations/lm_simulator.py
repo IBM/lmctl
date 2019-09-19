@@ -382,7 +382,7 @@ class SimulatedLm:
             if 'type' in driver:
                 if driver['type'] == lifecycle_type:
                     return driver
-        raise NotFoundError('Lifecycle driver with type {0} not found'.format(inf_type))
+        raise NotFoundError('Lifecycle driver with type {0} not found'.format(lifecycle_type))
 
     def add_lifecycle_driver(self, lifecycle_driver):
         self.mock.add_lifecycle_driver(lifecycle_driver)
@@ -549,11 +549,11 @@ class SimLifecycleDriverMgmtDriver:
         except Exception as e:
             raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
 
-    def get_lifecycle_driver_by_type(self, inf_type):
+    def get_lifecycle_driver_by_type(self, lifecycle_type):
         try:
-            return self.sim_lm.get_lifecycle_driver_by_type(inf_type)
+            return self.sim_lm.get_lifecycle_driver_by_type(lifecycle_type)
         except NotFoundError as e:
-            raise lm_drivers.NotFoundException('No lifecycle driver with infrastructure type {0}'.format(inf_type))
+            raise lm_drivers.NotFoundException('No lifecycle driver with type {0}'.format(lifecycle_type))
         except Exception as e:
             raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
 
