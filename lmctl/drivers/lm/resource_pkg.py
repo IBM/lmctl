@@ -27,7 +27,7 @@ class LmResourcePkgDriver(LmDriver):
                 self._raise_unexpected_status_exception(response)
 
     def delete_package(self, resource_type_name):
-        url = self.__package_api(resource_type_name) 
+        url = self.__package_api(resource_type_name)
         headers = self._configure_access_headers()
         response = requests.delete(url, headers=headers, verify=False)
         if response.status_code == 404:
