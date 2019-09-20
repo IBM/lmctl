@@ -28,7 +28,7 @@ class LmVimDriverMgmtDriver(LmDriver):
         if response.status_code == 201:
             location_header = response.headers['location']
             location_parts = location_header.split('/')
-            driver_id = location_parts[len(location_parts-1)]
+            driver_id = location_parts[len(location_parts)-1]
             vim_driver['id'] = driver_id
             return vim_driver
         else:

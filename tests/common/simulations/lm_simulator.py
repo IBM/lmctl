@@ -209,7 +209,7 @@ class SimulatedLm:
     def get_deployment_locations(self):
         self.mock.get_deployment_locations()
         dl_list = []
-        for dl_id, dl in self.deployment_locations:
+        for dl_id, dl in self.deployment_locations.items():
             dl_list.append(dl)
         return dl_list
 

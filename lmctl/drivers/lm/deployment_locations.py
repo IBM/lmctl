@@ -49,7 +49,7 @@ class LmDeploymentLocationDriver(LmDriver):
         if response.status_code == 201:
             location_header = response.headers['location']
             location_parts = location_header.split('/')
-            deployment_location_id = location_parts[len(location_parts-1)]
+            deployment_location_id = location_parts[len(location_parts)-1]
             deployment_location['id'] = deployment_location_id
             return deployment_location
         else:

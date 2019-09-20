@@ -26,7 +26,11 @@ class LmLifecycleDriverMgmtDriver(LmDriver):
         headers = self._configure_access_headers()
         response = requests.post(url, headers=headers, json=lifecycle_driver, verify=False)
         if response.status_code == 201:
-            True
+            location_header = response.headers['location']
+            location_parts = location_header.split('/')
+            driver_id = location_parts[len(location_parts)-1]
+            lifecycle_driver['id'] = driver_id
+            return lifecycle_driver
         else:
             self._raise_unexpected_status_exception(response)
 
@@ -36,6 +40,17 @@ class LmLifecycleDriverMgmtDriver(LmDriver):
         response = requests.delete(url, headers=headers, verify=False)
         if response.status_code == 204:
             return True
+        elif response.status_code == 404:
+            raise NotFoundException('No lifecycle driver with id {0}'.format(driver_id))
+        else:
+            self._raise_unexpected_status_exception(response)
+
+    def get_lifecycle_driver(self, driver_id):
+        url = self.__lifecycle_driver_by_id_api(driver_id)
+        headers = self._configure_access_headers()
+        response = requests.get(url, headers=headers, verify=False)
+        if response.status_code == 200:
+            return response.json()
         elif response.status_code == 404:
             raise NotFoundException('No lifecycle driver with id {0}'.format(driver_id))
         else:

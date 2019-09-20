@@ -274,3 +274,90 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\nresourceManager: rm123\n'
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+
+    def test_list_with_defaults(self):
+        dl_A_id = 'f801fa73-6278-42f0-b5d3-a0fe40675327'
+        dl_A_name = 'testdl_a'
+        self.lm_sim.add_deployment_location({'id': dl_A_id, 'name': dl_A_name, 'resourceManager': 'rm123'})
+        dl_B_id = 'c502bc73-6278-42e0-a5e3-a0fe40674754'
+        dl_B_name = 'testdl_b'
+        self.lm_sim.add_deployment_location({'id': dl_B_id, 'name': dl_B_name, 'resourceManager': 'rm123'})
+        result = self.runner.invoke(deployment_cmds.list_locations, ['TestEnv'])
+        self.assert_no_errors(result)
+        expected_output = '| id                                   | name     | resourceManager   | infrastructureType   | description   |'
+        expected_output += '\n|--------------------------------------+----------+-------------------+----------------------+---------------|'
+        expected_output += '\n| f801fa73-6278-42f0-b5d3-a0fe40675327 | testdl_a | rm123             |                      |               |'
+        expected_output += '\n| c502bc73-6278-42e0-a5e3-a0fe40674754 | testdl_b | rm123             |                      |               |'
+        self.assert_output(result, expected_output)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        mock_dl_driver = self.mock_create_lm_session.return_value.deployment_location_driver
+        mock_dl_driver.get_locations.assert_called_once()
+    
+    def test_list_with_config(self):
+        dl_id = 'f801fa73-6278-42f0-b5d3-a0fe40675327'
+        dl_name = 'testdl'
+        self.lm_sim.add_deployment_location({'id': dl_id, 'name': dl_name, 'resourceManager': 'rm123'})
+        result = self.runner.invoke(deployment_cmds.list_locations, ['TestEnv', '--config', 'my/config/file'])
+        self.assert_no_errors(result)
+        expected_output = '| id                                   | name   | resourceManager   | infrastructureType   | description   |'
+        expected_output += '\n|--------------------------------------+--------+-------------------+----------------------+---------------|'
+        expected_output += '\n| {0} | testdl | rm123             |                      |               |'.format(dl_id)
+        self.assert_output(result, expected_output)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, 'my/config/file')
+
+    def test_get_with_pwd(self):
+        dl_id = 'f801fa73-6278-42f0-b5d3-a0fe40675327'
+        dl_name = 'testdl'
+        self.lm_sim.add_deployment_location({'id': dl_id, 'name': dl_name, 'resourceManager': 'rm123'})
+        result = self.runner.invoke(deployment_cmds.list_locations, ['TestEnv', '--pwd', 'secret'])
+        self.assert_no_errors(result)
+        expected_output = '| id                                   | name   | resourceManager   | infrastructureType   | description   |'
+        expected_output += '\n|--------------------------------------+--------+-------------------+----------------------+---------------|'
+        expected_output += '\n| {0} | testdl | rm123             |                      |               |'.format(dl_id)
+        self.assert_output(result, expected_output)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', 'secret', None)
+
+    def test_list_with_output_json_format(self):
+        dl_A_id = 'f801fa73-6278-42f0-b5d3-a0fe40675327'
+        dl_A_name = 'testdl_a'
+        self.lm_sim.add_deployment_location({'id': dl_A_id, 'name': dl_A_name, 'resourceManager': 'rm123'})
+        dl_B_id = 'c502bc73-6278-42e0-a5e3-a0fe40674754'
+        dl_B_name = 'testdl_b'
+        self.lm_sim.add_deployment_location({'id': dl_B_id, 'name': dl_B_name, 'resourceManager': 'rm123'})
+        result = self.runner.invoke(deployment_cmds.list_locations, ['TestEnv', '-f', 'json'])
+        self.assert_no_errors(result)
+        expected_output = '{'
+        expected_output += '\n  \"items\": ['
+        expected_output += '\n    {'
+        expected_output += '\n      \"id\": \"{0}\",'.format(dl_A_id)
+        expected_output += '\n      \"name\": \"{0}\",'.format(dl_A_name)
+        expected_output += '\n      \"resourceManager\": \"rm123\"'
+        expected_output += '\n    },'
+        expected_output += '\n    {'
+        expected_output += '\n      \"id\": \"{0}\",'.format(dl_B_id)
+        expected_output += '\n      \"name\": \"{0}\",'.format(dl_B_name)
+        expected_output += '\n      \"resourceManager\": \"rm123\"'
+        expected_output += '\n    }'
+        expected_output += '\n  ]'
+        expected_output += '\n}'
+        self.assert_output(result, expected_output)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+    
+    def test_list_with_output_yaml_format(self):
+        dl_A_id = 'f801fa73-6278-42f0-b5d3-a0fe40675327'
+        dl_A_name = 'testdl_a'
+        self.lm_sim.add_deployment_location({'id': dl_A_id, 'name': dl_A_name, 'resourceManager': 'rm123'})
+        dl_B_id = 'c502bc73-6278-42e0-a5e3-a0fe40674754'
+        dl_B_name = 'testdl_b'
+        self.lm_sim.add_deployment_location({'id': dl_B_id, 'name': dl_B_name, 'resourceManager': 'rm123'})
+        result = self.runner.invoke(deployment_cmds.list_locations, ['TestEnv', '-f', 'yaml'])
+        self.assert_no_errors(result)
+        expected_output = 'items:'
+        expected_output += '\n- id: {0}'.format(dl_A_id)
+        expected_output += '\n  name: {0}'.format(dl_A_name)
+        expected_output += '\n  resourceManager: rm123'
+        expected_output += '\n- id: {0}'.format(dl_B_id)
+        expected_output += '\n  name: {0}'.format(dl_B_name)
+        expected_output += '\n  resourceManager: rm123\n'
+        self.assert_output(result, expected_output)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)

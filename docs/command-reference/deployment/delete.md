@@ -7,7 +7,7 @@ Remove a deployment location from a LM environment
 ## Usage
 
 ```
-lmctl deployment add [OPTIONS] ENVIRONMENT NAME
+lmctl deployment delete [OPTIONS] ENVIRONMENT NAME
 ```
 
 ## Arguments
@@ -15,7 +15,7 @@ lmctl deployment add [OPTIONS] ENVIRONMENT NAME
 | Name        | Description                                                                           | Default | Example      |
 | ----------- | ------------------------------------------------------------------------------------- | ------- | ------------ |
 | Environment | name of the environment from the LMCTL configuration file to remove the location from | -       | dev          |
-| Name        | name of the new deployment location to be removed                                     | -       | TestLocation |
+| Name        | name of the deployment location to be removed                                         | -       | TestLocation |
 
 ## Options
 

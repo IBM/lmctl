@@ -31,7 +31,6 @@ class LmDriverSafety(ExceptionSafetyNet):
             logger.exception(value)
             click.echo('LM error occured: {0}'.format(str(value)), err=True)
             exit(1)
-        return super().safety_net(etype, value, traceback)
 
 def lm_driver_safety():
     return LmDriverSafety()
