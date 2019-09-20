@@ -12,6 +12,7 @@ lmctl env list [OPTIONS]
 
 ## Options
 
-| Name       | Description                                                                                               | Default | Example                                  |
-| ---------- | --------------------------------------------------------------------------------------------------------- | ------- | ---------------------------------------- |
-| `--config` | path to an LMCTL configuration file to use instead of the file specified on LMCONFIG environment variable | -       | --config /home/user/my_lmctl_config.yaml |
+| Name             | Description                                                                                               | Default | Example                                  |
+| ---------------- | --------------------------------------------------------------------------------------------------------- | ------- | ---------------------------------------- |
+| `--config`       | path to an LMCTL configuration file to use instead of the file specified on LMCONFIG environment variable | -       | --config /home/user/my_lmctl_config.yaml |
+| `-f`, `--format` | format of output [table, yaml, json]                                                                      | table   | -f yaml                                  |
