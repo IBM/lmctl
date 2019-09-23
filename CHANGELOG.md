@@ -3,19 +3,12 @@
 ## [2.1.2](https://github.com/accanto-systems/lmctl/tree/2.1.2) (2019-09-23)
 [Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.1.1...2.1.2)
 
-**Implemented enhancements:**
-
-- Add commands to onboard VIM and Lifecycle drivers [\#15](https://github.com/accanto-systems/lmctl/issues/15)
-
 **Fixed bugs:**
 
-- env list command displaying stack trace when config file not set [\#13](https://github.com/accanto-systems/lmctl/issues/13)
 - 401 unauthorised when pushing resource to secure LM environment [\#16](https://github.com/accanto-systems/lmctl/issues/16)
 
 **Merged pull requests:**
 
-- Fixes \#13 by capturing config load errors [\#20](https://github.com/accanto-systems/lmctl/pull/20) ([dvaccarosenna](https://github.com/dvaccarosenna))
-- Closes \#15 by adding vimdriver and lifecycledriver commands  [\#19](https://github.com/accanto-systems/lmctl/pull/19) ([dvaccarosenna](https://github.com/dvaccarosenna))
 - Resolves \#16 by ensuring auth headers are added to Resource onboarding requests [\#17](https://github.com/accanto-systems/lmctl/pull/17) ([dvaccarosenna](https://github.com/dvaccarosenna))
 
 ## [2.1.1](https://github.com/accanto-systems/lmctl/tree/2.1.1) (2019-09-18)
