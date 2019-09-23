@@ -1,5 +1,16 @@
 # Change Log
 
+## [2.1.2](https://github.com/accanto-systems/lmctl/tree/2.1.2) (2019-09-23)
+[Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.1.1...2.1.2)
+
+**Fixed bugs:**
+
+- 401 unauthorised when pushing resource to secure LM environment [\#16](https://github.com/accanto-systems/lmctl/issues/16)
+
+**Merged pull requests:**
+
+- Resolves \#16 by ensuring auth headers are added to Resource onboarding requests [\#17](https://github.com/accanto-systems/lmctl/pull/17) ([dvaccarosenna](https://github.com/dvaccarosenna))
+
 ## [2.1.1](https://github.com/accanto-systems/lmctl/tree/2.1.1) (2019-09-18)
 
 [Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.1.0...2.1.1)
