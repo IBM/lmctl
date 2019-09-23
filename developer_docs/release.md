@@ -54,13 +54,13 @@ Release notes are produced by updating the CHANGELOG.md, then copying the sectio
 
 The CHANGELOG is updated using [github-changelog-generator](https://github.com/github-changelog-generator/github-changelog-generator#why-should-i-care)
 
-6.1 Update CHANGELOG.md
+6.1 Update CHANGELOG.md - recommend you generate a changelog for the current release, then copy the log for the release to the main CHANGELOG.md (this prevents the generator from re-generating the entire file and from overwritting any manual additions to the changelog)
 
 ```
-github_changelog_generator accanto-systems/lmctl
+github_changelog_generator accanto-systems/lmctl --since-tag <previous-release> --output tmp_changelog.md
 ```
 
-6.2 Commit the updated CHANGELOG.md
+6.2 Commit the updated CHANGELOG.md (not the tmp_changelog)
 
 6.3 Copy the section for the newly released version from CHANGELOG.md into the description of the release created on Github
 
