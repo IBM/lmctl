@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 def get_ctl(config_path=None):
     try:
-        ctl_config.get_ctl(config_path)
+        return ctl_config.get_ctl(config_path)
     except (ctl_config.ConfigParserError, ctl_config.ConfigError) as e:
         output.printer.error('Error: Failed to load configuration - {0}'.format(str(e)))
         logger.exception(str(e))
