@@ -87,9 +87,9 @@ class TestLifecycleDriverCommands(command_testing.CommandTestCase):
         expected_id = None
         for lifecycle_driver_id, lifecycle_driver in self.lm_sim.lifecycle_drivers.items():
             expected_id = lifecycle_driver_id
-        expected_output = 'baseUri: http://mockdriver.example.com'
-        expected_output += '\nid: {0}'.format(expected_id)
-        expected_output += '\ntype: Ansible\n'
+        expected_output = 'type: Ansible'
+        expected_output += '\nbaseUri: http://mockdriver.example.com'
+        expected_output += '\nid: {0}\n'.format(expected_id)
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
 
@@ -251,8 +251,8 @@ class TestLifecycleDriverCommands(command_testing.CommandTestCase):
         self.lm_sim.add_lifecycle_driver({'id': lifecycle_driver_id, 'type': 'Ansible', 'baseUri': 'example.com'})
         result = self.runner.invoke(lifecycledriver_cmds.get, ['TestEnv', lifecycle_driver_id, '-f', 'yaml'])
         self.assert_no_errors(result)
-        expected_output = 'baseUri: example.com'
-        expected_output += '\nid: \'123\''
-        expected_output += '\ntype: Ansible\n'
+        expected_output = 'id: \'123\''
+        expected_output += '\ntype: Ansible'
+        expected_output += '\nbaseUri: example.com\n'
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)

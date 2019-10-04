@@ -45,10 +45,10 @@ class YamlFormat(Format):
 
     def convert_list(self, element_list):
         data = {'items': element_list}
-        return yaml.dump(data)
+        return yaml.dump(data, sort_keys=False)
 
     def convert_element(self, element):
-        return yaml.dump(element)
+        return yaml.dump(element, sort_keys=False)
 
 
 class TableFormat(Format):

@@ -146,12 +146,12 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_id = None
         for dl_id, dl in self.lm_sim.deployment_locations.items():
             expected_id = dl_id
-        expected_output = 'description: null'
-        expected_output += '\nid: {0}'.format(expected_id)
-        expected_output += '\ninfrastructureSpecificProperties: {}'
+        expected_output = 'name: testdl'
+        expected_output += '\ndescription: null'
+        expected_output += '\nresourceManager: rm123'
         expected_output += '\ninfrastructureType: null'
-        expected_output += '\nname: testdl'
-        expected_output += '\nresourceManager: rm123\n'
+        expected_output += '\ninfrastructureSpecificProperties: {}'
+        expected_output += '\nid: {0}\n'.format(expected_id)
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
 
