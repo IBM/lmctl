@@ -2,6 +2,7 @@ import os
 import yaml
 import tarfile
 import tempfile
+import shutil
 import lmctl.files as files
 import lmctl.journal as journal
 import lmctl.project.journal as project_journal
@@ -85,10 +86,63 @@ class SubPkgContent(PkgContentBase):
         tree = PkgContentTree(root_path)
         super().__init__(tree, meta)
 
+class PkgInspectionReport:
+
+    def __init__(self, pkg_name, pkg_version, includes):
+        self.name = pkg_name
+        self.version = pkg_version
+        if includes is None:
+            includes = []
+        self.includes = includes
+
+    def to_dict(self):
+        tpl = {}
+        tpl['name'] = self.name
+        tpl['version'] = self.version
+        tpl['includes'] = []
+        for include in self.includes:
+            tpl['includes'].append(include.to_dict())
+        return tpl
+    
+class PkgIncludeEntry:
+
+    def __init__(self, meta_entry):
+        self.meta_entry = meta_entry
+    
+    @property
+    def name(self):
+        return self.meta_entry.full_name
+
+    @property
+    def descriptor_name(self):
+        return self.meta_entry.descriptor_name
+
+    @property
+    def resource_manager(self):
+        return self.meta_entry.resource_manager
+
+    def to_dict(self):
+        tpl = {}
+        tpl['name'] = self.name
+        tpl['descriptor'] = self.descriptor_name
+        resource_manager = self.resource_manager
+        if resource_manager != None:
+            tpl['resource-manager'] = resource_manager
+        return tpl
+
 class Pkg:
 
     def __init__(self, path):
         self.path = path
+
+    def inspect(self):
+        tempdir = tempfile.mkdtemp()
+        try:
+            pkg_content = self.open(tempdir)
+            return pkg_content.inspect()
+        finally:
+            if os.path.exists(tempdir):
+                shutil.rmtree(tempdir)
 
     def extract(self, target_directory):
         with tarfile.open(self.path, mode='r:gz') as pkg_tar:
@@ -166,6 +220,17 @@ class PkgContent(PkgContentBase):
 
     def __init_journal(self, journal_consumer=None):
         return project_journal.ProjectJournal(journal_consumer)
+
+    def inspect(self):
+        includes = self.__inspect_meta(self.meta)
+        return PkgInspectionReport(self.meta.full_name, self.meta.version, includes)
+
+    def __inspect_meta(self, meta_entry):
+        includes = []
+        includes.append(PkgIncludeEntry(meta_entry))
+        for subpkg in meta_entry.subpkgs:
+            includes.extend(self.__inspect_meta(subpkg))
+        return includes
 
     def push(self, env_sessions, options):
         journal = self.__init_journal(options.journal_consumer)

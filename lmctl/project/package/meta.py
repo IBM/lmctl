@@ -2,6 +2,7 @@ import lmctl.project.types as types
 import os
 import yaml 
 import shutil
+import lmctl.utils.descriptors as descriptor_utils
 
 # Any Packages without a Schema are deemed to be using Schema 1.0, as the idea of a Schema was only introduced in v2.1 of lmctl
 SCHEMA_1_0 = '1.0'
@@ -42,6 +43,10 @@ class PkgMeta:
 
     @property
     def subpkg_entries(self):
+        pass
+
+    @property
+    def descriptor_name(self):
         pass
 
     def is_subpkg(self):
@@ -88,6 +93,13 @@ class PkgMetaBase(PkgMeta):
     @property
     def resource_manager(self):
         return self._resource_manager
+
+    @property
+    def descriptor_name(self):
+        descriptor_type = descriptor_utils.ASSEMBLY_DESCRIPTOR_TYPE
+        if self.is_resource_content():
+            descriptor_type = descriptor_utils.RESOURCE_DESCRIPTOR_TYPE
+        return descriptor_utils.DescriptorName(descriptor_type, self.full_name, self.version).name_str()
 
     @property
     def subpkgs(self):

@@ -43,3 +43,32 @@ class TestPkg(ProjectSimTestCase):
         finally:
             if os.path.exists(tmp_dir):
                 shutil.rmtree(tmp_dir)
+
+    def test_inspect(self):
+        pkg_sim = self.simlab.simulate_pkg_assembly_basic()
+        pkg = Pkg(pkg_sim.path)
+        inspection_report = pkg.inspect()
+        self.assertEqual(inspection_report.name, 'basic')
+        self.assertEqual(inspection_report.version, '1.0')
+        self.assertEqual(len(inspection_report.includes), 1)
+        first_include = inspection_report.includes[0]
+        self.assertEqual(first_include.name, 'basic')
+        self.assertEqual(first_include.descriptor_name, 'assembly::basic::1.0')
+        self.assertIsNone(first_include.resource_manager)
+
+    def test_inspect_with_subcontent(self):
+        pkg_sim = self.simlab.simulate_pkg_assembly_contains_brent_basic()
+        pkg = Pkg(pkg_sim.path)
+        inspection_report = pkg.inspect()
+        self.assertEqual(inspection_report.name, 'contains_basic')
+        self.assertEqual(inspection_report.version, '1.0')
+        self.assertEqual(len(inspection_report.includes), 2)
+        first_include = inspection_report.includes[0]
+        self.assertEqual(first_include.name, 'contains_basic')
+        self.assertEqual(first_include.descriptor_name, 'assembly::contains_basic::1.0')
+        self.assertIsNone(first_include.resource_manager)
+        second_include = inspection_report.includes[1]
+        self.assertEqual(second_include.name, 'sub_basic-contains_basic')
+        self.assertEqual(second_include.descriptor_name, 'resource::sub_basic-contains_basic::1.0')
+        self.assertEqual(second_include.resource_manager, 'brent')
+        

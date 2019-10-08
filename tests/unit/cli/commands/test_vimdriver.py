@@ -87,9 +87,9 @@ class TestVimDriverCommands(command_testing.CommandTestCase):
         expected_id = None
         for vim_id, vim_driver in self.lm_sim.vim_drivers.items():
             expected_id = vim_id
-        expected_output = 'baseUri: http://mockdriver.example.com'
-        expected_output += '\nid: {0}'.format(expected_id)
-        expected_output += '\ninfrastructureType: Openstack\n'
+        expected_output = 'infrastructureType: Openstack'
+        expected_output += '\nbaseUri: http://mockdriver.example.com'
+        expected_output += '\nid: {0}\n'.format(expected_id)
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
 
@@ -251,8 +251,8 @@ class TestVimDriverCommands(command_testing.CommandTestCase):
         self.lm_sim.add_vim_driver({'id': vim_driver_id, 'infrastructureType': 'Openstack', 'baseUri': 'example.com'})
         result = self.runner.invoke(vimdriver_cmds.get, ['TestEnv', vim_driver_id, '-f', 'yaml'])
         self.assert_no_errors(result)
-        expected_output = 'baseUri: example.com'
-        expected_output += '\nid: \'123\''
-        expected_output += '\ninfrastructureType: Openstack\n'
+        expected_output = 'id: \'123\''
+        expected_output += '\ninfrastructureType: Openstack'
+        expected_output += '\nbaseUri: example.com\n'
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)

@@ -2,6 +2,7 @@ import click
 import logging
 import lmctl.cli.lifecycle as lifecycle_cli
 import lmctl.project.package.core as pkgs
+from lmctl.cli.format import determine_format_class
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,24 @@ def push(package, environment, config, armname, pwd):
     exec_push(controller, pkg, env_sessions)
     controller.finalise()
 
+
+@pkg.command(help='Inspect a package')
+@click.argument('package')
+@click.option('--config', default=None, help='configuration file')
+@click.option('-f', '--format', 'output_format', default='yaml', help='format of output [yaml, json]')
+def inspect(package, config, output_format):
+    logger.debug('Inspecting package at: {0}'.format(package))
+    pkg = lifecycle_cli.open_pkg(package)
+    inspection_report = pkg.inspect()
+    result = format_inspection_report(output_format, inspection_report)
+    click.echo(result)
+    
+def format_inspection_report(output_format, inspection_report):
+    inspection_report_tpl = inspection_report.to_dict()
+    formatter_class = determine_format_class(output_format)
+    formatter = formatter_class()
+    result = formatter.convert_element(inspection_report_tpl)
+    return result
 
 def exec_push(controller, pkg, env_sessions):
     push_options = pkgs.PushOptions()
