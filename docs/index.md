@@ -1,12 +1,39 @@
 # Overview
 
-The 2.1 version of LMCTL features support for an expanded range of CI/CD project types, deployment location commands and improved usability.
+The 2.2 version of LMCTL features additional commands to handle package inspection and VIM/lifecycle driver management.
 
-This version of LMCTL is compatibile with any Stratoss&trade; Lifecycle Manager environment from 2.0.x.
+This version of LMCTL is compatibile with any Stratoss&trade; Lifecycle Manager environment from 2.0.x and 2.1.x.
+
+# Difference from 2.1
+
+The following section describes the differences from LMCTL 2.1. A later section shows the differences from 2.0.
+
+## Pkg Inspect
+
+A new command has been added to detail the contents of a package built with lmctl. 
+
+```
+lmctl pkg inspect --help
+```
+
+Read more about this command in the [command reference](./command-reference/pkg/inspect.md)
+
+## Driver Commands
+
+Stratoss&trade; Lifecycle Manager 2.1.x versions includes a Resource Manager that may be integrated with through VIM and Lifecycle drivers. This version of lmctl provides commands to add, delete and view the drivers onboarded in an environment.
+
+```
+lmctl vimdriver --help
+lmctl lifecycledriver --help
+```
+
+Read more about these commands in the [vimdriver command reference](./command-reference/vimdriver/add.md) and [lifecycledriver command reference](./command-reference/lifecycledriver/add.md)
 
 # Differences from 2.0
 
 The following section describes the differences from LMCTL 2.0 and explains how the tool will help upgrade the users' existing projects with very little impact on them.
+
+These changes were made in 2.1 but have been included in the documentation of 2.2 for reference.
 
 ## Backward Compatibility
 
