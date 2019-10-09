@@ -41,7 +41,7 @@ def create_lm_session(environment_group_name, lm_pwd=None, config_path=None):
         if lm_pwd is not None and len(lm_pwd.strip()) > 0:
             lm_session_config.password = lm_pwd
         elif lm_session_config.password is None:
-            prompt_pwd = click.prompt('Please enter password for LM user {0}'.format(lm_session_config.username), hide_input=secret, default='')
+            prompt_pwd = click.prompt('Please enter password for LM user {0}'.format(lm_session_config.username), hide_input=True, default='')
             lm_session_config.password = prompt_pwd
     return lm_session_config.create()
 
