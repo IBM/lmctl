@@ -1,5 +1,17 @@
 # Change Log
 
+## [2.2.0](https://github.com/accanto-systems/lmctl/tree/2.2.0) (2019-10-09)
+[Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.1.2...2.2.0)
+
+**Fixed bugs:**
+
+- NameError: name 'secret' is not defined [\#22](https://github.com/accanto-systems/lmctl/issues/22)
+
+**Implemented enhancements:**
+
+- Add command to show package details [\#14](https://github.com/accanto-systems/lmctl/issues/14)
+- Add commands to onboard VIM and Lifecycle drivers [\#15](https://github.com/accanto-systems/lmctl/issues/15)
+
 ## [2.1.2](https://github.com/accanto-systems/lmctl/tree/2.1.2) (2019-09-23)
 [Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.1.1...2.1.2)
 
