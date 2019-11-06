@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.2.1](https://github.com/accanto-systems/lmctl/tree/2.2.1) (2019-11-06)
+[Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.2.0...2.2.1)
+
+**Fixed bugs:**
+
+- Lmctl build directory not relative to project being built [\#24](https://github.com/accanto-systems/lmctl/issues/24)
+- AttributeError: YAML object has no attribute YAMLError on invalid descriptor [\#25](https://github.com/accanto-systems/lmctl/issues/25)
+
 ## [2.2.0](https://github.com/accanto-systems/lmctl/tree/2.2.0) (2019-10-09)
 [Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.1.2...2.2.0)
 
