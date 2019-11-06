@@ -1,6 +1,7 @@
 import os
 import lmctl.files as files
 import yaml
+import lmctl.utils.descriptors as descriptor_utils
 import lmctl.project.source.config as project_configs
 import lmctl.project.journal as project_journal
 import lmctl.project.processes.validation as validation_exec

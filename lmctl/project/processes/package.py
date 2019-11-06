@@ -30,7 +30,7 @@ class PkgProcess:
         self.journal = journal
 
     def __create_pkg_build_tree(self):
-        return PkgBuildTree(os.path.join(LIFECYCLE_WORKSPACE, 'build'))
+        return PkgBuildTree(os.path.join(self.project.tree.root_path, LIFECYCLE_WORKSPACE, 'build'))
 
     def execute(self):
         self.journal.section('Finalise Package')
