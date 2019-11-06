@@ -1,10 +1,10 @@
-from ruamel.yaml import YAML
+import ruamel.yaml as ryaml
 import os
 
 ASSEMBLY_DESCRIPTOR_TYPE = 'assembly'
 RESOURCE_DESCRIPTOR_TYPE = 'resource'
 
-yaml = YAML()
+yaml = ryaml.YAML()
 yaml.default_flow_style = False
 
 
@@ -34,7 +34,7 @@ class DescriptorParser:
     def __convert_str_to_dict(self, descriptor_yml_str):
         try:
             yml_dict = yaml.load(descriptor_yml_str)
-        except yaml.YAMLError as e:
+        except ryaml.YAMLError as e:
             raise DescriptorParsingError(str(e)) from e
         return yml_dict
 
