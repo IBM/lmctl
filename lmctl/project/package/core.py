@@ -3,6 +3,7 @@ import yaml
 import tarfile
 import tempfile
 import shutil
+import lmctl.utils.descriptors as descriptor_utils
 import lmctl.files as files
 import lmctl.journal as journal
 import lmctl.project.journal as project_journal
