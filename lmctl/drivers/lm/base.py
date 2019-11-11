@@ -13,15 +13,20 @@ class LmDriver:
             return self.lm_security_ctrl.add_access_headers(headers)
         return headers
 
-    def _raise_unexpected_status_exception(self, response):
+    def _raise_unexpected_status_exception(self, response, error_prefx=None):
         message = None
         try:
             json_body = response.json()
             if 'localizedMessage' in json_body:
                 message = json_body['localizedMessage']
+            elif 'message' in json_body:
+                message = json_body['message']
         except ValueError as e:
             pass
-        error_msg = 'Request returned unexpected error: status_code={0}'.format(response.status_code)
+        error_msg = ''
+        if error_prefx is not None:
+            error_msg += '{0}: '.format(error_prefx)
+        error_msg += 'Request returned unexpected error: status_code={0}'.format(response.status_code)
         if message:
             error_msg += ', message={0}'.format(message)
         raise LmDriverException(error_msg)

@@ -9,7 +9,7 @@ SUPPORTED_PROTOCOLS = [HTTP_PROTOCOL, HTTPS_PROTOCOL]
 
 class LmEnvironment(Environment):
 
-    def __init__(self, name, host, port=None, protocol=HTTPS_PROTOCOL, **kwargs):
+    def __init__(self, name, host, port=None, protocol=HTTPS_PROTOCOL, path=None,**kwargs):
         name = value_or_default(name, None)
         if not name:
             raise EnvironmentConfigError('LM environment cannot be configured without property: name')
@@ -19,6 +19,7 @@ class LmEnvironment(Environment):
             raise EnvironmentConfigError('LM environment cannot be configured without property: host (ip_address)')
         self.host = host
         self.port = value_or_default(port, None)
+        self.path = value_or_default(path, None)
         protocol = str(value_or_default(protocol, HTTPS_PROTOCOL))
         self.protocol = protocol.lower()
         if self.protocol not in SUPPORTED_PROTOCOLS:
@@ -60,6 +61,8 @@ class LmEnvironment(Environment):
         base = '{0}://{1}'.format(self.protocol, self.host)
         if self.port:
             base += ':{0}'.format(self.port)
+        if self.path:
+            base += '/{0}'.format(self.path)
         return base
 
     @property

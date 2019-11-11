@@ -78,6 +78,7 @@ environments:
   example_with_comments:
     description: an example environment
     lm:
+      ## Access to LM is determined by combining <protocol>://<host>:<port>/<path>/
       ## The host address of the LM API
       ## - Required
       host: app.lm
@@ -85,6 +86,10 @@ environments:
       ## The port of the LM API. Leave empty if LM is accessible through host only
       ## - Optional
       port: 32443
+
+      ## The path of the LM API. Leave empty if LM is accessible on the root path of the host and port given
+      ## - Optional
+      #path: /my-lm
 
       ## Set if the environment is accessed through HTTPs or HTTP
       ## - Optional
@@ -96,6 +101,7 @@ environments:
       ## - Default: false
       secure: true
 
+      ## Access to LM Auth is determined by combining <protocol>://<auth_host>:<auth_port>/ui/ (for pre 2.1 LM environments it will use <protocol>://<auth_host>:<auth_port>/)
       ## The host address of the LM Username Auth API
       ## - Optional
       ## - Default: uses value of 'host'
