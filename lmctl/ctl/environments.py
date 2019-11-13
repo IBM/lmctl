@@ -41,6 +41,7 @@ class EnvironmentGroupParserWorker:
         name = 'alm'
         host = lm_config_dict.get('host', lm_config_dict.get('ip_address', None))
         port = lm_config_dict.get('port', None)
+        path = lm_config_dict.get('path', None)
         protocol = lm_config_dict.get('protocol', None)
         if not protocol:
             secure_port = lm_config_dict.get('secure_port', None)
@@ -55,7 +56,7 @@ class EnvironmentGroupParserWorker:
         password = lm_config_dict.get('password', None)
         auth_protocol = lm_config_dict.get('auth_protocol', None)
         try:
-            return lmenvs.LmEnvironment(name, host, port, protocol, secure=secure,  username=username, password=password, auth_host=auth_host, auth_port=auth_port, auth_protocol=auth_protocol)
+            return lmenvs.LmEnvironment(name, host, port, protocol, path=path, secure=secure,  username=username, password=password, auth_host=auth_host, auth_port=auth_port, auth_protocol=auth_protocol)
         except envgroups.EnvironmentConfigError as e:
             raise ConfigError(str(e)) from e
 
