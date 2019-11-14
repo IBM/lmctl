@@ -44,6 +44,18 @@ BRENT_LIFECYCLE_MANIFEST_FILE = 'lifecycle.mf'
 BRENT_LIFECYCLE_ANSIBLE_DIR = 'ansible'
 BRENT_LIFECYCLE_ANSIBLE_SCRIPTS_DIR = 'scripts'
 BRENT_LIFECYCLE_ANSIBLE_CONFIG_DIR = 'config'
+BRENT_LIFECYCLE_ANSIBLE_CONFIG_HOSTVARS_DIR_NAME = 'host_vars'
+BRENT_LIFECYCLE_ANSIBLE_INVENTORY_FILE = 'inventory'
+BRENT_SOL003_DIR = 'sol003'
+BRENT_SOL003_SCRIPTS_DIR = 'scripts'
+BRENT_SOL003_CREATE_VNF_REQUEST_FILE = 'CreateVnfRequest.js'
+BRENT_SOL003_HEAL_VNF_REQUEST_FILE = 'HealVnfRequest.js'
+BRENT_SOL003_INSTANTIATE_VNF_REQUEST_FILE = 'InstantiateVnfRequest.js'
+BRENT_SOL003_OPERATE_VNF_REQUEST_START_FILE = 'OperateVnfRequest-Start.js'
+BRENT_SOL003_OPERATE_VNF_REQUEST_STOP_FILE = 'OperateVnfRequest-Stop.js'
+BRENT_SOL003_SCALE_VNF_REQUEST_FILE = 'ScaleVnfRequest.js'
+BRENT_SOL003_TERMINATE_VNF_REQUEST_FILE = 'TerminateVnfRequest.js'
+BRENT_SOL003_VNF_INSTANCE_FILE = 'VnfInstance.js'
 
 
 class ProjectSimTestCase(unittest.TestCase):
@@ -101,6 +113,10 @@ class ProjectAssertions:
         with open(full_path, 'r') as file:
             content = file.read()
         self.tc.assertEqual(content, expected_file_content)
+
+    def assert_has_file_path(self, expected_file_path):
+        full_path = self.__full_path(expected_file_path)
+        self.tc.assertTrue(os.path.exists(full_path))
 
     def assert_has_directory(self, rel_directory_path):
         full_path = self.__full_path(rel_directory_path)

@@ -38,7 +38,11 @@ class ResourceSourceCreator(handlers_api.SourceCreator):
             self._execute_file_ops(file_ops, source_request.target_path, journal)
         return file_ops_executor
 
-    def create_source(self, journal, source_request):
+    def get_params(self, source_request):
+        delegate = determine_source_creator_delegate(source_request.source_config)
+        return delegate.get_params(source_request)
+
+    def _do_create_source(self, journal, source_request):
         delegate = determine_source_creator_delegate(source_request.source_config)
         delegate.create_source(journal, source_request, self.__create_file_ops_executor(journal, source_request))
 

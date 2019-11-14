@@ -15,20 +15,102 @@ class SourceCreationError(Exception):
 
 class SourceCreationRequest:
 
-    def __init__(self, target_path, source_config):
+    def __init__(self, target_path, source_config, param_values=None):
         self.target_path = target_path
         self.source_config = source_config
+        self.param_values = param_values if param_values is not None else SourceCreationParamValues({})
+
+class SourceCreationParamValues:
+
+    def __init__(self, values, parent_values=None):
+        self.values = values
+        self.parent_values = parent_values
+
+    def direct_values(self):
+        return self.values.items()
+
+    def _get_direct_value(self, key):
+        return self.values.get(key, None)
+
+    def _get_inherited_value(self, key):
+        if self.parent_values is not None:
+            return self.parent_values.get_value(key)
+        else:
+            return None
+
+    def get_value(self, key):
+        value = self._get_direct_value(key)
+        if value is None:
+            value = self._get_inherited_value(key)
+        return value
+
+class SourceParam:
+
+    def __init__(self, name, required=False, default_value=None, allowed_values=None):
+        self.name = name
+        self.required = required
+        self.default_value = default_value
+        self.allowed_values = allowed_values
 
 class SourceCreator(abc.ABC):
 
     def __init__(self):
         pass
 
+    def _validate_expected_params(self, journal, source_request):
+        params = self.get_params(source_request)
+        mandatory_params = {}
+        optional_params = {}
+        for param in params:
+            if param.required:
+                mandatory_params[param.name] = param
+        self._set_defaults(source_request, params)
+        self._check_mandatory_params(journal, source_request, mandatory_params)
+        self._check_allowed_values(journal, source_request, params)
+        self._check_unexpected_params(journal, source_request, params)
+        
+    def _check_mandatory_params(self, journal, source_request, mandatory_params):
+        for param_name, param in mandatory_params.items():
+            value = source_request.param_values.get_value(param_name)
+            if value is None:
+                raise SourceCreationError('Request to create sources for \'{0}\' is missing required param: {1}'.format(source_request.source_config.name, param_name))
+    
+    def _check_allowed_values(self, journal, source_request, params):
+        for param in params:
+            if param.allowed_values != None:
+                value = source_request.param_values.get_value(param.name)
+                if value is not None:
+                    if value not in param.allowed_values:
+                        raise SourceCreationError('Unexpected value \'{0}\' provided to param \'{1}\' on request for \'{2}\', must be one of: {3}'.format(value, param.name, source_request.source_config.name, param.allowed_values))
+
+    def _check_unexpected_params(self, journal, source_request, params):
+        allowed_params = []
+        for param in params:
+            allowed_params.append(param.name)
+        for param_name, _ in source_request.param_values.direct_values():
+            if param_name not in allowed_params:
+                raise SourceCreationError('Unexpected param \'{0}\' provided to request for \'{1}\'. Supported params {2}'.format(param_name, source_request.source_config.name, allowed_params))
+
+    def _set_defaults(self, source_request, params):
+        for param in params:
+            if not param.required and param.default_value is not None:
+                value = source_request.param_values.get_value(param.name)
+                if value is None:
+                    source_request.param_values.values[param.name] = param.default_value
+
     def _execute_file_ops(self, file_ops, path, journal):
         for file_op in file_ops:
             file_op.execute(path, journal)
 
+    def get_params(self, source_request):
+        return []
+
     def create_source(self, journal, source_request):
+        self._validate_expected_params(journal, source_request)
+        self._do_create_source(journal, source_request)
+
+    @abc.abstractmethod
+    def _do_create_source(self, journal, source_request):
         pass
 
 class ResourceSourceCreatorDelegate(abc.ABC):
@@ -36,6 +118,10 @@ class ResourceSourceCreatorDelegate(abc.ABC):
     def __init__(self):
         pass
 
+    def get_params(self, source_request):
+        return []
+    
+    @abc.abstractmethod
     def create_source(self, journal, source_request, file_ops_executor):
         pass
 
