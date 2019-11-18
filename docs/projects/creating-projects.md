@@ -30,7 +30,7 @@ For an Ansible RM project:
 lmctl project create --name example --version 1.0 --type Resource --rm ansible-rm
 ```
 
-When using `brent` on the `--rm` option, LMCTL can also produce the expected directory strucutre for the type of infrastructure and/or lifecycle driver used to manage this Resource, via `--param` values. (See [create command](../command-reference/project/create.md))
+When using `brent` on the `--rm` option, LMCTL can also produce the expected directory structure for the type of infrastructure and/or lifecycle driver used to manage this Resource, via `--param` values. (See [create command](../command-reference/project/create.md))
 
 ## Creating Subprojects
 
