@@ -82,7 +82,7 @@ class AssemblySourceCreator(handlers_api.SourceCreator):
     def __init__(self):
         super().__init__()
 
-    def create_source(self, journal, source_request):
+    def _do_create_source(self, journal, source_request):
         source_tree = AssemblySourceTree()
         file_ops = []
         descriptor_content = 'description: descriptor for {0}'.format(source_request.source_config.name)
