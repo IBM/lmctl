@@ -125,7 +125,7 @@ def test(project_path, environment, config, armname, tests, pwd):
     controller.finalise()
 
 
-@project.command(help='Pull contents of the Project resources from a LM environment')
+@project.command(help='Pull contents of the Project sources from a LM environment')
 @click.option('--project', 'project_path', default='./', help='File location of project')
 @click.argument('environment')
 @click.option('--config', default=None, help='configuration file')
@@ -164,7 +164,8 @@ def list(project_path, element):
 @click.option('--contains', nargs=2, type=click.Tuple([str, str]), multiple=True, help='Subprojects to initiate under this project. Must specify 2 values separated by spaces: type name. For a Resource subproject, you may set the rm by including it it in the type value using the format \'type::rm\' e.g. Resource::ansiblerm. If no rm is set then the value of the --rm option will be used instead')
 @click.option('--servicetype', help='(Deprecated: use --type instead) type of Service managed in the Project (NS or VNF)')
 @click.option('--vnfc', 'vnfcs', multiple=True, help='(Deprecated, use --contains instead) names of VNFCs (Resources) to initate under this project')
-def create(location, name, version, project_type, rm, contains, servicetype, vnfcs):
+@click.option('--param', 'params', nargs=2, type=click.Tuple([str,str]), multiple=True, help='Specific parameters required by the Project type or RM type to create initial project files (consult the docs for each --type and --rm value to determine possible parameters)')
+def create(location, name, version, project_type, rm, contains, servicetype, vnfcs, params):
     logger.debug('Project Create')
     if servicetype:
         if servicetype != project_type:
@@ -177,7 +178,9 @@ def create(location, name, version, project_type, rm, contains, servicetype, vnf
     project_request.target_location = location
     if isinstance(project_request, creator.CreateResourceProjectRequest):
         project_request.resource_manager = rm
-    project_request.subproject_requests = __process_subprojects(contains, vnfcs, rm)
+    params_by_project = __sort_params(contains, params)
+    project_request.params = params_by_project[ROOT_PROJECT_PARAMS_REFERENCE]
+    project_request.subproject_requests = __process_subprojects(contains, vnfcs, rm, params_by_project)
     create_options = creator.CreateOptions()
     create_options.journal_consumer = lifecycle_cli.ConsoleProjectJournalConsumer(lifecycle_cli.printer)
     try:
@@ -187,8 +190,39 @@ def create(location, name, version, project_type, rm, contains, servicetype, vnf
         logger.exception(str(e))
         exit(1)
 
+ROOT_PROJECT_PARAMS_REFERENCE = '$'
 
-def __process_subprojects(subprojects, vnfcs, default_rm_type):
+def __sort_params(subprojects, params):
+    params_by_subproject = {}
+    params_by_subproject[ROOT_PROJECT_PARAMS_REFERENCE] = {}
+    for _, subproject_name in subprojects:
+        params_by_subproject[subproject_name] = {}
+    not_found = []
+    for param in params:
+        param_name = param[0]
+        param_value = param[1]
+        split = param_name.split('.', 1)
+        if len(split)>1:
+            contained_project_reference = split[0]
+            real_param_name = split[1]
+            found = False
+            for _, subproject_name in subprojects:
+                if subproject_name == contained_project_reference:
+                    found = True
+                    break
+            if not found:
+                not_found.append('Param \'{0}\' references unknown subproject named \'{1}\''.format(param_name, contained_project_reference))
+            else:
+                params_by_subproject[contained_project_reference][real_param_name] = param_value
+        else:
+            params_by_subproject[ROOT_PROJECT_PARAMS_REFERENCE][param_name] = param_value
+    if len(not_found) > 0:
+        error_msg = 'Invalid params: {0}'.format(not_found)
+        lifecycle_cli.printer.print_text('Error: {0}'.format(error_msg))
+        exit(1)
+    return params_by_subproject
+
+def __process_subprojects(subprojects, vnfcs, default_rm_type, params_by_project):
     subproject_requests = []
     rm = None
     for subproject in subprojects:
@@ -206,12 +240,14 @@ def __process_subprojects(subprojects, vnfcs, default_rm_type):
             if not rm:
                 rm = default_rm_type
             request.resource_manager = rm
+        request.params = params_by_project.get(name, {})
         subproject_requests.append(request)
     for vnfc in vnfcs:
         request = creator.ResourceSubprojectRequest()
         request.directory = files.safe_file_name(vnfc)
         request.resource_manager = creator.ANSIBLE_RM_TYPES[0]
         request.name = vnfc
+        request.params = params_by_project.get(vnfc, {})
         subproject_requests.append(request)
     return subproject_requests
 

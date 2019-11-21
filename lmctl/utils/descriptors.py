@@ -1,12 +1,12 @@
 import ruamel.yaml as ryaml
 import os
+from collections import OrderedDict
 
 ASSEMBLY_DESCRIPTOR_TYPE = 'assembly'
 RESOURCE_DESCRIPTOR_TYPE = 'resource'
 
 yaml = ryaml.YAML()
 yaml.default_flow_style = False
-
 
 class DescriptorParsingError(Exception):
     pass
@@ -49,6 +49,11 @@ class DescriptorParser:
         with open(descriptor_path, 'w') as descriptor_file:
             yaml.dump(descriptor.raw, descriptor_file)
 
+    def write_to_str(self, descriptor):
+        stringio = ryaml.compat.StringIO()
+        yaml.dump(descriptor.raw, stringio)
+        return stringio.getvalue()
+
 
 def descriptor_named(descriptor_type, name, version):
     full_name = '{0}::{1}::{2}'.format(descriptor_type, name, version)
@@ -71,6 +76,9 @@ class DescriptorName:
         return '{0}::{1}::{2}'.format(self.descriptor_type, self.name, self.version)
 
 class Descriptor:
+    
+    ORDERED_KEYS = ['name', 'description', 'properties', 'lifecycle',  'composition', 'references', 'relationships', 'operations']
+    ORDERED_LIFECYCLE = ['Create', 'Install', 'Configure', 'Start', 'Stop', 'Uninstall', 'Delete']
 
     def __init__(self, raw_descriptor):
         self.raw = raw_descriptor
@@ -116,6 +124,60 @@ class Descriptor:
         if num_of_parts < 3:
             raise DescriptorModelException('Could not determine descriptor version as name contains only {0} parts separated by "::"'.format(num_of_parts))
         return name_parts[2]
+
+    @property
+    def description(self):
+        return self.raw.get('description', None)
+
+    @description.setter
+    def description(self, desc):
+        self.raw['description'] = desc
+
+    @property
+    def properties(self):
+        if 'properties' not in self.raw:
+            self.raw['properties'] = {}
+        return self.raw['properties']
+
+    @property
+    def lifecycle(self):
+        if 'lifecycle' not in self.raw:
+            self.raw['lifecycle'] = []
+        return self.raw['lifecycle']
+    
+    def add_lifecycle(self, lifecycle_name):
+        lifecycle = self.lifecycle
+        if lifecycle_name not in lifecycle:
+            lifecycle.append(lifecycle_name)
+        self.raw['lifecycle'] = sorted(lifecycle, key=lambda x: Descriptor.ORDERED_LIFECYCLE.index(x) if x in Descriptor.ORDERED_LIFECYCLE else -1)
+
+    def add_property(self, name, description=None, ptype='string', required=None, default=None, read_only=None, value=None):
+        properties = self.properties
+        if name in properties:
+            raise ValueError('Property {0} has already been defined'.format(name))
+        properties[name] = {}
+        if description is not None:
+            properties[name]['description'] = description
+        if ptype is not None:
+            properties[name]['type'] = ptype
+        if required is not None:
+            properties[name]['required'] = required
+        if default is not None:
+            properties[name]['default'] = default
+        if read_only is not None:
+            properties[name]['read_only'] = read_only
+        if value is not None:
+            properties[name]['value'] = value
+
+    def sort(self):
+        new_raw = OrderedDict()
+        for key in Descriptor.ORDERED_KEYS:
+            if key in self.raw:
+                new_raw[key] = self.raw[key]
+        for key in self.raw.keys():
+            if key not in Descriptor.ORDERED_KEYS:
+                new_raw[key] = self.raw[key]
+        self.raw = dict(new_raw)
 
 
 class DescriptorReaderException(Exception):

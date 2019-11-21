@@ -16,18 +16,21 @@ class LmSecurityDriver(LmDriver):
         super().__init__(lm_base)
 
     def login(self, username, password):
-        url = '{0}/api/login'.format(self.lm_base)
+        url = '{0}/ui/api/login'.format(self.lm_base)
         data = {
             'username': username,
             'password': password
         }
         response = requests.post(url, json=data, verify=False)
+        if response.status_code == 404 or response.status_code == 405:
+            old_url = '{0}/api/login'.format(self.lm_base)
+            logger.info('Failed to access login at {0} with {1} repsonse code...may be an older LM environment, trying {2}'.format(url, response.status_code, old_url))
+            response = requests.post(old_url, json=data, verify=False)
         if response.status_code == 200:
             login_result = response.json()
             return login_result
         else:
-            self._raise_unexpected_status_exception(response)
-
+            self._raise_unexpected_status_exception(response, error_prefx='Authentication request')
 
 class LmSecurityCtrl:
     """

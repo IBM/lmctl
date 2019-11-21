@@ -12,6 +12,7 @@ class CreateProjectBaseRequest:
     def __init__(self):
         self.name = None
         self.subproject_requests = []
+        self.params = {}
 
 class CreateProjectRequest(CreateProjectBaseRequest):
 
@@ -36,7 +37,7 @@ class SubprojectRequest(CreateProjectBaseRequest):
     def __init__(self):
         super().__init__()
         self.directory = None
-
+        self.params = {}
 
 class AssemblySubprojectRequest(SubprojectRequest):
 
@@ -65,8 +66,10 @@ class ProjectCreator:
     def __init__(self, request, options):
         self.request = request
         self.options = options
+        self.__param_values = {}
 
     def create(self):
+        self.__param_values = {}
         journal = ProjectJournal(self.options.journal_consumer)
         self.__validate_request()
         self.__create_project_directory(journal)
@@ -89,6 +92,14 @@ class ProjectCreator:
         if(os.path.exists(project_tree.project_file_path)):
             raise CreateError('Target location given seems to already contain a project (there is an existing project file: {0})'.format(project_tree.project_file_path))
     
+    def __param_key_from_name_chain(self, name_chain):
+        key = ''
+        for name in name_chain:
+            if len(key)>0:
+                key += '.'
+            key += name
+        return key
+
     def __build_config(self, journal):
         journal.section('Create Project Configuration')
         journal.event('Preparing configuration for {0}'.format(self.request.name))
@@ -98,13 +109,15 @@ class ProjectCreator:
             project_type = types.RESOURCE_PROJECT_TYPE
             resource_manager = self.request.resource_manager
         try:
-            subproject_entries = self.__build_subproject_entries(journal, self.request.subproject_requests)
+            param_values = handlers_api.SourceCreationParamValues(self.request.params)
+            self.__param_values[self.request.name] = param_values
+            subproject_entries = self.__build_subproject_entries(journal, self.request.subproject_requests, param_values, [self.request.name])
             project_config = projectconf.RootProjectConfig(projectconf.SCHEMA_2_0, self.request.name, self.request.version, project_type, resource_manager, subproject_entries)
             return project_config
         except projectconf.ProjectConfigError as e:
             raise CreateError(str(e)) from e
             
-    def __build_subproject_entries(self, journal, subproject_requests):
+    def __build_subproject_entries(self, journal, subproject_requests, parent_param_values, name_chain):
         entries = []
         for subproject_request in subproject_requests:
             journal.event('Preparing configuration for {0}'.format(subproject_request.name))
@@ -114,22 +127,29 @@ class ProjectCreator:
                 project_type = types.RESOURCE_PROJECT_TYPE
                 resource_manager = subproject_request.resource_manager
             nested_subproject_requests = subproject_request.subproject_requests
-            nested_subproject_entries = self.__build_subproject_entries(journal, nested_subproject_requests)
-            entries.append(projectconf.SubprojectEntry(subproject_request.name, subproject_request.directory, project_type, resource_manager, nested_subproject_entries))
+            param_values = handlers_api.SourceCreationParamValues(subproject_request.params, parent_param_values)
+            new_name_chain = [*name_chain, subproject_request.name]
+            param_key = self.__param_key_from_name_chain(new_name_chain)
+            self.__param_values[param_key] = param_values
+            nested_subproject_entries = self.__build_subproject_entries(journal, nested_subproject_requests, param_values, new_name_chain)
+            new_entry = projectconf.SubprojectEntry(subproject_request.name, subproject_request.directory, project_type, resource_manager, nested_subproject_entries)
+            entries.append(new_entry)
         return entries
 
     def __create_sources(self, journal, project_config):
         journal.section('Create Sources')
         try:
-            self.__create_sources_for(journal, self.request.target_location, project_config)
+            self.__create_sources_for(journal, self.request.target_location, project_config, [project_config.name])
         except handlers_api.SourceCreationError as e:
             raise CreateError(str(e)) from e
 
-    def __create_sources_for(self, journal, path, source_config):
+    def __create_sources_for(self, journal, path, source_config, name_chain):
         journal.event('Creating sources for {0}'.format(source_config.name))
         tree = project_sources.ProjectBaseTree(path)
         source_creator = handlers_manager.source_creator_for(source_config)()
-        source_request = handlers_api.SourceCreationRequest(path, source_config)
+        param_key = self.__param_key_from_name_chain(name_chain)
+        params = self.__param_values.get(param_key, None)
+        source_request = handlers_api.SourceCreationRequest(path, source_config, params)
         source_creator.create_source(journal, source_request)
         subprojects = source_config.subprojects
         if len(subprojects) > 0:
@@ -140,7 +160,7 @@ class ProjectCreator:
             for subproject in subprojects:
                 journal.subproject(subproject.name)
                 subproject_path = tree.gen_child_project_path(subproject.directory)
-                self.__create_sources_for(journal, subproject_path, subproject)
+                self.__create_sources_for(journal, subproject_path, subproject, [*name_chain, subproject.name])
                 journal.subproject_end(subproject.name)
 
     def __write_project_file(self, journal, project_config):
@@ -149,3 +169,11 @@ class ProjectCreator:
         journal.event('Creating project file: {0}'.format(project_tree.project_file_path))
         with open(project_tree.project_file_path, 'w') as writer:
             yaml.dump(project_config.to_dict(), writer, default_flow_style=False, sort_keys=False)
+
+
+class CreateSourcesOperation:
+
+    def __init__(self, journal, creator, request):
+        self.journal = journal
+        self.creator = creator
+        self.request = request
