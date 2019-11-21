@@ -1,5 +1,17 @@
 # Change Log
 
+## [2.2.2](https://github.com/accanto-systems/lmctl/tree/2.2.2) (2019-11-21)
+[Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.2.1...2.2.2)
+
+**Fixed bugs:**
+
+- NameError: name 'project' is not defined on pkg push [\#33](https://github.com/accanto-systems/lmctl/issues/33)
+
+**Implemented enhancements:**
+
+- Support configurable lifecycle and infrastructure types on project create command [\#30](https://github.com/accanto-systems/lmctl/issues/30)
+- Support subpath access to API and support /ui subpath for UI access  [\#28](https://github.com/accanto-systems/lmctl/issues/28)
+
 ## [2.2.1](https://github.com/accanto-systems/lmctl/tree/2.2.1) (2019-11-06)
 [Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.2.0...2.2.1)
 
