@@ -1,7 +1,7 @@
 # Change Log
 
-## [2.2.2](https://github.com/accanto-systems/lmctl/tree/2.2.2) (2019-11-21)
-[Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.2.1...2.2.2)
+## [2.3.0](https://github.com/accanto-systems/lmctl/tree/2.3.0) (2019-11-21)
+[Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.2.1...2.3.0)
 
 **Fixed bugs:**
 
