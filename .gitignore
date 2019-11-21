@@ -106,3 +106,6 @@ lmctl-env/
 
 # Test workspace
 test_workspace/
+
+# VS Code
+.vscode/
