@@ -207,7 +207,6 @@ class AssemblySourceHandler(handlers_api.SourceHandler):
         if os.path.exists(configurations_path):
             journal.event('Staging configurations at: {0}'.format(configurations_path))
             walk_and_find_json(configurations_path, self.__stage_behaviour_configuration, staging_tree, source_stager, journal)
-            #source_stager.stage_tree(configurations_path, staging_tree.service_behaviour_configurations_path)
         else:
             journal.event('Skipping - no configurations found at: {0}'.format(configurations_path))
         runtimes_path = self.tree.service_behaviour_runtime_path

@@ -18,6 +18,7 @@ PROJECT_FILE_YAML = 'lmproject.yaml'
 
 PKG_CONTENT_DIR = 'content'
 PKG_META_YML_FILE = 'lmpkg.yml'
+PKG_ARTIFACTS_DIR = 'Artifacts'
 
 ASSEMBLY_DESCRIPTOR_DIR = 'Descriptor'
 ASSEMBLY_DESCRIPTOR_YML_FILE = 'assembly.yml'
@@ -174,6 +175,10 @@ class PkgAssertions:
     def assert_has_file_path(self, expected_file_path):
         full_path = self.__full_content_path(expected_file_path)
         self.tc.assertTrue(os.path.exists(full_path))
+
+    def assert_has_no_file(self, expected_file_path):
+        full_path = self.__full_content_path(expected_file_path)
+        self.tc.assertFalse(os.path.exists(full_path))
 
     def assert_has_file(self, expected_file_path, expected_file_content):
         full_path = self.__full_content_path(expected_file_path)

@@ -8,6 +8,7 @@ from .common import LIFECYCLE_WORKSPACE
 
 class StagingTree(files.Tree):
     CONTAINS_DIR = 'Contains'
+    ARTIFACTS_DIR = 'Artifacts'
 
     def __init__(self, root_path):
         super().__init__(root_path)
@@ -24,6 +25,10 @@ class StagingTree(files.Tree):
 
     def gen_subproject_staging_tree(self, subproject_name):
         return StagingTree(self.gen_subproject_staging_path(subproject_name))
+
+    @property
+    def artifacts_path(self):
+        return self.resolve_relative_path(StagingTree.ARTIFACTS_DIR)
 
 class StageProcessError(Exception):
     pass
@@ -69,7 +74,60 @@ class StageWorker:
             self.project.source_handler.stage_sources(self.journal, source_stager)
         except handlers_api.SourceHandlerError as e:
             raise StageProcessError(str(e)) from e
-    
+        self.__stage_artifacts(source_stager)
+
+    def __stage_artifacts(self, source_stager):
+        if len(self.project.config.included_artifacts) == 0:
+            return
+        for artifact_entry in self.project.config.included_artifacts:
+            self.__stage_artifact(artifact_entry, source_stager)
+
+    def __stage_artifact(self, artifact_entry, source_stager):
+        self.journal.event('Staging artifact {0}'.format(artifact_entry.artifact_name))
+        path_to_artifact = self.project.tree.resolve_relative_path(artifact_entry.path)
+        if not os.path.exists(path_to_artifact):
+            msg = 'Could not find artifact at path: {0}'.format(path_to_artifact)
+            self.journal.error_event(msg)
+            raise StageProcessError(msg)
+        if os.path.isdir(path_to_artifact):
+            self.__stage_artifact_directory(artifact_entry, source_stager)
+        else:
+            self.__stage_artifact_file(path_to_artifact, artifact_entry, source_stager)
+
+    def __stage_artifact_directory(self, artifact_entry, source_stager):
+        named_files = []
+        directory = artifact_entry.path
+        if len(artifact_entry.items) == 0:
+            msg = 'Artifact {0} appears to include a directory but does not specify the files to include: {1}'.format(artifact_entry.artifact_name, directory)
+            self.journal.error_event(msg)
+            raise StageProcessError(msg)
+        for item in artifact_entry.items:
+            if not item.is_wildcard:
+                named_files.append(item)
+        for item in artifact_entry.items:
+            if item.is_wildcard:
+                path_to_dir = self.project.tree.resolve_relative_path(directory)
+                for file_name in os.listdir(path_to_dir):
+                    if file_name not in named_files:
+                        path_to_artifact = os.path.join(path_to_dir, file_name)
+                        if os.path.isfile(path_to_artifact):
+                            self.__stage_artifact_file(path_to_artifact, artifact_entry, source_stager)
+            else:
+                path_to_artifact = self.project.tree.resolve_relative_path(directory, item.path)
+                self.__stage_artifact_file(path_to_artifact, artifact_entry, source_stager)
+
+    def __stage_artifact_file(self, path_to_src_file, artifact_entry, source_stager):
+        if not os.path.exists(path_to_src_file):
+            msg = 'Could not find artifact at path \'{0}\' for {1}'.format(path_to_src_file, artifact_entry.artifact_name)
+            self.journal.error_event(msg)
+            raise StageProcessError(msg)
+        if not os.path.isfile(path_to_src_file):
+            msg = 'Expected {0} to be a file but was not (artifact: {1})'.format(path_to_src_file, artifact_entry.artifact_name)
+            self.journal.error_event(msg)
+            raise StageProcessError(msg)
+        target_stage_file_path = os.path.join(self.staging_tree.ARTIFACTS_DIR, artifact_entry.artifact_name, os.path.basename(path_to_src_file))
+        source_stager.stage_file(path_to_src_file, target_stage_file_path)
+
     def __stage_child_projects(self):
         subprojects = self.project.subprojects
         if len(subprojects) == 0:

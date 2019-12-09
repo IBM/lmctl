@@ -46,6 +46,10 @@ class PkgMeta:
         pass
 
     @property
+    def included_artifacts(self):
+        pass
+
+    @property
     def descriptor_name(self):
         pass
 
@@ -60,7 +64,7 @@ class PkgMeta:
 
 class PkgMetaBase(PkgMeta):
 
-    def __init__(self, name, content_type, resource_manager=None, subpkg_entries=None):
+    def __init__(self, name, content_type, resource_manager=None, subpkg_entries=None, included_artifacts=None):
         if not name:
             raise PkgMetaError('name must be defined')
         self._name = name
@@ -77,6 +81,9 @@ class PkgMetaBase(PkgMeta):
             if resource_manager not in types.SUPPORTED_RM_TYPES:
                 raise PkgMetaError('resource_manager type not supported, must be one of: {0}'.format(types.SUPPORTED_RM_TYPES_GROUPED))
         self._resource_manager = resource_manager
+        if not included_artifacts:
+            included_artifacts = []
+        self._included_artifacts = included_artifacts
 
     @property
     def name(self):
@@ -112,6 +119,10 @@ class PkgMetaBase(PkgMeta):
     def subpkg_entries(self):
         return self._subpkg_entries
 
+    @property
+    def included_artifacts(self):
+        return self._included_artifacts
+
     def to_dict(self):
         data = {
             'name': self.name,
@@ -123,13 +134,17 @@ class PkgMetaBase(PkgMeta):
             data['contains'] = []
             for entry in self.subpkg_entries:
                 data['contains'].append(entry.to_dict())
+        if len(self.included_artifacts) > 0:
+            data['includedArtifacts'] = []
+            for entry in self.included_artifacts:
+                data['includedArtifacts'].append(entry.to_dict())
         return data
 
 
 class RootPkgMeta(PkgMetaBase):
 
-    def __init__(self, schema, name, version, content_type, resource_manager=None, subpkg_entries=None):
-        super().__init__(name, content_type, resource_manager, subpkg_entries)
+    def __init__(self, schema, name, version, content_type, resource_manager=None, subpkg_entries=None, included_artifacts=None):
+        super().__init__(name, content_type, resource_manager, subpkg_entries, included_artifacts)
         if not schema:
             raise ValueError('schema must be defined')
         self._schema = schema
@@ -160,7 +175,7 @@ class RootPkgMeta(PkgMetaBase):
 class SubPkgMeta(PkgMetaBase):
 
     def __init__(self, parent_meta, entry):
-        super().__init__(entry.name, entry.content_type, entry.resource_manager, entry.subpkg_entries)
+        super().__init__(entry.name, entry.content_type, entry.resource_manager, entry.subpkg_entries, entry.included_artifacts)
         self.parent_meta = parent_meta
         self.entry = entry
 
@@ -188,8 +203,8 @@ class SubPkgMeta(PkgMetaBase):
 
 class SubPkgEntry(PkgMetaBase):
 
-    def __init__(self, name, directory, content_type, resource_manager=None, subpkg_entries=None, full_name_override=None):
-        super().__init__(name, content_type, resource_manager, subpkg_entries)
+    def __init__(self, name, directory, content_type, resource_manager=None, subpkg_entries=None, full_name_override=None, included_artifacts=None):
+        super().__init__(name, content_type, resource_manager, subpkg_entries, included_artifacts)
         if not directory:
             raise ValueError('directory must be defined')
         self.directory = directory
@@ -199,7 +214,58 @@ class SubPkgEntry(PkgMetaBase):
         data = super().to_dict()
         data['directory'] = self.directory
         return data
+            
+class IncludedArtifactEntry:
 
+    def __init__(self, artifact_name, artifact_type, path, items=None):
+        if not artifact_name:
+            raise ValueError('artifact_name must be defined')
+        self._artifact_name = artifact_name
+        if not artifact_type:
+            raise ValueError('artifact_type must be defined')
+        self._artifact_type = artifact_type
+        if not path:
+            raise ValueError('path must be defined')
+        self._path = path
+        self._items = items
+
+    @property
+    def artifact_name(self):
+        return self._artifact_name
+
+    @property
+    def artifact_type(self):
+        return self._artifact_type
+
+    @property
+    def path(self):
+        return self._path
+
+    @property
+    def items(self):
+        return self._items
+
+    def to_dict(self):
+        data = {}
+        data['name'] = self.artifact_name
+        data['type'] = self.artifact_type
+        data['path'] = self.path
+        if self.items != None:
+            data['items'] = []
+            for item in self.items:
+                data['items'].append(item.path)
+        return data
+
+class ArtifactDirectoryItem:
+
+    def __init__(self, path):
+        if not path:
+            raise ValueError('path must be defined for item')
+        self._path = path
+
+    @property
+    def path(self):
+        return self._path
 
 class PkgMetaBaseBuilder:
 
@@ -208,6 +274,7 @@ class PkgMetaBaseBuilder:
         self._content_type = None
         self._subpkg_entries = []
         self._resource_manager = None
+        self._included_artifacts = []
 
     def name(self, name):
         self._name = name
@@ -222,6 +289,11 @@ class PkgMetaBaseBuilder:
         self._subpkg_entries.append(subpkg_entry_builder)
         return subpkg_entry_builder
 
+    def included_artifact_builder(self):
+        artifact_entry_builder = IncludedArtifactEntryBuilder()
+        self._included_artifacts.append(artifact_entry_builder)
+        return artifact_entry_builder
+
     def resource_manager(self, resource_manager):
         self._resource_manager = resource_manager
         return self
@@ -232,13 +304,19 @@ class PkgMetaBaseBuilder:
             entries.append(builder.build())
         return entries
 
+    def _build_included_artifacts_entries(self):
+        entries = []
+        for builder in self._included_artifacts:
+            entries.append(builder.build())
+        return entries
+
 
 class RootPkgMetaBuilder(PkgMetaBaseBuilder):
 
     def __init__(self):
         super().__init__()
         self._schema = None
-        self.__version = None
+        self._version = None
 
     def schema(self, schema):
         self._schema = schema
@@ -253,7 +331,8 @@ class RootPkgMetaBuilder(PkgMetaBaseBuilder):
         content_type = self._content_type
         resource_manager = self._resource_manager
         subpkg_entries = self._build_subpkg_entries()
-        return RootPkgMeta(self._schema, name, self._version, content_type, resource_manager, subpkg_entries)
+        included_artifacts = self._build_included_artifacts_entries()
+        return RootPkgMeta(self._schema, name, self._version, content_type, resource_manager, subpkg_entries, included_artifacts)
 
 
 class SubPkgEntryBuilder(PkgMetaBaseBuilder):
@@ -271,7 +350,35 @@ class SubPkgEntryBuilder(PkgMetaBaseBuilder):
         content_type = self._content_type
         resource_manager = self._resource_manager
         subpkg_entries = self._build_subpkg_entries()
-        return SubPkgEntry(name, self._directory, content_type, resource_manager, subpkg_entries)
+        included_artifacts = self._build_included_artifacts_entries()
+        return SubPkgEntry(name, self._directory, content_type, resource_manager, subpkg_entries, included_artifacts=included_artifacts)
+
+class IncludedArtifactEntryBuilder:
+
+    def __init__(self):
+        self._artifact_name = None
+        self._artifact_type = None
+        self._path = None
+        self._items = []
+
+    def artifact_name(self, name):
+        self._artifact_name = name
+        return self
+
+    def artifact_type(self, artifact_type):
+        self._artifact_type = artifact_type
+        return self
+
+    def path(self, path):
+        self._path = path
+        return self
+
+    def add_item(self, item):
+        self._items.append(ArtifactDirectoryItem(item))
+        return self
+
+    def build(self):
+        return IncludedArtifactEntry(self._artifact_name, self._artifact_type, self._path, self._items)
 
 
 class PkgMetaParser:
@@ -296,11 +403,12 @@ class PkgMetaParserWorker:
         self.content_name = self.__read_content_name(self.meta_dict)
         self.content_type = self.__read_content_type(self.meta_dict)
         self.content_version = self.__read_content_version(self.meta_dict)
+        included_artifacts = self.__read_included_artifacts(self.meta_dict)
         resource_manager = None
         subcontent = self.__read_subcontents(self.meta_dict)
         if self.content_type in [types.RESOURCE_PROJECT_TYPE]:
             resource_manager = self.__read_resource_manager(self.meta_dict)
-        return RootPkgMeta(self.schema, self.content_name, self.content_version, self.content_type, resource_manager, subcontent)
+        return RootPkgMeta(self.schema, self.content_name, self.content_version, self.content_type, resource_manager, subcontent, included_artifacts)
 
     def __read_schema(self):
         return self.meta_dict.get('schema', None)
@@ -337,7 +445,29 @@ class PkgMetaParserWorker:
         full_name_override = raw_subcontent_entry.get('full-name-override', None)
         resource_manager = self.__read_resource_manager(raw_subcontent_entry)
         subcontent = self.__read_subcontents(raw_subcontent_entry)
-        return SubPkgEntry(sub_name, directory, content_type, resource_manager, subcontent, full_name_override)
+        included_artifacts = self.__read_included_artifacts(raw_subcontent_entry)
+        return SubPkgEntry(sub_name, directory, content_type, resource_manager, subcontent, full_name_override, included_artifacts)
+
+    def __read_included_artifacts(self, meta_dict):
+        included_artifacts = []
+        if 'includedArtifacts' in meta_dict:
+            for artifact_entry in meta_dict['includedArtifacts']:
+                included_artifacts.append(self.__read_included_artifact_entry(artifact_entry))
+        return included_artifacts
+
+    def __read_included_artifact_entry(self, raw_artifact_entry):
+        artifact_name = raw_artifact_entry.get('name', None)
+        artifact_type = raw_artifact_entry.get('type', None)
+        path = raw_artifact_entry.get('path', None)
+        raw_items = raw_artifact_entry.get('items', None)
+        items = []
+        if raw_items != None:
+            if type(raw_items) == list:
+                for item in raw_items:
+                    items.append(ArtifactDirectoryItem(item))
+            else:
+                raise PkgMetaParsingException('includedArtifacts entry items must be a list or string but instead got: Value={0}, Type={1}'.format(raw_items, type(raw_items)))
+        return IncludedArtifactEntry(artifact_name, artifact_type, path, items)
 
 
 class PkgMetaParsingException(Exception):
@@ -402,7 +532,7 @@ class PkgMetaRewriter:
                         'full-name-override': def_id
                     })
             if 'contains' in meta:
-                if type(contains) is list:
+                if type(meta['contains']) is list:
                     meta['contains'].extend(new_contains)
                 else:
                     raise ValueError('\'contains\' should be a list')
@@ -410,4 +540,3 @@ class PkgMetaRewriter:
                 meta['contains'] = new_contains
             del meta['vnfcs']
         return meta
-            

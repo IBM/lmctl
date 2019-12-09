@@ -312,6 +312,7 @@ class ExpandedPkgTree(files.Tree):
         return ExpandedPkgTree.CONTENT_DIR
 
 class PkgContentTree(files.Tree):
+    ARTIFACTS_DIR = 'Artifacts'
     CONTAINS_DIR = 'Contains'
     VNFCS_DIR = 'VNFCs'
 
@@ -334,3 +335,7 @@ class PkgContentTree(files.Tree):
 
     def gen_child_content_tree(self, subcontent_name):
         return PkgContentTree(self.gen_child_content_path(subcontent_name))
+
+    @property
+    def artifacts_path(self):
+        return self.resolve_relative_path(PkgContentTree.ARTIFACTS_DIR)

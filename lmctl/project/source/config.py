@@ -53,6 +53,10 @@ class ProjectConfig:
         pass
 
     @property
+    def included_artifacts(self):
+        pass
+
+    @property
     def descriptor_name(self):
         pass
 
@@ -68,7 +72,7 @@ class ProjectConfig:
 
 class ProjectConfigBase(ProjectConfig):
 
-    def __init__(self, name, project_type, resource_manager=None, subproject_entries=None):
+    def __init__(self, name, project_type, resource_manager=None, subproject_entries=None, included_artifacts=None):
         if not name:
             raise ProjectConfigError('name must be defined')
         self._name = name
@@ -87,6 +91,14 @@ class ProjectConfigBase(ProjectConfig):
             if resource_manager not in types.SUPPORTED_RM_TYPES:
                 raise ProjectConfigError('resource_manager type not supported, must be one of: {0}'.format(types.SUPPORTED_RM_TYPES_GROUPED))
         self._resource_manager = resource_manager
+        if not included_artifacts:
+            included_artifacts = []
+        seen_names = []
+        for artifact in included_artifacts:
+            if artifact.artifact_name in seen_names:
+                raise ProjectConfigError('Mulitple artifacts with name {0}. Set \"name\" for each entry to a unique value'.format(artifact.artifact_name))
+            seen_names.append(artifact.artifact_name)
+        self._included_artifacts = included_artifacts
 
     @property
     def name(self):
@@ -122,6 +134,10 @@ class ProjectConfigBase(ProjectConfig):
     def subproject_entries(self):
         return self._subproject_entries
 
+    @property
+    def included_artifacts(self):
+        return self._included_artifacts
+
     def to_dict(self):
         data = {
             'name': self.name,
@@ -133,18 +149,22 @@ class ProjectConfigBase(ProjectConfig):
             data['contains'] = []
             for entry in self.subproject_entries:
                 data['contains'].append(entry.to_dict())
+        if len(self.included_artifacts) > 0:
+            data['includedArtifacts'] = []
+            for entry in self.included_artifacts:
+                data['includedArtifacts'].append(entry.to_dict())
         return data
 
 
 class RootProjectConfig(ProjectConfigBase):
 
-    def __init__(self, schema, name, version, project_type, resource_manager=None, subproject_entries=None):
-        super().__init__(name, project_type, resource_manager, subproject_entries)
+    def __init__(self, schema, name, version, project_type, resource_manager=None, subproject_entries=None, included_artifacts=None):
+        super().__init__(name, project_type, resource_manager, subproject_entries, included_artifacts)
         if not schema:
-            raise ValueError('schema must be defined')
+            raise ProjectConfigError('schema must be defined')
         self._schema = schema
         if not version:
-            raise ValueError('version must be defined')
+            raise ProjectConfigError('version must be defined')
         self._version = version
 
     @property
@@ -170,7 +190,7 @@ class RootProjectConfig(ProjectConfigBase):
 class SubprojectConfig(ProjectConfigBase):
 
     def __init__(self, parent_project, entry):
-        super().__init__(entry.name, entry.project_type, entry.resource_manager, entry.subproject_entries)
+        super().__init__(entry.name, entry.project_type, entry.resource_manager, entry.subproject_entries, entry.included_artifacts)
         self.parent_project = parent_project
         self.entry = entry
 
@@ -196,8 +216,8 @@ class SubprojectConfig(ProjectConfigBase):
 
 class SubprojectEntry(ProjectConfigBase):
 
-    def __init__(self, name, directory, project_type, resource_manager=None, subproject_entries=None):
-        super().__init__(name, project_type, resource_manager, subproject_entries)
+    def __init__(self, name, directory, project_type, resource_manager=None, subproject_entries=None, included_artifacts=None):
+        super().__init__(name, project_type, resource_manager, subproject_entries, included_artifacts)
         if not directory:
             raise ProjectConfigError('directory must be defined')
         self.directory = directory
@@ -224,11 +244,12 @@ class ProjectConfigParserWorker:
         self.project_name = self.__read_project_name(self.config_dict)
         self.project_type = self.__read_project_type(self.config_dict)
         self.project_version = self.__read_project_version(self.config_dict)
+        self.included_artifacts = self.__read_included_artifacts(self.config_dict)
         resource_manager = None
         subprojects = self.__read_subprojects(self.config_dict)
         if types.is_resource_type(self.project_type):
             resource_manager = self.__read_resource_manager(self.config_dict)
-        return RootProjectConfig(self.schema, self.project_name, self.project_version, self.project_type, resource_manager, subprojects)
+        return RootProjectConfig(self.schema, self.project_name, self.project_version, self.project_type, resource_manager, subprojects, self.included_artifacts)
 
     def __read_schema(self):
         if 'schema' not in self.config_dict:
@@ -265,13 +286,37 @@ class ProjectConfigParserWorker:
         directory = raw_subproject_entry.get('directory', sub_name)
         project_type = self.__read_project_type(raw_subproject_entry)
         resource_manager = self.__read_resource_manager(raw_subproject_entry)
+        included_artifacts = self.__read_included_artifacts(raw_subproject_entry)
         subprojects = self.__read_subprojects(raw_subproject_entry)
-        return SubprojectEntry(sub_name, directory, project_type, resource_manager, subprojects)
+        return SubprojectEntry(sub_name, directory, project_type, resource_manager, subprojects, included_artifacts)
 
+    def __read_included_artifacts(self, config_dict):
+        included_artifacts = []
+        if 'includedArtefacts' in config_dict:
+            for artifact_entry in config_dict['includedArtefacts']:
+                included_artifacts.append(self.__read_included_artifact_entry(artifact_entry))
+        if 'includedArtifacts' in config_dict:
+            for artifact_entry in config_dict['includedArtifacts']:
+                included_artifacts.append(self.__read_included_artifact_entry(artifact_entry))
+        return included_artifacts
 
-class ProjectParsingException(Exception):
-    pass
-
+    def __read_included_artifact_entry(self, raw_artifact_entry):
+        artifact_name = raw_artifact_entry.get('name', None)
+        artifact_type = raw_artifact_entry.get('type', None)
+        path = raw_artifact_entry.get('path', None)
+        if artifact_name is None and path is not None:
+            artifact_name = os.path.splitext(os.path.basename(path))[0]
+        raw_items = raw_artifact_entry.get('items', None)
+        items = []
+        if raw_items != None:
+            if type(raw_items) == list:
+                for item in raw_items:
+                    items.append(ArtifactDirectoryItem(item))
+            elif type(raw_items) == str:
+                items.append(ArtifactDirectoryItem(raw_items))
+            else:
+                raise ProjectConfigError('includedArtifacts entry items must be a list or string but instead got: Value={0}, Type={1}'.format(raw_items, type(raw_items)))
+        return IncludedArtifactEntry(artifact_name, artifact_type, path, items)
 
 class ProjectConfigRewriter:
 
@@ -328,7 +373,7 @@ class ProjectConfigRewriter:
                         'resource-manager': types.ANSIBLE_RM_TYPES[0]
                     })
             if 'contains' in config:
-                if type(contains) is list:
+                if type(config['contains']) is list:
                     config['contains'].extend(new_contains)
                 else:
                     raise ValueError('\'contains\' should be a list')
@@ -336,4 +381,65 @@ class ProjectConfigRewriter:
                 config['contains'] = new_contains
             del config['vnfcs']
         return config
-            
+
+class IncludedArtifactEntry:
+
+    WILDCARD = '*'
+
+    def __init__(self, artifact_name, artifact_type, path, items=None):
+        if not artifact_name:
+            raise ProjectConfigError('artifact_name must be defined')
+        self._artifact_name = artifact_name
+        if not artifact_type:
+            raise ProjectConfigError('artifact_type must be defined')
+        self._artifact_type = artifact_type
+        if not path:
+            raise ProjectConfigError('path must be defined')
+        self._path = path
+        self._items = items
+
+    @property
+    def artifact_name(self):
+        return self._artifact_name
+
+    @property
+    def artifact_type(self):
+        return self._artifact_type
+
+    @property
+    def path(self):
+        return self._path
+
+    @property
+    def items(self):
+        return self._items
+
+    def to_dict(self):
+        data = {}
+        data['name'] = self.artifact_name
+        data['type'] = self.artifact_type
+        data['path'] = self.path
+        if self.items != None:
+            if len(self.items) == 0 and self.items[0].is_wildcard:
+                data['items'] = self.WILDCARD
+            else:
+                data['items'] = []
+                for item in self.items:
+                    data['items'].append(item.path)
+        return data
+
+class ArtifactDirectoryItem:
+
+    def __init__(self, path):
+        if not path:
+            raise ProjectConfigError('path must be defined for item')
+        self._path = path
+
+    @property
+    def path(self):
+        return self._path
+
+    @property
+    def is_wildcard(self):
+        return self._path == IncludedArtifactEntry.WILDCARD
+

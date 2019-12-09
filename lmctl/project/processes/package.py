@@ -48,7 +48,12 @@ class PkgProcess:
             for root, dirs, filelist in os.walk(compiled_content_path):
                 for file_name in filelist:
                     full_path = os.path.join(root, file_name)
-                    pkg_tar.add(full_path, arcname=os.path.join(content_dir, full_path[rootlen:]))
+                    file_size = os.path.getsize(full_path)
+                    arcname = os.path.join(content_dir, full_path[rootlen:])
+                    if file_size > 100000000:
+                        # For big files let people know. TODO: make this more generic, so we can report long running tasks as events
+                        self.journal.event('Processing large file {0} ({1:.2f} mb), this may take some time...'.format(os.path.basename(full_path), (file_size/1000000)))
+                    pkg_tar.add(full_path, arcname=arcname)
             pkg_tar.add(pkg_meta_file_path, arcname=pkg_tree.pkg_meta_file_name)
         self.__clear_compile_directory()
         try:
@@ -66,6 +71,7 @@ class PkgProcess:
         builder.content_type(self.project.config.project_type)
         builder.version(self.project.config.version)
         builder.resource_manager(self.project.config.resource_manager)
+        self.__add_included_artifacts_entries(self.project.config, builder, self.content_tree)
         self.__add_child_projects_to_pkg_meta(self.project.config, builder)
         try:
             pkg_meta = builder.build()
@@ -83,4 +89,31 @@ class PkgProcess:
             subpkg_builder.content_type(subproject_config.project_type)
             subpkg_builder.directory(subproject_config.directory)
             subpkg_builder.resource_manager(subproject_config.resource_manager)
+            self.__add_included_artifacts_entries(subproject_config, subpkg_builder, self.content_tree.gen_child_content_tree(subproject_config.directory))
             self.__add_child_projects_to_pkg_meta(subproject_config, subpkg_builder)
+
+    def __add_included_artifacts_entries(self, config, meta_builder, content_tree):
+        artifacts_content_dir = content_tree.artifacts_path
+        for included_artifact_entry in config.included_artifacts:
+            dir_name = included_artifact_entry.artifact_name
+            path_to_compiled_dir = os.path.join(artifacts_content_dir, dir_name)
+            if not os.path.exists(path_to_compiled_dir):
+                raise PkgProcessError('Artifact named {0} has not been compiled correctly, there is no directory found for it in the compiled source'.format(path_to_compiled_dir))
+            artifact_entry_builder = meta_builder.included_artifact_builder()
+            artifact_entry_builder.artifact_name(included_artifact_entry.artifact_name)
+            artifact_entry_builder.artifact_type(included_artifact_entry.artifact_type)
+            artifact_entry_builder.path(dir_name)
+            if len(included_artifact_entry.items) == 0:
+                artifact_entry_builder.add_item(os.path.basename(included_artifact_entry.path))
+            else:
+                named_files = []
+                for item in included_artifact_entry.items:
+                    if not item.is_wildcard:
+                        named_files.append(os.path.basename(item.path))
+                for item in included_artifact_entry.items:
+                    if item.is_wildcard:
+                        for file_name in os.listdir(os.path.join(artifacts_content_dir, dir_name)):
+                            if file_name not in named_files:
+                                artifact_entry_builder.add_item(file_name)
+                    else:
+                        artifact_entry_builder.add_item(item.path)

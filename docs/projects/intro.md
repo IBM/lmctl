@@ -146,6 +146,7 @@ The following table details the full set of values that may be provided in a pro
 | type             | mandatory   | The type of service under development in this project (Assembly or Resource)                                            |
 | resource-manager | optional    | If this project is for a Resource: the type of Resource Manager it is intended for                                      |
 | contains         | optional    | A list of subproject meta-data                                                                                          |
+| includedArtifacts   | optional    | A list of artifacts to include for this Assembly/Resource   |
 
 The following table details the full set of values expected for each subproject:
 
@@ -155,6 +156,104 @@ The following table details the full set of values expected for each subproject:
 | type             | mandatory   | The type of service under development in this project (Assembly or Resource)                     |
 | resource-manager | optional    | If this project is for a Resource: the type of Resource Manager it is intended for               |
 | directory        | mandatory   | The directory under `Contains` which includes the artifacts for this subproject                  |
+| includedArtifacts   | optional    | A list of artifacts to include for this Assembly/Resource   |
+
+# Artifacts
+
+Projects may also include additional files to be included as artifacts in the package produced by an LMCTL build. Add an entry to the `includedArtifacts` key of the `lmproject.yml` file, specifying the name, type and path to the file.
+
+```
+includedArtifacts:
+- name: MyDockerImage
+  type: docker-image
+  path: Images/MyImage.tar
+- name: MyGlanceImage
+  type: glance-image
+  path: Images/glance.img
+```
+
+The order of the entries is important, as this is the order they will be processed. 
+
+The following table details the expected values for an included artifact entry:
+
+| Value            | Requirement | Description                                                                                      |
+| ---------------- | ----------- | ------------------------------------------------------------------------------------------------ |
+| name             | mandatory   | The name used to refer to this Artifact |
+| type             | mandatory   | The type of Artifact. This value must be a supported type by LM, so it may handle receival of this file (docker-image, glance-image, k8s-resource)                    |
+| path | mandatory    | Relative path, from the root of the project or subproject this artifact belongs to |
+| items | optional    | If path leads to a directory, this field indicates the files to include from that directory |
+
+You can include multiple artifacts from one directory in a single entry, by setting the path to the directory and adding the files as `items`:
+
+```
+includedArtifacts:
+- name: MyDockerImage
+  type: docker-image
+  path: Images
+  items: 
+    - resourceA.img
+    - resourceB.img
+```
+
+Include all files in a directory with `*` wildcard:
+
+```
+includedArtifacts:
+- name: MyDockerImage
+  type: docker-image
+  path: Images
+  items: "*"
+```
+
+Include all files in a directory but order selective files:
+
+```
+includedArtifacts:
+- name: MyDockerImage
+  type: docker-image
+  path: Images
+  items:
+    - this-image-must-go-first.img
+    - this-image-must-go-second.img
+    - "*" #include the remaining imgs
+    - this-image-must-go-last.img
+```
+
+Example:
+
+Project structure:
+
+```
+myproject/
+    ...
+    Files/
+      docker/
+        docker.tar
+    Contains/
+      SubA/
+        Glance/
+          ubuntu.img
+          centos.img
+```
+
+The above structure could use the following lmproject file:
+
+```
+...
+includedArtifacts:
+  - name: DockerImage
+    type: docker-image
+    path: Files/docker/docker.tar
+contains:
+  - name: SubA
+    directory: SubA
+    includedArtifacts:
+      - name: GlanceImage
+        type: glance-image
+        path: Glance
+        items: "*"
+```
+
 
 # Naming Rules
 

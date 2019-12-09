@@ -76,6 +76,7 @@ SUBPROJECT_NAME_INVALID_BRENT_NO_LM_DEFINITIONS = 'sub_invalid_no_lm_definitions
 SUBPROJECT_NAME_INVALID_BRENT_NO_DESCRIPTOR = 'sub_invalid_no_lm_descriptor'
 SUBPROJECT_NAME_INVALID_BRENT_NO_LIFECYCLE = 'sub_invalid_no_lifecycle'
 SUBPROJECT_NAME_INVALID_BRENT_NO_LIFECYCLE_MANIFEST = 'sub_invalid_no_lifecycle_manifest'
+SUBPROJECT_NAME_WITH_ARTIFACTS = 'sub_with_artifacts'
 
 ARM_BASIC = 'basic'
 INVALID_ARM_NO_DESCRIPTOR = 'invalid_no_descriptor'
@@ -92,6 +93,9 @@ INVALID_BRENT_NO_LM_DESCRIPTOR = 'invalid_no_lm_descriptor'
 INVALID_BRENT_MISMATCH_DESCRIPTOR_NAME = 'invalid_mismatch_lm_descriptor_name'
 INVALID_BRENT_NO_LIFECYCLE = 'invalid_no_lifecycle'
 INVALID_BRENT_NO_LIFECYCLE_MANIFEST = 'invalid_no_lifecycle_manifest'
+
+GEN_WITH_ARTIFACTS = 'with_artifacts'
+GEN_CONTAINS_WITH_ARTIFACTS = 'contains_with_artifacts'
 
 PKG_ASSEMBLY_BASIC = 'basic-1.0.tgz'
 PKG_ASSEMBLY_WITH_BEHAVIOUR = 'with_behaviour-1.0.tgz'
@@ -113,6 +117,8 @@ PKG_INVALID_ZIP = 'invalid_zip-1.0.zip'
 def templates_path():
     return os.path.join(os.path.dirname(__file__), TEMPLATES)
 
+def general_template_path(template_name):
+    return os.path.join(templates_path(), GENERAL_TEMPLATES_GROUP, template_name)
 
 def assembly_template_path(template_name):
     return os.path.join(templates_path(), ASSEMBLY_TEMPLATES_GROUP, template_name)
@@ -135,6 +141,9 @@ def resource_template_path(resource_type, template_name):
 def resource_pkg_path(resource_type, pkg_name):
     return os.path.join(templates_path(), RESOURCE_TEMPLATES_GROUP, resource_type, pkg_name)
 
+def general_subproject_template_path(template_name):
+    return os.path.join(templates_path(), GENERAL_TEMPLATES_GROUP, SUBPROJECTS_GROUP, template_name)
+
 
 class ProjectSimLab:
 
@@ -156,6 +165,12 @@ class ProjectSimLab:
         sim = simulator.start()
         self.simulations.append(sim)
         return sim
+
+    def simulate_gen_with_artifacts(self):
+        return self.__sim_project(general_template_path(GEN_WITH_ARTIFACTS))
+
+    def simulate_gen_contains_with_artifacts(self):
+        return self.__sim_project(general_subproject_template_path(GEN_CONTAINS_WITH_ARTIFACTS))
 
     def simulate_assembly_basic(self):
         return self.__sim_project(assembly_template_path(ASSEMBLY_BASIC))

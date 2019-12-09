@@ -50,6 +50,11 @@ class CompileWorker:
             staged_source_handler.compile_sources(self.journal, source_compiler)
         except handlers_api.SourceHandlerError as e:
             raise CompileProcessError(str(e)) from e
+        self.__compile_artifacts(source_compiler)
+
+    def __compile_artifacts(self, source_compiler):
+        if os.path.exists(self.staging_tree.artifacts_path):
+            source_compiler.compile_tree(self.staging_tree.artifacts_path, PkgContentTree.ARTIFACTS_DIR)
         
     def __compile_child_projects(self):
         subprojects = self.project.subprojects

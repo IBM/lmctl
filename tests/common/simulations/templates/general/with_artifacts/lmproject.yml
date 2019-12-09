@@ -1,0 +1,24 @@
+schema: '2.0'
+name: with_artifacts
+version: '1.0'
+type: Assembly
+includedArtifacts:
+  - name: ImgZ
+    type: docker-image
+    path: Images/imgZ.txt
+  - name: ImgA
+    type: docker-image
+    path: Images/dirA
+    items: "*"
+  - name: ImgB
+    type: docker-image
+    path: Images/dirB
+    items: 
+      - imgB4.txt
+      - "*"
+      - imgB2.txt
+  - name: ImgC
+    type: docker-image
+    path: Images/dirC
+    items: 
+      - imgC1.txt
