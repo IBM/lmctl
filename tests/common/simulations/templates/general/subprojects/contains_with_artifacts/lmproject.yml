@@ -7,7 +7,7 @@ contains:
     type: Resource
     directory: sub_with_artifacts
     resource-manager: brent
-    includedArtifacts:
+    included-artifacts:
     - name: ImgZ
       type: docker-image
       path: Images/imgZ.txt

@@ -2,7 +2,7 @@ schema: '2.0'
 name: with_artifacts
 version: '1.0'
 type: Assembly
-includedArtifacts:
+included-artifacts:
   - name: ImgZ
     type: docker-image
     path: Images/imgZ.txt

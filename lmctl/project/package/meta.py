@@ -217,16 +217,13 @@ class SubPkgEntry(PkgMetaBase):
             
 class IncludedArtifactEntry:
 
-    def __init__(self, artifact_name, artifact_type, path, items=None):
+    def __init__(self, artifact_name, artifact_type, items=None):
         if not artifact_name:
             raise ValueError('artifact_name must be defined')
         self._artifact_name = artifact_name
         if not artifact_type:
             raise ValueError('artifact_type must be defined')
         self._artifact_type = artifact_type
-        if not path:
-            raise ValueError('path must be defined')
-        self._path = path
         self._items = items
 
     @property
@@ -238,10 +235,6 @@ class IncludedArtifactEntry:
         return self._artifact_type
 
     @property
-    def path(self):
-        return self._path
-
-    @property
     def items(self):
         return self._items
 
@@ -249,7 +242,6 @@ class IncludedArtifactEntry:
         data = {}
         data['name'] = self.artifact_name
         data['type'] = self.artifact_type
-        data['path'] = self.path
         if self.items != None:
             data['items'] = []
             for item in self.items:
@@ -358,7 +350,6 @@ class IncludedArtifactEntryBuilder:
     def __init__(self):
         self._artifact_name = None
         self._artifact_type = None
-        self._path = None
         self._items = []
 
     def artifact_name(self, name):
@@ -369,16 +360,12 @@ class IncludedArtifactEntryBuilder:
         self._artifact_type = artifact_type
         return self
 
-    def path(self, path):
-        self._path = path
-        return self
-
     def add_item(self, item):
         self._items.append(ArtifactDirectoryItem(item))
         return self
 
     def build(self):
-        return IncludedArtifactEntry(self._artifact_name, self._artifact_type, self._path, self._items)
+        return IncludedArtifactEntry(self._artifact_name, self._artifact_type, self._items)
 
 
 class PkgMetaParser:
@@ -458,7 +445,6 @@ class PkgMetaParserWorker:
     def __read_included_artifact_entry(self, raw_artifact_entry):
         artifact_name = raw_artifact_entry.get('name', None)
         artifact_type = raw_artifact_entry.get('type', None)
-        path = raw_artifact_entry.get('path', None)
         raw_items = raw_artifact_entry.get('items', None)
         items = []
         if raw_items != None:
@@ -467,7 +453,7 @@ class PkgMetaParserWorker:
                     items.append(ArtifactDirectoryItem(item))
             else:
                 raise PkgMetaParsingException('includedArtifacts entry items must be a list or string but instead got: Value={0}, Type={1}'.format(raw_items, type(raw_items)))
-        return IncludedArtifactEntry(artifact_name, artifact_type, path, items)
+        return IncludedArtifactEntry(artifact_name, artifact_type, items)
 
 
 class PkgMetaParsingException(Exception):

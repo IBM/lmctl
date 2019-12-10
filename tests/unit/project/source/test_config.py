@@ -346,7 +346,7 @@ class TestProjectConfigParser(unittest.TestCase):
             'name': 'Test',
             'version': '1.0',
             'type': 'Assembly',
-            'includedArtifacts': [
+            'included-artifacts': [
                 {
                     'name': 'dockertest',
                     'type': 'docker-image',
@@ -380,14 +380,14 @@ class TestProjectConfigParser(unittest.TestCase):
             'name': 'Test',
             'version': '1.0',
             'type': 'Assembly',
-            'includedArtefacts': [
+            'included-artefacts': [
                 {
                     'name': 'dockertest',
                     'type': 'docker-image',
                     'path': 'Images/docker.tar'
                 }
             ],
-            'includedArtifacts': [
+            'included-artifacts': [
                 {
                     'name': 'glancetest',
                     'type': 'glance-image',
@@ -416,7 +416,7 @@ class TestProjectConfigParser(unittest.TestCase):
             'name': 'Test',
             'version': '1.0',
             'type': 'Assembly',
-            'includedArtifacts': [
+            'included-artifacts': [
                 {
                     'name': 'dirtest',
                     'type': 'k8s-resources',
@@ -443,7 +443,7 @@ class TestProjectConfigParser(unittest.TestCase):
             'name': 'Test',
             'version': '1.0',
             'type': 'Assembly',
-            'includedArtifacts': [
+            'included-artifacts': [
                 {
                     'name': 'dirtest',
                     'type': 'k8s-resources',
@@ -476,7 +476,7 @@ class TestProjectConfigParser(unittest.TestCase):
             'name': 'Test',
             'version': '1.0',
             'type': 'Assembly',
-            'includedArtifacts': [
+            'included-artifacts': [
                 {
                     'name': 'dirtest',
                     'type': 'k8s-resources',
@@ -519,7 +519,7 @@ class TestProjectConfigParser(unittest.TestCase):
                     'directory': 'SubA',
                     'type': 'Resource',
                     'resource-manager': 'brent',
-                    'includedArtifacts': [
+                    'included-artifacts': [
                         {
                             'name': 'dockertest',
                             'type': 'docker-image',
@@ -557,7 +557,7 @@ class TestProjectConfigParser(unittest.TestCase):
             'name': 'Test',
             'version': '1.0',
             'type': 'Assembly',
-            'includedArtifacts': [
+            'included-artifacts': [
                 {
                     'name': 'A',
                     'type': 'docker-image',

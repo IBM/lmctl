@@ -150,15 +150,15 @@ class ProjectConfigBase(ProjectConfig):
             for entry in self.subproject_entries:
                 data['contains'].append(entry.to_dict())
         if len(self.included_artifacts) > 0:
-            data['includedArtifacts'] = []
+            data['included-artifacts'] = []
             for entry in self.included_artifacts:
-                data['includedArtifacts'].append(entry.to_dict())
+                data['included-artifacts'].append(entry.to_dict())
         return data
 
 
 class RootProjectConfig(ProjectConfigBase):
 
-    def __init__(self, schema, name, version, project_type, resource_manager=None, subproject_entries=None, included_artifacts=None):
+    def __init__(self, schema, name, version, project_type, resource_manager=None, subproject_entries=None, included_artifacts=None, packaging=None):
         super().__init__(name, project_type, resource_manager, subproject_entries, included_artifacts)
         if not schema:
             raise ProjectConfigError('schema must be defined')
@@ -166,6 +166,9 @@ class RootProjectConfig(ProjectConfigBase):
         if not version:
             raise ProjectConfigError('version must be defined')
         self._version = version
+        if not packaging:
+            packaging = 'tgz'
+        self._packaging = packaging
 
     @property
     def schema(self):
@@ -175,6 +178,10 @@ class RootProjectConfig(ProjectConfigBase):
     def version(self):
         return self._version
 
+    @property
+    def packaging(self):
+        return self._packaging
+
     def to_dict(self):
         data = {}
         data['schema'] = self.schema
@@ -182,6 +189,7 @@ class RootProjectConfig(ProjectConfigBase):
         data['name'] = base_data['name']
         del base_data['name']
         data['version'] = self.version
+        data['packaging'] = self.packaging
         for key, value in base_data.items():
             data[key] = value
         return data
@@ -241,6 +249,7 @@ class ProjectConfigParserWorker:
 
     def parse(self):
         self.schema = self.__read_schema()
+        self.packaging = self.__read_packaging()
         self.project_name = self.__read_project_name(self.config_dict)
         self.project_type = self.__read_project_type(self.config_dict)
         self.project_version = self.__read_project_version(self.config_dict)
@@ -249,7 +258,7 @@ class ProjectConfigParserWorker:
         subprojects = self.__read_subprojects(self.config_dict)
         if types.is_resource_type(self.project_type):
             resource_manager = self.__read_resource_manager(self.config_dict)
-        return RootProjectConfig(self.schema, self.project_name, self.project_version, self.project_type, resource_manager, subprojects, self.included_artifacts)
+        return RootProjectConfig(self.schema, self.project_name, self.project_version, self.project_type, resource_manager, subprojects, self.included_artifacts, packaging=self.packaging)
 
     def __read_schema(self):
         if 'schema' not in self.config_dict:
@@ -258,6 +267,9 @@ class ProjectConfigParserWorker:
             else:
                 return None
         return self.config_dict['schema']
+
+    def __read_packaging(self):
+        return self.config_dict.get('packaging', None)
 
     def __read_project_name(self, config_dict):
         return config_dict.get('name', None)
@@ -292,11 +304,11 @@ class ProjectConfigParserWorker:
 
     def __read_included_artifacts(self, config_dict):
         included_artifacts = []
-        if 'includedArtefacts' in config_dict:
-            for artifact_entry in config_dict['includedArtefacts']:
+        if 'included-artefacts' in config_dict:
+            for artifact_entry in config_dict['included-artefacts']:
                 included_artifacts.append(self.__read_included_artifact_entry(artifact_entry))
-        if 'includedArtifacts' in config_dict:
-            for artifact_entry in config_dict['includedArtifacts']:
+        if 'included-artifacts' in config_dict:
+            for artifact_entry in config_dict['included-artifacts']:
                 included_artifacts.append(self.__read_included_artifact_entry(artifact_entry))
         return included_artifacts
 
@@ -315,7 +327,7 @@ class ProjectConfigParserWorker:
             elif type(raw_items) == str:
                 items.append(ArtifactDirectoryItem(raw_items))
             else:
-                raise ProjectConfigError('includedArtifacts entry items must be a list or string but instead got: Value={0}, Type={1}'.format(raw_items, type(raw_items)))
+                raise ProjectConfigError('included-artifacts entry items must be a list or string but instead got: Value={0}, Type={1}'.format(raw_items, type(raw_items)))
         return IncludedArtifactEntry(artifact_name, artifact_type, path, items)
 
 class ProjectConfigRewriter:
@@ -395,7 +407,7 @@ class IncludedArtifactEntry:
         self._artifact_type = artifact_type
         if not path:
             raise ProjectConfigError('path must be defined')
-        self._path = path
+        self._path = os.path.normpath(path.replace('\\', '/'))
         self._items = items
 
     @property
@@ -433,6 +445,8 @@ class ArtifactDirectoryItem:
     def __init__(self, path):
         if not path:
             raise ProjectConfigError('path must be defined for item')
+        if path != IncludedArtifactEntry.WILDCARD:
+            path = os.path.normpath(path.replace('\\', '/'))
         self._path = path
 
     @property

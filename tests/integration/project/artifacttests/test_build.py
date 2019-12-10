@@ -29,7 +29,6 @@ class TestBuildProjectWithArtifacts(ProjectSimTestCase):
                     {
                         'name': 'ImgZ',
                         'type': 'docker-image',
-                        'path': 'ImgZ',
                         'items': [
                             'imgZ.txt'
                         ]
@@ -37,7 +36,6 @@ class TestBuildProjectWithArtifacts(ProjectSimTestCase):
                     {
                         'name': 'ImgA',
                         'type': 'docker-image',
-                        'path': 'ImgA',
                         'items': [
                             'imgA1.txt',
                             'imgA2.txt'
@@ -46,7 +44,6 @@ class TestBuildProjectWithArtifacts(ProjectSimTestCase):
                     {
                         'name': 'ImgB',
                         'type': 'docker-image',
-                        'path': 'ImgB',
                         'items': [
                             'imgB4.txt',
                             'imgB1.txt',
@@ -57,7 +54,6 @@ class TestBuildProjectWithArtifacts(ProjectSimTestCase):
                     {
                         'name': 'ImgC',
                         'type': 'docker-image',
-                        'path': 'ImgC',
                         'items': [
                             'imgC1.txt'
                         ]
@@ -107,7 +103,6 @@ class TestBuildProjectWithArtifacts(ProjectSimTestCase):
                             {
                                 'name': 'ImgZ',
                                 'type': 'docker-image',
-                                'path': 'ImgZ',
                                 'items': [
                                     'imgZ.txt'
                                 ]
@@ -115,7 +110,6 @@ class TestBuildProjectWithArtifacts(ProjectSimTestCase):
                             {
                                 'name': 'ImgA',
                                 'type': 'docker-image',
-                                'path': 'ImgA',
                                 'items': [
                                     'imgA1.txt',
                                     'imgA2.txt'
@@ -124,7 +118,6 @@ class TestBuildProjectWithArtifacts(ProjectSimTestCase):
                             {
                                 'name': 'ImgB',
                                 'type': 'docker-image',
-                                'path': 'ImgB',
                                 'items': [
                                     'imgB4.txt',
                                     'imgB1.txt',
@@ -135,7 +128,6 @@ class TestBuildProjectWithArtifacts(ProjectSimTestCase):
                             {
                                 'name': 'ImgC',
                                 'type': 'docker-image',
-                                'path': 'ImgC',
                                 'items': [
                                     'imgC1.txt'
                                 ]
