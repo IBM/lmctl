@@ -29,14 +29,17 @@ def format_vim_driver(output_format, vim_driver):
 @click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
 @click.option('--type', 'inf_type', default='Openstack', help='Infrastructure type of the VIM driver to add')
 @click.option('--url', help='url of VIM driver to add')
+@click.option('--certificate', help='public certificate of the VIM driver')
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
-def add(environment, config, pwd, inf_type, url, output_format):
+def add(environment, config, pwd, inf_type, url, certificate, output_format):
     """Add a VIM driver"""
     vim_mgmt_driver = get_vim_driver_mgmt_driver(environment, config, pwd)
     new_vim_driver = {
         'infrastructureType': inf_type,
         'baseUri': url
     }
+    if certificate is not None:
+        new_vim_driver['certificate'] = certificate
     with clirunners.lm_driver_safety():
         vim_driver = vim_mgmt_driver.add_vim_driver(new_vim_driver)
     click.echo(format_vim_driver(output_format, vim_driver))
