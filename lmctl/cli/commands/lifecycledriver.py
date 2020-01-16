@@ -3,6 +3,7 @@ import logging
 import lmctl.cli.ctlmgmt as ctlmgmt
 import lmctl.cli.clirunners as clirunners
 from lmctl.cli.format import determine_format_class, TableFormat
+from lmctl.utils import read_certificate_file
 
 logger = logging.getLogger(__name__)
 
@@ -29,20 +30,24 @@ def format_lifecycle_driver(output_format, lifecycle_driver):
 @click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
 @click.option('--type', 'lifecycle_type', default='Ansible', help='Lifecycle type of the driver to add')
 @click.option('--url', help='url of lifecycle driver to add')
-@click.option('--certificate', type=click.STRING, help='public certificate of the lifecycle driver')
+@click.option('--certificate', help='filename of a file containing the public certificate of the lifecycle driver')
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
 def add(environment, config, pwd, lifecycle_type, url, certificate, output_format):
     """Add a lifecycle driver"""
-    lifecycle_mgmt_driver = get_lifecycle_driver_mgmt_driver(environment, config, pwd)
-    new_lifecycle_driver = {
-        'type': lifecycle_type,
-        'baseUri': url
-    }
-    if certificate is not None:
-        new_lifecycle_driver['certificate'] = certificate
-    with clirunners.lm_driver_safety():
-        lifecycle_driver = lifecycle_mgmt_driver.add_lifecycle_driver(new_lifecycle_driver)
-    click.echo(format_lifecycle_driver(output_format, lifecycle_driver))
+    try:
+        lifecycle_mgmt_driver = get_lifecycle_driver_mgmt_driver(environment, config, pwd)
+        new_lifecycle_driver = {
+            'type': lifecycle_type,
+            'baseUri': url
+        }
+        if certificate is not None:
+            new_lifecycle_driver['certificate'] = read_certificate_file(certificate)
+        with clirunners.lm_driver_safety():
+            lifecycle_driver = lifecycle_mgmt_driver.add_lifecycle_driver(new_lifecycle_driver)
+        click.echo(format_lifecycle_driver(output_format, lifecycle_driver))
+    except IOError as e:
+        click.echo('Error: reading certificate: {0}'.format(str(e)), err=True)
+        exit(1)
 
 @lifecycledriver.command(help='Remove a lifecycle driver from LM by ID (or by type)')
 @click.argument('environment')
