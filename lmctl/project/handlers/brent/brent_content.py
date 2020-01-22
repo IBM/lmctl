@@ -22,11 +22,9 @@ class BrentResourcePackageContentTree(files.Tree):
 
     DEFINITIONS_DIR_NAME = 'Definitions'
     INFRASTRUCTURE_DIR_NAME = 'infrastructure'
-    INFRASTRUCTURE_MANIFEST_FILE_NAME = 'infrastructure.mf'
     LM_DIR_NAME = 'lm'
     DESCRIPTOR_FILE_NAME_YML = 'resource.yaml'
     LIFECYCLE_DIR_NAME = 'Lifecycle'
-    LIFECYCLE_MANIFEST_FILE_NAME = 'lifecycle.mf'
     
     @property
     def definitions_path(self):
@@ -35,10 +33,6 @@ class BrentResourcePackageContentTree(files.Tree):
     @property
     def infrastructure_definitions_path(self):
         return self.resolve_relative_path(BrentResourcePackageContentTree.DEFINITIONS_DIR_NAME, BrentResourcePackageContentTree.INFRASTRUCTURE_DIR_NAME)
-
-    @property
-    def infrastructure_manifest_file_path(self):
-        return self.resolve_relative_path(BrentResourcePackageContentTree.DEFINITIONS_DIR_NAME, BrentResourcePackageContentTree.INFRASTRUCTURE_DIR_NAME, BrentResourcePackageContentTree.INFRASTRUCTURE_MANIFEST_FILE_NAME)
 
     @property
     def lm_definitions_path(self):
@@ -51,10 +45,6 @@ class BrentResourcePackageContentTree(files.Tree):
     @property
     def lifecycle_path(self):
         return self.resolve_relative_path(BrentResourcePackageContentTree.LIFECYCLE_DIR_NAME)
-
-    @property
-    def lifecycle_manifest_file_path(self):
-        return self.resolve_relative_path(BrentResourcePackageContentTree.LIFECYCLE_DIR_NAME, BrentResourcePackageContentTree.LIFECYCLE_MANIFEST_FILE_NAME)
 
 
 class BrentContentHandlerDelegate(handlers_api.ResourceContentHandlerDelegate):

@@ -100,13 +100,11 @@ class BrentSourceTree(files.Tree):
 
     DEFINITIONS_DIR_NAME = 'Definitions'
     INFRASTRUCTURE_DIR_NAME = 'infrastructure'
-    INFRASTRUCTURE_MANIFEST_FILE_NAME = 'infrastructure.mf'
     LM_DIR_NAME = 'lm'
     DESCRIPTOR_FILE_NAME_YML = 'resource.yml'
     DESCRIPTOR_FILE_NAME_YAML = 'resource.yaml'
 
     LIFECYCLE_DIR_NAME = 'Lifecycle'
-    LIFECYCLE_MANIFEST_FILE_NAME = 'lifecycle.mf'
     ANSIBLE_LIFECYCLE_DIR_NAME = 'ansible'
     SOL003_LIFECYCLE_DIR_NAME = 'sol003'
     
@@ -117,10 +115,6 @@ class BrentSourceTree(files.Tree):
     @property
     def infrastructure_definitions_path(self):
         return self.resolve_relative_path(BrentSourceTree.DEFINITIONS_DIR_NAME, BrentSourceTree.INFRASTRUCTURE_DIR_NAME)
-
-    @property
-    def infrastructure_manifest_file_path(self):
-        return self.resolve_relative_path(BrentSourceTree.DEFINITIONS_DIR_NAME, BrentSourceTree.INFRASTRUCTURE_DIR_NAME, BrentSourceTree.INFRASTRUCTURE_MANIFEST_FILE_NAME)
 
     @property
     def lm_definitions_path(self):
@@ -141,10 +135,6 @@ class BrentSourceTree(files.Tree):
     @property
     def lifecycle_path(self):
         return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME)
-
-    @property
-    def lifecycle_manifest_file_path(self):
-        return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.LIFECYCLE_MANIFEST_FILE_NAME)
 
     @property
     def ansible_lifecycle_path(self):
@@ -210,18 +200,12 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
         if inf_type == INFRASTRUCTURE_TYPE_OPENSTACK:
             descriptor.add_lifecycle('Create')
             descriptor.add_lifecycle('Delete')
-            inf_manifest_content += '\n  - file: example.yaml'
-            inf_manifest_content += '\n    infrastructure_type: Openstack'
-            inf_manifest_content += '\n    template_type: HEAT'
+            descriptor.add_infrastructure_manifest_template_entry('example.yaml', 'Openstack', template_type='HEAT')
             templates_tree = OpenstackTemplatesTree(source_tree.infrastructure_definitions_path)
             file_ops.append(handlers_api.CreateFileOp(templates_tree.gen_tosca_template('example'), OPENSTACK_EXAMPLE_TOSCA, handlers_api.EXISTING_IGNORE))
-        else:
-            inf_manifest_content += ' []'
-        file_ops.append(handlers_api.CreateFileOp(source_tree.infrastructure_manifest_file_path, inf_manifest_content, handlers_api.EXISTING_IGNORE))
     
     def __create_lifecycle(self, journal, source_request, file_ops, source_tree, lifecycle_type, descriptor):
         file_ops.append(handlers_api.CreateDirectoryOp(source_tree.lifecycle_path, handlers_api.EXISTING_IGNORE))
-        lifecycle_manifest_content = 'types:'
         if lifecycle_type == LIFECYCLE_TYPE_ANSIBLE:
             file_ops.append(handlers_api.CreateDirectoryOp(source_tree.ansible_lifecycle_path, handlers_api.EXISTING_IGNORE))
             ansible_tree = AnsibleLifecycleTree(source_tree.ansible_lifecycle_path)
@@ -235,8 +219,7 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
             file_ops.append(handlers_api.CreateFileOp(ansible_tree.inventory_file_path, inventory_content, handlers_api.EXISTING_IGNORE))
             host_var_content = '---\nansible_host: {{ properties.host }}\nansible_ssh_user: {{ properties.ssh_user }}\nansible_ssh_pass: {{ properties.ssh_pass }}'
             file_ops.append(handlers_api.CreateFileOp(ansible_tree.gen_hostvars_file_path('example-host'), host_var_content, handlers_api.EXISTING_IGNORE))
-            lifecycle_manifest_content += '\n  - lifecycle_type: ansible'
-            lifecycle_manifest_content += '\n    infrastructure_type: \'*\''
+            descriptor.add_lifecycle_manifest_entry('ansible')
         elif lifecycle_type == LIFECYCLE_TYPE_SOL003:
             file_ops.append(handlers_api.CreateDirectoryOp(source_tree.sol003_lifecycle_path, handlers_api.EXISTING_IGNORE))
             sol003_tree = Sol003LifecycleTree(source_tree.sol003_lifecycle_path)
@@ -249,8 +232,7 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
                 with open(orig_script_path, 'r') as f:
                     content = f.read()
                 file_ops.append(handlers_api.CreateFileOp(os.path.join(sol003_tree.scripts_path, script_name), content, handlers_api.EXISTING_IGNORE))
-            lifecycle_manifest_content += '\n  - lifecycle_type: sol003'
-            lifecycle_manifest_content += '\n    infrastructure_type: \'*\''
+            descriptor.add_lifecycle_manifest_entry('sol003')
             descriptor.add_property('vnfdId', description='Identifier for the VNFD to use for this VNF instance', ptype='string', required=True)
             descriptor.add_property('vnfInstanceId', description='Identifier for the VNF instance, as provided by the vnfInstanceName', ptype='string', read_only=True)
             descriptor.add_property('vnfInstanceName', description='Name for the VNF instance', ptype='string', value='${name}')
@@ -267,9 +249,6 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
             descriptor.add_lifecycle('Install')
             descriptor.add_lifecycle('Configure')
             descriptor.add_lifecycle('Uninstall')
-        else:
-            lifecycle_manifest_content += ' []'
-        file_ops.append(handlers_api.CreateFileOp(source_tree.lifecycle_manifest_file_path, lifecycle_manifest_content, handlers_api.EXISTING_IGNORE))
 
 class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
     
@@ -302,24 +281,23 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
 
     def __validate_definitions_infrastructure(self, journal, errors, warnings):
         inf_path = self.tree.infrastructure_definitions_path
-        if self.__find_or_error(journal, errors, warnings, inf_path, 'Infrastructure definitions directory'):
-            self.__validate_infrastructure_manifest(journal, errors, warnings)
-    
-    def __validate_infrastructure_manifest(self, journal, errors, warnings):
-        inf_manifest_path = self.tree.infrastructure_manifest_file_path
-        if self.__find_or_error(journal, errors, warnings, inf_manifest_path, 'Infrastructure manifest'):
-            with open(inf_manifest_path, 'rt') as manifest_file:
-                try:
-                    manifest_dict = yaml.safe_load(manifest_file.read())
-                except yaml.YAMLError as e:
-                    msg = 'Infrastructure manifest [{0}]: does not contain valid YAML: {1}'.format(inf_manifest_path, str(e))
-                    journal.error_event(msg)
-                    errors.append(project_validation.ValidationViolation(msg))
-                    return
-            if 'templates' not in manifest_dict:
-                msg = 'Infrastructure manifest [{0}]: missing \'templates\' field'.format(inf_manifest_path)
-                journal.error_event(msg)
-                errors.append(project_validation.ValidationViolation(msg))
+        self.__find_or_error(journal, errors, warnings, inf_path, 'Infrastructure definitions directory')
+
+    # def __validate_infrastructure_manifest(self, journal, errors, warnings):
+    #     inf_manifest_path = self.tree.infrastructure_manifest_file_path
+    #     if self.__find_or_error(journal, errors, warnings, inf_manifest_path, 'Infrastructure manifest'):
+    #         with open(inf_manifest_path, 'rt') as manifest_file:
+    #             try:
+    #                 manifest_dict = yaml.safe_load(manifest_file.read())
+    #             except yaml.YAMLError as e:
+    #                 msg = 'Infrastructure manifest [{0}]: does not contain valid YAML: {1}'.format(inf_manifest_path, str(e))
+    #                 journal.error_event(msg)
+    #                 errors.append(project_validation.ValidationViolation(msg))
+    #                 return
+    #         if 'templates' not in manifest_dict:
+    #             msg = 'Infrastructure manifest [{0}]: missing \'templates\' field'.format(inf_manifest_path)
+    #             journal.error_event(msg)
+    #             errors.append(project_validation.ValidationViolation(msg))
 
     def __validate_definitions_lm(self, journal, errors, warnings):
         lm_def_path = self.tree.lm_definitions_path
@@ -329,24 +307,24 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
 
     def __validate_lifecycle(self, journal, errors, warnings):
         lifecycle_path = self.tree.lifecycle_path
-        if self.__find_or_error(journal, errors, warnings, lifecycle_path, 'Lifecycle directory'):
-            self.__validate_lifecycle_manifest(journal, errors, warnings)
+        self.__find_or_error(journal, errors, warnings, lifecycle_path, 'Lifecycle directory')
+            # self.__validate_lifecycle_manifest(journal, errors, warnings)
 
-    def __validate_lifecycle_manifest(self, journal, errors, warnings):
-        lifecycle_manifest_path = self.tree.lifecycle_manifest_file_path
-        if self.__find_or_error(journal, errors, warnings, lifecycle_manifest_path, 'Lifecycle manifest'):
-            with open(lifecycle_manifest_path, 'rt') as manifest_file:
-                try:
-                    manifest_dict = yaml.safe_load(manifest_file.read())
-                except yaml.YAMLError as e:
-                    msg = 'Lifecycle manifest [{0}]: does not contain valid YAML: {1}'.format(lifecycle_manifest_path, str(e))
-                    journal.error_event(msg)
-                    errors.append(project_validation.ValidationViolation(msg))
-                    return
-            if 'types' not in manifest_dict:
-                msg = 'Lifecycle manifest [{0}]: missing \'types\' field'.format(lifecycle_manifest_path)
-                journal.error_event(msg)
-                errors.append(project_validation.ValidationViolation(msg))
+    # def __validate_lifecycle_manifest(self, journal, errors, warnings):
+    #     lifecycle_manifest_path = self.tree.lifecycle_manifest_file_path
+    #     if self.__find_or_error(journal, errors, warnings, lifecycle_manifest_path, 'Lifecycle manifest'):
+    #         with open(lifecycle_manifest_path, 'rt') as manifest_file:
+    #             try:
+    #                 manifest_dict = yaml.safe_load(manifest_file.read())
+    #             except yaml.YAMLError as e:
+    #                 msg = 'Lifecycle manifest [{0}]: does not contain valid YAML: {1}'.format(lifecycle_manifest_path, str(e))
+    #                 journal.error_event(msg)
+    #                 errors.append(project_validation.ValidationViolation(msg))
+    #                 return
+    #         if 'types' not in manifest_dict:
+    #             msg = 'Lifecycle manifest [{0}]: missing \'types\' field'.format(lifecycle_manifest_path)
+    #             journal.error_event(msg)
+    #             errors.append(project_validation.ValidationViolation(msg))
 
     def get_main_descriptor(self):
         main_descriptor_path = self.tree.descriptor_file_path

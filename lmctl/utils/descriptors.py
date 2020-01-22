@@ -77,7 +77,7 @@ class DescriptorName:
 
 class Descriptor:
     
-    ORDERED_KEYS = ['name', 'description', 'properties', 'lifecycle',  'composition', 'references', 'relationships', 'operations']
+    ORDERED_KEYS = ['name', 'description', 'properties', 'infrasturcture', 'lifecycle', 'lifecycle-manifest', 'composition', 'references', 'relationships', 'operations']
     ORDERED_LIFECYCLE = ['Create', 'Install', 'Configure', 'Start', 'Stop', 'Uninstall', 'Delete']
 
     def __init__(self, raw_descriptor):
@@ -144,12 +144,44 @@ class Descriptor:
         if 'lifecycle' not in self.raw:
             self.raw['lifecycle'] = []
         return self.raw['lifecycle']
-    
+
+    @property
+    def infrastructure(self):
+        if 'infrastructure' not in self.raw:
+            self.raw['infrastructure'] = {
+                "templates": [],
+                "discover": []
+            }
+        return self.raw['infrastructure']
+
+    @property
+    def lifecycle_manifest(self):
+        if 'lifecycle-manifest' not in self.raw:
+            self.raw['lifecycle-manifest'] = {
+                "types": []
+            }
+        return self.raw['lifecycle-manifest']
+
     def add_lifecycle(self, lifecycle_name):
         lifecycle = self.lifecycle
         if lifecycle_name not in lifecycle:
             lifecycle.append(lifecycle_name)
         self.raw['lifecycle'] = sorted(lifecycle, key=lambda x: Descriptor.ORDERED_LIFECYCLE.index(x) if x in Descriptor.ORDERED_LIFECYCLE else -1)
+
+    def add_lifecycle_manifest_entry(self, lifecycle_type, infrastructure_type="*"):
+        self.lifecycle_manifest['types'] = self.lifecycle_manifest['types'].append({
+            "lifecycle_type": lifecycle_type,
+            "infrastructure_type": infrastructure_type
+        })
+
+    def add_infrastructure_manifest_template_entry(self, file, infrastructure_type, template_type=None):
+        infrastructure_manifest_template_entry = {
+            "file": file,
+            "infrastructure_type": infrastructure_type
+        }
+        if template_type is not None:
+            infrastructure_manifest_template_entry["template_type"] = template_type
+        self.infrastructure['templates'] = self.infrastructure['templates'].append(infrastructure_manifest_template_entry)
 
     def add_property(self, name, description=None, ptype='string', required=None, default=None, read_only=None, value=None):
         properties = self.properties
