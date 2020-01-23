@@ -6,6 +6,33 @@ from lmctl.project.source.core import Project, Options, ValidateOptions, BuildOp
 from lmctl.project.validation import ValidationResult
 import tests.common.simulations.project_lab as project_lab
 
+EXPECTED_AUTOCORRECT_DESCRIPTOR = '''\
+description: descriptor
+infrastructure:
+  Openstack:
+    template:
+      file: example.yaml
+      template_type: HEAT
+  Kubernetes:
+    template:
+      file: k8s.yaml
+  AWS:
+    template:
+      file: aws.yaml
+lifecycle:
+  Create: {}
+  Install: {}
+  Delete: {}
+default_driver:
+  ansible:
+    infrastructure_type:
+    - Openstack
+    - Kubernetes
+  shell:
+    infrastructure_type:
+    - AWS
+'''
+
 class TestValidateBrentProjects(ProjectSimTestCase):
 
     def test_validate_resource(self):
@@ -36,8 +63,8 @@ class TestValidateBrentProjects(ProjectSimTestCase):
         project = Project(project_sim.path)
         validate_options = ValidateOptions()
         result = project.validate(validate_options)
-        definitions_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR)
-        self.assert_validation_errors(result, 'No Definitions directory found at: {0}'.format(definitions_path))
+        descriptor_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR, BRENT_DESCRIPTOR_YML_FILE)
+        self.assert_validation_errors(result, 'No descriptor found at: {0}'.format(descriptor_path))
 
     def test_validate_resource_without_infrastructure(self):
         project_sim = self.simlab.simulate_invalid_brent_no_infrastructure()
@@ -47,21 +74,13 @@ class TestValidateBrentProjects(ProjectSimTestCase):
         inf_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR)
         self.assert_validation_errors(result, 'No Infrastructure definitions directory found at: {0}'.format(inf_path))
 
-    def test_validate_resource_without_infrastructure_manifest(self):
-        project_sim = self.simlab.simulate_invalid_brent_no_infrastructure_manifest()
-        project = Project(project_sim.path)
-        validate_options = ValidateOptions()
-        result = project.validate(validate_options)
-        inf_manifest_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR, BRENT_INFRASTRUCTURE_MANIFEST_FILE)
-        self.assert_validation_errors(result, 'No Infrastructure manifest found at: {0}'.format(inf_manifest_path))
-
     def test_validate_resource_without_lm_definitions(self):
         project_sim = self.simlab.simulate_invalid_brent_no_lm_definitions()
         project = Project(project_sim.path)
         validate_options = ValidateOptions()
         result = project.validate(validate_options)
-        descriptor_dir_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR)
-        self.assert_validation_errors(result, 'No LM definitions directory found at: {0}'.format(descriptor_dir_path))
+        descriptor_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR, BRENT_DESCRIPTOR_YML_FILE)
+        self.assert_validation_errors(result, 'No descriptor found at: {0}'.format(descriptor_path))
 
     def test_validate_resource_without_lm_descriptor(self):
         project_sim = self.simlab.simulate_invalid_brent_no_lm_descriptor()
@@ -69,23 +88,42 @@ class TestValidateBrentProjects(ProjectSimTestCase):
         validate_options = ValidateOptions()
         result = project.validate(validate_options)
         descriptor_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR, BRENT_DESCRIPTOR_YML_FILE)
-        self.assert_validation_errors(result, 'No Resource descriptor found at: {0}'.format(descriptor_path))
+        self.assert_validation_errors(result, 'No descriptor found at: {0}'.format(descriptor_path))
 
     def test_validate_resource_without_lifecycle(self):
         project_sim = self.simlab.simulate_invalid_brent_no_lifecycle()
         project = Project(project_sim.path)
         validate_options = ValidateOptions()
         result = project.validate(validate_options)
-        inf_path = os.path.join(project_sim.path, BRENT_LIFECYCLE_DIR)
-        self.assert_validation_errors(result, 'No Lifecycle directory found at: {0}'.format(inf_path))
+        lifecycle_path = os.path.join(project_sim.path, BRENT_LIFECYCLE_DIR)
+        self.assert_validation_errors(result, 'No Lifecycle directory found at: {0}'.format(lifecycle_path))
 
-    def test_validate_resource_without_lifecycle_manifest(self):
-        project_sim = self.simlab.simulate_invalid_brent_no_lifecycle_manifest()
+    def test_validate_errors_on_manifests(self):
+        project_sim = self.simlab.simulate_brent_with_prealpha_style()
         project = Project(project_sim.path)
         validate_options = ValidateOptions()
         result = project.validate(validate_options)
-        inf_manifest_path = os.path.join(project_sim.path, BRENT_LIFECYCLE_DIR, BRENT_LIFECYCLE_MANIFEST_FILE)
-        self.assert_validation_errors(result, 'No Lifecycle manifest found at: {0}'.format(inf_manifest_path))
+        inf_manifest_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR, BRENT_INFRASTRUCTURE_MANIFEST_FILE)
+        lifeycle_manifest_path = os.path.join(project_sim.path, BRENT_LIFECYCLE_DIR, BRENT_LIFECYCLE_MANIFEST_FILE)
+        self.assert_validation_errors(result, 'Found infrastructure manifest [{0}]: this file is no longer supported by the Brent Resource Manager. Add this information to the Resource descriptor instead or enable the autocorrect option'.format(inf_manifest_path), 'Found lifecycle manifest [{0}]: this file is no longer supported by the Brent Resource Manager. Add this information to the Resource descriptor instead or enable the autocorrect option'.format(lifeycle_manifest_path))
+
+    def test_validate_allow_autocorrect_fixes_manifests(self):
+        project_sim = self.simlab.simulate_brent_with_prealpha_style()
+        project = Project(project_sim.path)
+        validate_options = ValidateOptions()
+        validate_options.allow_autocorrect = True
+        result = project.validate(validate_options)
+        self.assertFalse(result.has_errors())
+        self.assertFalse(result.has_warnings())
+        project = Project(project_sim.path)
+        tester = self.assert_project(project)
+        inf_manifest_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR, BRENT_INFRASTRUCTURE_MANIFEST_FILE)
+        tester.assert_has_no_file(inf_manifest_path)
+        lifeycle_manifest_path = os.path.join(project_sim.path, BRENT_LIFECYCLE_DIR, BRENT_LIFECYCLE_MANIFEST_FILE)
+        tester.assert_has_no_file(lifeycle_manifest_path)
+        lm_dir = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR)
+        descriptor_path = os.path.join(lm_dir, BRENT_DESCRIPTOR_YML_FILE)
+        tester.assert_has_file(descriptor_path, EXPECTED_AUTOCORRECT_DESCRIPTOR)
 
 class TestValidateBrentSubprojects(ProjectSimTestCase):
 
@@ -117,8 +155,9 @@ class TestValidateBrentSubprojects(ProjectSimTestCase):
         project = Project(project_sim.path)
         validate_options = ValidateOptions()
         result = project.validate(validate_options)
-        definitions_path = os.path.join(project_sim.path, PROJECT_CONTAINS_DIR, project_lab.SUBPROJECT_NAME_INVALID_BRENT_NO_DEFINITIONS, BRENT_DEFINITIONS_DIR)
-        self.assert_validation_errors(result, 'No Definitions directory found at: {0}'.format(definitions_path))
+        descriptor_path = os.path.join(project_sim.path, PROJECT_CONTAINS_DIR, project_lab.SUBPROJECT_NAME_INVALID_BRENT_NO_DEFINITIONS, BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR, BRENT_DESCRIPTOR_YML_FILE)
+        self.assert_validation_errors(result, 'No descriptor found at: {0}'.format(descriptor_path))
+
 
     def test_validate_resource_without_infrastructure(self):
         project_sim = self.simlab.simulate_assembly_contains_invalid_brent_no_infrastructure()
@@ -128,21 +167,13 @@ class TestValidateBrentSubprojects(ProjectSimTestCase):
         inf_path = os.path.join(project_sim.path, PROJECT_CONTAINS_DIR, project_lab.SUBPROJECT_NAME_INVALID_BRENT_NO_INFRASTRUCTURE, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR)
         self.assert_validation_errors(result, 'No Infrastructure definitions directory found at: {0}'.format(inf_path))
 
-    def test_validate_resource_without_infrastructure_manifest(self):
-        project_sim = self.simlab.simulate_assembly_contains_invalid_brent_no_infrastructure_manifest()
-        project = Project(project_sim.path)
-        validate_options = ValidateOptions()
-        result = project.validate(validate_options)
-        inf_manifest_path = os.path.join(project_sim.path, PROJECT_CONTAINS_DIR, project_lab.SUBPROJECT_NAME_INVALID_BRENT_NO_INFRASTRUCTURE_MANIFEST, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR, BRENT_INFRASTRUCTURE_MANIFEST_FILE)
-        self.assert_validation_errors(result, 'No Infrastructure manifest found at: {0}'.format(inf_manifest_path))
-
     def test_validate_resource_without_lm_definitions(self):
         project_sim = self.simlab.simulate_assembly_contains_invalid_brent_no_lm_definitions()
         project = Project(project_sim.path)
         validate_options = ValidateOptions()
         result = project.validate(validate_options)
-        descriptor_dir_path = os.path.join(project_sim.path, PROJECT_CONTAINS_DIR, project_lab.SUBPROJECT_NAME_INVALID_BRENT_NO_LM_DEFINITIONS, BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR)
-        self.assert_validation_errors(result, 'No LM definitions directory found at: {0}'.format(descriptor_dir_path))
+        descriptor_path = os.path.join(project_sim.path, PROJECT_CONTAINS_DIR, project_lab.SUBPROJECT_NAME_INVALID_BRENT_NO_LM_DEFINITIONS, BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR, BRENT_DESCRIPTOR_YML_FILE)
+        self.assert_validation_errors(result, 'No descriptor found at: {0}'.format(descriptor_path))
 
     def test_validate_resource_without_lm_descriptor(self):
         project_sim = self.simlab.simulate_assembly_contains_invalid_brent_no_lm_descriptor()
@@ -150,7 +181,7 @@ class TestValidateBrentSubprojects(ProjectSimTestCase):
         validate_options = ValidateOptions()
         result = project.validate(validate_options)
         descriptor_path = os.path.join(project_sim.path, PROJECT_CONTAINS_DIR, project_lab.SUBPROJECT_NAME_INVALID_BRENT_NO_DESCRIPTOR, BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR, BRENT_DESCRIPTOR_YML_FILE)
-        self.assert_validation_errors(result, 'No Resource descriptor found at: {0}'.format(descriptor_path))
+        self.assert_validation_errors(result, 'No descriptor found at: {0}'.format(descriptor_path))
 
     def test_validate_resource_without_lifecycle(self):
         project_sim = self.simlab.simulate_assembly_contains_invalid_brent_no_lifecycle()
@@ -159,11 +190,3 @@ class TestValidateBrentSubprojects(ProjectSimTestCase):
         result = project.validate(validate_options)
         inf_path = os.path.join(project_sim.path, PROJECT_CONTAINS_DIR, project_lab.SUBPROJECT_NAME_INVALID_BRENT_NO_LIFECYCLE, BRENT_LIFECYCLE_DIR)
         self.assert_validation_errors(result, 'No Lifecycle directory found at: {0}'.format(inf_path))
-
-    def test_validate_resource_without_lifecycle_manifest(self):
-        project_sim = self.simlab.simulate_assembly_contains_invalid_brent_no_lifecycle_manifest()
-        project = Project(project_sim.path)
-        validate_options = ValidateOptions()
-        result = project.validate(validate_options)
-        inf_manifest_path = os.path.join(project_sim.path, PROJECT_CONTAINS_DIR, project_lab.SUBPROJECT_NAME_INVALID_BRENT_NO_LIFECYCLE_MANIFEST, BRENT_LIFECYCLE_DIR, BRENT_LIFECYCLE_MANIFEST_FILE)
-        self.assert_validation_errors(result, 'No Lifecycle manifest found at: {0}'.format(inf_manifest_path))

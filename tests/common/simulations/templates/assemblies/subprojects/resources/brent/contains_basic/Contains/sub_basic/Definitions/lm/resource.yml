@@ -1,1 +1,9 @@
 description: descriptor
+infrastructure:
+  Openstack:
+    template:
+      file: example.yaml
+default_driver:
+  ansible:
+    infrastructure_type: 
+      - '*'

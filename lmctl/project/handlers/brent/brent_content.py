@@ -46,7 +46,6 @@ class BrentResourcePackageContentTree(files.Tree):
     def lifecycle_path(self):
         return self.resolve_relative_path(BrentResourcePackageContentTree.LIFECYCLE_DIR_NAME)
 
-
 class BrentContentHandlerDelegate(handlers_api.ResourceContentHandlerDelegate):
 
     def __init__(self, root_path, meta):

@@ -1,2 +1,6 @@
 name: assembly::notvalid::5.4
 description: descriptor
+default_driver:
+  ansible:
+    infrastructure_type: 
+      - '*'

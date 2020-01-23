@@ -12,7 +12,7 @@ class SourceValidator:
         self.journal = journal
         self.source_config = source_config
 
-    def validate_descriptor(self, descriptor_path, errors, warnings):
+    def validate_descriptor(self, descriptor_path, errors, warnings, allow_autocorrect=False):
         if not os.path.exists(descriptor_path):
             msg = 'No descriptor found at: {0}'.format(descriptor_path)
             self.journal.error_event(msg)
@@ -44,6 +44,16 @@ class SourceValidator:
                                                                                                                                                                              descriptor_version, self.source_config.version)))
             if type_invalid or name_invalid or version_invalid:
                 self.journal.error_event('Descriptor validation failed')
+        if not isinstance(descriptor.lifecycle, dict) and allow_autocorrect is True:
+            self.journal.event('Found lifecycle list structure in Resource descriptor [{0}], attempting to autocorrect to latest structure'.format(descriptor_path))
+            new_lifecycle = {}
+            for lifecycle in descriptor.lifecycle:
+                new_lifecycle[lifecycle] = {}
+            descriptor.lifecycle = new_lifecycle
+            try:
+                descriptor_utils.DescriptorParser().write_to_file(descriptor, descriptor_path)
+            except Exception as e:
+                self.journal.error_event('Failed to update lifecycle list structure in Resource descriptor [{0}]: {1}'.format(descriptor_path, str(e)))
 
 class ValidationProcess:
     def __init__(self, project, options, journal):
@@ -59,7 +69,10 @@ class ValidationWorker:
     def __init__(self, project, options, journal):
         self.project = project
         self.journal = journal
-        self.options = options
+        self.__build_source_options(options)
+
+    def __build_source_options(self, cmd_options):
+        self.options = handlers_api.SourceValidationOptions(allow_autocorrect=cmd_options.allow_autocorrect)
 
     def work(self):
         self.journal.section('Validate Sources')
@@ -67,7 +80,7 @@ class ValidationWorker:
         all_warnings = []
         source_validator = SourceValidator(self.journal, self.project.config)
         try:
-            validate_sources_result = self.project.source_handler.validate_sources(self.journal, source_validator)
+            validate_sources_result = self.project.source_handler.validate_sources(self.journal, source_validator, self.options)
         except handlers_api.SourceHandlerError as e:
             raise ValidationProcessError(str(e)) from e
         all_errors.extend(validate_sources_result.errors)
