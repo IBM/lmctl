@@ -19,41 +19,41 @@ class SourceValidator:
             errors.append(validation.ValidationViolation(msg))
             return
         self.journal.event('Checking descriptor found at: {0}'.format(descriptor_path))
-        valid_yml = False
+        descriptor = None
         try:
             descriptor = descriptor_utils.DescriptorParser().read_from_file(descriptor_path)
-            valid_yml = True
         except descriptor_utils.DescriptorParsingError as e:
             errors.append(validation.ValidationViolation('Descriptor [{0}]: could not be parsed: {1}'.format(descriptor_path, str(e))))
-        if valid_yml and descriptor.has_name() is True:
-            type_invalid = False
-            name_invalid = False
-            version_invalid = False
-            descriptor_type, descriptor_name, descriptor_version = descriptor.get_split_name()
-            expected_type = descriptor_utils.ASSEMBLY_DESCRIPTOR_TYPE
-            if self.source_config.is_resource_project():
-                expected_type = descriptor_utils.RESOURCE_DESCRIPTOR_TYPE
-            if descriptor_type != expected_type:
-                errors.append(validation.ValidationViolation('Descriptor [{0}]: name \'{1}\' includes type \'{2}\' but this should be \'{3}\' based on project configuration'.format(descriptor_path, descriptor.get_name(),
-                                                                                                                                                                          descriptor_type, expected_type)))
-            if descriptor_name != self.source_config.full_name:
-                errors.append(validation.ValidationViolation('Descriptor [{0}]: name \'{1}\' includes \'{2}\' but this should be \'{3}\' based on project configuration'.format(descriptor_path, descriptor.get_name(),
-                                                                                                                                                                     descriptor_name, self.source_config.full_name)))
-            if descriptor_version != self.source_config.version:
-                errors.append(validation.ValidationViolation('Descriptor [{0}]: name \'{1}\' includes version \'{2}\' but this should be \'{3}\' based on project configuration'.format(descriptor_path, descriptor.get_name(),
-                                                                                                                                                                             descriptor_version, self.source_config.version)))
-            if type_invalid or name_invalid or version_invalid:
-                self.journal.error_event('Descriptor validation failed')
-        if not isinstance(descriptor.lifecycle, dict) and allow_autocorrect is True:
-            self.journal.event('Found lifecycle list structure in Resource descriptor [{0}], attempting to autocorrect to latest structure'.format(descriptor_path))
-            new_lifecycle = {}
-            for lifecycle in descriptor.lifecycle:
-                new_lifecycle[lifecycle] = {}
-            descriptor.lifecycle = new_lifecycle
-            try:
-                descriptor_utils.DescriptorParser().write_to_file(descriptor, descriptor_path)
-            except Exception as e:
-                self.journal.error_event('Failed to update lifecycle list structure in Resource descriptor [{0}]: {1}'.format(descriptor_path, str(e)))
+        else:
+            if descriptor.has_name() is True:
+                type_invalid = False
+                name_invalid = False
+                version_invalid = False
+                descriptor_type, descriptor_name, descriptor_version = descriptor.get_split_name()
+                expected_type = descriptor_utils.ASSEMBLY_DESCRIPTOR_TYPE
+                if self.source_config.is_resource_project():
+                    expected_type = descriptor_utils.RESOURCE_DESCRIPTOR_TYPE
+                if descriptor_type != expected_type:
+                    errors.append(validation.ValidationViolation('Descriptor [{0}]: name \'{1}\' includes type \'{2}\' but this should be \'{3}\' based on project configuration'.format(descriptor_path, descriptor.get_name(),
+                                                                                                                                                                            descriptor_type, expected_type)))
+                if descriptor_name != self.source_config.full_name:
+                    errors.append(validation.ValidationViolation('Descriptor [{0}]: name \'{1}\' includes \'{2}\' but this should be \'{3}\' based on project configuration'.format(descriptor_path, descriptor.get_name(),
+                                                                                                                                                                        descriptor_name, self.source_config.full_name)))
+                if descriptor_version != self.source_config.version:
+                    errors.append(validation.ValidationViolation('Descriptor [{0}]: name \'{1}\' includes version \'{2}\' but this should be \'{3}\' based on project configuration'.format(descriptor_path, descriptor.get_name(),
+                                                                                                                                                                                descriptor_version, self.source_config.version)))
+                if type_invalid or name_invalid or version_invalid:
+                    self.journal.error_event('Descriptor name validation failed')
+            if not isinstance(descriptor.lifecycle, dict) and allow_autocorrect is True:
+                self.journal.event('Found lifecycle list structure in Resource descriptor [{0}], attempting to autocorrect to latest structure'.format(descriptor_path))
+                new_lifecycle = {}
+                for lifecycle in descriptor.lifecycle:
+                    new_lifecycle[lifecycle] = {}
+                descriptor.lifecycle = new_lifecycle
+                try:
+                    descriptor_utils.DescriptorParser().write_to_file(descriptor, descriptor_path)
+                except Exception as e:
+                    self.journal.error_event('Failed to update lifecycle list structure in Resource descriptor [{0}]: {1}'.format(descriptor_path, str(e)))
 
 class ValidationProcess:
     def __init__(self, project, options, journal):
