@@ -55,6 +55,7 @@ class ValidateOptions(Options):
 
     def __init__(self):
         super().__init__()
+        self.allow_autocorrect = False
 
 
 class BuildOptions(ValidateOptions):

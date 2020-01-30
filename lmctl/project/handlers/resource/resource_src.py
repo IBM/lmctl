@@ -52,14 +52,14 @@ class ResourceSourceHandler(handlers_api.SourceHandler):
         super().__init__(root_path, source_config)
         self.delegate = determine_source_handler_delegate(source_config, root_path)
 
-    def validate_sources(self, journal, source_validator):
+    def validate_sources(self, journal, source_validator, validation_options):
         errors = []
         warnings = []
-        delegate_result = self.delegate.validate_sources(journal, source_validator)
+        descriptor_path = self.delegate.get_main_descriptor()
+        source_validator.validate_descriptor(descriptor_path, errors, warnings, allow_autocorrect=validation_options.allow_autocorrect)
+        delegate_result = self.delegate.validate_sources(journal, source_validator, validation_options)
         errors.extend(delegate_result.errors)
         warnings.extend(delegate_result.warnings)
-        descriptor_path = self.delegate.get_main_descriptor()
-        source_validator.validate_descriptor(descriptor_path, errors, warnings)
         return ValidationResult(errors, warnings)
 
     def stage_sources(self, journal, source_stager):

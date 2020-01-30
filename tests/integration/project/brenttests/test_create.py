@@ -55,23 +55,21 @@ outputs:
     description: The private IP address of the hello_world_server
 '''
 
-EXPECTED_OPENSTACK_INF_MANIFEST = '''\
-templates:
-  - file: example.yaml
-    infrastructure_type: Openstack
-    template_type: HEAT'''
-
-EXPECTED_ANSIBLE_LIFECYCLE_MANIFEST = '''\
-types:
-  - lifecycle_type: ansible
-    infrastructure_type: \'*\''''
-
 EXPECTED_OS_AND_ANSIBLE_DESCRIPTOR = '''\
 description: descriptor for {0}
+infrastructure:
+  Openstack:
+    template:
+      file: example.yaml
+      template-type: HEAT
 lifecycle:
-- Create
-- Install
-- Delete
+  Create: {{}}
+  Install: {{}}
+  Delete: {{}}
+default-driver:
+  ansible:
+    infrastructure-type:
+    - \'*\'
 '''
 
 EXPECTED_ANSIBLE_INSTALL_SCRIPT = '''\
@@ -90,11 +88,6 @@ ansible_host: {{ properties.host }}
 ansible_ssh_user: {{ properties.ssh_user }}
 ansible_ssh_pass: {{ properties.ssh_pass }}'''
 
-EXPECTED_SOL003_LIFECYCLE_MANIFEST = '''\
-types:
-  - lifecycle_type: sol003
-    infrastructure_type: \'*\''''
-
 EXPECTED_OS_AND_SOL003_DESCRIPTOR = '''\
 description: descriptor for {0}
 properties:
@@ -105,7 +98,7 @@ properties:
   vnfInstanceId:
     description: Identifier for the VNF instance, as provided by the vnfInstanceName
     type: string
-    read_only: true
+    read-only: true
   vnfInstanceName:
     description: Name for the VNF instance
     type: string
@@ -120,19 +113,19 @@ properties:
   vnfProvider:
     description: Provider of the VNF and VNFD
     type: string
-    read_only: true
+    read-only: true
   vnfProductName:
     description: VNF Product Name
     type: string
-    read_only: true
+    read-only: true
   vnfSoftwareVersion:
     description: VNF Software Version
     type: string
-    read_only: true
+    read-only: true
   vnfdVersion:
     description: Version of the VNFD
     type: string
-    read_only: true
+    read-only: true
   flavourId:
     description: Identifier of the VNF DF to be instantiated
     type: string
@@ -145,12 +138,21 @@ properties:
   localizationLanguage:
     description: Localization language of the VNF to be instantiated
     type: string
+infrastructure:
+  Openstack:
+    template:
+      file: example.yaml
+      template-type: HEAT
 lifecycle:
-- Create
-- Install
-- Configure
-- Uninstall
-- Delete
+  Create: {{}}
+  Install: {{}}
+  Configure: {{}}
+  Uninstall: {{}}
+  Delete: {{}}
+default-driver:
+  sol003:
+    infrastructure-type:
+    - \'*\'
 '''
 
 class TestCreateBrentProjects(ProjectSimTestCase):
@@ -183,15 +185,11 @@ class TestCreateBrentProjects(ProjectSimTestCase):
         inf_dir = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR)
         tester.assert_has_directory(inf_dir)
         tester.assert_has_file(os.path.join(inf_dir, 'example.yaml'), EXPECTED_OPENSTACK_EXAMPLE_TOSCA)
-        inf_manifest_path = os.path.join(inf_dir, BRENT_INFRASTRUCTURE_MANIFEST_FILE)
-        tester.assert_has_file(inf_manifest_path, EXPECTED_OPENSTACK_INF_MANIFEST)
         lm_dir = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR)
         tester.assert_has_directory(lm_dir)
         descriptor_path = os.path.join(lm_dir, BRENT_DESCRIPTOR_YML_FILE)
         tester.assert_has_file(descriptor_path, EXPECTED_OS_AND_ANSIBLE_DESCRIPTOR.format('Test'))
         tester.assert_has_directory(os.path.join(BRENT_LIFECYCLE_DIR))
-        lifecycle_manifest_path = os.path.join(BRENT_LIFECYCLE_DIR, BRENT_LIFECYCLE_MANIFEST_FILE)
-        tester.assert_has_file(lifecycle_manifest_path, EXPECTED_ANSIBLE_LIFECYCLE_MANIFEST)
         ansible_dir = os.path.join(BRENT_LIFECYCLE_DIR, BRENT_LIFECYCLE_ANSIBLE_DIR)
         tester.assert_has_directory(ansible_dir)
         ansible_scripts_dir = os.path.join(ansible_dir, BRENT_LIFECYCLE_ANSIBLE_SCRIPTS_DIR)
@@ -226,15 +224,11 @@ class TestCreateBrentProjects(ProjectSimTestCase):
         inf_dir = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR)
         tester.assert_has_directory(inf_dir)
         tester.assert_has_file(os.path.join(inf_dir, 'example.yaml'), EXPECTED_OPENSTACK_EXAMPLE_TOSCA)
-        manifest_path = os.path.join(inf_dir, BRENT_INFRASTRUCTURE_MANIFEST_FILE)
-        tester.assert_has_file(manifest_path, EXPECTED_OPENSTACK_INF_MANIFEST)
         lm_dir = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR)
         tester.assert_has_directory(lm_dir)
         descriptor_path = os.path.join(lm_dir, BRENT_DESCRIPTOR_YML_FILE)
         tester.assert_has_file(descriptor_path, EXPECTED_OS_AND_SOL003_DESCRIPTOR.format('Test'))
         tester.assert_has_directory(os.path.join(BRENT_LIFECYCLE_DIR))
-        lifecycle_manifest_path = os.path.join(BRENT_LIFECYCLE_DIR, BRENT_LIFECYCLE_MANIFEST_FILE)
-        tester.assert_has_file(lifecycle_manifest_path, EXPECTED_SOL003_LIFECYCLE_MANIFEST)
         sol003_dir = os.path.join(BRENT_LIFECYCLE_DIR, BRENT_SOL003_DIR)
         tester.assert_has_directory(sol003_dir)
         sol003_scripts_dir = os.path.join(sol003_dir, BRENT_SOL003_SCRIPTS_DIR)
@@ -295,15 +289,11 @@ class TestCreateBrentProjects(ProjectSimTestCase):
         inf_dir = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR)
         tester.assert_has_directory(inf_dir)
         tester.assert_has_file(os.path.join(inf_dir, 'example.yaml'), EXPECTED_OPENSTACK_EXAMPLE_TOSCA)
-        manifest_path = os.path.join(inf_dir, BRENT_INFRASTRUCTURE_MANIFEST_FILE)
-        tester.assert_has_file(manifest_path, EXPECTED_OPENSTACK_INF_MANIFEST)
         lm_dir = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR)
         tester.assert_has_directory(lm_dir)
         descriptor_path = os.path.join(lm_dir, BRENT_DESCRIPTOR_YML_FILE)
         tester.assert_has_file(descriptor_path, EXPECTED_OS_AND_SOL003_DESCRIPTOR.format('Test'))
         tester.assert_has_directory(os.path.join(BRENT_LIFECYCLE_DIR))
-        lifecycle_manifest_path = os.path.join(BRENT_LIFECYCLE_DIR, BRENT_LIFECYCLE_MANIFEST_FILE)
-        tester.assert_has_file(lifecycle_manifest_path, EXPECTED_SOL003_LIFECYCLE_MANIFEST)
         sol003_dir = os.path.join(BRENT_LIFECYCLE_DIR, BRENT_SOL003_DIR)
         tester.assert_has_directory(sol003_dir)
         sol003_scripts_dir = os.path.join(sol003_dir, BRENT_SOL003_SCRIPTS_DIR)
@@ -324,15 +314,11 @@ class TestCreateBrentProjects(ProjectSimTestCase):
         inf_dir = os.path.join(subprojectA_path, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR)
         tester.assert_has_directory(inf_dir)
         tester.assert_has_file(os.path.join(inf_dir, 'example.yaml'), EXPECTED_OPENSTACK_EXAMPLE_TOSCA)
-        manifest_path = os.path.join(inf_dir, BRENT_INFRASTRUCTURE_MANIFEST_FILE)
-        tester.assert_has_file(manifest_path, EXPECTED_OPENSTACK_INF_MANIFEST)
         lm_dir = os.path.join(subprojectA_path, BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR)
         tester.assert_has_directory(lm_dir)
         descriptor_path = os.path.join(lm_dir, BRENT_DESCRIPTOR_YML_FILE)
         tester.assert_has_file(descriptor_path, EXPECTED_OS_AND_ANSIBLE_DESCRIPTOR.format('SubA'))
         tester.assert_has_directory(os.path.join(subprojectA_path, BRENT_LIFECYCLE_DIR))
-        lifecycle_manifest_path = os.path.join(subprojectA_path, BRENT_LIFECYCLE_DIR, BRENT_LIFECYCLE_MANIFEST_FILE)
-        tester.assert_has_file(lifecycle_manifest_path, EXPECTED_ANSIBLE_LIFECYCLE_MANIFEST)
         ansible_dir = os.path.join(subprojectA_path, BRENT_LIFECYCLE_DIR, BRENT_LIFECYCLE_ANSIBLE_DIR)
         tester.assert_has_directory(ansible_dir)
         ansible_scripts_dir = os.path.join(ansible_dir, BRENT_LIFECYCLE_ANSIBLE_SCRIPTS_DIR)
@@ -351,15 +337,11 @@ class TestCreateBrentProjects(ProjectSimTestCase):
         inf_dir = os.path.join(subprojectB_path, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR)
         tester.assert_has_directory(inf_dir)
         tester.assert_has_file(os.path.join(inf_dir, 'example.yaml'), EXPECTED_OPENSTACK_EXAMPLE_TOSCA)
-        manifest_path = os.path.join(inf_dir, BRENT_INFRASTRUCTURE_MANIFEST_FILE)
-        tester.assert_has_file(manifest_path, EXPECTED_OPENSTACK_INF_MANIFEST)
         lm_dir = os.path.join(subprojectB_path, BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR)
         tester.assert_has_directory(lm_dir)
         descriptor_path = os.path.join(lm_dir, BRENT_DESCRIPTOR_YML_FILE)
         tester.assert_has_file(descriptor_path, EXPECTED_OS_AND_SOL003_DESCRIPTOR.format('SubB'))
         tester.assert_has_directory(os.path.join(subprojectB_path, BRENT_LIFECYCLE_DIR))
-        lifecycle_manifest_path = os.path.join(subprojectB_path, BRENT_LIFECYCLE_DIR, BRENT_LIFECYCLE_MANIFEST_FILE)
-        tester.assert_has_file(lifecycle_manifest_path, EXPECTED_SOL003_LIFECYCLE_MANIFEST)
         sol003_dir = os.path.join(subprojectB_path, BRENT_LIFECYCLE_DIR, BRENT_SOL003_DIR)
         tester.assert_has_directory(sol003_dir)
         sol003_scripts_dir = os.path.join(sol003_dir, BRENT_SOL003_SCRIPTS_DIR)

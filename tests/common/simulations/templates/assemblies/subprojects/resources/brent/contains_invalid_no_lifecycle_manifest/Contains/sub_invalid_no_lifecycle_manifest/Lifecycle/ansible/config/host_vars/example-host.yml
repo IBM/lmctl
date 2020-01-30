@@ -1,4 +1,0 @@
----
-ansible_host: {{ dl_properties.host }}
-ansible_ssh_user: {{ dl_properties.ssh_user }}
-ansible_ssh_pass: {{ dl_properties.ssh_pass }}

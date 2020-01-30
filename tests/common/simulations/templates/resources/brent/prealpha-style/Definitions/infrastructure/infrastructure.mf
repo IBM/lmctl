@@ -1,0 +1,8 @@
+templates:
+  - file: example.yaml
+    infrastructure_type: Openstack
+    template_type: HEAT
+  - file: k8s.yaml
+    infrastructure_type: Kubernetes
+  - file: aws.yaml
+    infrastructure_type: AWS

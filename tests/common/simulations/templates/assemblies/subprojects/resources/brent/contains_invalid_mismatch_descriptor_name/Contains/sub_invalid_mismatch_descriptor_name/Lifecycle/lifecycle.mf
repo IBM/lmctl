@@ -1,3 +1,0 @@
-types: 
-  - lifecycle_type: ansible
-    infrastructure_type: '*'

@@ -66,7 +66,7 @@ class AnsibleRmSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate)
         super().__init__(root_path, source_config)
         self.tree = AnsibleRmSourceTree(self.root_path)
 
-    def validate_sources(self, journal, source_validator):
+    def validate_sources(self, journal, source_validator, validation_options):
         errors = []
         warnings = []
         self.__validate_lifecycle(journal, errors, warnings)
