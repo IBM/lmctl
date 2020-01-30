@@ -16,9 +16,9 @@ infrastructure:
   Openstack:
     template:
       file: example.yaml
-default_driver:
+default-driver:
   ansible:
-    infrastructure_type:
+    infrastructure-type:
     - '*'
 """
 
@@ -29,9 +29,9 @@ infrastructure:
   Openstack:
     template:
       file: example.yaml
-default_driver:
+default-driver:
   ansible:
-    infrastructure_type:
+    infrastructure-type:
     - '*'
 """
 

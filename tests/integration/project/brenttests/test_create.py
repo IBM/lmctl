@@ -61,14 +61,14 @@ infrastructure:
   Openstack:
     template:
       file: example.yaml
-      template_type: HEAT
+      template-type: HEAT
 lifecycle:
   Create: {{}}
   Install: {{}}
   Delete: {{}}
-default_driver:
+default-driver:
   ansible:
-    infrastructure_type:
+    infrastructure-type:
     - \'*\'
 '''
 
@@ -98,7 +98,7 @@ properties:
   vnfInstanceId:
     description: Identifier for the VNF instance, as provided by the vnfInstanceName
     type: string
-    read_only: true
+    read-only: true
   vnfInstanceName:
     description: Name for the VNF instance
     type: string
@@ -113,19 +113,19 @@ properties:
   vnfProvider:
     description: Provider of the VNF and VNFD
     type: string
-    read_only: true
+    read-only: true
   vnfProductName:
     description: VNF Product Name
     type: string
-    read_only: true
+    read-only: true
   vnfSoftwareVersion:
     description: VNF Software Version
     type: string
-    read_only: true
+    read-only: true
   vnfdVersion:
     description: Version of the VNFD
     type: string
-    read_only: true
+    read-only: true
   flavourId:
     description: Identifier of the VNF DF to be instantiated
     type: string
@@ -142,16 +142,16 @@ infrastructure:
   Openstack:
     template:
       file: example.yaml
-      template_type: HEAT
+      template-type: HEAT
 lifecycle:
   Create: {{}}
   Install: {{}}
   Configure: {{}}
   Uninstall: {{}}
   Delete: {{}}
-default_driver:
+default-driver:
   sol003:
-    infrastructure_type:
+    infrastructure-type:
     - \'*\'
 '''
 

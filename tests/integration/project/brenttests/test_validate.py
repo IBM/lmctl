@@ -12,7 +12,7 @@ infrastructure:
   Openstack:
     template:
       file: example.yaml
-      template_type: HEAT
+      template-type: HEAT
   Kubernetes:
     template:
       file: k8s.yaml
@@ -23,13 +23,13 @@ lifecycle:
   Create: {}
   Install: {}
   Delete: {}
-default_driver:
+default-driver:
   ansible:
-    infrastructure_type:
+    infrastructure-type:
     - Openstack
     - Kubernetes
   shell:
-    infrastructure_type:
+    infrastructure-type:
     - AWS
 '''
 

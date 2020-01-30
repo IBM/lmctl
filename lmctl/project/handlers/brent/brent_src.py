@@ -362,8 +362,8 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
                             if 'lifecycle_type' in entry and 'infrastructure_type' in entry:
                                 lifecycle_type = entry['lifecycle_type']
                                 infrastructure_type = entry['infrastructure_type']
-                                if lifecycle_type in descriptor.default_driver and 'infrastructure_type' in descriptor.default_driver[lifecycle_type]:
-                                    descriptor.default_driver[lifecycle_type]['infrastructure_type'].append(infrastructure_type)
+                                if lifecycle_type in descriptor.default_driver and 'infrastructure-type' in descriptor.default_driver[lifecycle_type]:
+                                    descriptor.default_driver[lifecycle_type]['infrastructure-type'].append(infrastructure_type)
                                 else:
                                     descriptor.insert_default_driver(lifecycle_type, [infrastructure_type])
                     descriptor_utils.DescriptorParser().write_to_file(descriptor, self.get_main_descriptor())

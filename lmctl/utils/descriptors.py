@@ -79,7 +79,7 @@ class DescriptorName:
 
 class Descriptor:
     
-    ORDERED_KEYS = ['name', 'description', 'properties', 'infrastructure', 'lifecycle', 'default_driver', 'composition', 'references', 'relationships', 'operations']
+    ORDERED_KEYS = ['name', 'description', 'properties', 'private-properties', 'infrastructure', 'lifecycle', 'default-driver', 'composition', 'references', 'relationships', 'operations']
     ORDERED_LIFECYCLE = ['Create', 'Install', 'Configure', 'Reconfigure', 'Start', 'Stop', 'Uninstall', 'Delete']
 
     def __init__(self, raw_descriptor):
@@ -159,14 +159,14 @@ class Descriptor:
 
     @property
     def default_driver(self):
-        if 'default_driver' not in self.raw:
-            self.raw['default_driver'] = {}
-        return self.raw['default_driver']
+        if 'default-driver' not in self.raw:
+            self.raw['default-driver'] = {}
+        return self.raw['default-driver']
 
     def insert_default_driver(self, driver_name, infrastructure_types=None):
         self.default_driver[driver_name] = {}
         if infrastructure_types is not None:
-            self.default_driver[driver_name]['infrastructure_type'] = infrastructure_types
+            self.default_driver[driver_name]['infrastructure-type'] = infrastructure_types
 
     def insert_infrastructure_discover(self, type_name, file_name, template_type=None):
         if type_name not in self.infrastructure:
@@ -175,7 +175,7 @@ class Descriptor:
             self.infrastructure[type_name]['discover'] = {}
         self.infrastructure[type_name]['discover']['file'] = file_name
         if template_type is not None:
-            self.infrastructure[type_name]['discover']['template_type'] = template_type       
+            self.infrastructure[type_name]['discover']['template-type'] = template_type       
 
     def insert_infrastructure_template(self, type_name, file_name, template_type=None):
         if type_name not in self.infrastructure:
@@ -184,7 +184,7 @@ class Descriptor:
             self.infrastructure[type_name]['template'] = {}
         self.infrastructure[type_name]['template']['file'] = file_name
         if template_type is not None:
-            self.infrastructure[type_name]['template']['template_type'] = template_type       
+            self.infrastructure[type_name]['template']['template-type'] = template_type       
 
     def _sort_lifecycle(self):
         old_lifecycle = self.lifecycle
@@ -220,7 +220,7 @@ class Descriptor:
         if default is not None:
             properties[name]['default'] = default
         if read_only is not None:
-            properties[name]['read_only'] = read_only
+            properties[name]['read-only'] = read_only
         if value is not None:
             properties[name]['value'] = value
 
