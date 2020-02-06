@@ -97,14 +97,15 @@ def build(project_path, autocorrect):
 @click.option('--config', default=None, help='configuration file')
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources must be provided')
 @click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
-def push(project_path, environment, config, armname, pwd):
+@click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
+def push(project_path, environment, config, armname, pwd, autocorrect):
     """Push an Assembly/Resource project"""
     logger.debug('Pushing project at: {0}'.format(project_path))
     project = lifecycle_cli.open_project(project_path)
     env_sessions = lifecycle_cli.build_sessions_for_project(project.config, environment, pwd, armname, config)
     controller = lifecycle_cli.ExecutionController(PUSH_HEADER)
     controller.start('{0} at {1}'.format(project.config.name, project_path))
-    build_result = exec_build(controller, project)
+    build_result = exec_build(controller, project, allow_autocorrect=autocorrect)
     exec_push(controller, build_result.pkg, env_sessions)
     controller.finalise()
 
@@ -116,14 +117,15 @@ def push(project_path, environment, config, armname, pwd):
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources to must be provided')
 @click.option('--tests', default=None, help='specify individual tests to execute')
 @click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
-def test(project_path, environment, config, armname, tests, pwd):
+@click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
+def test(project_path, environment, config, armname, tests, pwd, autocorrect):
     """Builds, pushes and runs the tests of an Assembly/Resource project on a target LM (and ARM) environment"""
     logger.debug('Testing project at: {0}'.format(project_path))
     project = lifecycle_cli.open_project(project_path)
     env_sessions = lifecycle_cli.build_sessions_for_project(project.config, environment, pwd, armname, config)
     controller = lifecycle_cli.ExecutionController(TEST_HEADER)
     controller.start('{0} at {1}'.format(project.config.name, project_path))
-    build_result = exec_build(controller, project)
+    build_result = exec_build(controller, project, allow_autocorrect=autocorrect)
     pkg_content = exec_push(controller, build_result.pkg, env_sessions)
     exec_test(controller, pkg_content, env_sessions)
     controller.finalise()
