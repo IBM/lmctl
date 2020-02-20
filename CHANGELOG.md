@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.4.1](https://github.com/accanto-systems/lmctl/tree/2.4.1) (2020-02-20)
+[Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.4.0...2.4.1)
+
+**Fixed bugs:**
+
+- Pkg Push fails: AttributeError: 'Pkg' object has no attribute 'config' [\#40](https://github.com/accanto-systems/lmctl/issues/40)
+
 ## [2.4.0](https://github.com/accanto-systems/lmctl/tree/2.4.0) (2020-02-06)
 [Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.3.0...2.4.0)
 
