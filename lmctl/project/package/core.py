@@ -149,7 +149,9 @@ class Pkg:
         with tarfile.open(self.path, mode='r:gz') as pkg_tar:
             pkg_tar.extractall(target_directory)
 
-    def open(self, target_directory):
+    def open(self, target_directory=None):
+        if target_directory is None:
+            target_directory = tempfile.mkdtemp()
         self.extract(target_directory)
         pkg_tree = ExpandedPkgTree(target_directory)
         meta = self.__read_meta_file(pkg_tree)

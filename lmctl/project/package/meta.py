@@ -402,7 +402,7 @@ class PkgMetaRewriter:
                         'full-name-override': def_id
                     })
             if 'contains' in meta:
-                if type(contains) is list:
+                if type(meta['contains']) is list:
                     meta['contains'].extend(new_contains)
                 else:
                     raise ValueError('\'contains\' should be a list')
