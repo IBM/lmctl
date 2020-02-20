@@ -45,7 +45,7 @@ def build_sessions_for_pkg(pkg_meta, environment_name, lm_pwd=None, arm_name=Non
 def __has_arm_content(meta):
     if meta.resource_manager is not None and meta.resource_manager in ANSIBLE_RM_TYPES:
         return True
-    for subcontent_entry in meta.subcontent_entries:
+    for subcontent_entry in meta.subpkg_entries:
         found = __has_arm_content(subcontent_entry)
         if found:
             return True
@@ -61,7 +61,7 @@ def open_project(project_path):
 
 def open_pkg(pkg_path):
     try:
-        return pkgs.Pkg(pkg_path)
+        return pkgs.Pkg(pkg_path).open()
     except pkgs.InvalidPackageError as e:
         printer.print_text('Error: {0}'.format(str(e)))
         logger.exception(str(e))
