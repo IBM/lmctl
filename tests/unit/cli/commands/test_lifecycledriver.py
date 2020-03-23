@@ -1,3 +1,4 @@
+import os
 import tests.unit.cli.commands.command_testing as command_testing
 import lmctl.drivers.lm.base as lm_drivers
 import lmctl.cli.commands.lifecycledriver as lifecycledriver_cmds
@@ -66,6 +67,27 @@ class TestLifecycleDriverCommands(command_testing.CommandTestCase):
         expected_output += '\n| {0} | Ansible | http://mockdriver.example.com |'.format(expected_id)
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', 'secret', None)
+
+    def test_add_with_certificate(self):
+        certificate_pem_file = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir, 'resources', 'certificate.pem')
+
+        result = self.runner.invoke(lifecycledriver_cmds.add, ['TestEnv', '--url', 'http://mockdriver.example.com', '--pwd', 'secret', '--certificate', certificate_pem_file])
+        self.assert_no_errors(result)
+        expected_id = None
+        for lifecycle_driver_id, lifecycle_driver in self.lm_sim.lifecycle_drivers.items():
+            expected_id = lifecycle_driver_id
+        expected_output = '| id                                   | type    | baseUri                       |'
+        expected_output += '\n|--------------------------------------+---------+-------------------------------|'
+        expected_output += '\n| {0} | Ansible | http://mockdriver.example.com |'.format(expected_id)
+        self.assert_output(result, expected_output)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', 'secret', None)
+
+    def test_add_with_missing_certificate(self):
+        certificate_pem_file = 'certificate.pem'
+
+        result = self.runner.invoke(lifecycledriver_cmds.add, ['TestEnv', '--url', 'http://mockdriver.example.com', '--pwd', 'secret', '--certificate', certificate_pem_file])
+        self.assert_has_system_exit(result)
+        self.assert_output(result, "Error: reading certificate: [Errno 2] No such file or directory: 'certificate.pem'")
 
     def test_add_with_output_json_format(self):
         result = self.runner.invoke(lifecycledriver_cmds.add, ['TestEnv', '--url', 'http://mockdriver.example.com', '-f', 'json'])

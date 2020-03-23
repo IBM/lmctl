@@ -1,5 +1,26 @@
 # Change Log
 
+## [2.4.1](https://github.com/accanto-systems/lmctl/tree/2.4.1) (2020-02-20)
+[Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.4.0...2.4.1)
+
+**Fixed bugs:**
+
+- Pkg Push fails: AttributeError: 'Pkg' object has no attribute 'config' [\#40](https://github.com/accanto-systems/lmctl/issues/40)
+
+## [2.4.0](https://github.com/accanto-systems/lmctl/tree/2.4.0) (2020-02-06)
+[Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.3.0...2.4.0)
+
+**Implemented enhancements:**
+
+- Add support for resource descriptors containing infrastructure and lifecycle manifests in Brent resource packages [\#38](https://github.com/accanto-systems/lmctl/issues/38)
+- Driver onboarding commands should allow a public certificate to be specified [\#36](https://github.com/accanto-systems/lmctl/issues/36)
+
+**Documentation:**
+
+- Included an index page in the user guide
+- Included an index page for the command reference section of the user guide
+- Moved migration from 2.0 to a separate page
+
 ## [2.3.0](https://github.com/accanto-systems/lmctl/tree/2.3.0) (2019-11-21)
 [Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.2.1...2.3.0)
 

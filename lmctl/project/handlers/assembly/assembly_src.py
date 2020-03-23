@@ -126,7 +126,7 @@ class AssemblySourceHandler(handlers_api.SourceHandler):
     def build_staged_source_handler(self, staging_path):
         return AssemblyStagedSourceHandler(staging_path, self.source_config)
 
-    def validate_sources(self, journal, source_validator):
+    def validate_sources(self, journal, source_validator, validation_options):
         errors = []
         warnings = []
         self.__validate_descriptor(journal, source_validator, errors, warnings)

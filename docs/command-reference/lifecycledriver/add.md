@@ -25,3 +25,4 @@ lmctl lifecycledriver add [OPTIONS] ENVIRONMENT
 | `--type`         | Lifecycle type of the driver to add                                                                                                  | Ansible                       | --type Ansible                             |
 | `--url`          | url of lifecycle driver to add                                                                                                       | -                             | --url http://ansible-lifecycle-driver:8293 |
 | `-f`, `--format` | format of output [table, yaml, json]                                                                                                 | table                         | --f yaml                                   |
+| `--certificate` | Filename of a file containing the public certificate of the lifecycle driver (if SSL enabled) | - | --certificate lifecycle-driver.cert |

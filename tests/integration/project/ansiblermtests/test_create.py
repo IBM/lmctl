@@ -34,7 +34,8 @@ class TestCreateAnsibleRmProjects(ProjectSimTestCase):
             'name': 'Test',
             'version': '1.0',
             'type': 'Resource',
-            'resource-manager': 'ansiblerm'
+            'resource-manager': 'ansiblerm',
+            'packaging': 'tgz'
         })
     
     def test_create(self):
@@ -56,7 +57,8 @@ class TestCreateAnsibleRmProjects(ProjectSimTestCase):
             'name': 'Test',
             'version': '9.9',
             'type': 'Resource',
-            'resource-manager': 'ansiblerm'
+            'resource-manager': 'ansiblerm',
+            'packaging': 'tgz'
         })
 
     def test_create_with_subprojects(self):
@@ -89,6 +91,7 @@ class TestCreateAnsibleRmProjects(ProjectSimTestCase):
             'version': '9.9',
             'type': 'Resource',
             'resource-manager': 'ansiblerm',
+            'packaging': 'tgz',
             'contains': [
                 {
                     'name': 'SubA',

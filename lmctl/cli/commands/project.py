@@ -28,16 +28,18 @@ CREATE_HEADER = 'Create'
 LIST_HEADER = 'List'
 
 
-def exec_validate(controller, project):
+def exec_validate(controller, project, allow_autocorrect=False):
     validate_options = project_sources.ValidateOptions()
+    validate_options.allow_autocorrect = allow_autocorrect
     validate_options.journal_consumer = controller.consumer
     validation_result = controller.execute(project.validate, validate_options)
     controller.process_validation_result(validation_result)
     return validation_result
 
 
-def exec_build(controller, project):
+def exec_build(controller, project, allow_autocorrect=False):
     build_options = project_sources.BuildOptions()
+    build_options.allow_autocorrect = allow_autocorrect
     build_options.journal_consumer = controller.consumer
     build_result = controller.execute(project.build, build_options)
     controller.process_validation_result(build_result.validation_result)
@@ -65,25 +67,27 @@ def exec_pull(controller, project, env_sessions):
 
 @project.command(help='Validate sources of a Project')
 @click.option('--project', 'project_path', default='./', help='File location of project')
-def validate(project_path):
+@click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
+def validate(project_path, autocorrect):
     """Validates an Assembly/Resource project"""
     logger.debug('Validating project at: {0}'.format(project_path))
     project = lifecycle_cli.open_project(project_path)
     controller = lifecycle_cli.ExecutionController(VALIDATE_HEADER)
     controller.start('{0} at {1}'.format(project.config.name, project_path))
-    exec_validate(controller, project)
+    exec_validate(controller, project, allow_autocorrect=autocorrect)
     controller.finalise()
 
 
 @project.command(help='Build distributable package for Project')
 @click.option('--project', 'project_path',  default='./', help='File location of project')
-def build(project_path):
+@click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
+def build(project_path, autocorrect):
     """Builds an Assembly/Resource project"""
     logger.debug('Building project at: {0}'.format(project_path))
     project = lifecycle_cli.open_project(project_path)
     controller = lifecycle_cli.ExecutionController(BUILD_HEADER)
     controller.start('{0} at {1}'.format(project.config.name, project_path))
-    exec_build(controller, project)
+    exec_build(controller, project, allow_autocorrect=autocorrect)
     controller.finalise()
 
 
@@ -93,14 +97,15 @@ def build(project_path):
 @click.option('--config', default=None, help='configuration file')
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources must be provided')
 @click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
-def push(project_path, environment, config, armname, pwd):
+@click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
+def push(project_path, environment, config, armname, pwd, autocorrect):
     """Push an Assembly/Resource project"""
     logger.debug('Pushing project at: {0}'.format(project_path))
     project = lifecycle_cli.open_project(project_path)
     env_sessions = lifecycle_cli.build_sessions_for_project(project.config, environment, pwd, armname, config)
     controller = lifecycle_cli.ExecutionController(PUSH_HEADER)
     controller.start('{0} at {1}'.format(project.config.name, project_path))
-    build_result = exec_build(controller, project)
+    build_result = exec_build(controller, project, allow_autocorrect=autocorrect)
     exec_push(controller, build_result.pkg, env_sessions)
     controller.finalise()
 
@@ -112,14 +117,15 @@ def push(project_path, environment, config, armname, pwd):
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources to must be provided')
 @click.option('--tests', default=None, help='specify individual tests to execute')
 @click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
-def test(project_path, environment, config, armname, tests, pwd):
+@click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
+def test(project_path, environment, config, armname, tests, pwd, autocorrect):
     """Builds, pushes and runs the tests of an Assembly/Resource project on a target LM (and ARM) environment"""
     logger.debug('Testing project at: {0}'.format(project_path))
     project = lifecycle_cli.open_project(project_path)
     env_sessions = lifecycle_cli.build_sessions_for_project(project.config, environment, pwd, armname, config)
     controller = lifecycle_cli.ExecutionController(TEST_HEADER)
     controller.start('{0} at {1}'.format(project.config.name, project_path))
-    build_result = exec_build(controller, project)
+    build_result = exec_build(controller, project, allow_autocorrect=autocorrect)
     pkg_content = exec_push(controller, build_result.pkg, env_sessions)
     exec_test(controller, pkg_content, env_sessions)
     controller.finalise()

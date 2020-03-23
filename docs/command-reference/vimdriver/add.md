@@ -25,3 +25,4 @@ lmctl vimdriver add [OPTIONS] ENVIRONMENT
 | `--type`         | Infrastructure type of the VIM driver to add                                                                                         | Openstack                     | --type Openstack                         |
 | `--url`          | url of VIM driver to add                                                                                                             | -                             | --url http://os-vim-driver:8292          |
 | `-f`, `--format` | format of output [table, yaml, json]                                                                                                 | table                         | --f yaml                                 |
+| `--certificate` | Filename of a file containing the public certificate of the VIM driver (if SSL enabled) | - | --certificate vim-driver.cert |

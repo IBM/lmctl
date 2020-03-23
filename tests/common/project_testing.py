@@ -222,3 +222,7 @@ class ZipFileAssertions:
         with open(full_path, 'r') as file:
             content = file.read()
         self.tc.assertEqual(content, expected_file_content)
+
+    def assert_has_no_file(self, expected_file_path):
+        full_path = self.__full_content_path(expected_file_path)
+        self.tc.assertFalse(os.path.exists(full_path))

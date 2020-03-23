@@ -1,8 +1,8 @@
 import os
 from tests.common.project_testing import (ProjectSimTestCase,
                                           PROJECT_CONTAINS_DIR, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR, BRENT_DESCRIPTOR_DIR,
-                                          BRENT_LIFECYCLE_DIR, BRENT_LIFECYCLE_MANIFEST_FILE, BRENT_DESCRIPTOR_YML_FILE, 
-                                          BRENT_INFRASTRUCTURE_MANIFEST_FILE, BRENT_LIFECYCLE_ANSIBLE_DIR, BRENT_LIFECYCLE_ANSIBLE_SCRIPTS_DIR,
+                                          BRENT_LIFECYCLE_DIR, BRENT_DESCRIPTOR_YML_FILE, 
+                                          BRENT_LIFECYCLE_ANSIBLE_DIR, BRENT_LIFECYCLE_ANSIBLE_SCRIPTS_DIR,
                                           BRENT_LIFECYCLE_ANSIBLE_CONFIG_DIR)
 from lmctl.project.source.core import Project, BuildResult, Options, BuildOptions
 from lmctl.project.validation import ValidationResult
@@ -12,11 +12,27 @@ import lmctl.project.package.core as pkgs
 BASIC_DESCRIPTOR_YAML = """\
 name: resource::basic::1.0
 description: descriptor
+infrastructure:
+  Openstack:
+    template:
+      file: example.yaml
+default-driver:
+  ansible:
+    infrastructure-type:
+    - '*'
 """
 
 SUB_BASIC_DESCRIPTOR_YAML = """\
 name: resource::sub_basic-contains_basic::1.0
 description: descriptor
+infrastructure:
+  Openstack:
+    template:
+      file: example.yaml
+default-driver:
+  ansible:
+    infrastructure-type:
+    - '*'
 """
 
 BASIC_INFRASTRUCTURE_TOSCA = """\
@@ -26,21 +42,11 @@ description: Basic example
 topology_template: {}
 """
 
-BASIC_INFRASTRUCTURE_MANIFEST_YAML = """\
-templates:
-  - file: example.yaml
-    infrastructure_type: Openstack"""
-
 BASIC_INSTALL_PLAYBOOK = """\
 ---
 - name: Install
   hosts: all
   gather_facts: False"""
-
-BASIC_LIFECYCLE_MANIFEST_YAML = """\
-types: 
-  - lifecycle_type: ansible
-    infrastructure_type: '*'"""
 
 BASIC_INVENTORY = """\
 [example]
@@ -80,7 +86,6 @@ class TestBuildBrentProjects(ProjectSimTestCase):
                 zip_tester.assert_has_directory(BRENT_DEFINITIONS_DIR)
                 inf_path = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR)
                 zip_tester.assert_has_directory(inf_path)
-                zip_tester.assert_has_file(os.path.join(inf_path, BRENT_INFRASTRUCTURE_MANIFEST_FILE), BASIC_INFRASTRUCTURE_MANIFEST_YAML)
                 zip_tester.assert_has_file(os.path.join(inf_path, 'example.yaml'), BASIC_INFRASTRUCTURE_TOSCA)
                 lm_path = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR)
                 zip_tester.assert_has_file(os.path.join(lm_path, BRENT_DESCRIPTOR_YML_FILE), BASIC_DESCRIPTOR_YAML)
@@ -94,6 +99,27 @@ class TestBuildBrentProjects(ProjectSimTestCase):
                 zip_tester.assert_has_directory(ansible_config_dir)
                 zip_tester.assert_has_file(os.path.join(ansible_config_dir, 'inventory'), BASIC_INVENTORY)
                 zip_tester.assert_has_file(os.path.join(ansible_config_dir, 'host_vars', 'example-host.yml'), BASIC_EXAMPLE_HOST_YAML)
+    
+    def test_build_empty_infrastructure(self):
+        project_sim = self.simlab.simulate_brent_with_empty_infrastructure()
+        project = Project(project_sim.path)
+        build_options = BuildOptions()
+        result = project.build(build_options)
+        self.assertIsInstance(result, BuildResult)
+        self.assertFalse(result.validation_result.has_warnings())
+        pkg = result.pkg
+        self.assertIsNotNone(pkg)
+        self.assertIsInstance(pkg, pkgs.Pkg)
+        package_base_name = os.path.basename(pkg.path)
+        self.assertEqual(package_base_name, 'with-empty-infrastructure-1.0.tgz')
+        with self.assert_package(pkg) as pkg_tester:
+            pkg_tester.assert_has_file_path('with-empty-infrastructure.zip')
+            with self.assert_zip(pkg_tester.get_file_path('with-empty-infrastructure.zip')) as zip_tester:
+                zip_tester.assert_has_directory(BRENT_DEFINITIONS_DIR)
+                inf_path = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR)
+                zip_tester.assert_has_directory(inf_path)
+                zip_tester.assert_has_no_file(os.path.join(inf_path, '.gitkeep'))
+
 
 class TestBuildBrentSubprojects(ProjectSimTestCase):
 
@@ -131,7 +157,6 @@ class TestBuildBrentSubprojects(ProjectSimTestCase):
                 zip_tester.assert_has_directory(BRENT_DEFINITIONS_DIR)
                 inf_path = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR)
                 zip_tester.assert_has_directory(inf_path)
-                zip_tester.assert_has_file(os.path.join(inf_path, BRENT_INFRASTRUCTURE_MANIFEST_FILE), BASIC_INFRASTRUCTURE_MANIFEST_YAML)
                 zip_tester.assert_has_file(os.path.join(inf_path, 'example.yaml'), BASIC_INFRASTRUCTURE_TOSCA)
                 lm_path = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR)
                 zip_tester.assert_has_file(os.path.join(lm_path, BRENT_DESCRIPTOR_YML_FILE), SUB_BASIC_DESCRIPTOR_YAML)

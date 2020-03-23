@@ -19,17 +19,6 @@ class TestPkg(ProjectSimTestCase):
         finally:
             if os.path.exists(tmp_dir):
                 shutil.rmtree(tmp_dir)
-        
-    def test_extract_non_tar_pkg(self):
-        pkg_sim = self.simlab.simulate_pkg_general_invalid_zip()
-        pkg = Pkg(pkg_sim.path)
-        tmp_dir = tempfile.mkdtemp()
-        try:
-            with self.assertRaises(tarfile.ReadError) as context:
-                pkg.extract(tmp_dir)
-        finally:
-            if os.path.exists(tmp_dir):
-                shutil.rmtree(tmp_dir)
 
     def test_open(self):
         pkg_sim = self.simlab.simulate_pkg_assembly_basic()

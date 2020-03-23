@@ -193,6 +193,15 @@ class InvalidSourceTypeError(SourceHandlerError):
 class PullSourceError(SourceHandlerError):
     pass
 
+
+############################
+# Source Handlers Options
+############################
+
+class SourceValidationOptions:
+    def __init__(self, allow_autocorrect=False):
+        self.allow_autocorrect = allow_autocorrect
+
 ############################
 # Source Handlers
 ############################
@@ -204,7 +213,7 @@ class SourceHandler(abc.ABC):
         self.source_config = source_config
 
     @abc.abstractmethod
-    def validate_sources(self, journal, source_validator):
+    def validate_sources(self, journal, source_validator, validation_options):
         pass
 
     @abc.abstractmethod
@@ -245,7 +254,7 @@ class ResourceSourceHandlerDelegate(abc.ABC):
         self.source_config = source_config
 
     @abc.abstractmethod
-    def validate_sources(self, journal, source_validator):
+    def validate_sources(self, journal, source_validator, validation_options):
         pass
 
     @abc.abstractmethod

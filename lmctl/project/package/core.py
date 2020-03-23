@@ -156,7 +156,9 @@ class Pkg:
         else:
             raise InvalidPackageError('Could not determine if pkg {0} was a tgz or csar'.format(self.path))
 
-    def open(self, target_directory):
+    def open(self, target_directory=None):
+        if target_directory is None:
+            target_directory = tempfile.mkdtemp()
         self.extract(target_directory)
         pkg_tree = ExpandedPkgTree(target_directory)
         meta = self.__read_meta_file(pkg_tree)

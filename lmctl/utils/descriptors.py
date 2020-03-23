@@ -47,10 +47,12 @@ class DescriptorParser:
             raise DescriptorReaderException('Could not find descriptor at path: {0}'.format(file_path))
 
     def write_to_file(self, descriptor, descriptor_path):
+        descriptor.sort()
         with open(descriptor_path, 'w') as descriptor_file:
             yaml.dump(descriptor.raw, descriptor_file)
 
     def write_to_str(self, descriptor):
+        descriptor.sort()
         stringio = ryaml.compat.StringIO()
         yaml.dump(descriptor.raw, stringio)
         return stringio.getvalue()
@@ -78,8 +80,8 @@ class DescriptorName:
 
 class Descriptor:
     
-    ORDERED_KEYS = ['name', 'description', 'properties', 'lifecycle',  'composition', 'references', 'relationships', 'operations']
-    ORDERED_LIFECYCLE = ['Create', 'Install', 'Configure', 'Start', 'Stop', 'Uninstall', 'Delete']
+    ORDERED_KEYS = ['name', 'description', 'properties', 'private-properties', 'infrastructure', 'lifecycle', 'default-driver', 'composition', 'references', 'relationships', 'operations']
+    ORDERED_LIFECYCLE = ['Create', 'Install', 'Configure', 'Reconfigure', 'Start', 'Stop', 'Uninstall', 'Delete']
 
     def __init__(self, raw_descriptor):
         self.raw = raw_descriptor
@@ -143,14 +145,67 @@ class Descriptor:
     @property
     def lifecycle(self):
         if 'lifecycle' not in self.raw:
-            self.raw['lifecycle'] = []
+            self.raw['lifecycle'] = {}
         return self.raw['lifecycle']
-    
-    def add_lifecycle(self, lifecycle_name):
-        lifecycle = self.lifecycle
-        if lifecycle_name not in lifecycle:
-            lifecycle.append(lifecycle_name)
-        self.raw['lifecycle'] = sorted(lifecycle, key=lambda x: Descriptor.ORDERED_LIFECYCLE.index(x) if x in Descriptor.ORDERED_LIFECYCLE else -1)
+
+    @lifecycle.setter
+    def lifecycle(self, lifecycle):
+        self.raw['lifecycle'] = lifecycle
+
+    @property
+    def infrastructure(self):
+        if 'infrastructure' not in self.raw:
+            self.raw['infrastructure'] = {}
+        return self.raw['infrastructure']
+
+    @property
+    def default_driver(self):
+        if 'default-driver' not in self.raw:
+            self.raw['default-driver'] = {}
+        return self.raw['default-driver']
+
+    def insert_default_driver(self, driver_name, infrastructure_types=None):
+        self.default_driver[driver_name] = {}
+        if infrastructure_types is not None:
+            self.default_driver[driver_name]['infrastructure-type'] = infrastructure_types
+
+    def insert_infrastructure_discover(self, type_name, file_name, template_type=None):
+        if type_name not in self.infrastructure:
+            self.infrastructure[type_name] = {}
+        if 'discover' not in self.infrastructure[type_name]:
+            self.infrastructure[type_name]['discover'] = {}
+        self.infrastructure[type_name]['discover']['file'] = file_name
+        if template_type is not None:
+            self.infrastructure[type_name]['discover']['template-type'] = template_type       
+
+    def insert_infrastructure_template(self, type_name, file_name, template_type=None):
+        if type_name not in self.infrastructure:
+            self.infrastructure[type_name] = {}
+        if 'template' not in self.infrastructure[type_name]:
+            self.infrastructure[type_name]['template'] = {}
+        self.infrastructure[type_name]['template']['file'] = file_name
+        if template_type is not None:
+            self.infrastructure[type_name]['template']['template-type'] = template_type       
+
+    def _sort_lifecycle(self):
+        old_lifecycle = self.lifecycle
+        new_lifecycle = OrderedDict()
+        for key in Descriptor.ORDERED_LIFECYCLE:
+            if key in old_lifecycle:
+                new_lifecycle[key] = old_lifecycle[key]
+        for key in old_lifecycle.keys():
+            if key not in Descriptor.ORDERED_LIFECYCLE:
+                new_lifecycle[key] = old_lifecycle[key]
+        self.raw['lifecycle'] = dict(new_lifecycle)
+
+    def insert_lifecycle(self, lifecycle_name, properties=None, drivers=None):
+        new_lifecycle_obj = {}
+        if properties is not None:
+            new_lifecycle_obj['properties'] = properties
+        if drivers is not None:
+            new_lifecycle_obj['drivers'] = drivers
+        self.lifecycle[lifecycle_name] = new_lifecycle_obj
+        self._sort_lifecycle()
 
     def add_property(self, name, description=None, ptype='string', required=None, default=None, read_only=None, value=None):
         properties = self.properties
@@ -166,7 +221,7 @@ class Descriptor:
         if default is not None:
             properties[name]['default'] = default
         if read_only is not None:
-            properties[name]['read_only'] = read_only
+            properties[name]['read-only'] = read_only
         if value is not None:
             properties[name]['value'] = value
 

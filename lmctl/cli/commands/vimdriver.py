@@ -3,6 +3,7 @@ import logging
 import lmctl.cli.ctlmgmt as ctlmgmt
 import lmctl.cli.clirunners as clirunners
 from lmctl.cli.format import determine_format_class, TableFormat
+from lmctl.utils.certificates import read_certificate_file
 
 logger = logging.getLogger(__name__)
 
@@ -29,17 +30,27 @@ def format_vim_driver(output_format, vim_driver):
 @click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
 @click.option('--type', 'inf_type', default='Openstack', help='Infrastructure type of the VIM driver to add')
 @click.option('--url', help='url of VIM driver to add')
+@click.option('--certificate', help='filename of a file containing the public certificate of the VIM driver')
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
-def add(environment, config, pwd, inf_type, url, output_format):
+def add(environment, config, pwd, inf_type, url, certificate, output_format):
     """Add a VIM driver"""
     vim_mgmt_driver = get_vim_driver_mgmt_driver(environment, config, pwd)
     new_vim_driver = {
         'infrastructureType': inf_type,
         'baseUri': url
     }
+
+    if certificate is not None:
+        try:
+            new_vim_driver['certificate'] = read_certificate_file(certificate)
+        except IOError as e:
+            click.echo('Error: reading certificate: {0}'.format(str(e)), err=True)
+            exit(1)
+
     with clirunners.lm_driver_safety():
         vim_driver = vim_mgmt_driver.add_vim_driver(new_vim_driver)
     click.echo(format_vim_driver(output_format, vim_driver))
+
 
 @vimdriver.command(help='Remove a VIM driver from LM by ID (or by infrastructure type)')
 @click.argument('environment')
