@@ -119,11 +119,16 @@ class ProjectCreator:
             resource_manager = self.request.resource_manager
         elif isinstance(self.request, CreateTypeProjectRequest):
             project_type = types.TYPE_PROJECT_TYPE
+        packaging = 'tgz'
+        if 'packaging' in self.request.params:
+            packaging = self.request.params['packaging']
+            if packaging != 'tgz' and packaging != 'csar':
+                raise CreateError(str('packaging param value must be \'csar\' or \'tgz\''))
         try:
             param_values = handlers_api.SourceCreationParamValues(self.request.params)
             self.__param_values[self.request.name] = param_values
             subproject_entries = self.__build_subproject_entries(journal, self.request.subproject_requests, param_values, [self.request.name])
-            project_config = projectconf.RootProjectConfig(projectconf.SCHEMA_2_0, self.request.name, self.request.version, project_type, resource_manager, subproject_entries)
+            project_config = projectconf.RootProjectConfig(projectconf.SCHEMA_2_0, self.request.name, self.request.version, project_type, resource_manager, subproject_entries, packaging=packaging)
             return project_config
         except projectconf.ProjectConfigError as e:
             raise CreateError(str(e)) from e

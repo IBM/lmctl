@@ -51,11 +51,17 @@ class CompileWorker:
         except handlers_api.SourceHandlerError as e:
             raise CompileProcessError(str(e)) from e
         self.__compile_artifacts(source_compiler)
+        self.__compile_tosca(source_compiler)
+
+    def __compile_tosca(self, source_compiler):
+        tosca_metadata_path = self.staging_tree.resolve_relative_path(handlers_api.TOSCA_METADATA)
+        if os.path.exists(tosca_metadata_path):
+            source_compiler.compile_tree(tosca_metadata_path, handlers_api.TOSCA_METADATA)
 
     def __compile_artifacts(self, source_compiler):
         if os.path.exists(self.staging_tree.artifacts_path):
             source_compiler.compile_tree(self.staging_tree.artifacts_path, PkgContentTree.ARTIFACTS_DIR)
-        
+            
     def __compile_child_projects(self):
         subprojects = self.project.subprojects
         if len(subprojects) == 0:
