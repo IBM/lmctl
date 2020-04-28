@@ -7,15 +7,14 @@ List the deployment locations on a LM environment
 ## Usage
 
 ```
-lmctl deployment add [OPTIONS] ENVIRONMENT NAME
+lmctl deployment list [OPTIONS] ENVIRONMENT
 ```
 
 ## Arguments
 
 | Name        | Description                                                                           | Default | Example      |
 | ----------- | ------------------------------------------------------------------------------------- | ------- | ------------ |
-| Environment | name of the environment from the LMCTL configuration file to remove the location from | -       | dev          |
-| Name        | name of the new deployment location to be removed                                     | -       | TestLocation |
+| Environment | name of the environment from the LMCTL configuration file                             | -       | dev          |
 
 ## Options
 
