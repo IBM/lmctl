@@ -8,12 +8,52 @@ import lmctl.project.validation as project_validation
 import lmctl.utils.descriptors as descriptor_utils
 from .brent_content import BrentResourcePackageContentTree, BrentPkgContentTree
 
-class OpenstackTemplatesTree(files.Tree):
+class OpenstackTree(files.Tree):
 
-    def gen_tosca_template(self, file_name):
-        return self.resolve_relative_path('{0}.yaml'.format(file_name))
+    HEAT_FILE_NAME_YAML = 'heat.yaml'
+    HEAT_FILE_NAME_YML = 'heat.yml'
+    TOSCA_FILE_NAME_YAML = 'tosca.yaml'
+    TOSCA_FILE_NAME_YML = 'tosca.yml'
+    DISCOVER_FILE_NAME_YAML = 'discover.yaml'
+    DISCOVER_FILE_NAME_YML = 'discover.yml'
 
-OPENSTACK_EXAMPLE_TOSCA = '''\
+    @property
+    def heat_file_path(self):
+        yaml_path = self.resolve_relative_path(OpenstackTree.HEAT_FILE_NAME_YAML)
+        yml_path = self.resolve_relative_path(OpenstackTree.HEAT_FILE_NAME_YML)
+        if os.path.exists(yml_path):
+            if os.path.exists(yaml_path):
+                raise handlers_api.InvalidSourceError('Project has both a {0} file and a {1} file when there should only be one'.format(
+                    OpenstackTree.HEAT_FILE_NAME_YAML, OpenstackTree.HEAT_FILE_NAME_YML))
+            return yml_path
+        else:
+            return yaml_path
+
+    @property
+    def tosca_file_path(self):
+        yaml_path = self.resolve_relative_path(OpenstackTree.TOSCA_FILE_NAME_YAML)
+        yml_path = self.resolve_relative_path(OpenstackTree.TOSCA_FILE_NAME_YML)
+        if os.path.exists(yml_path):
+            if os.path.exists(yaml_path):
+                raise handlers_api.InvalidSourceError('Project has both a {0} file and a {1} file when there should only be one'.format(
+                    OpenstackTree.TOSCA_FILE_NAME_YAML, OpenstackTree.TOSCA_FILE_NAME_YML))
+            return yml_path
+        else:
+            return yaml_path
+
+    @property
+    def discover_file_path(self):
+        yaml_path = self.resolve_relative_path(OpenstackTree.DISCOVER_FILE_NAME_YAML)
+        yml_path = self.resolve_relative_path(OpenstackTree.DISCOVER_FILE_NAME_YML)
+        if os.path.exists(yml_path):
+            if os.path.exists(yaml_path):
+                raise handlers_api.InvalidSourceError('Project has both a {0} file and a {1} file when there should only be one'.format(
+                    OpenstackTree.DISCOVER_FILE_NAME_YAML, OpenstackTree.DISCOVER_FILE_NAME_YML))
+            return yml_path
+        else:
+            return yaml_path
+
+OPENSTACK_EXAMPLE_HEAT = '''\
 heat_template_version: 2013-05-23
 
 description: >
@@ -108,6 +148,7 @@ class BrentSourceTree(files.Tree):
 
     LIFECYCLE_DIR_NAME = 'Lifecycle'
     LIFECYCLE_MANIFEST_FILE_NAME = 'lifecycle.mf'
+    OPENSTACK_LIFECYCLE_DIR_NAME = 'openstack'
     ANSIBLE_LIFECYCLE_DIR_NAME = 'ansible'
     SOL003_LIFECYCLE_DIR_NAME = 'sol003'
     
@@ -148,6 +189,10 @@ class BrentSourceTree(files.Tree):
         return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.LIFECYCLE_MANIFEST_FILE_NAME)
 
     @property
+    def openstack_lifecycle_path(self):
+        return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.OPENSTACK_LIFECYCLE_DIR_NAME)
+
+    @property
     def ansible_lifecycle_path(self):
         return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.ANSIBLE_LIFECYCLE_DIR_NAME)
 
@@ -155,6 +200,7 @@ class BrentSourceTree(files.Tree):
     def sol003_lifecycle_path(self):
         return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.SOL003_LIFECYCLE_DIR_NAME)
 
+DRIVER_PARAM_NAME = 'driver'
 INFRASTRUCTURE_PARAM_NAME = 'inf'
 LIFECYCLE_PARAM_NAME = 'lifecycle'
 LIFECYCLE_TYPE_ANSIBLE = 'ansible'
@@ -177,8 +223,9 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
 
     def get_params(self, source_request):
         params = []
-        params.append(handlers_api.SourceParam(LIFECYCLE_PARAM_NAME, required=False, default_value=LIFECYCLE_TYPE_ANSIBLE, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003]))
-        params.append(handlers_api.SourceParam(INFRASTRUCTURE_PARAM_NAME, required=False, default_value=INFRASTRUCTURE_TYPE_OPENSTACK, allowed_values=[INFRASTRUCTURE_TYPE_OPENSTACK]))
+        params.append(handlers_api.SourceParam(DRIVER_PARAM_NAME, required=False, default_value=None, allowed_values=[INFRASTRUCTURE_TYPE_OPENSTACK, LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003]))
+        params.append(handlers_api.SourceParam(LIFECYCLE_PARAM_NAME, required=False, default_value=None, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003]))
+        params.append(handlers_api.SourceParam(INFRASTRUCTURE_PARAM_NAME, required=False, default_value=None, allowed_values=[INFRASTRUCTURE_TYPE_OPENSTACK]))
         return params
 
     def create_source(self, journal, source_request, file_ops_executor):
@@ -188,13 +235,21 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
         descriptor.description = 'descriptor for {0}'.format(source_request.source_config.name)
 
         file_ops.append(handlers_api.CreateDirectoryOp(source_tree.definitions_path, handlers_api.EXISTING_IGNORE))
-
+        driver_type = source_request.param_values.get_value(DRIVER_PARAM_NAME)
+        driver_type_set_to_default = False
+        if driver_type is None:
+            driver_type = source_request.param_values.get_value(LIFECYCLE_PARAM_NAME)
+            if driver_type is None:
+                driver_type = LIFECYCLE_TYPE_ANSIBLE
+                driver_type_set_to_default = True
         inf_type = source_request.param_values.get_value(INFRASTRUCTURE_PARAM_NAME)
-        self.__create_infrastructure(journal, source_request, file_ops, source_tree, inf_type, descriptor)
+        if inf_type is None:
+            if driver_type == LIFECYCLE_TYPE_ANSIBLE and driver_type_set_to_default:
+                inf_type = INFRASTRUCTURE_TYPE_OPENSTACK
+        if inf_type is not None:
+            self.__create_infrastructure(journal, source_request, file_ops, source_tree, inf_type, descriptor)
         
-        lifecycle_type = source_request.param_values.get_value(LIFECYCLE_PARAM_NAME)
-        self.__create_lifecycle(journal, source_request, file_ops, source_tree, lifecycle_type, descriptor)
-        
+        self.__create_lifecycle(journal, source_request, file_ops, source_tree, driver_type, descriptor)
         self.__create_descriptor(journal, source_request, file_ops, source_tree, descriptor)
         
         file_ops_executor(file_ops)
@@ -205,13 +260,31 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
         file_ops.append(handlers_api.CreateFileOp(source_tree.descriptor_file_path, descriptor_content, handlers_api.EXISTING_IGNORE))
 
     def __create_infrastructure(self, journal, source_request, file_ops, source_tree, inf_type, descriptor):
-        file_ops.append(handlers_api.CreateDirectoryOp(source_tree.infrastructure_definitions_path, handlers_api.EXISTING_IGNORE))
         if inf_type == INFRASTRUCTURE_TYPE_OPENSTACK:
-            descriptor.insert_lifecycle('Create')
-            descriptor.insert_lifecycle('Delete')
-            templates_tree = OpenstackTemplatesTree(source_tree.infrastructure_definitions_path)
-            file_ops.append(handlers_api.CreateFileOp(templates_tree.gen_tosca_template('example'), OPENSTACK_EXAMPLE_TOSCA, handlers_api.EXISTING_IGNORE))
-            descriptor.insert_infrastructure_template('Openstack', 'example.yaml', template_type='HEAT')
+            create_driver_entry = {
+                'openstack': {
+                    'selector': {
+                        'infrastructure-type': [
+                            '*'
+                        ]
+                    }
+                }
+            }
+            descriptor.insert_lifecycle('Create', drivers=create_driver_entry)
+            delete_driver_entry = {
+                'openstack': {
+                    'selector': {
+                        'infrastructure-type': [
+                            '*'
+                        ]
+                    }
+                }
+            }
+            descriptor.insert_lifecycle('Delete', drivers=delete_driver_entry)
+            file_ops.append(handlers_api.CreateDirectoryOp(source_tree.openstack_lifecycle_path, handlers_api.EXISTING_IGNORE))
+            openstack_tree = OpenstackTree(source_tree.openstack_lifecycle_path)
+            file_ops.append(handlers_api.CreateFileOp(openstack_tree.heat_file_path, OPENSTACK_EXAMPLE_HEAT, handlers_api.EXISTING_IGNORE))
+            descriptor.infrastructure['Openstack'] = {}
 
     def __create_lifecycle(self, journal, source_request, file_ops, source_tree, lifecycle_type, descriptor):
         file_ops.append(handlers_api.CreateDirectoryOp(source_tree.lifecycle_path, handlers_api.EXISTING_IGNORE))
