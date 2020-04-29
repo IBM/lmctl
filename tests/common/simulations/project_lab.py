@@ -40,7 +40,6 @@ ASSEMBLY_CONTAINS_INVALID_ARM_NO_MANIFEST = 'contains_invalid_no_manifest'
 ASSEMBLY_CONTAINS_INVALID_ARM_MISMATCH_DESCRIPTOR_NAME = 'contains_invalid_mismatch_descriptor_name'
 ASSEMBLY_CONTAINS_BRENT_BASIC = 'contains_basic'
 ASSEMBLY_CONTAINS_INVALID_BRENT_NO_DEFINITIONS = 'contains_invalid_no_definitions'
-ASSEMBLY_CONTAINS_INVALID_BRENT_NO_INFRASTRUCTURE = 'contains_invalid_no_infrastructure'
 ASSEMBLY_CONTAINS_INVALID_BRENT_NO_LM_DEFINITIONS = 'contains_invalid_no_lm_definitions'
 ASSEMBLY_CONTAINS_INVALID_BRENT_NO_LM_DESCRIPTOR = 'contains_invalid_no_lm_descriptor'
 ASSEMBLY_CONTAINS_INVALID_BRENT_MISMATCH_DESCRIPTOR_NAME = 'contains_invalid_mismatch_descriptor_name'
@@ -82,12 +81,12 @@ INVALID_ARM_MISMATCH_DESCRIPTOR_NAME = 'invalid_mismatch_descriptor_name'
 BRENT_BASIC = 'basic'
 BRENT_PREALPHA_STYLE = 'prealpha-style'
 INVALID_BRENT_NO_DEFINITIONS = 'invalid_no_definitions'
-INVALID_BRENT_NO_INFRASTRUCTURE = 'invalid_no_infrastructure'
 INVALID_BRENT_NO_LM_DEFINITIONS = 'invalid_no_lm_definitions'
 INVALID_BRENT_NO_LM_DESCRIPTOR = 'invalid_no_lm_descriptor'
 INVALID_BRENT_MISMATCH_DESCRIPTOR_NAME = 'invalid_mismatch_lm_descriptor_name'
 INVALID_BRENT_NO_LIFECYCLE = 'invalid_no_lifecycle'
-BRENT_WITH_EMPTY_INFRASTRUCTURE = 'with_empty_infrastructure'
+BRENT_WITH_INFRASTRUCTURE_TEMPLATES = 'with_infrastructure_templates'
+BRENT_WITH_MISSING_DRIVER_SELECTOR = 'with_missing_driver_selector'
 
 PKG_ASSEMBLY_BASIC = 'basic-1.0.tgz'
 PKG_ASSEMBLY_WITH_BEHAVIOUR = 'with_behaviour-1.0.tgz'
@@ -231,10 +230,11 @@ class ProjectSimLab:
     def simulate_brent_basic(self):
         return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, BRENT_BASIC))
 
-    def simulate_brent_with_empty_infrastructure(self):
-        project = self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, BRENT_WITH_EMPTY_INFRASTRUCTURE))
-        os.remove(os.path.join(project.path, 'Definitions', 'infrastructure', '.gitkeep'))
-        return project
+    def simulate_brent_with_missing_driver_selector(self):
+        return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, BRENT_WITH_MISSING_DRIVER_SELECTOR))
+
+    def simulate_brent_with_infrastructure_templates(self):
+        return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, BRENT_WITH_INFRASTRUCTURE_TEMPLATES))
 
     def simulate_brent_with_prealpha_style(self):
         return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, BRENT_PREALPHA_STYLE))
@@ -244,9 +244,6 @@ class ProjectSimLab:
 
     def simulate_invalid_brent_no_definitions(self):
         return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, INVALID_BRENT_NO_DEFINITIONS))
-
-    def simulate_invalid_brent_no_infrastructure(self):
-        return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, INVALID_BRENT_NO_INFRASTRUCTURE))
 
     def simulate_invalid_brent_no_lm_definitions(self):
         return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, INVALID_BRENT_NO_LM_DEFINITIONS))
@@ -265,9 +262,6 @@ class ProjectSimLab:
 
     def simulate_assembly_contains_invalid_brent_no_definitions(self):
         return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), ASSEMBLY_CONTAINS_INVALID_BRENT_NO_DEFINITIONS))
-
-    def simulate_assembly_contains_invalid_brent_no_infrastructure(self):
-        return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), ASSEMBLY_CONTAINS_INVALID_BRENT_NO_INFRASTRUCTURE))
 
     def simulate_assembly_contains_invalid_brent_no_lm_definitions(self):
         return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), ASSEMBLY_CONTAINS_INVALID_BRENT_NO_LM_DEFINITIONS))

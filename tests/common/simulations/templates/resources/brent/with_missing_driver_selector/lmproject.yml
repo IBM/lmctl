@@ -1,0 +1,5 @@
+schema: '2.0'
+name: with_missing_driver_selector
+version: '1.0'
+type: Resource
+resource-manager: lm

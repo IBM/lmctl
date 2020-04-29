@@ -70,30 +70,27 @@ Any Resource included in a project intended for Brent is expected to have the fo
 ```
 myproject/
     Definitions/
-      infrastructure/
-        infrastructure.mf
       lm/
         resource.yml
     Lifecycle/
-        lifecycle.mf
+        ...
 ```
 
 | Directory                                    | Requirement | Description                                                                                                   |
 | -------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------- |
 | Definitions                                  | mandatory   | contains infrastructure and descriptor definitions                                                            |
-| Definitions/infrastructure                   | mandatory   | contains TOSCA templates and an infrastructure manifest file                                                  |
-| Definitions/infrastructure/infrastructure.mf | mandatory   | informs Brent which TOSCA template to use for each supported infrastructure type                              |
 | Definitions/lm                               | mandatory   | contains the Resource descriptor required by LM and Brent                                                     |
 | Lifecycle                                    | mandatory   | contains lifecycle scripts for the Resource (structure of sub-directories depends on chosen Lifecycle driver) |
-| Lifecycle/lifecycle.mf                       | mandatory   | informs Brent which Lifecycle scripts to use for each supported infrastructure type                           |
 
-The Lifecycle directory should be populated with scripts required by the chosen lifecycle driver(s). For example, if using the ansible-lifecycle-driver, you would need a directory called `ansible`, with the config and scripts used by that driver:
+
+The Lifecycle directory should be populated with scripts required by the chosen driver(s). For example, if using the Openstack driver and Ansible driver, you would need a directory named `openstack` and one named `ansible`, with the files used by that driver:
 
 ```
 myproject/
     ...
     Lifecycle/
-        lifecycle.mf
+        openstack/
+          heat.yaml
         ansible/
           config/
             host_vars/

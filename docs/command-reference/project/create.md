@@ -31,15 +31,43 @@ lmctl project create [OPTIONS] [LOCATION]
 
 Params for the root Project take the format "param_name param_value", whilst params for Subprojects (those set on `--contains`) use the format "subproject_name.param_name param_value". 
 
-For example, the following sets the lifecycle param to "ansible" for the root Project but "sol003" for the Subproject named A:
+For example, the following sets the driver param to "ansible" for the root Project but "sol003" for the Subproject named A:
 
 ```
---contains Resource::brent A --param lifecycle ansible --param A.lifecycle sol003
+--contains Resource::brent A --param driver ansible --param A.driver sol003
 ```
 
 The following table describes the known params available: 
 
 | Name | Description | Options | Default | 
 | ---- | ---- | --- | --- |
-| lifecycle | Used only when `--type Resource` and `--rm brent` (or `--contains Resource::brent`). This parameter guides the creation of the Project (or Subproject) with example files for the intended lifecycle driver | ansible, sol003 | ansible |
-| inf | Used only when `--type Resource` and `--rm brent` (or `--contains Resource::brent`). This parameter guides the creation of the Project (or Subproject) with example files for the intended infrastructure driver | openstack | openstack |
+| driver | Used only when `--type Resource` and `--rm brent` (or `--contains Resource::brent`). This parameter guides the creation of the Project (or Subproject) with example files for the intended driver | ansible, sol003 | - |
+| lifecycle | Deprecated: same as `driver` | ansible, sol003 | - |
+| inf | Used only when `--type Resource` and `--rm brent` (or `--contains Resource::brent`). This parameter guides the creation of the Project (or Subproject) with example files for the intended infrastructure driver | openstack | - |
+
+If both `driver` and `lifecycle` have not been set then the default for `driver` is set to `ansible` and the default for `inf` is set to `openstack`. This means if you choose to not set any parameters, you will have a Resource which will use the Openstack driver for Create/Delete but Ansible for all other transitions.
+
+Example combinations:
+
+Resource with Openstack driver for Create/Delete (will be included in the generated descriptor) but Ansible driver for all others (only Install is included in the generated descriptor):
+```
+lmctl project create --type Resource
+
+#Same as
+lmctl project create --type Resource --param driver ansible --param inf openstack
+```
+
+Resource with Ansible driver for all transitions (only Install is included in the generated descriptor):
+```
+lmctl project create --type Resource --param driver ansible
+```
+
+Resource with Sol003 driver for all transitions (only Install, Configure and Uninstall are included in the generated descriptor):
+```
+lmctl project create --type Resource --param driver sol003
+```
+
+Resource with Openstack driver for Create/Delete (will be included in the generated descriptor) but Sol003 driver for all others (only Install, Configure and Uninstall are included in the generated descriptor):
+```
+lmctl project create --type Resource --param driver sol003 --param inf openstack
+```

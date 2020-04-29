@@ -1,9 +1,0 @@
-schema: '2.0'
-name: contains_invalid_no_infrastructure
-version: '1.0'
-type: Assembly
-contains:
-  - name: sub_invalid_no_infrastructure
-    type: Resource
-    directory: sub_invalid_no_infrastructure
-    resource-manager: brent

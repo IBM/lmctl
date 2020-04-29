@@ -23,10 +23,10 @@ class ResourceContentHandler(handlers_api.PkgContentHandler):
         super().__init__(root_path, meta)
         self.delegate = determine_content_delegate(meta, root_path)
 
-    def validate_content(self, journal, env_sessions):
+    def validate_content(self, journal, env_sessions, validation_options):
         errors = []
         warnings = []
-        delegate_result = self.delegate.validate_content(journal, env_sessions)
+        delegate_result = self.delegate.validate_content(journal, env_sessions, validation_options)
         errors.extend(delegate_result.errors)
         warnings.extend(delegate_result.warnings)
         return ValidationResult(errors, warnings)

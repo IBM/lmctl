@@ -1,0 +1,5 @@
+schema: '2.0'
+name: with_infrastructure_templates
+version: '1.0'
+type: Resource
+resource-manager: lm

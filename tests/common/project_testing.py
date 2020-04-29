@@ -56,7 +56,11 @@ BRENT_SOL003_OPERATE_VNF_REQUEST_STOP_FILE = 'OperateVnfRequest-Stop.js'
 BRENT_SOL003_SCALE_VNF_REQUEST_FILE = 'ScaleVnfRequest.js'
 BRENT_SOL003_TERMINATE_VNF_REQUEST_FILE = 'TerminateVnfRequest.js'
 BRENT_SOL003_VNF_INSTANCE_FILE = 'VnfInstance.js'
-
+BRENT_OPENSTACK_DIR = 'openstack'
+BRENT_OPENSTACK_HEAT_YAML_FILE = 'heat.yaml'
+BRENT_OPENSTACK_TOSCA_YAML_FILE = 'tosca.yaml'
+BRENT_OPENSTACK_DISCOVER_YAML_FILE = 'discover.yaml'
+BRENT_KUBERNETES_DIR = 'kubernetes'
 
 class ProjectSimTestCase(unittest.TestCase):
 
@@ -66,7 +70,7 @@ class ProjectSimTestCase(unittest.TestCase):
         self.maxDiff = None
     
     def tearDown(self):
-        self.simlab.destroySims()
+        pass#self.simlab.destroySims()
 
     def assert_validation_errors(self, validation_result, *errors):
         self.assertTrue(len(validation_result.errors), len(errors))

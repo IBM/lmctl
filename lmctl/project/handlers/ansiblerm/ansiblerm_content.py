@@ -59,7 +59,7 @@ class AnsibleRmContentHandlerDelegate(handlers_api.ResourceContentHandlerDelegat
         super().__init__(root_path, meta)
         self.tree = AnsibleRmPkgContentTree(self.root_path)
 
-    def validate_content(self, journal, env_sessions):
+    def validate_content(self, journal, env_sessions, validation_options):
         errors = []
         warnings = []
         self.__validate_descriptor(journal, errors, warnings)

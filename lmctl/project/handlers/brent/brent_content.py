@@ -1,9 +1,12 @@
 import os
+import zipfile
+import shutil
 import lmctl.files as files
 import lmctl.project.handlers.interface as handlers_api
 import lmctl.project.validation as project_validation
 import lmctl.utils.descriptors as descriptor_utils
 import lmctl.drivers.lm.base as lm_drivers
+from .brent_autocorrect import BrentCorrectableValidation
 
 class BrentPkgContentTree(files.Tree):
 
@@ -25,7 +28,9 @@ class BrentResourcePackageContentTree(files.Tree):
     LM_DIR_NAME = 'lm'
     DESCRIPTOR_FILE_NAME_YML = 'resource.yaml'
     LIFECYCLE_DIR_NAME = 'Lifecycle'
-    
+    INFRASTRUCTURE_MANIFEST_FILE_NAME = 'infrastructure.mf'
+    LIFECYCLE_MANIFEST_FILE_NAME = 'lifecycle.mf'
+
     @property
     def definitions_path(self):
         return self.resolve_relative_path(BrentResourcePackageContentTree.DEFINITIONS_DIR_NAME)
@@ -46,17 +51,26 @@ class BrentResourcePackageContentTree(files.Tree):
     def lifecycle_path(self):
         return self.resolve_relative_path(BrentResourcePackageContentTree.LIFECYCLE_DIR_NAME)
 
+    @property
+    def infrastructure_manifest_file_path(self):
+        return self.resolve_relative_path(BrentResourcePackageContentTree.DEFINITIONS_DIR_NAME, BrentResourcePackageContentTree.INFRASTRUCTURE_DIR_NAME, BrentResourcePackageContentTree.INFRASTRUCTURE_MANIFEST_FILE_NAME)
+
+    @property
+    def lifecycle_manifest_file_path(self):
+        return self.resolve_relative_path(BrentResourcePackageContentTree.LIFECYCLE_DIR_NAME, BrentResourcePackageContentTree.LIFECYCLE_MANIFEST_FILE_NAME)
+
+
 class BrentContentHandlerDelegate(handlers_api.ResourceContentHandlerDelegate):
 
     def __init__(self, root_path, meta):
         super().__init__(root_path, meta)
         self.tree = BrentPkgContentTree(self.root_path)
 
-    def validate_content(self, journal, env_sessions):
+    def validate_content(self, journal, env_sessions, validation_options):
         errors = []
         warnings = []
         self.__validate_descriptor(journal, errors, warnings)
-        self.__validate_res_pkg(journal, errors, warnings)
+        self.__validate_res_pkg(journal, validation_options, errors, warnings)
         return project_validation.ValidationResult(errors, warnings)
 
     def __validate_descriptor(self, journal, errors, warnings):
@@ -66,13 +80,46 @@ class BrentContentHandlerDelegate(handlers_api.ResourceContentHandlerDelegate):
             journal.error_event(msg)
             errors.append(project_validation.ValidationViolation(msg))
 
-    def __validate_res_pkg(self, journal, errors, warnings):
+    def __validate_res_pkg(self, journal, validation_options, errors, warnings):
         journal.stage('Checking Resource package exists for {0}'.format(self.meta.name))
-        res_pkg_path = self.tree.gen_res_pkg_file_path(self.meta.full_name)
+        res_pkg_path = self.tree.gen_resource_package_file_path(self.meta.full_name)
         if not os.path.exists(res_pkg_path):
             msg = 'No Resource package found at: {0}'.format(res_pkg_path)
             journal.error_event(msg)
             errors.append(project_validation.ValidationViolation(msg))
+        else:
+            extraction_path = os.path.join(os.path.dirname(res_pkg_path), 'tmp-extract')
+            os.makedirs(extraction_path)
+            with zipfile.ZipFile(res_pkg_path, "r") as res_pkg:
+                res_pkg.extractall(extraction_path)
+            try:
+                tree = BrentResourcePackageContentTree(extraction_path)
+                BrentCorrectableValidation().validate_and_autocorrect(journal, validation_options, errors, warnings, tree.descriptor_file_path, \
+                tree.infrastructure_definitions_path, tree.infrastructure_manifest_file_path, tree.lifecycle_path, \
+                    tree.lifecycle_manifest_file_path)
+                with zipfile.ZipFile(res_pkg_path, "w") as res_pkg:
+                    res_pkg_content_tree = BrentResourcePackageContentTree()
+                    included_items = [
+                        {'path': tree.definitions_path, 'alias': res_pkg_content_tree.definitions_path},
+                        {'path': tree.lifecycle_path, 'alias': res_pkg_content_tree.lifecycle_path}
+                    ]
+                    for included_item in included_items:
+                        self.__add_directory(journal, res_pkg, included_item)
+            finally:
+                if os.path.exists(extraction_path):
+                    shutil.rmtree(extraction_path)
+
+    def __add_directory(self, journal, res_pkg, included_item):
+        path = included_item['path']
+        res_pkg.write(path, arcname=included_item['alias'])
+        rootlen = len(path) + 1
+        for root, dirs, files in os.walk(path):
+            for dirname in dirs:
+                full_path = os.path.join(root, dirname)
+                res_pkg.write(full_path, arcname=os.path.join(included_item['alias'], full_path[rootlen:]))
+            for filename in files:
+                full_path = os.path.join(root, filename)
+                res_pkg.write(full_path, arcname=os.path.join(included_item['alias'], full_path[rootlen:]))
 
     def __clear_existing_descriptor(self, journal, env_sessions):
         lm_session = env_sessions.lm
