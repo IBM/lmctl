@@ -1,6 +1,7 @@
 import os
 import yaml
 import zipfile
+import shutil
 import lmctl.files as files
 import lmctl.project.handlers.interface as handlers_api
 import lmctl.project.validation as project_validation
@@ -269,6 +270,8 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
         warnings = []
         self.__validate_definitions(journal, validation_options, errors, warnings)
         self.__validate_lifecycle(journal, validation_options, errors, warnings)
+        self.__validate_unsupported_infrastructure(journal, validation_options, errors, warnings)
+        self.__validate_driver_types_missing_selectors(journal, validation_options, errors, warnings)
         return project_validation.ValidationResult(errors, warnings)
 
     def __find_or_error(self, journal, errors, warnings, path, artifact_type):
@@ -281,16 +284,159 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
             journal.event('{0} found at: {1}'.format(artifact_type, path))
             return True
 
+    def __validate_unsupported_infrastructure(self, journal, validation_options, errors, warnings):
+        self.__validate_unsupported_infrastructure_manifest(journal, validation_options, errors, warnings)
+        descriptor = descriptor_utils.DescriptorParser().read_from_file(self.get_main_descriptor())
+        if 'infrastructure' in descriptor.raw and isinstance(descriptor.infrastructure, dict):
+            entry_needing_fix = []
+            for inf_type, inf_entry in descriptor.infrastructure.items():
+                if 'template' in inf_entry or 'discover' in inf_entry:
+                    entry_needing_fix.append(inf_type)
+            if len(entry_needing_fix) > 0:
+                if validation_options.allow_autocorrect == True:
+                    journal.event('Found unsupported infrastructure entries referencing templates [{0}], attempting to autocorrect by moving contents to Create/Delete/Queries entries in descriptor'.format(self.get_main_descriptor()))
+                    managed_to_autocorrect = False
+                    autocorrect_error = None
+                    try:
+                        for inf_type in entry_needing_fix:
+                            target_lifecycle_path = os.path.join(self.tree.lifecycle_path, inf_type)
+                            if not os.path.exists(target_lifecycle_path):
+                                os.makedirs(target_lifecycle_path)
+                            inf_entry = descriptor.infrastructure[inf_type]
+                            self.__move_template_files(target_lifecycle_path, inf_type, inf_entry)
+                            create_properties = None
+                            if inf_type == 'Openstack':
+                                if inf_entry.get('template', {}).get('template-type') != None:
+                                    create_properties = {'template-type': inf_entry.get('template', {}).get('template-type')}
+                            self.__add_driver_to_lifecycle(descriptor, inf_type, inf_type, create_properties=create_properties)
+                            if 'discover' in inf_entry:
+                                self.__add_driver_to_queries(descriptor, inf_type, inf_type)
+                            descriptor.infrastructure[inf_type] = {}
+                        descriptor_utils.DescriptorParser().write_to_file(descriptor, self.get_main_descriptor())
+                        managed_to_autocorrect = True
+                    except Exception as e:
+                        autocorrect_error = e
+                    if not managed_to_autocorrect:
+                        msg = 'Found unsupported infrastructure entries referencing templates [{0}]: this format is no longer supported by the Brent Resource Manager. Unable to autocorrect this issue, please add this information to the Create lifecycle and/or queries manually instead'.format(self.get_main_descriptor())
+                        if autocorrect_error is not None:
+                            msg += ' (autocorrect error={0})'.format(str(autocorrect_error))
+                        journal.error_event(msg)
+                        errors.append(project_validation.ValidationViolation(msg))
+                        return   
+                else:
+                    msg = 'Found infrastructure entries referencing templates [{0}]: this format is no longer supported by the Brent Resource Manager. Add this information to the Create lifecycle and/or queries instead or enable the autocorrect option'.format(self.get_main_descriptor())
+                    journal.error_event(msg)
+                    errors.append(project_validation.ValidationViolation(msg))
+                    return
+
+    def __move_template_files(self, target_lifecycle_path, inf_type, inf_entry):
+        if 'template' in inf_entry:
+            orig_template_file = inf_entry['template'].get('file')
+            orig_template_type = inf_entry['template'].get('template-type')
+            if inf_type == 'Openstack':
+                if orig_template_type == 'TOSCA':
+                    target_file_path = os.path.join(target_lifecycle_path, 'tosca.yaml')
+                else:
+                    target_file_path = os.path.join(target_lifecycle_path, 'heat.yaml')
+            else:
+                target_file_path = os.path.join(target_lifecycle_path, os.path.basename(orig_template_file))
+            self.__move_file_and_backup_original(os.path.join(self.tree.infrastructure_definitions_path, orig_template_file), target_file_path)
+        if 'discover' in inf_entry:
+            orig_template_file = inf_entry['template'].get('file')
+            orig_template_type = inf_entry['template'].get('template-type')
+            if inf_type == 'Openstack':
+                target_file_path = os.path.join(target_lifecycle_path, 'discover.yaml')
+            else:
+                target_file_path = os.path.join(target_lifecycle_path, os.path.basename(orig_template_file))
+            self.__move_file_and_backup_original(os.path.join(self.tree.infrastructure_definitions_path, orig_template_file), target_file_path)
+
+    def __add_driver_to_lifecycle(self, descriptor, driver_type, inf_type, create_properties=None):
+        lifecycle = descriptor.lifecycle
+        if 'Create' not in lifecycle:
+            lifecycle['Create'] = {}
+        self.__add_driver_to_lifecycle_entry(lifecycle['Create'], driver_type, inf_type, properties=create_properties)
+        if 'Delete' not in lifecycle:
+            lifecycle['Delete'] = {}
+        self.__add_driver_to_lifecycle_entry(lifecycle['Delete'], driver_type, inf_type)
+
+    def __add_driver_to_queries(self, descriptor, driver_type, inf_type, properties=None):
+        queries = descriptor.queries
+        self.__add_driver_to_lifecycle_entry(queries, driver_type, inf_type, properties=properties)
+    
+    def __add_driver_to_lifecycle_entry(self, lifecycle_entry, driver_type, inf_type, properties=None):
+        if 'drivers' not in lifecycle_entry:
+            lifecycle_entry['drivers'] = {}
+        drivers = lifecycle_entry['drivers']
+        if driver_type not in drivers:
+            drivers[driver_type] = {}
+        driver_type_entry = drivers[driver_type]
+        if 'selector' not in driver_type_entry:
+            driver_type_entry['selector'] = {}
+        selector = driver_type_entry['selector']
+        if 'infrastructure-type' not in selector:
+            selector['infrastructure-type'] = []
+        inf_types = selector['infrastructure-type']
+        if inf_type not in inf_types:
+            inf_types.append(inf_type)
+        if properties is not None:
+            if 'properties' not in driver_type_entry:
+                driver_type_entry['properties'] = properties.copy()
+
+    def __move_file_and_backup_original(self, orignal_path, target_path):
+        shutil.copyfile(orignal_path, target_path)
+        os.rename(orignal_path, orignal_path + '.bak')
+
+    def __validate_driver_types_missing_selectors(self, journal, validation_options, errors, warnings):
+        descriptor = descriptor_utils.DescriptorParser().read_from_file(self.get_main_descriptor())
+        driver_entries_needing_fix = self.__gather_driver_types_missing_selector_key(journal, validation_options, errors, warnings, descriptor, 'lifecycle')
+        driver_entries_needing_fix.extend(self.__gather_driver_types_missing_selector_key(journal, validation_options, errors, warnings, descriptor, 'operations'))
+        if 'default-driver' in descriptor.raw and isinstance(descriptor.default_driver, dict):
+            for driver_type, driver_entry in descriptor.default_driver.items():
+                if 'infrastructure-type' in driver_entry:
+                    driver_entries_needing_fix.append(driver_entry)
+        if len(driver_entries_needing_fix) > 0:
+            if validation_options.allow_autocorrect == True:
+                journal.event('Found lifecycle/operation/default-driver entries missing \'selector\' key before \'infrastructure-type\' [{0}], attempting to autocorrect by moving contents under a selector key'.format(self.get_main_descriptor()))
+                managed_to_autocorrect = False
+                autocorrect_error = None
+                try:
+                    for entry_needing_fix in driver_entries_needing_fix:
+                        entry_needing_fix['selector'] = {'infrastructure-type': entry_needing_fix['infrastructure-type']}
+                        entry_needing_fix.pop('infrastructure-type')
+                    descriptor_utils.DescriptorParser().write_to_file(descriptor, self.get_main_descriptor())
+                    managed_to_autocorrect = True
+                except Exception as e:
+                    autocorrect_error = e
+                if not managed_to_autocorrect:
+                    msg = 'Found lifecycle/operation/default-driver entries missing \'selector\' key before \'infrastructure-type\' [{0}]: Unable to autocorrect this issue, please add this information to the Resource descriptor manually instead'.format(self.get_main_descriptor())
+                    if autocorrect_error is not None:
+                        msg += ' (autocorrect error={0})'.format(str(autocorrect_error))
+                    journal.error_event(msg)
+                    errors.append(project_validation.ValidationViolation(msg))
+                    return   
+            else:
+                msg = 'Found lifecycle/operation/default-driver entries missing \'selector\' key before \'infrastructure-type\' [{0}]: this format is no longer supported by the Brent Resource Manager. Move infrastructure-type information under the selector key or enable the autocorrect option'.format(self.get_main_descriptor())
+                journal.error_event(msg)
+                errors.append(project_validation.ValidationViolation(msg))
+                return
+
+    def __gather_driver_types_missing_selector_key(self, journal, validation_options, errors, warnings, descriptor, entry_key):
+        driver_entries_needing_fix = []
+        if entry_key in descriptor.raw and isinstance(descriptor.raw[entry_key], dict):
+            lifecycle = descriptor.raw[entry_key]
+            for lifecycle_name, lifecycle_entry in lifecycle.items():
+                if 'drivers' in lifecycle_entry:
+                    drivers = lifecycle_entry['drivers']
+                    if isinstance(drivers, dict):
+                        for driver_type, driver_entry in drivers.items():
+                            if 'infrastructure-type' in driver_entry:
+                                driver_entries_needing_fix.append(driver_entry)
+        return driver_entries_needing_fix
+
     def __validate_definitions(self, journal, validation_options, errors, warnings):
         definitions_path = self.tree.definitions_path
         if self.__find_or_error(journal, errors, warnings, definitions_path, 'Definitions directory'):
-            self.__validate_definitions_infrastructure(journal, validation_options, errors, warnings)
             self.__validate_definitions_lm(journal, errors, warnings)
-
-    def __validate_definitions_infrastructure(self, journal, validation_options, errors, warnings):
-        inf_path = self.tree.infrastructure_definitions_path
-        if self.__find_or_error(journal, errors, warnings, inf_path, 'Infrastructure definitions directory'):
-            self.__validate_unsupported_infrastructure_manifest(journal, validation_options, errors, warnings)
 
     def __validate_unsupported_infrastructure_manifest(self, journal, validation_options, errors, warnings):
         inf_manifest_path = self.tree.infrastructure_manifest_file_path
@@ -363,7 +509,11 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
                                 lifecycle_type = entry['lifecycle_type']
                                 infrastructure_type = entry['infrastructure_type']
                                 if lifecycle_type in descriptor.default_driver and 'infrastructure-type' in descriptor.default_driver[lifecycle_type]:
-                                    descriptor.default_driver[lifecycle_type]['infrastructure-type'].append(infrastructure_type)
+                                    if 'selector' not in descriptor.default_driver[lifecycle_type]:
+                                        descriptor.default_driver[lifecycle_type]['selector'] = {}
+                                    if 'infrastructure-type' not in descriptor.default_driver[lifecycle_type]['selector']:
+                                        descriptor.default_driver[lifecycle_type]['selector']['infrastructure-type'] = []
+                                    descriptor.default_driver[lifecycle_type]['selector']['infrastructure-type'].append(infrastructure_type)
                                 else:
                                     descriptor.insert_default_driver(lifecycle_type, [infrastructure_type])
                     descriptor_utils.DescriptorParser().write_to_file(descriptor, self.get_main_descriptor())

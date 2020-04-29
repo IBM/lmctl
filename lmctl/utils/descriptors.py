@@ -163,10 +163,17 @@ class Descriptor:
             self.raw['default-driver'] = {}
         return self.raw['default-driver']
 
+    @property
+    def queries(self):
+        if 'queries' not in self.raw:
+            self.raw['queries'] = {}
+        return self.raw['queries']
+
     def insert_default_driver(self, driver_name, infrastructure_types=None):
         self.default_driver[driver_name] = {}
         if infrastructure_types is not None:
-            self.default_driver[driver_name]['infrastructure-type'] = infrastructure_types
+            self.default_driver[driver_name]['selector'] = {}
+            self.default_driver[driver_name]['selector']['infrastructure-type'] = infrastructure_types
 
     def insert_infrastructure_discover(self, type_name, file_name, template_type=None):
         if type_name not in self.infrastructure:
