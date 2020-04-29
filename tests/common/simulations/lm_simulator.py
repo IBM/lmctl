@@ -91,6 +91,7 @@ class SimulatedLm:
         self.deployment_locations = {}
         self.deployment_locations_by_rm = {}
         self.resource_drivers = {}
+        self.infrastructure_keys = {}
         self.mock = MagicMock()
 
     def __get(self, entity_map, entity_id):
@@ -152,7 +153,7 @@ class SimulatedLm:
         self.__add(self.descriptors, parsed_descriptor.get_name(), descriptor)
         if parsed_descriptor.get_name() not in self.projects:
             self.__add(self.projects, parsed_descriptor.get_name(), {'id': parsed_descriptor.get_name(), 'name': parsed_descriptor.get_name()})
-        
+
     def delete_descriptor(self, descriptor_name):
         self.mock.delete_descriptor(descriptor_name)
         self.__delete(self.descriptors, descriptor_name)
@@ -191,7 +192,7 @@ class SimulatedLm:
         self.mock.get_deployment_location(deployment_location_id)
         dl = self.__get(self.deployment_locations, deployment_location_id)
         return dl
-    
+
     def add_deployment_location(self, deployment_location):
         self.mock.add_deployment_location(deployment_location)
         if 'id' not in deployment_location:
@@ -225,20 +226,20 @@ class SimulatedLm:
         self.mock.get_project(project_id)
         project = self.__get(self.projects, project_id)
         return project
-    
+
     def add_project(self, project):
         self.mock.add_project(project)
         self.__add(self.projects, project['id'], project)
-        
+
     def update_project(self, project):
         self.mock.update_project(project)
         self.__update(self.projects, project['id'], project)
-        
+
     def get_assembly_configuration(self, assembly_configuration_id):
         self.mock.get_assembly_configuration(assembly_configuration_id)
         config = self.__get(self.assembly_configurations, assembly_configuration_id)
         return config
-    
+
     def add_assembly_configuration(self, assembly_configuration):
         self.mock.add_assembly_configuration(assembly_configuration)
         if 'id' not in assembly_configuration:
@@ -246,13 +247,13 @@ class SimulatedLm:
             assembly_configuration['id'] = str(uuid.uuid4())
         self.__add(self.assembly_configurations, assembly_configuration['id'], assembly_configuration)
         self.__add_relation(self.assembly_configurations_by_project, assembly_configuration['projectId'], self.projects, assembly_configuration['id'], self.assembly_configurations)
-        
+
     def update_assembly_configuration(self, assembly_configuration):
         self.mock.update_assembly_configuration(assembly_configuration)
         self.__remove_from_relations(self.assembly_configurations_by_project, assembly_configuration['id'])
         self.__update(self.assembly_configurations, assembly_configuration['id'], assembly_configuration)
         self.__add_relation(self.assembly_configurations_by_project, assembly_configuration['projectId'], self.projects, assembly_configuration['id'], self.assembly_configurations)
-        
+
     def get_assembly_configurations_on_project(self, project_id):
         self.mock.get_assembly_configurations_on_project(project_id)
         self.get_project(project_id)
@@ -271,13 +272,13 @@ class SimulatedLm:
             scenario['id'] = str(uuid.uuid4())
         self.__add(self.scenarios, scenario['id'], scenario)
         self.__add_relation(self.scenarios_by_project, scenario['projectId'], self.projects, scenario['id'], self.scenarios)
-        
+
     def update_scenario(self, scenario):
         self.mock.update_scenario(scenario)
         self.__remove_from_relations(self.scenarios_by_project, scenario['id'])
         self.__update(self.scenarios, scenario['id'], scenario)
         self.__add_relation(self.scenarios_by_project, scenario['projectId'], self.projects, scenario['id'], self.scenarios)
-        
+
     def get_scenarios_on_project(self, project_id):
         self.mock.get_scenarios_on_project(project_id)
         self.get_project(project_id)
@@ -288,14 +289,14 @@ class SimulatedLm:
         self.mock.execute_scenario(scenario_id)
         scenario = self.get_scenario(scenario_id)
         execution = {
-            'id': scenario['id'] + '-' + str(uuid.uuid4()), 
-            'scenarioId': scenario['id'], 
-            'name': 'MockExec', 
+            'id': scenario['id'] + '-' + str(uuid.uuid4()),
+            'scenarioId': scenario['id'],
+            'name': 'MockExec',
             'scenarioSummary': {
                 'name': scenario['name']
             },
-            'status': 'PENDING', 
-            'error': None, 
+            'status': 'PENDING',
+            'error': None,
             'stageReports': self.__convert_stages_to_reports(scenario)}
         self.__add(self.scenario_executions, execution['id'], execution)
         self.__add_relation(self.executions_by_scenario, scenario_id, self.scenarios, execution['id'], self.scenario_executions)
@@ -318,7 +319,7 @@ class SimulatedLm:
     def __execution(self, project_id, execution, listener):
         try:
             execution_id = execution['id']
-            (start_ok, detail) = listener.execution_started(project_id, execution) 
+            (start_ok, detail) = listener.execution_started(project_id, execution)
             if not start_ok:
                 execution['status'] = 'FAIL'
                 execution['error'] = detail
@@ -392,6 +393,7 @@ class SimulatedLm:
             if 'type' in driver:
                 if driver['type'] == driver_type:
                     return driver
+
         raise NotFoundError('Resource driver with type {0} not found'.format(driver_type))
 
     def add_resource_driver(self, resource_driver):
@@ -406,11 +408,39 @@ class SimulatedLm:
         self.mock.delete_resource_driver(resource_driver)
         self.__delete(self.resource_drivers, resource_driver)
 
+    def get_infrastructure_keys(self):
+        self.mock.get_infrastructure_keys()
+        ik_list = []
+        for  ik_id, ik in self.infrastructure_keys.items():
+            ik_list.append(ik)
+        return ik_list
+
+    def get_infrastructure_key_by_name(self, ik_name):
+        self.mock.get_infrastructure_key_by_name(ik_name)
+        for  ik_id, ik in self.infrastructure_keys.items():
+            if 'name' in ik:
+                if ik['name'] == ik_name:
+                    return ik
+                else:
+                    return {}
+
+    def add_infrastructure_key(self, infrastructure_key):
+        self.mock.add_infrastructure_key(infrastructure_key)
+        if 'id' not in infrastructure_key:
+            infrastructure_key = infrastructure_key.copy()
+            infrastructure_key['id'] = infrastructure_key['name']
+        self.__add(self.infrastructure_keys, infrastructure_key['id'], infrastructure_key)
+        return infrastructure_key
+
+    def delete_infrastructure_key(self, infrastructure_key_name):
+        self.mock.delete_infrastructure_key(infrastructure_key_name)
+        self.__delete(self.infrastructure_keys, infrastructure_key_name)
+
     def as_mocked_session(self):
         return SimulatedLmSession(self)
 
 class SimulatedLmSession(LmSession):
-    
+
     def __init__(self, lm_sim):
         self.env = LmEnvironment('LmSim', 'sim')
         self.username = None
@@ -429,6 +459,8 @@ class SimulatedLmSession(LmSession):
         self.__resource_pkg_driver_sim = SimResourcePkgDriver(self.sim)
         self.__resource_driver_mgmt_driver = MagicMock()
         self.__resource_driver_mgmt_driver_sim = SimResourceDriverMgmtDriver(self.sim)
+        self.__infrastructure_keys_driver = MagicMock()
+        self.__infrastructure_keys_driver_sim = SimInfrastructureKeysDriver(self.sim)
         self.__configure_mocks()
 
     def __configure_mocks(self):
@@ -462,6 +494,10 @@ class SimulatedLmSession(LmSession):
         self.__resource_driver_mgmt_driver.delete_resource_driver.side_effect = self.__resource_driver_mgmt_driver_sim.delete_resource_driver
         self.__resource_driver_mgmt_driver.get_resource_driver.side_effect = self.__resource_driver_mgmt_driver_sim.get_resource_driver
         self.__resource_driver_mgmt_driver.get_resource_driver_by_type.side_effect = self.__resource_driver_mgmt_driver_sim.get_resource_driver_by_type
+        self.__infrastructure_keys_driver.get_infrastructure_keys.side_effect = self.__infrastructure_keys_driver_sim.get_infrastructure_keys
+        self.__infrastructure_keys_driver.get_infrastructure_key_by_name.side_effect = self.__infrastructure_keys_driver_sim.get_infrastructure_key_by_name
+        self.__infrastructure_keys_driver.add_infrastructure_key.side_effect = self.__infrastructure_keys_driver_sim.add_infrastructure_key
+        self.__infrastructure_keys_driver.delete_infrastructure_key.side_effect = self.__infrastructure_keys_driver_sim.delete_infrastructure_key
 
     @property
     def descriptor_driver(self):
@@ -490,6 +526,10 @@ class SimulatedLmSession(LmSession):
     @property
     def resource_driver_mgmt_driver(self):
         return self.__resource_driver_mgmt_driver
+
+    @property
+    def infrastructure_keys_driver(self):
+        return self.__infrastructure_keys_driver
 
 class SimResourceDriverMgmtDriver:
     def __init__(self, sim_lm):
@@ -756,5 +796,36 @@ class SimDeploymentLocationDriver:
             return self.sim_lm.delete_deployment_location(deployment_location_id)
         except NotFoundError as e:
             raise lm_drivers.NotFoundException('No deployment location with id {0}'.format(deployment_location_id))
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+class SimInfrastructureKeysDriver:
+
+    def __init__(self, sim_lm):
+        self.sim_lm = sim_lm
+
+    def get_infrastructure_keys(self):
+        try:
+            return self.sim_lm.get_infrastructure_keys()
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def get_infrastructure_key_by_name(self, ik_name):
+        try:
+            return self.sim_lm.get_infrastructure_key_by_name(ik_name)
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def add_infrastructure_key(self, infrastructure_key):
+        try:
+            return self.sim_lm.add_infrastructure_key(infrastructure_key)
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def delete_infrastructure_key(self, ik_name):
+        try:
+            return self.sim_lm.delete_infrastructure_key(ik_name)
+        except NotFoundError as e:
+            raise lm_drivers.NotFoundException('No infrastructure key with name {0}'.format(ik_name))
         except Exception as e:
             raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e

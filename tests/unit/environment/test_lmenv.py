@@ -4,7 +4,7 @@ from lmctl.environment.common import EnvironmentConfigError, EnvironmentRuntimeE
 from lmctl.environment.lmenv import LmEnvironment, LmSessionConfig, LmSession
 
 class TestLmEnvironment(unittest.TestCase):
-    
+
     def test_init_fails_when_name_is_none(self):
         with self.assertRaises(EnvironmentConfigError) as context:
             config = LmEnvironment(None, '', 80)
@@ -49,7 +49,7 @@ class TestLmEnvironment(unittest.TestCase):
         config = LmEnvironment('lm', 'test', 80, secure=True, username='test', password='secret')
         self.assertEqual(config.username, 'test')
         self.assertEqual(config.password, 'secret')
-        
+
     def test_init_with_all(self):
         config = LmEnvironment('lm', 'test', 80, 'http', path='gateway', secure=True, username='user', password='secret', auth_host='auth', auth_port=81, auth_protocol='https', brent_name='alt_brent')
         self.assertEqual(config.name, 'lm')
@@ -152,7 +152,7 @@ class TestLmSessionConfig(unittest.TestCase):
         self.assertEqual(session.password, 'secret')
 
 class TestLmSession(unittest.TestCase):
-    
+
     def test_init(self):
         env = LmEnvironment('lm', 'test', 80, 'https', secure=True, username='user', password='secret')
         session_config = env.create_session_config()
@@ -172,7 +172,7 @@ class TestLmSession(unittest.TestCase):
         driver = session.descriptor_driver
         descriptor_driver_init.assert_called_once_with('https://test:80', None)
         self.assertEqual(driver, descriptor_driver_init.return_value)
-    
+
     @mock.patch('lmctl.environment.lmenv.lm_drivers.LmSecurityCtrl')
     @mock.patch('lmctl.environment.lmenv.lm_drivers.LmDescriptorDriver')
     def test_descriptor_driver_with_security(self, descriptor_driver_init, mock_security_ctrl_init):
@@ -245,3 +245,19 @@ class TestLmSession(unittest.TestCase):
         mock_security_ctrl_init.assert_called_once_with('http://auth:81', 'user', 'secret')
         deployment_location_driver_init.assert_called_once_with('https://test:80', mock_security_ctrl_init.return_value)
         self.assertEqual(driver, deployment_location_driver_init.return_value)
+
+    @mock.patch('lmctl.environment.lmenv.lm_drivers.LmInfrastructureKeysDriver')
+    def test_infrastructure_keys_driver(self, infrastructure_keys_driver_init):
+        session = LmSession(LmSessionConfig(LmEnvironment('lm', 'test', 80, 'https'), None))
+        driver = session.infrastructure_keys_driver
+        infrastructure_keys_driver_init.assert_called_once_with('https://test:80', None)
+        self.assertEqual(driver, infrastructure_keys_driver_init.return_value)
+
+    @mock.patch('lmctl.environment.lmenv.lm_drivers.LmSecurityCtrl')
+    @mock.patch('lmctl.environment.lmenv.lm_drivers.LmInfrastructureKeysDriver')
+    def test_infrastructure_keys_driver_with_security(self, infrastructure_keys_driver_init, mock_security_ctrl_init):
+        session = LmSession(LmSessionConfig(LmEnvironment('lm', 'test', 80, 'https', secure=True, username='user', auth_host='auth', auth_port=81, auth_protocol='http'), 'user', 'secret'))
+        driver = session.infrastructure_keys_driver
+        mock_security_ctrl_init.assert_called_once_with('http://auth:81', 'user', 'secret')
+        infrastructure_keys_driver_init.assert_called_once_with('https://test:80', mock_security_ctrl_init.return_value)
+        self.assertEqual(driver, infrastructure_keys_driver_init.return_value)

@@ -39,7 +39,7 @@ class LmEnvironment(Environment):
                 raise EnvironmentConfigError('Secure LM environment cannot be configured without property: auth_host')
             if self.auth_protocol not in SUPPORTED_PROTOCOLS:
                 raise EnvironmentConfigError('LM environment cannot be configured with unsupported auth_protocol \'{0}\'. Must be one of: {1}'.format(self.auth_protocol, SUPPORTED_PROTOCOLS))
-        
+
     def __validate_for_unsupported_keys(self, kwargs):
         for key,value in kwargs.items():
             if key not in CONFIG_KWARGS:
@@ -100,6 +100,7 @@ class LmSession:
         self.__deployment_location_driver = None
         self.__resource_driver_mgmt_driver = None
         self.__resource_pkg_driver = None
+        self.__infrastructure_keys_driver = None
 
     def __get_lm_security_ctrl(self):
         if self.env.is_secure:
@@ -192,3 +193,16 @@ class LmSession:
         if not self.__resource_driver_mgmt_driver:
             self.__resource_driver_mgmt_driver = lm_drivers.LmResourceDriverMgmtDriver(self.env.api_address, self.__get_lm_security_ctrl())
         return self.__resource_driver_mgmt_driver
+
+    @property
+    def infrastructure_keys_driver(self):
+        """
+        Obtain a LmInfrastructureKeysDriver configured for use against this LM environment
+
+        Returns:
+            LmInfrastructureKeysDriver: a configured LmInfrastructureKeysDriver for this LM environment
+        """
+        if not self.__infrastructure_keys_driver:
+            self.__infrastructure_keys_driver = lm_drivers.LmInfrastructureKeysDriver(self.env.api_address, self.__get_lm_security_ctrl())
+        return self.__infrastructure_keys_driver
+
