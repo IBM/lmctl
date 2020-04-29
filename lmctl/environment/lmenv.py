@@ -98,8 +98,7 @@ class LmSession:
         self.__topology_driver = None
         self.__behaviour_driver = None
         self.__deployment_location_driver = None
-        self.__vim_driver_mgmt_driver = None
-        self.__lifecycle_driver_mgmt_driver = None
+        self.__resource_driver_mgmt_driver = None
         self.__resource_pkg_driver = None
 
     def __get_lm_security_ctrl(self):
@@ -183,25 +182,13 @@ class LmSession:
         return self.__resource_pkg_driver
 
     @property
-    def vim_driver_mgmt_driver(self):
+    def resource_driver_mgmt_driver(self):
         """
-        Obtain a LmVimDriverMgmtDriver configured for use against this LM environment
+        Obtain a LmResourceDriverMgmtDriver configured for use against this LM environment
 
         Returns:
-            LmVimDriverMgmtDriver: a configured LmVimDriverMgmtDriver for this LM environment
+            LmResourceDriverMgmtDriver: a configured LmResourceDriverMgmtDriver for this LM environment
         """
-        if not self.__vim_driver_mgmt_driver:
-            self.__vim_driver_mgmt_driver = lm_drivers.LmVimDriverMgmtDriver(self.env.api_address, self.__get_lm_security_ctrl())
-        return self.__vim_driver_mgmt_driver
-
-    @property
-    def lifecycle_driver_mgmt_driver(self):
-        """
-        Obtain a LmLifecycleDriverMgmtDriver configured for use against this LM environment
-
-        Returns:
-            LmLifecycleDriverMgmtDriver: a configured LmLifecycleDriverMgmtDriver for this LM environment
-        """
-        if not self.__lifecycle_driver_mgmt_driver:
-            self.__lifecycle_driver_mgmt_driver = lm_drivers.LmLifecycleDriverMgmtDriver(self.env.api_address, self.__get_lm_security_ctrl())
-        return self.__lifecycle_driver_mgmt_driver
+        if not self.__resource_driver_mgmt_driver:
+            self.__resource_driver_mgmt_driver = lm_drivers.LmResourceDriverMgmtDriver(self.env.api_address, self.__get_lm_security_ctrl())
+        return self.__resource_driver_mgmt_driver
