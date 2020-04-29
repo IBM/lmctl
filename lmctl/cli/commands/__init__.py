@@ -4,3 +4,4 @@ from .project import project as project_group
 from .deployment_location import deployment as deployment_group
 from .vimdriver import vimdriver as vimdriver_group
 from .lifecycledriver import lifecycledriver as lifecycledriver_group
+from .infrastructure_key import key as key_group

@@ -1,20 +1,20 @@
-# deployment list
+# shared infrastructure key list
 
 ## Description
 
-List the deployment locations on a LM environment
+List all shared infrastructure keys on an LM environment
 
 ## Usage
 
 ```
-lmctl deployment list [OPTIONS] ENVIRONMENT
+lmctl key list [OPTIONS] ENVIRONMENT
 ```
 
 ## Arguments
 
 | Name        | Description                                                                           | Default | Example      |
 | ----------- | ------------------------------------------------------------------------------------- | ------- | ------------ |
-| Environment | name of the environment from the LMCTL configuration file                             | -       | dev          |
+| Environment | name of the environment from the LMCTL configuration file to list keys for            | -       | dev          |
 
 ## Options
 
