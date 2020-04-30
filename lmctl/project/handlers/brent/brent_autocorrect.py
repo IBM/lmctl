@@ -31,16 +31,20 @@ class BrentCorrectableValidation:
         if os.path.exists(descriptor_path):
             descriptor = descriptor_utils.DescriptorParser().read_from_file(descriptor_path)
             if 'infrastructure' in descriptor.raw and isinstance(descriptor.infrastructure, dict):
-                entry_needing_fix = []
+                entry_needing_lifecycle_fix = []
+                entry_needing_discover_fix = []
                 for inf_type, inf_entry in descriptor.infrastructure.items():
-                    if 'template' in inf_entry or 'discover' in inf_entry:
-                        entry_needing_fix.append(inf_type)
-                if len(entry_needing_fix) > 0:
+                    if 'template' in inf_entry:
+                        entry_needing_lifecycle_fix.append(inf_type)
+                    if 'discover' in inf_entry:
+                        entry_needing_discover_fix.append(inf_type)
+                if (len(entry_needing_lifecycle_fix) + len(entry_needing_discover_fix)) > 0:
                     if validation_options.allow_autocorrect == True:
                         journal.event('Found unsupported infrastructure entries referencing templates [{0}], attempting to autocorrect by moving contents to Create/Delete/queries entries in descriptor'.format(descriptor_path))
                         managed_to_autocorrect = False
                         autocorrect_error = None
                         try:
+                            entry_needing_fix = entry_needing_lifecycle_fix + entry_needing_discover_fix
                             for inf_type in entry_needing_fix:
                                 driver_type = inf_type
                                 if inf_type == 'Openstack':
@@ -52,15 +56,16 @@ class BrentCorrectableValidation:
                                     os.makedirs(target_lifecycle_path)
                                 inf_entry = descriptor.infrastructure[inf_type]
                                 self.__move_template_files(inf_path, target_lifecycle_path, inf_type, inf_entry)
-                                create_properties = None
-                                if inf_type == 'Openstack' and inf_entry.get('template', {}).get('template-type') == 'TOSCA':
-                                    create_properties = {
-                                        'template-type': {
-                                            'value': inf_entry.get('template', {}).get('template-type')
+                                if inf_type in entry_needing_lifecycle_fix:
+                                    create_properties = None
+                                    if inf_type == 'Openstack' and inf_entry.get('template', {}).get('template-type') == 'TOSCA':
+                                        create_properties = {
+                                            'template-type': {
+                                                'value': inf_entry.get('template', {}).get('template-type')
+                                            }
                                         }
-                                    }
-                                self.__add_driver_to_lifecycle(descriptor, driver_type, inf_type, create_properties=create_properties)
-                                if 'discover' in inf_entry:
+                                    self.__add_driver_to_lifecycle(descriptor, driver_type, inf_type, create_properties=create_properties)
+                                if inf_type in entry_needing_discover_fix:
                                     self.__add_driver_to_queries(descriptor, driver_type, inf_type)
                                 descriptor.infrastructure[inf_type] = {}
                             descriptor_utils.DescriptorParser().write_to_file(descriptor, descriptor_path)
