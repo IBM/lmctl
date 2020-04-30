@@ -6,11 +6,26 @@ import lmctl.project.validation as project_validation
 
 class BrentCorrectableValidation:
 
+    def __init__(self):
+        self.rename_inf_path = False
+
     def validate_and_autocorrect(self, journal, validation_options, errors, warnings, descriptor_path, inf_path, inf_manifest_path, lifecycle_path, lifecycle_manifest_path):
         self.validate_unsupported_lifecycle_manifest(journal, validation_options, errors, warnings, lifecycle_manifest_path, descriptor_path)
         self.validate_unsupported_infrastructure_manifest(journal, validation_options, errors, warnings, inf_manifest_path, descriptor_path)
         self.validate_unsupported_infrastructure(journal, validation_options, errors, warnings, descriptor_path, inf_path, lifecycle_path)
+        if self.rename_inf_path:
+            self.__rename_infrastructure_dir(journal, validation_options, errors, warnings, inf_path)
         self.validate_driver_types_missing_selectors(journal, validation_options, errors, warnings, descriptor_path)
+
+    def __rename_infrastructure_dir(self, journal, validation_options, errors, warnings, inf_path):
+        #Rename infrastructure directory to keep as a backup, rather than remove it
+        if os.path.exists(inf_path):
+            try:
+                os.rename(inf_path, inf_path + '-bak')
+            except Exception as e:
+                msg = 'Failed to rename infrastructure directory {0} to {1}, this directory is no longer needed after correcting infrastructure validation errors, please remove. Rename error was: {2}'.format(inf_path, inf_path + '-bak', str(e))
+                journal.error_event(msg)
+                warnings.append(project_validation.ValidationViolation(msg))
 
     def validate_unsupported_infrastructure(self, journal, validation_options, errors, warnings, descriptor_path, inf_path, lifecycle_path):
         if os.path.exists(descriptor_path):
@@ -39,15 +54,21 @@ class BrentCorrectableValidation:
                                 self.__move_template_files(inf_path, target_lifecycle_path, inf_type, inf_entry)
                                 create_properties = None
                                 if inf_type == 'Openstack' and inf_entry.get('template', {}).get('template-type') == 'TOSCA':
-                                    create_properties = {'template-type': inf_entry.get('template', {}).get('template-type')}
+                                    create_properties = {
+                                        'template-type': {
+                                            'value': inf_entry.get('template', {}).get('template-type')
+                                        }
+                                    }
                                 self.__add_driver_to_lifecycle(descriptor, driver_type, inf_type, create_properties=create_properties)
                                 if 'discover' in inf_entry:
                                     self.__add_driver_to_queries(descriptor, driver_type, inf_type)
                                 descriptor.infrastructure[inf_type] = {}
                             descriptor_utils.DescriptorParser().write_to_file(descriptor, descriptor_path)
+                            self.rename_inf_path = True
                             managed_to_autocorrect = True
                         except Exception as e:
                             autocorrect_error = e
+                            raise
                         if not managed_to_autocorrect:
                             msg = 'Found unsupported infrastructure entries referencing templates [{0}]: this format is no longer supported by the Brent Resource Manager. Unable to autocorrect this issue, please add this information to the Create/Delete lifecycle and/or queries manually instead'.format(descriptor_path)
                             if autocorrect_error is not None:
@@ -87,6 +108,7 @@ class BrentCorrectableValidation:
                                 descriptor.insert_infrastructure_discover(infrastructure_type, template_file, template_type=template_type)
                     descriptor_utils.DescriptorParser().write_to_file(descriptor, descriptor_path)
                     os.rename(inf_manifest_path, inf_manifest_path + '.bak')
+                    self.rename_inf_path = True
                     managed_to_autocorrect = True
                 except Exception as e:
                     autocorrect_error = e
@@ -184,12 +206,13 @@ class BrentCorrectableValidation:
         if entry_key in descriptor.raw and isinstance(descriptor.raw[entry_key], dict):
             lifecycle = descriptor.raw[entry_key]
             for lifecycle_name, lifecycle_entry in lifecycle.items():
-                if 'drivers' in lifecycle_entry:
-                    drivers = lifecycle_entry['drivers']
-                    if isinstance(drivers, dict):
-                        for driver_type, driver_entry in drivers.items():
-                            if 'infrastructure-type' in driver_entry:
-                                driver_entries_needing_fix.append(driver_entry)
+                if lifecycle_entry is not None:
+                    if 'drivers' in lifecycle_entry:
+                        drivers = lifecycle_entry['drivers']
+                        if isinstance(drivers, dict):
+                            for driver_type, driver_entry in drivers.items():
+                                if 'infrastructure-type' in driver_entry:
+                                    driver_entries_needing_fix.append(driver_entry)
         return driver_entries_needing_fix
 
     def __move_template_files(self, inf_path, target_lifecycle_path, inf_type, inf_entry):
@@ -213,12 +236,22 @@ class BrentCorrectableValidation:
                 target_file_path = os.path.join(target_lifecycle_path, os.path.basename(orig_template_file))
             self.__move_file_and_backup_original(os.path.join(inf_path, orig_template_file), target_file_path)
 
+    def __refactor_lifecycle_to_map(self, descriptor):
+        lifecycle = descriptor.lifecycle
+        new_lifecycle = {}
+        for lifecycle_name in lifecycle:
+            new_lifecycle[lifecycle_name] = {}
+        descriptor.lifecycle = new_lifecycle
+        return descriptor.lifecycle
+
     def __add_driver_to_lifecycle(self, descriptor, driver_type, inf_type, create_properties=None):
         lifecycle = descriptor.lifecycle
-        if 'Create' not in lifecycle:
+        if isinstance(lifecycle, list):
+            lifecycle = self.__refactor_lifecycle_to_map(descriptor)
+        if 'Create' not in lifecycle or lifecycle['Create'] == None:
             lifecycle['Create'] = {}
         self.__add_driver_to_lifecycle_entry(lifecycle['Create'], driver_type, inf_type, properties=create_properties)
-        if 'Delete' not in lifecycle:
+        if 'Delete' not in lifecycle or lifecycle['Delete'] == None:
             lifecycle['Delete'] = {}
         self.__add_driver_to_lifecycle_entry(lifecycle['Delete'], driver_type, inf_type)
 
@@ -246,5 +279,6 @@ class BrentCorrectableValidation:
                 driver_type_entry['properties'] = properties.copy()
 
     def __move_file_and_backup_original(self, orignal_path, target_path):
-        shutil.copyfile(orignal_path, target_path)
-        os.rename(orignal_path, orignal_path + '.bak')
+        if os.path.exists(orignal_path):
+            shutil.copyfile(orignal_path, target_path)
+            os.rename(orignal_path, orignal_path + '.bak')

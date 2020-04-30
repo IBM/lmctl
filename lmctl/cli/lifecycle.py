@@ -252,7 +252,10 @@ class ExecutionController:
             response = exec_func(*args)
         except project_sources.BuildValidationError as e:
             self.process_validation_result(e.validation_result)
-            return self.end_with_failure(ValidationReporter().error_report(e.validation_result))  # Should not reach
+            return self.end_with_failure(ValidationReporter().error_report(e.validation_result))  # Should not reach, as above should find errors and end_with_failure
+        except pkgs.PushValidationError as e:
+            self.process_validation_result(e.validation_result)
+            return self.end_with_failure(ValidationReporter().error_report(e.validation_result))  # Should not reach, as above should find errors and end_with_failure
         except (project_sources.ProjectError, pkgs.PackageError, EnvironmentSelectionError, lm_drivers.LmDriverException, arm_drivers.AnsibleRmDriverException) as e:
             self.include_failure(str(e))
             return self.finalise()
