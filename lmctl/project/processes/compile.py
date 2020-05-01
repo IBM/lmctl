@@ -1,7 +1,7 @@
 import os
 import lmctl.files as files
 import lmctl.project.handlers.interface as handlers_api
-from lmctl.project.package.core import PkgContentTree
+from lmctl.project.package.core import ExpandedPkgTree
 from .common import LIFECYCLE_WORKSPACE
 
 class CompileProcessError(Exception):
@@ -17,7 +17,7 @@ class CompileProcess:
 
     def __create_content_tree(self):
         compile_workspace = os.path.join(self.project.tree.root_path, LIFECYCLE_WORKSPACE, 'compile')
-        return PkgContentTree(compile_workspace)
+        return ExpandedPkgTree(compile_workspace)
 
     def execute(self):
         content_tree = self.__create_content_tree()

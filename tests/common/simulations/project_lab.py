@@ -89,6 +89,7 @@ BRENT_WITH_INFRASTRUCTURE_TEMPLATES = 'with_infrastructure_templates'
 BRENT_WITH_MISSING_DRIVER_SELECTOR = 'with_missing_driver_selector'
 
 PKG_ASSEMBLY_BASIC = 'basic-1.0.tgz'
+PKG_ASSEMBLY_DEPRECATED_CONTENT_BASIC = 'deprecated-content-basic-1.0.tgz'
 PKG_ASSEMBLY_WITH_BEHAVIOUR = 'with_behaviour-1.0.tgz'
 PKG_ASSEMBLY_WITH_BEHAVIOUR_MULTI_TESTS = 'with_behaviour_multi_tests-1.0.tgz'
 PKG_ASSEMBLY_WITH_SCENARIO_REF_MISSING_CONFIG = 'with_scenario_referencing_missing_config-1.0.tgz'
@@ -307,6 +308,9 @@ class ProjectSimLab:
 
     def simulate_pkg_assembly_basic(self):
         return self.__sim_pkg(assembly_pkg_path(PKG_ASSEMBLY_BASIC))
+
+    def simulate_pkg_assembly_deprecated_content_basic(self):
+        return self.__sim_pkg(assembly_pkg_path(PKG_ASSEMBLY_DEPRECATED_CONTENT_BASIC))
 
     def simulate_pkg_assembly_with_scenario_referencing_missing_config(self):
         return self.__sim_pkg(assembly_pkg_path(PKG_ASSEMBLY_WITH_SCENARIO_REF_MISSING_CONFIG))

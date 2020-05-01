@@ -3,10 +3,25 @@ import tempfile
 import tarfile
 import shutil
 import os
-from tests.common.project_testing import ProjectSimTestCase, PKG_META_YML_FILE, PKG_CONTENT_DIR
+from tests.common.project_testing import ProjectSimTestCase, PKG_META_YML_FILE, PKG_DEPRECATED_CONTENT_DIR, ASSEMBLY_DESCRIPTOR_DIR
 from lmctl.project.package.core import Pkg, PkgContent
 
 class TestPkg(ProjectSimTestCase):
+
+    def test_extract_pkg_with_deprecated_content_directory(self):
+        pkg_sim = self.simlab.simulate_pkg_assembly_deprecated_content_basic()
+        pkg = Pkg(pkg_sim.path)
+        tmp_dir = tempfile.mkdtemp()
+        try:
+            pkg.extract(tmp_dir)
+            self.assertTrue(os.path.exists(os.path.join(tmp_dir, PKG_META_YML_FILE)))
+            # Content nested under a "content" directory
+            self.assertTrue(os.path.exists(os.path.join(tmp_dir, PKG_DEPRECATED_CONTENT_DIR)))
+            self.assertFalse(os.path.exists(os.path.join(tmp_dir, ASSEMBLY_DESCRIPTOR_DIR)))
+            self.assertTrue(os.path.exists(os.path.join(tmp_dir, PKG_DEPRECATED_CONTENT_DIR, ASSEMBLY_DESCRIPTOR_DIR)))
+        finally:
+            if os.path.exists(tmp_dir):
+                shutil.rmtree(tmp_dir)
 
     def test_extract(self):
         pkg_sim = self.simlab.simulate_pkg_assembly_basic()
@@ -15,7 +30,7 @@ class TestPkg(ProjectSimTestCase):
         try:
             pkg.extract(tmp_dir)
             self.assertTrue(os.path.exists(os.path.join(tmp_dir, PKG_META_YML_FILE)))
-            self.assertTrue(os.path.exists(os.path.join(tmp_dir, PKG_CONTENT_DIR)))
+            self.assertTrue(os.path.exists(os.path.join(tmp_dir, ASSEMBLY_DESCRIPTOR_DIR)))
         finally:
             if os.path.exists(tmp_dir):
                 shutil.rmtree(tmp_dir)
@@ -31,6 +46,22 @@ class TestPkg(ProjectSimTestCase):
             if os.path.exists(tmp_dir):
                 shutil.rmtree(tmp_dir)
 
+    def test_open_pkg_with_deprecated_content_directory(self):
+        pkg_sim = self.simlab.simulate_pkg_assembly_deprecated_content_basic()
+        pkg = Pkg(pkg_sim.path)
+        tmp_dir = tempfile.mkdtemp()
+        try:
+            content = pkg.open(tmp_dir)
+            self.assertIsInstance(content, PkgContent)
+            # Pkg opened in content directory
+            self.assertEqual(content.tree.root_path, os.path.join(tmp_dir, PKG_DEPRECATED_CONTENT_DIR))
+            # Pkg meta file still reachable
+            self.assertTrue(os.path.exists(os.path.join(content.tree.root_path, PKG_META_YML_FILE)))
+            self.assertTrue(os.path.exists(os.path.join(content.tree.root_path, ASSEMBLY_DESCRIPTOR_DIR)))
+        finally:
+            if os.path.exists(tmp_dir):
+                shutil.rmtree(tmp_dir)
+
     def test_open(self):
         pkg_sim = self.simlab.simulate_pkg_assembly_basic()
         pkg = Pkg(pkg_sim.path)
@@ -39,7 +70,7 @@ class TestPkg(ProjectSimTestCase):
             content = pkg.open(tmp_dir)
             self.assertIsInstance(content, PkgContent)
             self.assertTrue(os.path.exists(os.path.join(tmp_dir, PKG_META_YML_FILE)))
-            self.assertTrue(os.path.exists(os.path.join(tmp_dir, PKG_CONTENT_DIR)))
+            self.assertTrue(os.path.exists(os.path.join(tmp_dir, ASSEMBLY_DESCRIPTOR_DIR)))
         finally:
             if os.path.exists(tmp_dir):
                 shutil.rmtree(tmp_dir)

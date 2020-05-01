@@ -16,7 +16,7 @@ PROJECT_VNFCS_DIR = 'VNFCs'
 PROJECT_FILE_YML = 'lmproject.yml'
 PROJECT_FILE_YAML = 'lmproject.yaml'
 
-PKG_CONTENT_DIR = 'content'
+PKG_DEPRECATED_CONTENT_DIR = 'content'
 PKG_META_YML_FILE = 'lmpkg.yml'
 
 ASSEMBLY_DESCRIPTOR_DIR = 'Descriptor'
@@ -152,7 +152,7 @@ class PkgAssertions:
             shutil.rmtree(self.temp_dir)
 
     def __full_content_path(self, content_path):
-        return os.path.join(self.temp_dir, PKG_CONTENT_DIR, content_path)
+        return os.path.join(self.temp_dir, content_path)
 
     def assert_has_content_file(self, content_path):
         self.tc.assertTrue(os.path.exists(self.__full_content_path(content_path)))

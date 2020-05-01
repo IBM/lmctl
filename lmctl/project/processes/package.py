@@ -43,12 +43,11 @@ class PkgProcess:
         pkg_tree = pkgs.ExpandedPkgTree()
         compiled_content_path = self.content_tree.root_path
         with tarfile.open(pkg_path, mode="w:gz") as pkg_tar:
-            content_dir = pkg_tree.content_dir_name
             rootlen = len(compiled_content_path) + 1
             for root, dirs, filelist in os.walk(compiled_content_path):
                 for file_name in filelist:
                     full_path = os.path.join(root, file_name)
-                    pkg_tar.add(full_path, arcname=os.path.join(content_dir, full_path[rootlen:]))
+                    pkg_tar.add(full_path, arcname=full_path[rootlen:])
             pkg_tar.add(pkg_meta_file_path, arcname=pkg_tree.pkg_meta_file_name)
         self.__clear_compile_directory()
         try:

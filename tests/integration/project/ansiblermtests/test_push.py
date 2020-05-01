@@ -1,6 +1,6 @@
 import unittest
 import tests.common.simulations.project_lab as project_lab
-from tests.common.project_testing import (ProjectSimTestCase, PROJECT_CONTAINS_DIR, PKG_CONTENT_DIR) 
+from tests.common.project_testing import (ProjectSimTestCase, PROJECT_CONTAINS_DIR) 
 from lmctl.project.package.core import Pkg, PkgContent, PushOptions
 from lmctl.project.sessions import EnvironmentSessions
 import os
