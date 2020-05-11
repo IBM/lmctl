@@ -90,8 +90,7 @@ class SimulatedLm:
         self.rms = {}
         self.deployment_locations = {}
         self.deployment_locations_by_rm = {}
-        self.vim_drivers = {}
-        self.lifecycle_drivers = {}
+        self.resource_drivers = {}
         self.infrastructure_keys = {}
         self.mock = MagicMock()
 
@@ -383,55 +382,31 @@ class SimulatedLm:
                         step_report['status'] = 'PENDING'
         return stage_reports
 
-    def get_vim_driver(self, driver_id):
-        self.mock.get_vim_driver(driver_id)
-        vim_driver = self.__get(self.vim_drivers, driver_id)
-        return vim_driver
+    def get_resource_driver(self, driver_id):
+        self.mock.get_resource_driver(driver_id)
+        resource_driver = self.__get(self.resource_drivers, driver_id)
+        return resource_driver
 
-    def get_vim_driver_by_type(self, inf_type):
-        self.mock.get_vim_driver_by_type(inf_type)
-        for driver_id, driver in self.vim_drivers.items():
-            if 'infrastructureType' in driver:
-                if driver['infrastructureType'] == inf_type:
-                    return driver
-        raise NotFoundError('VIM driver with type {0} not found'.format(inf_type))
-
-    def add_vim_driver(self, vim_driver):
-        self.mock.add_vim_driver(vim_driver)
-        if 'id' not in vim_driver:
-            vim_driver = vim_driver.copy()
-            vim_driver['id'] = str(uuid.uuid4())
-        self.__add(self.vim_drivers, vim_driver['id'], vim_driver)
-        return vim_driver
-
-    def delete_vim_driver(self, vim_driver):
-        self.mock.delete_vim_driver(vim_driver)
-        self.__delete(self.vim_drivers, vim_driver)
-
-    def get_lifecycle_driver(self, driver_id):
-        self.mock.get_lifecycle_driver(driver_id)
-        lifecycle_driver = self.__get(self.lifecycle_drivers, driver_id)
-        return lifecycle_driver
-
-    def get_lifecycle_driver_by_type(self, lifecycle_type):
-        self.mock.get_lifecycle_driver_by_type(lifecycle_type)
-        for driver_id, driver in self.lifecycle_drivers.items():
+    def get_resource_driver_by_type(self, driver_type):
+        self.mock.get_resource_driver_by_type(driver_type)
+        for driver_id, driver in self.resource_drivers.items():
             if 'type' in driver:
-                if driver['type'] == lifecycle_type:
+                if driver['type'] == driver_type:
                     return driver
-        raise NotFoundError('Lifecycle driver with type {0} not found'.format(lifecycle_type))
 
-    def add_lifecycle_driver(self, lifecycle_driver):
-        self.mock.add_lifecycle_driver(lifecycle_driver)
-        if 'id' not in lifecycle_driver:
-            lifecycle_driver = lifecycle_driver.copy()
-            lifecycle_driver['id'] = str(uuid.uuid4())
-        self.__add(self.lifecycle_drivers, lifecycle_driver['id'], lifecycle_driver)
-        return lifecycle_driver
+        raise NotFoundError('Resource driver with type {0} not found'.format(driver_type))
 
-    def delete_lifecycle_driver(self, lifecycle_driver):
-        self.mock.delete_lifecycle_driver(lifecycle_driver)
-        self.__delete(self.lifecycle_drivers, lifecycle_driver)
+    def add_resource_driver(self, resource_driver):
+        self.mock.add_resource_driver(resource_driver)
+        if 'id' not in resource_driver:
+            resource_driver = resource_driver.copy()
+            resource_driver['id'] = str(uuid.uuid4())
+        self.__add(self.resource_drivers, resource_driver['id'], resource_driver)
+        return resource_driver
+       
+    def delete_resource_driver(self, resource_driver):
+        self.mock.delete_resource_driver(resource_driver)
+        self.__delete(self.resource_drivers, resource_driver)
 
     def get_infrastructure_keys(self):
         self.mock.get_infrastructure_keys()
@@ -482,10 +457,8 @@ class SimulatedLmSession(LmSession):
         self.__deployment_location_driver_sim = SimDeploymentLocationDriver(self.sim)
         self.__resource_pkg_driver = MagicMock()
         self.__resource_pkg_driver_sim = SimResourcePkgDriver(self.sim)
-        self.__vim_driver_mgmt_driver = MagicMock()
-        self.__vim_driver_mgmt_driver_sim = SimVimDriverMgmtDriver(self.sim)
-        self.__lifecycle_driver_mgmt_driver = MagicMock()
-        self.__lifecycle_driver_mgmt_driver_sim = SimLifecycleDriverMgmtDriver(self.sim)
+        self.__resource_driver_mgmt_driver = MagicMock()
+        self.__resource_driver_mgmt_driver_sim = SimResourceDriverMgmtDriver(self.sim)
         self.__infrastructure_keys_driver = MagicMock()
         self.__infrastructure_keys_driver_sim = SimInfrastructureKeysDriver(self.sim)
         self.__configure_mocks()
@@ -517,19 +490,14 @@ class SimulatedLmSession(LmSession):
         self.__deployment_location_driver.get_locations_by_name.side_effect = self.__deployment_location_driver_sim.get_locations_by_name
         self.__deployment_location_driver.add_location.side_effect = self.__deployment_location_driver_sim.add_location
         self.__deployment_location_driver.delete_location.side_effect = self.__deployment_location_driver_sim.delete_location
-        self.__vim_driver_mgmt_driver.add_vim_driver.side_effect = self.__vim_driver_mgmt_driver_sim.add_vim_driver
-        self.__vim_driver_mgmt_driver.delete_vim_driver.side_effect = self.__vim_driver_mgmt_driver_sim.delete_vim_driver
-        self.__vim_driver_mgmt_driver.get_vim_driver.side_effect = self.__vim_driver_mgmt_driver_sim.get_vim_driver
-        self.__vim_driver_mgmt_driver.get_vim_driver_by_type.side_effect = self.__vim_driver_mgmt_driver_sim.get_vim_driver_by_type
-        self.__lifecycle_driver_mgmt_driver.add_lifecycle_driver.side_effect = self.__lifecycle_driver_mgmt_driver_sim.add_lifecycle_driver
-        self.__lifecycle_driver_mgmt_driver.delete_lifecycle_driver.side_effect = self.__lifecycle_driver_mgmt_driver_sim.delete_lifecycle_driver
-        self.__lifecycle_driver_mgmt_driver.get_lifecycle_driver.side_effect = self.__lifecycle_driver_mgmt_driver_sim.get_lifecycle_driver
-        self.__lifecycle_driver_mgmt_driver.get_lifecycle_driver_by_type.side_effect = self.__lifecycle_driver_mgmt_driver_sim.get_lifecycle_driver_by_type
+        self.__resource_driver_mgmt_driver.add_resource_driver.side_effect = self.__resource_driver_mgmt_driver_sim.add_resource_driver
+        self.__resource_driver_mgmt_driver.delete_resource_driver.side_effect = self.__resource_driver_mgmt_driver_sim.delete_resource_driver
+        self.__resource_driver_mgmt_driver.get_resource_driver.side_effect = self.__resource_driver_mgmt_driver_sim.get_resource_driver
+        self.__resource_driver_mgmt_driver.get_resource_driver_by_type.side_effect = self.__resource_driver_mgmt_driver_sim.get_resource_driver_by_type
         self.__infrastructure_keys_driver.get_infrastructure_keys.side_effect = self.__infrastructure_keys_driver_sim.get_infrastructure_keys
         self.__infrastructure_keys_driver.get_infrastructure_key_by_name.side_effect = self.__infrastructure_keys_driver_sim.get_infrastructure_key_by_name
         self.__infrastructure_keys_driver.add_infrastructure_key.side_effect = self.__infrastructure_keys_driver_sim.add_infrastructure_key
         self.__infrastructure_keys_driver.delete_infrastructure_key.side_effect = self.__infrastructure_keys_driver_sim.delete_infrastructure_key
-
 
     @property
     def descriptor_driver(self):
@@ -556,84 +524,45 @@ class SimulatedLmSession(LmSession):
         return self.__resource_pkg_driver
 
     @property
-    def vim_driver_mgmt_driver(self):
-        return self.__vim_driver_mgmt_driver
-
-    @property
-    def lifecycle_driver_mgmt_driver(self):
-        return self.__lifecycle_driver_mgmt_driver
+    def resource_driver_mgmt_driver(self):
+        return self.__resource_driver_mgmt_driver
 
     @property
     def infrastructure_keys_driver(self):
         return self.__infrastructure_keys_driver
 
-class SimVimDriverMgmtDriver:
+class SimResourceDriverMgmtDriver:
     def __init__(self, sim_lm):
         self.sim_lm = sim_lm
 
-    def add_vim_driver(self, vim_driver):
+    def add_resource_driver(self, resource_driver):
         try:
-            added_vim_driver = self.sim_lm.add_vim_driver(vim_driver)
-            return added_vim_driver
+            added_resource_driver = self.sim_lm.add_resource_driver(resource_driver)
+            return added_resource_driver
         except Exception as e:
             raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
 
-    def delete_vim_driver(self, driver_id):
+    def delete_resource_driver(self, driver_id):
         try:
-            self.sim_lm.delete_vim_driver(driver_id)
+            self.sim_lm.delete_resource_driver(driver_id)
         except NotFoundError as e:
-            raise lm_drivers.NotFoundException('No VIM driver with id {0}'.format(driver_id))
+            raise lm_drivers.NotFoundException('No resource driver with id {0}'.format(driver_id))
         except Exception as e:
             raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
 
-    def get_vim_driver(self, driver_id):
+    def get_resource_driver(self, driver_id):
         try:
-            return self.sim_lm.get_vim_driver(driver_id)
+            return self.sim_lm.get_resource_driver(driver_id)
         except NotFoundError as e:
-            raise lm_drivers.NotFoundException('No VIM driver with id {0}'.format(driver_id))
+            raise lm_drivers.NotFoundException('No resource driver with id {0}'.format(driver_id))
         except Exception as e:
             raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
 
-    def get_vim_driver_by_type(self, inf_type):
+    def get_resource_driver_by_type(self, driver_type):
         try:
-            return self.sim_lm.get_vim_driver_by_type(inf_type)
+            return self.sim_lm.get_resource_driver_by_type(driver_type)
         except NotFoundError as e:
-            raise lm_drivers.NotFoundException('No VIM driver with infrastructure type {0}'.format(inf_type))
-        except Exception as e:
-            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
-
-class SimLifecycleDriverMgmtDriver:
-    def __init__(self, sim_lm):
-        self.sim_lm = sim_lm
-
-    def add_lifecycle_driver(self, lifecycle_driver):
-        try:
-            added_lifecycle_driver = self.sim_lm.add_lifecycle_driver(lifecycle_driver)
-            return added_lifecycle_driver
-        except Exception as e:
-            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
-
-    def delete_lifecycle_driver(self, driver_id):
-        try:
-            self.sim_lm.delete_lifecycle_driver(driver_id)
-        except NotFoundError as e:
-            raise lm_drivers.NotFoundException('No lifecycle driver with id {0}'.format(driver_id))
-        except Exception as e:
-            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
-
-    def get_lifecycle_driver(self, driver_id):
-        try:
-            return self.sim_lm.get_lifecycle_driver(driver_id)
-        except NotFoundError as e:
-            raise lm_drivers.NotFoundException('No lifecycle driver with id {0}'.format(driver_id))
-        except Exception as e:
-            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
-
-    def get_lifecycle_driver_by_type(self, lifecycle_type):
-        try:
-            return self.sim_lm.get_lifecycle_driver_by_type(lifecycle_type)
-        except NotFoundError as e:
-            raise lm_drivers.NotFoundException('No lifecycle driver with type {0}'.format(lifecycle_type))
+            raise lm_drivers.NotFoundException('No resource driver with type {0}'.format(driver_type))
         except Exception as e:
             raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
 
