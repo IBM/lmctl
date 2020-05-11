@@ -94,6 +94,52 @@ outputs:
     description: The private IP address of the hello_world_server
 '''
 
+KEGD_INF_TEMPLATE = '''\
+compose:
+  - name: Create
+    deploy:
+      - objects:
+          file: config-map.yaml
+'''
+
+KEGD_LIFECYCLE_TEMPLATE = '''\
+compose:
+  - name: Create
+    deploy:
+      - objects:
+          file: config-map.yaml
+
+  - name: Install
+    deploy:
+      - objects:
+          file: deployment.yaml
+'''
+
+CONFIG_MAP_TEMPLATE = '''\
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ system_properties.resource_subdomain }}
+data: {}
+'''
+
+DEPLOYMENT_TEMPLATE = '''\
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ system_properties.resource_subdomain }}
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: busybox
+    spec:
+      containers:
+        - name: busybox
+          image: busybox
+'''
+
 class AnsibleLifecycleTree(files.Tree):
 
     CONFIG_DIR_NAME = 'config'
@@ -138,6 +184,27 @@ class Sol003LifecycleTree(files.Tree):
     def scripts_path(self):
         return self.resolve_relative_path(Sol003LifecycleTree.SCRIPTS_DIR_NAME)
 
+class KubernetesLifecycleTree(files.Tree):
+    
+    OBJECTS_DIR_NAME = 'objects'
+    HELM_DIR_NAME = 'helm'
+    KEGD_FILE_NAME = 'kegd.yaml'
+
+    @property
+    def objects_path(self):
+        return self.resolve_relative_path(KubernetesLifecycleTree.OBJECTS_DIR_NAME)
+
+    def gen_object_file_path(self, object_name):
+        return self.resolve_relative_path(KubernetesLifecycleTree.OBJECTS_DIR_NAME, '{0}.yaml'.format(object_name))
+
+    @property
+    def helm_path(self):
+        return self.resolve_relative_path(KubernetesLifecycleTree.HELM_DIR_NAME)
+
+    @property
+    def kegd_file_path(self):
+        return self.resolve_relative_path(KubernetesLifecycleTree.KEGD_FILE_NAME)
+
 class BrentSourceTree(files.Tree):
 
     DEFINITIONS_DIR_NAME = 'Definitions'
@@ -152,6 +219,7 @@ class BrentSourceTree(files.Tree):
     OPENSTACK_LIFECYCLE_DIR_NAME = 'openstack'
     ANSIBLE_LIFECYCLE_DIR_NAME = 'ansible'
     SOL003_LIFECYCLE_DIR_NAME = 'sol003'
+    KUBERNETES_LIFECYCLE_DIR_NAME = 'kubernetes'
     
     @property
     def definitions_path(self):
@@ -201,11 +269,16 @@ class BrentSourceTree(files.Tree):
     def sol003_lifecycle_path(self):
         return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.SOL003_LIFECYCLE_DIR_NAME)
 
+    @property
+    def kubernetes_lifecycle_path(self):
+        return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.KUBERNETES_LIFECYCLE_DIR_NAME)
+
 DRIVER_PARAM_NAME = 'driver'
 INFRASTRUCTURE_PARAM_NAME = 'inf'
 LIFECYCLE_PARAM_NAME = 'lifecycle'
 LIFECYCLE_TYPE_ANSIBLE = 'ansible'
 LIFECYCLE_TYPE_SOL003 = 'sol003'
+LIFECYCLE_TYPE_KUBERNETES = 'kubernetes'
 INFRASTRUCTURE_TYPE_OPENSTACK = 'openstack'
 SOL003_SCRIPT_NAMES = []
 SOL003_SCRIPT_NAMES.append(Sol003LifecycleTree.CREATE_VNF_REQUEST_FILE_NAME)
@@ -224,9 +297,9 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
 
     def get_params(self, source_request):
         params = []
-        params.append(handlers_api.SourceParam(DRIVER_PARAM_NAME, required=False, default_value=None, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003]))
-        params.append(handlers_api.SourceParam(LIFECYCLE_PARAM_NAME, required=False, default_value=None, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003]))
-        params.append(handlers_api.SourceParam(INFRASTRUCTURE_PARAM_NAME, required=False, default_value=None, allowed_values=[INFRASTRUCTURE_TYPE_OPENSTACK]))
+        params.append(handlers_api.SourceParam(DRIVER_PARAM_NAME, required=False, default_value=None, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003, LIFECYCLE_TYPE_KUBERNETES]))
+        params.append(handlers_api.SourceParam(LIFECYCLE_PARAM_NAME, required=False, default_value=None, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003, LIFECYCLE_TYPE_KUBERNETES]))
+        params.append(handlers_api.SourceParam(INFRASTRUCTURE_PARAM_NAME, required=False, default_value=None, allowed_values=[INFRASTRUCTURE_TYPE_OPENSTACK, LIFECYCLE_TYPE_KUBERNETES]))
         return params
 
     def create_source(self, journal, source_request, file_ops_executor):
@@ -234,7 +307,7 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
         file_ops = []
         descriptor = descriptor_utils.Descriptor({})
         descriptor.description = 'descriptor for {0}'.format(source_request.source_config.name)
-
+        had_inf = False
         file_ops.append(handlers_api.CreateDirectoryOp(source_tree.definitions_path, handlers_api.EXISTING_IGNORE))
         driver_type = source_request.param_values.get_value(DRIVER_PARAM_NAME)
         driver_type_set_to_default = False
@@ -248,9 +321,10 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
             if driver_type == LIFECYCLE_TYPE_ANSIBLE and driver_type_set_to_default:
                 inf_type = INFRASTRUCTURE_TYPE_OPENSTACK
         if inf_type is not None:
+            had_inf = True
             self.__create_infrastructure(journal, source_request, file_ops, source_tree, inf_type, descriptor)
         
-        self.__create_lifecycle(journal, source_request, file_ops, source_tree, driver_type, descriptor)
+        self.__create_lifecycle(journal, source_request, file_ops, source_tree, driver_type, descriptor, had_inf=had_inf)
         self.__create_descriptor(journal, source_request, file_ops, source_tree, descriptor)
         
         file_ops_executor(file_ops)
@@ -286,10 +360,52 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
             openstack_tree = OpenstackTree(source_tree.openstack_lifecycle_path)
             file_ops.append(handlers_api.CreateFileOp(openstack_tree.heat_file_path, OPENSTACK_EXAMPLE_HEAT, handlers_api.EXISTING_IGNORE))
             descriptor.infrastructure['Openstack'] = {}
+        elif inf_type == LIFECYCLE_TYPE_KUBERNETES:
+            file_ops.append(handlers_api.CreateDirectoryOp(source_tree.kubernetes_lifecycle_path, handlers_api.EXISTING_IGNORE))
+            kube_tree = KubernetesLifecycleTree(source_tree.kubernetes_lifecycle_path)
+            file_ops.append(handlers_api.CreateDirectoryOp(kube_tree.objects_path, handlers_api.EXISTING_IGNORE))
+            file_ops.append(handlers_api.CreateDirectoryOp(kube_tree.helm_path, handlers_api.EXISTING_IGNORE))
+            file_ops.append(handlers_api.CreateFileOp(kube_tree.kegd_file_path, KEGD_INF_TEMPLATE, handlers_api.EXISTING_IGNORE))
+            file_ops.append(handlers_api.CreateFileOp(kube_tree.gen_object_file_path('config-map'), CONFIG_MAP_TEMPLATE, handlers_api.EXISTING_IGNORE))
+            create_driver_entry = {
+                'kubernetes': {
+                    'selector': {
+                        'infrastructure-type': [
+                            '*'
+                        ]
+                    }
+                }
+            }
+            descriptor.insert_lifecycle('Create', drivers=create_driver_entry)
+            delete_driver_entry = {
+                'kubernetes': {
+                    'selector': {
+                        'infrastructure-type': [
+                            '*'
+                        ]
+                    }
+                }
+            }
+            descriptor.insert_lifecycle('Delete', drivers=delete_driver_entry)
+            descriptor.infrastructure['Kubernetes'] = {}
 
-    def __create_lifecycle(self, journal, source_request, file_ops, source_tree, lifecycle_type, descriptor):
+    def __create_lifecycle(self, journal, source_request, file_ops, source_tree, lifecycle_type, descriptor, had_inf=False):
         file_ops.append(handlers_api.CreateDirectoryOp(source_tree.lifecycle_path, handlers_api.EXISTING_IGNORE))
-        if lifecycle_type == LIFECYCLE_TYPE_ANSIBLE:
+        if lifecycle_type == LIFECYCLE_TYPE_KUBERNETES:
+            file_ops.append(handlers_api.CreateDirectoryOp(source_tree.kubernetes_lifecycle_path, handlers_api.EXISTING_IGNORE))
+            kube_tree = KubernetesLifecycleTree(source_tree.kubernetes_lifecycle_path)
+            file_ops.append(handlers_api.CreateDirectoryOp(kube_tree.objects_path, handlers_api.EXISTING_IGNORE))
+            file_ops.append(handlers_api.CreateDirectoryOp(kube_tree.helm_path, handlers_api.EXISTING_IGNORE))
+            file_ops.append(handlers_api.CreateFileOp(kube_tree.kegd_file_path, KEGD_LIFECYCLE_TEMPLATE, handlers_api.EXISTING_IGNORE))
+            if not had_inf:
+                file_ops.append(handlers_api.CreateFileOp(kube_tree.gen_object_file_path('config-map'), CONFIG_MAP_TEMPLATE, handlers_api.EXISTING_IGNORE))
+                descriptor.insert_lifecycle('Create')
+                descriptor.insert_lifecycle('Delete')
+                descriptor.infrastructure['Kubernetes'] = {}
+            file_ops.append(handlers_api.CreateFileOp(kube_tree.gen_object_file_path('deployment'), DEPLOYMENT_TEMPLATE, handlers_api.EXISTING_IGNORE))
+            descriptor.insert_lifecycle('Install')
+            descriptor.insert_default_driver('kubernetes', infrastructure_types=['*'])
+        elif lifecycle_type == LIFECYCLE_TYPE_ANSIBLE:
             file_ops.append(handlers_api.CreateDirectoryOp(source_tree.ansible_lifecycle_path, handlers_api.EXISTING_IGNORE))
             ansible_tree = AnsibleLifecycleTree(source_tree.ansible_lifecycle_path)
             file_ops.append(handlers_api.CreateDirectoryOp(ansible_tree.config_path, handlers_api.EXISTING_IGNORE))
