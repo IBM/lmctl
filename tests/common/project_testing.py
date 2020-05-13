@@ -70,7 +70,7 @@ class ProjectSimTestCase(unittest.TestCase):
         self.maxDiff = None
     
     def tearDown(self):
-        pass#self.simlab.destroySims()
+        self.simlab.destroySims()
 
     def assert_validation_errors(self, validation_result, *errors):
         self.assertTrue(len(validation_result.errors), len(errors))
