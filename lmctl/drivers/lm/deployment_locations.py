@@ -62,6 +62,6 @@ class LmDeploymentLocationDriver(LmDriver):
         if response.status_code == 204:
             return True
         elif response.status_code == 404:
-            raise NotFoundException('No deployment location with id {0}'.format(driver_id))
+            raise NotFoundException('No deployment location with id {0}'.format(deployment_location_id))
         else:
             self._raise_unexpected_status_exception(response)

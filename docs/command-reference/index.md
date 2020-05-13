@@ -11,11 +11,11 @@
 
 - [list](./envs/list.md)
 
-## lifecycledriver
+## resourcedriver
 
-- [add](./lifecycledriver/add.md)
-- [delete](./lifecycledriver/delete.md)
-- [get](./lifecycledriver/get.md)
+- [add](./resourcedriver/add.md)
+- [delete](./resourcedriver/delete.md)
+- [get](./resourcedriver/get.md)
 
 ## pkg
 
@@ -31,10 +31,3 @@
 - [push](./project/push.md)
 - [test](./project/test.md)
 - [validate](./project/validate.md)
-
-## vimdriver
-
-- [add](./vimdriver/add.md)
-- [delete](./vimdriver/delete.md)
-- [get](./vimdriver/get.md)
-
