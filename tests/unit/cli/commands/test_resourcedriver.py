@@ -119,7 +119,7 @@ class TestResourceDriverCommands(command_testing.CommandTestCase):
         self.mock_create_lm_session.return_value.resource_driver_mgmt_driver.add_resource_driver.side_effect = lm_drivers.LmDriverException('Mocked error')
         result = self.runner.invoke(resourcedriver_cmds.add, ['TestEnv', '--url', 'http://mockdriver.example.com'])
         self.assert_has_system_exit(result)
-        expected_output = 'LM error occured: Mocked error'
+        expected_output = 'LM error occurred: Mocked error'
         self.assert_output(result, expected_output)
         
     def test_delete_with_defaults(self):
@@ -158,7 +158,7 @@ class TestResourceDriverCommands(command_testing.CommandTestCase):
         result = self.runner.invoke(resourcedriver_cmds.delete, ['TestEnv', '987'])
         self.assert_has_system_exit(result)
         expected_output = 'Deleting resource driver: 987...'
-        expected_output += '\nLM error occured: No resource driver with id 987'
+        expected_output += '\nLM error occurred: No resource driver with id 987'
         self.assert_output(result, expected_output)
 
     def test_delete_by_type(self):
@@ -178,7 +178,7 @@ class TestResourceDriverCommands(command_testing.CommandTestCase):
     def test_delete_by_type_not_found(self):
         result = self.runner.invoke(resourcedriver_cmds.delete, ['TestEnv', '--type', 'Ansible'])
         self.assert_has_system_exit(result)
-        expected_output = 'LM error occured: No resource driver with type Ansible'
+        expected_output = 'LM error occurred: No resource driver with type Ansible'
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
     
@@ -226,7 +226,7 @@ class TestResourceDriverCommands(command_testing.CommandTestCase):
     def test_get_handles_lm_driver_error(self):
         result = self.runner.invoke(resourcedriver_cmds.get, ['TestEnv', '987'])
         self.assert_has_system_exit(result)
-        expected_output = 'LM error occured: No resource driver with id 987'
+        expected_output = 'LM error occurred: No resource driver with id 987'
         self.assert_output(result, expected_output)
 
     def test_get_by_type(self):
@@ -245,7 +245,7 @@ class TestResourceDriverCommands(command_testing.CommandTestCase):
     def test_get_by_type_not_found(self):
         result = self.runner.invoke(resourcedriver_cmds.get, ['TestEnv', '--type', 'Ansible'])
         self.assert_has_system_exit(result)
-        expected_output = 'LM error occured: No resource driver with type Ansible'
+        expected_output = 'LM error occurred: No resource driver with type Ansible'
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
     

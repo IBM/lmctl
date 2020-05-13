@@ -159,7 +159,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         self.mock_create_lm_session.return_value.deployment_location_driver.add_location.side_effect = lm_drivers.LmDriverException('Mocked error')
         result = self.runner.invoke(deployment_cmds.add, ['TestEnv', 'testdl', '--rm', 'rm123'])
         self.assert_has_system_exit(result)
-        expected_output = 'LM error occured: Mocked error'
+        expected_output = 'LM error occurred: Mocked error'
         self.assert_output(result, expected_output)
         
     def test_delete_with_defaults(self):

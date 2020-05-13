@@ -29,7 +29,7 @@ class LmDriverSafety(ExceptionSafetyNet):
     def __exit__(self, etype, value, traceback):
         if value and isinstance(value, lm_drivers.LmDriverException):
             logger.exception(value)
-            click.echo('LM error occured: {0}'.format(str(value)), err=True)
+            click.echo('LM error occurred: {0}'.format(str(value)), err=True)
             exit(1)
 
 def lm_driver_safety():
