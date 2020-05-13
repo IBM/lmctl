@@ -1,2 +1,6 @@
-name: resource::basic::1.0
+name: resource::prealpha-style::1.0
 description: descriptor
+lifecycle:
+- Create
+- Install
+- Delete

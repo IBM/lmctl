@@ -9,6 +9,7 @@ import lmctl.journal as journal
 import lmctl.project.journal as project_journal
 import lmctl.project.package.meta as pkg_metas
 import lmctl.project.processes.push as push_exec
+import lmctl.project.processes.pkg_validation as pkg_validation_exec
 import lmctl.project.processes.testing as test_exec
 import lmctl.project.handlers.manager as handler_manager
 import lmctl.drivers.lm.base as lm_drivers
@@ -23,8 +24,18 @@ class PackageError(Exception):
 class InvalidPackageError(PackageError):
     pass
 
+class PackageValidateError(PackageError):
+    pass
+
 class PushError(PackageError):
     pass
+
+class PushValidationError(PushError):
+
+    def __init__(self, validation_result):
+        super().__init__('Push failed with validation errors')
+        self.validation_result = validation_result
+        
 
 class TestError(PackageError):
     pass
@@ -39,12 +50,16 @@ class Options:
     def __init__(self):
         self.journal_consumer = None
 
-
-class PushOptions(Options):
+class ValidateOptions(Options):
 
     def __init__(self):
         super().__init__()
+        self.allow_autocorrect = False
 
+class PushOptions(ValidateOptions):
+
+    def __init__(self):
+        super().__init__()
 
 class TestOptions(Options):
 
@@ -84,7 +99,7 @@ class SubPkgContent(PkgContentBase):
         if parent_pkg is None:
             raise ValueError('parent_pkg must be provided for Subproject')
         self.parent_pkg = parent_pkg
-        tree = PkgContentTree(root_path)
+        tree = ExpandedPkgTree(root_path)
         super().__init__(tree, meta)
 
 class PkgInspectionReport:
@@ -154,8 +169,25 @@ class Pkg:
             target_directory = tempfile.mkdtemp()
         self.extract(target_directory)
         pkg_tree = ExpandedPkgTree(target_directory)
+        pkg_tree = self.__refactor_deprecated_pkg_structure(pkg_tree)
         meta = self.__read_meta_file(pkg_tree)
-        return PkgContent(pkg_tree.content_path, meta)
+        return PkgContent(pkg_tree.root_path, meta)
+
+    def __refactor_deprecated_pkg_structure(self, pkg_tree):
+        # Expand content.tgz if found (deprecated)
+        content_tgz = pkg_tree.deprecated_content_tgz_path
+        if os.path.exists(content_tgz):
+            with tarfile.open(content_tgz, mode='r:gz') as content_tar:
+                content_tar.extractall(pkg_tree.root_path)
+            return pkg_tree
+        # Nested content directory (deprecated), move the pkgmeta file into this directory and load the project from there
+        elif os.path.exists(pkg_tree.deprecated_content_path):
+            new_tree = ExpandedPkgTree(pkg_tree.deprecated_content_path)
+            if os.path.exists(pkg_tree.pkg_meta_file_path):
+                shutil.copyfile(pkg_tree.pkg_meta_file_path, new_tree.pkg_meta_file_path)
+            return new_tree
+        else:
+            return pkg_tree
 
     def __read_meta_file(self, pkg_tree):
         meta_file_path = pkg_tree.pkg_meta_file_path
@@ -165,10 +197,6 @@ class Pkg:
                 old_meta_dict = yaml.safe_load(f.read())
             version = self.__attempt_to_determine_version()
             pkg_metas.PkgMetaRewriter(deprecated_pkg_meta_file_path, meta_file_path, old_meta_dict, version).rewrite()
-            content_tgz = pkg_tree.deprecated_content_tgz_path
-            if os.path.exists(content_tgz):
-                with tarfile.open(content_tgz, mode='r:gz') as content_tar:
-                    content_tar.extractall(pkg_tree.content_path)
         if not os.path.exists(meta_file_path):
             raise InvalidPackageError('Could not find meta file at path: {0}'.format(meta_file_path))
         with open(meta_file_path, 'rt') as f:
@@ -186,7 +214,7 @@ class Pkg:
             if os.path.exists(potential_descriptor):
                 descriptor = descriptor_utils.DescriptorParser().read_from_file(potential_descriptor)
                 return descriptor.get_version()
-        except Exception as e:
+        except Exception:
             return None
 
     def __init_journal(self, journal_consumer=None):
@@ -211,7 +239,7 @@ class PkgContent(PkgContentBase):
     def __init__(self, root_path, meta):
         if root_path is None:
             raise ValueError('root_path must be provided for PkgContent')
-        tree = PkgContentTree(root_path)
+        tree = ExpandedPkgTree(root_path)
         super().__init__(tree, meta)
         self.__rename_old_directories(tree)
 
@@ -235,11 +263,24 @@ class PkgContent(PkgContentBase):
             includes.extend(self.__inspect_meta(subpkg))
         return includes
 
+    def validate(self, env_sessions, options):
+        journal = self.__init_journal(options.journal_consumer)
+        return self.__do_validate(env_sessions, options, journal)
+
+    def __do_validate(self, env_sessions, options, journal):
+        try:
+            return pkg_validation_exec.PackageValidationProcess(self, options, journal, env_sessions).execute()
+        except pkg_validation_exec.PackageValidationProcessError as e:
+            raise PackageValidateError(str(e)) from e
+
     def push(self, env_sessions, options):
         journal = self.__init_journal(options.journal_consumer)
         return self.__do_push(env_sessions, options, journal)
 
     def __do_push(self, env_sessions, options, journal):
+        validate_result = self.__do_validate(env_sessions, options, journal)
+        if validate_result.has_errors():
+            raise PushValidationError(validate_result)
         try:
             push_exec.PushProcess(self, options, journal, env_sessions).execute()
         except push_exec.PushProcessError as e:
@@ -286,8 +327,10 @@ class PkgContent(PkgContentBase):
 
 class ExpandedPkgTree(files.Tree):
 
-    CONTENT_DIR = 'content'
+    DEPRECATED_CONTENT_DIR = 'content'
     PKG_META_FILE_YML = 'lmpkg.yml'
+    CONTAINS_DIR = 'Contains'
+    VNFCS_DIR = 'VNFCs'
 
     @property
     def deprecated_pkg_meta_file_path(self):
@@ -306,26 +349,19 @@ class ExpandedPkgTree(files.Tree):
         return self.resolve_relative_path(self.pkg_meta_file_name)
 
     @property
-    def content_path(self):
-        return self.resolve_relative_path(ExpandedPkgTree.CONTENT_DIR)
+    def deprecated_content_path(self):
+        return self.resolve_relative_path(ExpandedPkgTree.DEPRECATED_CONTENT_DIR)
 
     @property
-    def content_dir_name(self):
-        return ExpandedPkgTree.CONTENT_DIR
-
-class PkgContentTree(files.Tree):
-    CONTAINS_DIR = 'Contains'
-    VNFCS_DIR = 'VNFCs'
-
-    def __init__(self, root_path):
-        super().__init__(root_path)
+    def deprecated_content_dir_name(self):
+        return ExpandedPkgTree.DEPRECATED_CONTENT_DIR
 
     def __relative_child_content_path(self):
-        return self.relative_path(PkgContentTree.CONTAINS_DIR)
+        return self.relative_path(ExpandedPkgTree.CONTAINS_DIR)
 
     @property
     def vnfcs_path(self):
-        return self.resolve_relative_path(PkgContentTree.VNFCS_DIR)
+        return self.resolve_relative_path(ExpandedPkgTree.VNFCS_DIR)
 
     @property
     def child_content_path(self):
@@ -335,4 +371,4 @@ class PkgContentTree(files.Tree):
         return self.resolve_relative_path(self.__relative_child_content_path(), subcontent_name)
 
     def gen_child_content_tree(self, subcontent_name):
-        return PkgContentTree(self.gen_child_content_path(subcontent_name))
+        return ExpandedPkgTree(self.gen_child_content_path(subcontent_name))

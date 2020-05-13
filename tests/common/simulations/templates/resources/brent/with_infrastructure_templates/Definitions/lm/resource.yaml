@@ -1,0 +1,22 @@
+description: descriptor for with_infrastructure_templates
+infrastructure:
+  Openstack:
+    template:
+      file: openstack.yaml
+      template-type: HEAT
+    discover:
+      file: find.yaml
+      template-type: TOSCA
+  Kubernetes:
+    template:
+      file: kube.yaml
+      template-type: ObjectConfiguration
+lifecycle:
+  Create: {}
+  Install: {}
+  Delete: {}
+default-driver:
+  ansible:
+    selector:
+      infrastructure-type:
+      - '*'

@@ -1,0 +1,17 @@
+description: descriptor for with_missing_driver_selector
+lifecycle:
+  Install:
+    drivers:
+      ansible:
+        infrastructure-type:
+        - '*'
+operations:
+  test-op:
+    drivers:
+      ansible:
+        infrastructure-type:
+        - '*'
+default-driver:
+  ansible:
+    infrastructure-type:
+    - '*'

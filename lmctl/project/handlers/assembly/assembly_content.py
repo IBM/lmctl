@@ -76,7 +76,7 @@ class AssemblyContentHandler(handlers_api.PkgContentHandler):
         super().__init__(root_path, meta)
         self.tree = AssemblyPkgContentTree(self.root_path)
 
-    def validate_content(self, journal, env_sessions):
+    def validate_content(self, journal, env_sessions, validation_options):
         errors = []
         warnings = []
         self.__validate_descriptor(journal, errors, warnings)

@@ -1,36 +1,122 @@
 import os
 from tests.common.project_testing import (ProjectSimTestCase,
                                           PROJECT_CONTAINS_DIR, BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR, BRENT_DESCRIPTOR_YML_FILE, 
-                                          BRENT_INFRASTRUCTURE_DIR, BRENT_INFRASTRUCTURE_MANIFEST_FILE, BRENT_LIFECYCLE_DIR, BRENT_LIFECYCLE_MANIFEST_FILE)
+                                          BRENT_INFRASTRUCTURE_DIR, BRENT_INFRASTRUCTURE_MANIFEST_FILE, BRENT_LIFECYCLE_DIR,
+                                           BRENT_LIFECYCLE_MANIFEST_FILE, BRENT_OPENSTACK_DIR, BRENT_OPENSTACK_HEAT_YAML_FILE,
+                                           BRENT_OPENSTACK_DISCOVER_YAML_FILE, BRENT_KUBERNETES_DIR)
 from lmctl.project.source.core import Project, Options, ValidateOptions, BuildOptions
 from lmctl.project.validation import ValidationResult
 import tests.common.simulations.project_lab as project_lab
 
-EXPECTED_AUTOCORRECT_DESCRIPTOR = '''\
+EXPECTED_AUTOCORRECT_MANIFESTS_DESCRIPTOR = '''\
 description: descriptor
 infrastructure:
-  Openstack:
-    template:
-      file: example.yaml
-      template-type: HEAT
-  Kubernetes:
-    template:
-      file: k8s.yaml
-  AWS:
-    template:
-      file: aws.yaml
+  Openstack: {}
+  Kubernetes: {}
+  AWS: {}
 lifecycle:
-  Create: {}
+  Create:
+    drivers:
+      openstack:
+        selector:
+          infrastructure-type:
+          - Openstack
+      kubernetes:
+        selector:
+          infrastructure-type:
+          - Kubernetes
+      AWS:
+        selector:
+          infrastructure-type:
+          - AWS
   Install: {}
-  Delete: {}
+  Delete:
+    drivers:
+      openstack:
+        selector:
+          infrastructure-type:
+          - Openstack
+      kubernetes:
+        selector:
+          infrastructure-type:
+          - Kubernetes
+      AWS:
+        selector:
+          infrastructure-type:
+          - AWS
 default-driver:
   ansible:
-    infrastructure-type:
-    - Openstack
-    - Kubernetes
+    selector:
+      infrastructure-type:
+      - Openstack
+      - Kubernetes
   shell:
-    infrastructure-type:
-    - AWS
+    selector:
+      infrastructure-type:
+      - AWS
+'''
+
+EXPECTED_AUTOCORRECT_INFRASTRUCTURE_DESCRIPTOR = '''\
+description: descriptor for with_infrastructure_templates
+infrastructure:
+  Openstack: {}
+  Kubernetes: {}
+lifecycle:
+  Create:
+    drivers:
+      openstack:
+        selector:
+          infrastructure-type:
+          - Openstack
+      kubernetes:
+        selector:
+          infrastructure-type:
+          - Kubernetes
+  Install: {}
+  Delete:
+    drivers:
+      openstack:
+        selector:
+          infrastructure-type:
+          - Openstack
+      kubernetes:
+        selector:
+          infrastructure-type:
+          - Kubernetes
+default-driver:
+  ansible:
+    selector:
+      infrastructure-type:
+      - '*'
+queries:
+  drivers:
+    openstack:
+      selector:
+        infrastructure-type:
+        - Openstack
+'''
+
+EXPECTED_AUTOCORRECT_WITH_MISSING_DRIVER_SELECTORS_DESCRIPTOR = '''\
+description: descriptor for with_missing_driver_selector
+lifecycle:
+  Install:
+    drivers:
+      ansible:
+        selector:
+          infrastructure-type:
+          - '*'
+default-driver:
+  ansible:
+    selector:
+      infrastructure-type:
+      - '*'
+operations:
+  test-op:
+    drivers:
+      ansible:
+        selector:
+          infrastructure-type:
+          - '*'
 '''
 
 class TestValidateBrentProjects(ProjectSimTestCase):
@@ -66,14 +152,6 @@ class TestValidateBrentProjects(ProjectSimTestCase):
         descriptor_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR, BRENT_DESCRIPTOR_YML_FILE)
         self.assert_validation_errors(result, 'No descriptor found at: {0}'.format(descriptor_path))
 
-    def test_validate_resource_without_infrastructure(self):
-        project_sim = self.simlab.simulate_invalid_brent_no_infrastructure()
-        project = Project(project_sim.path)
-        validate_options = ValidateOptions()
-        result = project.validate(validate_options)
-        inf_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR)
-        self.assert_validation_errors(result, 'No Infrastructure definitions directory found at: {0}'.format(inf_path))
-
     def test_validate_resource_without_lm_definitions(self):
         project_sim = self.simlab.simulate_invalid_brent_no_lm_definitions()
         project = Project(project_sim.path)
@@ -105,7 +183,7 @@ class TestValidateBrentProjects(ProjectSimTestCase):
         result = project.validate(validate_options)
         inf_manifest_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR, BRENT_INFRASTRUCTURE_MANIFEST_FILE)
         lifeycle_manifest_path = os.path.join(project_sim.path, BRENT_LIFECYCLE_DIR, BRENT_LIFECYCLE_MANIFEST_FILE)
-        self.assert_validation_errors(result, 'Found infrastructure manifest [{0}]: this file is no longer supported by the Brent Resource Manager. Add this information to the Resource descriptor instead or enable the autocorrect option'.format(inf_manifest_path), 'Found lifecycle manifest [{0}]: this file is no longer supported by the Brent Resource Manager. Add this information to the Resource descriptor instead or enable the autocorrect option'.format(lifeycle_manifest_path))
+        self.assert_validation_errors(result, 'Found lifecycle manifest [{0}]: this file is no longer supported by the Brent Resource Manager. Add this information to the Resource descriptor instead or enable the autocorrect option'.format(lifeycle_manifest_path), 'Found infrastructure manifest [{0}]: this file is no longer supported by the Brent Resource Manager. Add this information to the Resource descriptor instead or enable the autocorrect option'.format(inf_manifest_path))
 
     def test_validate_allow_autocorrect_fixes_manifests(self):
         project_sim = self.simlab.simulate_brent_with_prealpha_style()
@@ -123,7 +201,67 @@ class TestValidateBrentProjects(ProjectSimTestCase):
         tester.assert_has_no_file(lifeycle_manifest_path)
         lm_dir = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR)
         descriptor_path = os.path.join(lm_dir, BRENT_DESCRIPTOR_YML_FILE)
-        tester.assert_has_file(descriptor_path, EXPECTED_AUTOCORRECT_DESCRIPTOR)
+        tester.assert_has_file(descriptor_path, EXPECTED_AUTOCORRECT_MANIFESTS_DESCRIPTOR)
+
+    def test_validate_errors_on_infrastructure_templates(self):
+        project_sim = self.simlab.simulate_brent_with_infrastructure_templates()
+        project = Project(project_sim.path)
+        validate_options = ValidateOptions()
+        result = project.validate(validate_options)
+        descriptor_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR, BRENT_DESCRIPTOR_YML_FILE)
+        self.assert_validation_errors(result, 'Found infrastructure entries referencing templates [{0}]: this format is no longer supported by the Brent Resource Manager. Add this information to the Create/Delete lifecycle and/or queries instead or enable the autocorrect option'.format(descriptor_path))
+
+    def test_validate_allow_autocorrect_moves_infrastructure_templates_to_lifecycle(self):
+        project_sim = self.simlab.simulate_brent_with_infrastructure_templates()
+        project = Project(project_sim.path)
+        find_yaml_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR, 'find.yaml')
+        with open(find_yaml_path, 'r') as f:
+            find_yaml_content = f.read()
+        heat_yaml_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR, 'openstack.yaml')
+        with open(heat_yaml_path, 'r') as f:
+            heat_yaml_content = f.read()
+        kube_yaml_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR, 'kube.yaml')
+        with open(kube_yaml_path, 'r') as f:
+            kube_yaml_content = f.read()
+        validate_options = ValidateOptions()
+        validate_options.allow_autocorrect = True
+        result = project.validate(validate_options)
+        self.assertFalse(result.has_errors())
+        self.assertFalse(result.has_warnings())
+        project = Project(project_sim.path)
+        tester = self.assert_project(project)
+        inf_manifest_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR, BRENT_INFRASTRUCTURE_MANIFEST_FILE)
+        tester.assert_has_no_file(find_yaml_path)
+        tester.assert_has_no_file(heat_yaml_path)
+        tester.assert_has_no_file(kube_yaml_path)
+        tester.assert_has_file(os.path.join(project_sim.path, BRENT_LIFECYCLE_DIR, BRENT_OPENSTACK_DIR, BRENT_OPENSTACK_HEAT_YAML_FILE), heat_yaml_content)
+        tester.assert_has_file(os.path.join(project_sim.path, BRENT_LIFECYCLE_DIR, BRENT_OPENSTACK_DIR, BRENT_OPENSTACK_DISCOVER_YAML_FILE), find_yaml_content)
+        tester.assert_has_file(os.path.join(project_sim.path, BRENT_LIFECYCLE_DIR, BRENT_KUBERNETES_DIR, 'kube.yaml'), kube_yaml_content)
+        lm_dir = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR)
+        descriptor_path = os.path.join(lm_dir, BRENT_DESCRIPTOR_YML_FILE)
+        tester.assert_has_file(descriptor_path, EXPECTED_AUTOCORRECT_INFRASTRUCTURE_DESCRIPTOR)
+
+    def test_validate_errors_on_driver_entries_missing_selector_in_descriptor(self):
+        project_sim = self.simlab.simulate_brent_with_missing_driver_selector()
+        project = Project(project_sim.path)
+        validate_options = ValidateOptions()
+        result = project.validate(validate_options)
+        descriptor_path = os.path.join(project_sim.path, BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR, BRENT_DESCRIPTOR_YML_FILE)
+        self.assert_validation_errors(result, 'Found lifecycle/operation/default-driver entries missing \'selector\' key before \'infrastructure-type\' [{0}]: this format is no longer supported by the Brent Resource Manager. Move infrastructure-type information under the selector key or enable the autocorrect option'.format(descriptor_path))
+
+    def test_validate_allow_autocorrect_adds_selector_to_driver_entries_in_descriptor(self):
+        project_sim = self.simlab.simulate_brent_with_missing_driver_selector()
+        project = Project(project_sim.path)
+        validate_options = ValidateOptions()
+        validate_options.allow_autocorrect = True
+        result = project.validate(validate_options)
+        self.assertFalse(result.has_errors())
+        self.assertFalse(result.has_warnings())
+        project = Project(project_sim.path)
+        tester = self.assert_project(project)
+        lm_dir = os.path.join(BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR)
+        descriptor_path = os.path.join(lm_dir, BRENT_DESCRIPTOR_YML_FILE)
+        tester.assert_has_file(descriptor_path, EXPECTED_AUTOCORRECT_WITH_MISSING_DRIVER_SELECTORS_DESCRIPTOR)
 
 class TestValidateBrentSubprojects(ProjectSimTestCase):
 
@@ -157,15 +295,6 @@ class TestValidateBrentSubprojects(ProjectSimTestCase):
         result = project.validate(validate_options)
         descriptor_path = os.path.join(project_sim.path, PROJECT_CONTAINS_DIR, project_lab.SUBPROJECT_NAME_INVALID_BRENT_NO_DEFINITIONS, BRENT_DEFINITIONS_DIR, BRENT_DESCRIPTOR_DIR, BRENT_DESCRIPTOR_YML_FILE)
         self.assert_validation_errors(result, 'No descriptor found at: {0}'.format(descriptor_path))
-
-
-    def test_validate_resource_without_infrastructure(self):
-        project_sim = self.simlab.simulate_assembly_contains_invalid_brent_no_infrastructure()
-        project = Project(project_sim.path)
-        validate_options = ValidateOptions()
-        result = project.validate(validate_options)
-        inf_path = os.path.join(project_sim.path, PROJECT_CONTAINS_DIR, project_lab.SUBPROJECT_NAME_INVALID_BRENT_NO_INFRASTRUCTURE, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR)
-        self.assert_validation_errors(result, 'No Infrastructure definitions directory found at: {0}'.format(inf_path))
 
     def test_validate_resource_without_lm_definitions(self):
         project_sim = self.simlab.simulate_assembly_contains_invalid_brent_no_lm_definitions()

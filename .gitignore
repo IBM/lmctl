@@ -90,6 +90,8 @@ ENV/
 env.bak/
 venv.bak/
 lmctl-env/
+gaenv/
+alphaenv/
 
 # Spyder project settings
 .spyderproject

@@ -293,6 +293,14 @@ class InvalidContentTypeError(ContentHandlerError):
     pass
 
 ############################
+# Content Handlers Options
+############################
+
+class ContentValidationOptions:
+    def __init__(self, allow_autocorrect=False):
+        self.allow_autocorrect = allow_autocorrect
+
+############################
 # Content Handlers
 ############################
 
@@ -303,7 +311,7 @@ class PkgContentHandler(abc.ABC):
         self.meta = meta
 
     @abc.abstractmethod
-    def validate_content(self, journal, env_sessions):
+    def validate_content(self, journal, env_sessions, validation_options):
         pass
 
     @abc.abstractmethod
@@ -324,7 +332,7 @@ class ResourceContentHandlerDelegate(abc.ABC):
         self.meta = meta
 
     @abc.abstractmethod
-    def validate_content(self, journal, env_sessions):
+    def validate_content(self, journal, env_sessions, validation_options):
         pass
 
     @abc.abstractmethod

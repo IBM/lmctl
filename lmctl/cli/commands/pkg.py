@@ -23,7 +23,8 @@ PUSH_HEADER = 'Push'
 @click.option('--config', default=None, help='configuration file')
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources to must be provided')
 @click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
-def push(package, environment, config, armname, pwd):
+@click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
+def push(package, environment, config, armname, pwd, autocorrect):
     """Pushes an existing Assembly/Resource package to a target LM (and ARM) environment"""
     logger.debug('Pushing package at: {0}'.format(package))
     pkg = lifecycle_cli.open_pkg(package)
@@ -31,7 +32,7 @@ def push(package, environment, config, armname, pwd):
         env_sessions = lifecycle_cli.build_sessions_for_pkg(pkg.meta, environment, pwd, armname, config)
         controller = lifecycle_cli.ExecutionController(PUSH_HEADER)
         controller.start(package)
-        exec_push(controller, pkg, env_sessions)
+        exec_push(controller, pkg, env_sessions, allow_autocorrect=autocorrect)
     finally:
         cleanup_pkg(pkg)
     controller.finalise()
@@ -62,7 +63,8 @@ def format_inspection_report(output_format, inspection_report):
     result = formatter.convert_element(inspection_report_tpl)
     return result
 
-def exec_push(controller, pkg, env_sessions):
+def exec_push(controller, pkg, env_sessions, allow_autocorrect=False):
     push_options = pkgs.PushOptions()
+    push_options.allow_autocorrect = allow_autocorrect
     push_options.journal_consumer = controller.consumer
     return controller.execute(pkg.push, env_sessions, push_options)

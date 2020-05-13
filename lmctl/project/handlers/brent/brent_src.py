@@ -1,18 +1,60 @@
 import os
 import yaml
 import zipfile
+import shutil
 import lmctl.files as files
 import lmctl.project.handlers.interface as handlers_api
 import lmctl.project.validation as project_validation
 import lmctl.utils.descriptors as descriptor_utils
 from .brent_content import BrentResourcePackageContentTree, BrentPkgContentTree
+from .brent_autocorrect import BrentCorrectableValidation
 
-class OpenstackTemplatesTree(files.Tree):
+class OpenstackTree(files.Tree):
 
-    def gen_tosca_template(self, file_name):
-        return self.resolve_relative_path('{0}.yaml'.format(file_name))
+    HEAT_FILE_NAME_YAML = 'heat.yaml'
+    HEAT_FILE_NAME_YML = 'heat.yml'
+    TOSCA_FILE_NAME_YAML = 'tosca.yaml'
+    TOSCA_FILE_NAME_YML = 'tosca.yml'
+    DISCOVER_FILE_NAME_YAML = 'discover.yaml'
+    DISCOVER_FILE_NAME_YML = 'discover.yml'
 
-OPENSTACK_EXAMPLE_TOSCA = '''\
+    @property
+    def heat_file_path(self):
+        yaml_path = self.resolve_relative_path(OpenstackTree.HEAT_FILE_NAME_YAML)
+        yml_path = self.resolve_relative_path(OpenstackTree.HEAT_FILE_NAME_YML)
+        if os.path.exists(yml_path):
+            if os.path.exists(yaml_path):
+                raise handlers_api.InvalidSourceError('Project has both a {0} file and a {1} file when there should only be one'.format(
+                    OpenstackTree.HEAT_FILE_NAME_YAML, OpenstackTree.HEAT_FILE_NAME_YML))
+            return yml_path
+        else:
+            return yaml_path
+
+    @property
+    def tosca_file_path(self):
+        yaml_path = self.resolve_relative_path(OpenstackTree.TOSCA_FILE_NAME_YAML)
+        yml_path = self.resolve_relative_path(OpenstackTree.TOSCA_FILE_NAME_YML)
+        if os.path.exists(yml_path):
+            if os.path.exists(yaml_path):
+                raise handlers_api.InvalidSourceError('Project has both a {0} file and a {1} file when there should only be one'.format(
+                    OpenstackTree.TOSCA_FILE_NAME_YAML, OpenstackTree.TOSCA_FILE_NAME_YML))
+            return yml_path
+        else:
+            return yaml_path
+
+    @property
+    def discover_file_path(self):
+        yaml_path = self.resolve_relative_path(OpenstackTree.DISCOVER_FILE_NAME_YAML)
+        yml_path = self.resolve_relative_path(OpenstackTree.DISCOVER_FILE_NAME_YML)
+        if os.path.exists(yml_path):
+            if os.path.exists(yaml_path):
+                raise handlers_api.InvalidSourceError('Project has both a {0} file and a {1} file when there should only be one'.format(
+                    OpenstackTree.DISCOVER_FILE_NAME_YAML, OpenstackTree.DISCOVER_FILE_NAME_YML))
+            return yml_path
+        else:
+            return yaml_path
+
+OPENSTACK_EXAMPLE_HEAT = '''\
 heat_template_version: 2013-05-23
 
 description: >
@@ -107,6 +149,7 @@ class BrentSourceTree(files.Tree):
 
     LIFECYCLE_DIR_NAME = 'Lifecycle'
     LIFECYCLE_MANIFEST_FILE_NAME = 'lifecycle.mf'
+    OPENSTACK_LIFECYCLE_DIR_NAME = 'openstack'
     ANSIBLE_LIFECYCLE_DIR_NAME = 'ansible'
     SOL003_LIFECYCLE_DIR_NAME = 'sol003'
     
@@ -147,6 +190,10 @@ class BrentSourceTree(files.Tree):
         return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.LIFECYCLE_MANIFEST_FILE_NAME)
 
     @property
+    def openstack_lifecycle_path(self):
+        return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.OPENSTACK_LIFECYCLE_DIR_NAME)
+
+    @property
     def ansible_lifecycle_path(self):
         return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.ANSIBLE_LIFECYCLE_DIR_NAME)
 
@@ -154,6 +201,7 @@ class BrentSourceTree(files.Tree):
     def sol003_lifecycle_path(self):
         return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.SOL003_LIFECYCLE_DIR_NAME)
 
+DRIVER_PARAM_NAME = 'driver'
 INFRASTRUCTURE_PARAM_NAME = 'inf'
 LIFECYCLE_PARAM_NAME = 'lifecycle'
 LIFECYCLE_TYPE_ANSIBLE = 'ansible'
@@ -176,8 +224,9 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
 
     def get_params(self, source_request):
         params = []
-        params.append(handlers_api.SourceParam(LIFECYCLE_PARAM_NAME, required=False, default_value=LIFECYCLE_TYPE_ANSIBLE, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003]))
-        params.append(handlers_api.SourceParam(INFRASTRUCTURE_PARAM_NAME, required=False, default_value=INFRASTRUCTURE_TYPE_OPENSTACK, allowed_values=[INFRASTRUCTURE_TYPE_OPENSTACK]))
+        params.append(handlers_api.SourceParam(DRIVER_PARAM_NAME, required=False, default_value=None, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003]))
+        params.append(handlers_api.SourceParam(LIFECYCLE_PARAM_NAME, required=False, default_value=None, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003]))
+        params.append(handlers_api.SourceParam(INFRASTRUCTURE_PARAM_NAME, required=False, default_value=None, allowed_values=[INFRASTRUCTURE_TYPE_OPENSTACK]))
         return params
 
     def create_source(self, journal, source_request, file_ops_executor):
@@ -187,13 +236,21 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
         descriptor.description = 'descriptor for {0}'.format(source_request.source_config.name)
 
         file_ops.append(handlers_api.CreateDirectoryOp(source_tree.definitions_path, handlers_api.EXISTING_IGNORE))
-
+        driver_type = source_request.param_values.get_value(DRIVER_PARAM_NAME)
+        driver_type_set_to_default = False
+        if driver_type is None:
+            driver_type = source_request.param_values.get_value(LIFECYCLE_PARAM_NAME)
+            if driver_type is None:
+                driver_type = LIFECYCLE_TYPE_ANSIBLE
+                driver_type_set_to_default = True
         inf_type = source_request.param_values.get_value(INFRASTRUCTURE_PARAM_NAME)
-        self.__create_infrastructure(journal, source_request, file_ops, source_tree, inf_type, descriptor)
+        if inf_type is None:
+            if driver_type == LIFECYCLE_TYPE_ANSIBLE and driver_type_set_to_default:
+                inf_type = INFRASTRUCTURE_TYPE_OPENSTACK
+        if inf_type is not None:
+            self.__create_infrastructure(journal, source_request, file_ops, source_tree, inf_type, descriptor)
         
-        lifecycle_type = source_request.param_values.get_value(LIFECYCLE_PARAM_NAME)
-        self.__create_lifecycle(journal, source_request, file_ops, source_tree, lifecycle_type, descriptor)
-        
+        self.__create_lifecycle(journal, source_request, file_ops, source_tree, driver_type, descriptor)
         self.__create_descriptor(journal, source_request, file_ops, source_tree, descriptor)
         
         file_ops_executor(file_ops)
@@ -204,13 +261,31 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
         file_ops.append(handlers_api.CreateFileOp(source_tree.descriptor_file_path, descriptor_content, handlers_api.EXISTING_IGNORE))
 
     def __create_infrastructure(self, journal, source_request, file_ops, source_tree, inf_type, descriptor):
-        file_ops.append(handlers_api.CreateDirectoryOp(source_tree.infrastructure_definitions_path, handlers_api.EXISTING_IGNORE))
         if inf_type == INFRASTRUCTURE_TYPE_OPENSTACK:
-            descriptor.insert_lifecycle('Create')
-            descriptor.insert_lifecycle('Delete')
-            templates_tree = OpenstackTemplatesTree(source_tree.infrastructure_definitions_path)
-            file_ops.append(handlers_api.CreateFileOp(templates_tree.gen_tosca_template('example'), OPENSTACK_EXAMPLE_TOSCA, handlers_api.EXISTING_IGNORE))
-            descriptor.insert_infrastructure_template('Openstack', 'example.yaml', template_type='HEAT')
+            create_driver_entry = {
+                'openstack': {
+                    'selector': {
+                        'infrastructure-type': [
+                            '*'
+                        ]
+                    }
+                }
+            }
+            descriptor.insert_lifecycle('Create', drivers=create_driver_entry)
+            delete_driver_entry = {
+                'openstack': {
+                    'selector': {
+                        'infrastructure-type': [
+                            '*'
+                        ]
+                    }
+                }
+            }
+            descriptor.insert_lifecycle('Delete', drivers=delete_driver_entry)
+            file_ops.append(handlers_api.CreateDirectoryOp(source_tree.openstack_lifecycle_path, handlers_api.EXISTING_IGNORE))
+            openstack_tree = OpenstackTree(source_tree.openstack_lifecycle_path)
+            file_ops.append(handlers_api.CreateFileOp(openstack_tree.heat_file_path, OPENSTACK_EXAMPLE_HEAT, handlers_api.EXISTING_IGNORE))
+            descriptor.infrastructure['Openstack'] = {}
 
     def __create_lifecycle(self, journal, source_request, file_ops, source_tree, lifecycle_type, descriptor):
         file_ops.append(handlers_api.CreateDirectoryOp(source_tree.lifecycle_path, handlers_api.EXISTING_IGNORE))
@@ -269,6 +344,9 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
         warnings = []
         self.__validate_definitions(journal, validation_options, errors, warnings)
         self.__validate_lifecycle(journal, validation_options, errors, warnings)
+        BrentCorrectableValidation().validate_and_autocorrect(journal, validation_options, errors, warnings, self.get_main_descriptor(), \
+            self.tree.infrastructure_definitions_path, self.tree.infrastructure_manifest_file_path, self.tree.lifecycle_path, \
+                self.tree.lifecycle_manifest_file_path)
         return project_validation.ValidationResult(errors, warnings)
 
     def __find_or_error(self, journal, errors, warnings, path, artifact_type):
@@ -284,56 +362,7 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
     def __validate_definitions(self, journal, validation_options, errors, warnings):
         definitions_path = self.tree.definitions_path
         if self.__find_or_error(journal, errors, warnings, definitions_path, 'Definitions directory'):
-            self.__validate_definitions_infrastructure(journal, validation_options, errors, warnings)
             self.__validate_definitions_lm(journal, errors, warnings)
-
-    def __validate_definitions_infrastructure(self, journal, validation_options, errors, warnings):
-        inf_path = self.tree.infrastructure_definitions_path
-        if self.__find_or_error(journal, errors, warnings, inf_path, 'Infrastructure definitions directory'):
-            self.__validate_unsupported_infrastructure_manifest(journal, validation_options, errors, warnings)
-
-    def __validate_unsupported_infrastructure_manifest(self, journal, validation_options, errors, warnings):
-        inf_manifest_path = self.tree.infrastructure_manifest_file_path
-        if os.path.exists(inf_manifest_path):
-            if validation_options.allow_autocorrect == True:
-                journal.event('Found unsupported infrastructure manifest [{0}], attempting to autocorrect by moving contents to Resource descriptor'.format(inf_manifest_path))
-                managed_to_autocorrect = False
-                autocorrect_error = None
-                try:
-                    with open(inf_manifest_path, 'r') as f:
-                        inf_manifest_content = yaml.safe_load(f.read())
-                    descriptor = descriptor_utils.DescriptorParser().read_from_file(self.get_main_descriptor())
-                    if 'templates' in inf_manifest_content:
-                        for template_entry in inf_manifest_content['templates']:
-                            if 'infrastructure_type' in template_entry:
-                                infrastructure_type = template_entry['infrastructure_type']
-                                template_file = template_entry.get('file', None)
-                                template_type = template_entry.get('template_type', None)
-                                descriptor.insert_infrastructure_template(infrastructure_type, template_file, template_type=template_type)
-                    if 'discover' in inf_manifest_content:
-                        for discover_entry in inf_manifest_content['discover']:
-                            if 'infrastructure_type' in discover_entry:
-                                infrastructure_type = discover_entry['infrastructure_type']
-                                template_file = discover_entry.get('file', None)
-                                template_type = discover_entry.get('template_type', None)
-                                descriptor.insert_infrastructure_discover(infrastructure_type, template_file, template_type=template_type)
-                    descriptor_utils.DescriptorParser().write_to_file(descriptor, self.get_main_descriptor())
-                    os.rename(inf_manifest_path, inf_manifest_path + '.bak')
-                    managed_to_autocorrect = True
-                except Exception as e:
-                    autocorrect_error = e
-                if not managed_to_autocorrect:
-                    msg = 'Found infrastructure manifest [{0}]: this file is no longer supported by the Brent Resource Manager. Unable to autocorrect this issue, please add this information to the Resource descriptor manually instead'.format(inf_manifest_path)
-                    if autocorrect_error is not None:
-                        msg += ' (autocorrect error={0})'.format(str(autocorrect_error))
-                    journal.error_event(msg)
-                    errors.append(project_validation.ValidationViolation(msg))
-                    return    
-            else:
-                msg = 'Found infrastructure manifest [{0}]: this file is no longer supported by the Brent Resource Manager. Add this information to the Resource descriptor instead or enable the autocorrect option'.format(inf_manifest_path)
-                journal.error_event(msg)
-                errors.append(project_validation.ValidationViolation(msg))
-                return
 
     def __validate_definitions_lm(self, journal, errors, warnings):
         lm_def_path = self.tree.lm_definitions_path
@@ -343,46 +372,7 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
 
     def __validate_lifecycle(self, journal, validation_options, errors, warnings):
         lifecycle_path = self.tree.lifecycle_path
-        if self.__find_or_error(journal, errors, warnings, lifecycle_path, 'Lifecycle directory'):
-            self.__validate_unsupported_lifecycle_manifest(journal, validation_options, errors, warnings)
-
-    def __validate_unsupported_lifecycle_manifest(self, journal, validation_options, errors, warnings):
-        lifecycle_manifest_path = self.tree.lifecycle_manifest_file_path
-        if os.path.exists(lifecycle_manifest_path):
-            if validation_options.allow_autocorrect == True:
-                journal.event('Found unsupported lifecycle manifest [{0}], attempting to autocorrect by moving contents to Resource descriptor'.format(lifecycle_manifest_path))
-                managed_to_autocorrect = False
-                autocorrect_error = None
-                try:
-                    with open(lifecycle_manifest_path, 'r') as f:
-                        lifecycle_manifest_content = yaml.safe_load(f.read())
-                    descriptor = descriptor_utils.DescriptorParser().read_from_file(self.get_main_descriptor())
-                    if 'types' in lifecycle_manifest_content:
-                        for entry in lifecycle_manifest_content['types']:
-                            if 'lifecycle_type' in entry and 'infrastructure_type' in entry:
-                                lifecycle_type = entry['lifecycle_type']
-                                infrastructure_type = entry['infrastructure_type']
-                                if lifecycle_type in descriptor.default_driver and 'infrastructure-type' in descriptor.default_driver[lifecycle_type]:
-                                    descriptor.default_driver[lifecycle_type]['infrastructure-type'].append(infrastructure_type)
-                                else:
-                                    descriptor.insert_default_driver(lifecycle_type, [infrastructure_type])
-                    descriptor_utils.DescriptorParser().write_to_file(descriptor, self.get_main_descriptor())
-                    os.rename(lifecycle_manifest_path, lifecycle_manifest_path + '.bak')
-                    managed_to_autocorrect = True
-                except Exception as e:
-                    autocorrect_error = e
-                if not managed_to_autocorrect:
-                    msg = 'Found lifecycle manifest [{0}]: this file is no longer supported by the Brent Resource Manager. Unable to autocorrect this issue, please add this information to the Resource descriptor manually instead'.format(lifecycle_manifest_path)
-                    if autocorrect_error is not None:
-                        msg += ' (autocorrect error={0})'.format(str(autocorrect_error))
-                    journal.error_event(msg)
-                    errors.append(project_validation.ValidationViolation(msg))
-                    return 
-            else:
-                msg = 'Found lifecycle manifest [{0}]: this file is no longer supported by the Brent Resource Manager. Add this information to the Resource descriptor instead or enable the autocorrect option'.format(lifecycle_manifest_path)
-                journal.error_event(msg)
-                errors.append(project_validation.ValidationViolation(msg))
-                return
+        self.__find_or_error(journal, errors, warnings, lifecycle_path, 'Lifecycle directory')
 
     def get_main_descriptor(self):
         main_descriptor_path = self.tree.descriptor_file_path
@@ -393,7 +383,6 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
         journal.event('Staging Resource descriptor for {0} at {1}'.format(self.source_config.full_name, self.get_main_descriptor()))
         source_stager.stage_descriptor(self.get_main_descriptor(), staging_tree.descriptor_file_path)
         included_items = [
-            {'path': self.tree.infrastructure_definitions_path, 'alias': staging_tree.infrastructure_definitions_path},
             {'path': self.tree.lifecycle_path, 'alias': staging_tree.lifecycle_path}
         ]
         self.__stage_directories(journal, source_stager, included_items)

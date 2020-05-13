@@ -1,10 +1,22 @@
 name: resource::basic::1.0
 description: descriptor
 infrastructure:
-  Openstack:
-    template:
-      file: example.yaml
+  Openstack: {}
+lifecycle:
+  Create:
+    drivers:
+      openstack:
+        selector:
+          infrastructure-type:
+          - Openstack
+  Delete:
+    drivers:
+      openstack:
+        selector:
+          infrastructure-type:
+          - Openstack
 default-driver:
   ansible:
-    infrastructure-type:
-    - '*'
+    selector:
+      infrastructure-type:
+      - '*'
