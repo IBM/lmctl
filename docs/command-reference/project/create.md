@@ -42,8 +42,8 @@ The following table describes the known params available:
 | Name | Description | Options | Default | 
 | ---- | ---- | --- | --- |
 | driver | Used only when `--type Resource` and `--rm brent` (or `--contains Resource::brent`). This parameter guides the creation of the Project (or Subproject) with example files for the intended driver | ansible, sol003 | - |
-| lifecycle | Deprecated: same as `driver` | ansible, sol003 | - |
-| inf | Used only when `--type Resource` and `--rm brent` (or `--contains Resource::brent`). This parameter guides the creation of the Project (or Subproject) with example files for the intended infrastructure driver | openstack | - |
+| lifecycle | Deprecated: same as `driver` | ansible, sol003, kubernetes | - |
+| inf | Used only when `--type Resource` and `--rm brent` (or `--contains Resource::brent`). This parameter guides the creation of the Project (or Subproject) with example files for a separate driver to be used on Create/Delete | openstack, kubernetes | - |
 
 If both `driver` and `lifecycle` have not been set then the default for `driver` is set to `ansible` and the default for `inf` is set to `openstack`. This means if you choose to not set any parameters, you will have a Resource which will use the Openstack driver for Create/Delete but Ansible for all other transitions.
 
