@@ -1,7 +1,7 @@
 # Install from source
 
 ```
-pip install --editable .
+python3 -m pip install --editable .
 ```
 
 # Running Tests
