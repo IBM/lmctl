@@ -1,5 +1,20 @@
 # Change Log
 
+## [2.5.0](https://github.com/accanto-systems/lmctl/tree/2.5.0) (2020-05-19)
+[Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.4.1...2.5.0)
+
+**Implemented enhancements:**
+
+- Support managing shared infrastructure keys [\#42](https://github.com/accanto-systems/lmctl/issues/42)
+- Add new resourcedriver command [\#45](https://github.com/accanto-systems/lmctl/issues/45)
+- Support latest changes in Brent v2.2 resource package and descriptor structure [\#46](https://github.com/accanto-systems/lmctl/issues/46)
+- Remove content directory included in packages [\#47](https://github.com/accanto-systems/lmctl/issues/47) 
+- Support Kubernetes based structure from project create command [\#49](https://github.com/accanto-systems/lmctl/issues/49)
+
+**Fixed bugs:**
+
+- deployment list command doc typos [\#43](https://github.com/accanto-systems/lmctl/issues/43)
+
 ## [2.4.1](https://github.com/accanto-systems/lmctl/tree/2.4.1) (2020-02-20)
 [Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.4.0...2.4.1)
 
