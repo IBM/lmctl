@@ -1,8 +1,9 @@
 from lmctl.project.validation import ValidationResult, ValidationViolation
-from lmctl.project.types import ANSIBLE_RM_TYPES, BRENT_RM_TYPES
+from lmctl.project.types import ANSIBLE_RM_TYPES, BRENT_RM_TYPES, BRENT_2_1_RM_TYPES
 import lmctl.project.handlers.interface as handlers_api 
 import lmctl.project.handlers.ansiblerm as arm_handlers
 import lmctl.project.handlers.brent as brent_handlers
+import lmctl.project.handlers.brent2dot1 as brent2dot1_handlers
 
 def determine_source_handler_delegate(config, root_path):
     if hasattr(config, 'resource_manager'):
@@ -10,7 +11,9 @@ def determine_source_handler_delegate(config, root_path):
         if rm_type in ANSIBLE_RM_TYPES:
             return arm_handlers.source_handler(root_path, config)
         elif rm_type in BRENT_RM_TYPES:
-            return brent_handlers.source_handler(root_path, config)      
+            return brent_handlers.source_handler(root_path, config)
+        elif rm_type in BRENT_2_1_RM_TYPES:
+            return brent2dot1_handlers.source_handler(root_path, config)     
         else:
             raise handlers_api.InvalidSourceTypeError('resource_manager on Resource \'{0}\' not supported: {1}'.format(config.name, rm_type))
     else:
@@ -23,6 +26,8 @@ def determine_source_creator_delegate(config):
             return arm_handlers.source_creator()
         elif rm_type in BRENT_RM_TYPES:
             return brent_handlers.source_creator()
+        elif rm_type in BRENT_2_1_RM_TYPES:
+            return brent2dot1_handlers.source_creator()
         else:
             raise handlers_api.InvalidSourceTypeError('resource_manager on Resource \'{0}\' not supported: {1}'.format(config.name, rm_type))
     else:

@@ -1,0 +1,9 @@
+schema: '2.0'
+name: contains_basic
+version: '1.0'
+type: Assembly
+contains:
+  - name: sub_basic
+    type: Resource
+    directory: sub_basic
+    resource-manager: brent2.1

@@ -78,7 +78,7 @@ myproject/
 
 | Directory                                    | Requirement | Description                                                                                                   |
 | -------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------- |
-| Definitions                                  | mandatory   | contains infrastructure and descriptor definitions                                                            |
+| Definitions                                  | mandatory   | contains definition files                                                            |
 | Definitions/lm                               | mandatory   | contains the Resource descriptor required by LM and Brent                                                     |
 | Lifecycle                                    | mandatory   | contains lifecycle scripts for the Resource (structure of sub-directories depends on chosen Lifecycle driver) |
 

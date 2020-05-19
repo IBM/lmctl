@@ -8,3 +8,5 @@ from .topology import LmTopologyDriver
 from .resource_pkg import LmResourcePkgDriver
 from .resourcedriver import LmResourceDriverMgmtDriver
 from .infrastructure_keys import LmInfrastructureKeysDriver
+from .lifecycledriver import LmLifecycleDriverMgmtDriver
+from .vimdriver import LmVimDriverMgmtDriver

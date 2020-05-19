@@ -7,7 +7,7 @@ from lmctl.utils.certificates import read_certificate_file
 
 logger = logging.getLogger(__name__)
 
-@click.group(help='Commands for managing Resource drivers')
+@click.group(help='Commands for managing Resource drivers (LM 2.2+ only)')
 def resourcedriver():
     logger.debug('resourcedriver')
 
