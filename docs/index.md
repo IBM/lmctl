@@ -9,6 +9,7 @@ This version of LMCTL supports LM version 2.2+  but may also be used with 2.1 ve
 
 # Table of Contents
 
+- [What's New?](./what-is-new.md)
 - [Install](./install.md)
 - [Configure](./configure.md)
 - [Using with LM 2.1](./use-with-lm-2.1.md)
