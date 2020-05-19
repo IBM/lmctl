@@ -33,8 +33,26 @@
 - [test](./project/test.md)
 - [validate](./project/validate.md)
 
-## resourcedriver
+## resourcedriver (LM 2.2+ only)
+
+**Note:** use [lifecycledriver](#lifecycledriver) and [vimdriver](#vimdriver) if using a 2.1 version of LM version
 
 - [add](./resourcedriver/add.md)
 - [delete](./resourcedriver/delete.md)
 - [get](./resourcedriver/get.md)
+
+## lifecycledriver (LM 2.1 only)
+
+**Note:** use [resourcedriver](#resourcedriver) for LM versions 2.2+
+
+- [add](./lifecycledriver/add.md)
+- [delete](./lifecycledriver/delete.md)
+- [get](./lifecycledriver/get.md)
+
+## vimdriver (LM 2.1 only)
+
+**Note:** use [resourcedriver](#resourcedriver) for LM versions 2.2+
+
+- [add](./vimdriver/add.md)
+- [delete](./vimdriver/delete.md)
+- [get](./vimdriver/get.md)

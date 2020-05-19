@@ -22,4 +22,6 @@ def init_cli():
     cli.add_command(lmctl_commands.pkg_group)
     cli.add_command(lmctl_commands.project_group)
     cli.add_command(lmctl_commands.key_group)    
+    cli.add_command(lmctl_commands.lifecycledriver_group) 
+    cli.add_command(lmctl_commands.vimdriver_group) 
     cli()
