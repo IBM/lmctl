@@ -1,0 +1,10 @@
+name: resource::sub_basic-contains_basic::1.0
+description: descriptor
+infrastructure:
+  Openstack:
+    template:
+      file: example.yaml
+default-driver:
+  ansible:
+    infrastructure-type:
+    - '*'

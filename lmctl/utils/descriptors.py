@@ -82,8 +82,9 @@ class Descriptor:
     ORDERED_KEYS = ['name', 'description', 'properties', 'private-properties', 'infrastructure', 'lifecycle', 'default-driver', 'composition', 'references', 'relationships', 'operations']
     ORDERED_LIFECYCLE = ['Create', 'Install', 'Configure', 'Reconfigure', 'Start', 'Stop', 'Uninstall', 'Delete']
 
-    def __init__(self, raw_descriptor):
+    def __init__(self, raw_descriptor, is_2_dot_1=False):
         self.raw = raw_descriptor
+        self.is_2_dot_1 = is_2_dot_1
 
     def get_name(self):
         if 'name' not in self.raw:
@@ -172,8 +173,11 @@ class Descriptor:
     def insert_default_driver(self, driver_name, infrastructure_types=None):
         self.default_driver[driver_name] = {}
         if infrastructure_types is not None:
-            self.default_driver[driver_name]['selector'] = {}
-            self.default_driver[driver_name]['selector']['infrastructure-type'] = infrastructure_types
+            if self.is_2_dot_1:
+                self.default_driver[driver_name]['infrastructure-type'] = infrastructure_types
+            else:
+                self.default_driver[driver_name]['selector'] = {}
+                self.default_driver[driver_name]['selector']['infrastructure-type'] = infrastructure_types
 
     def insert_infrastructure_discover(self, type_name, file_name, template_type=None):
         if type_name not in self.infrastructure:

@@ -1,0 +1,5 @@
+description: descriptor
+lifecycle:
+  - Create
+  - Install
+  - Delete

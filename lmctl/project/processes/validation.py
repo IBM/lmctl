@@ -2,7 +2,6 @@ import os
 import lmctl.utils.descriptors as descriptor_utils
 import lmctl.project.validation as validation
 import lmctl.project.handlers.interface as handlers_api
-from lmctl.project.types import BRENT_2_1_RM_TYPES
 
 class ValidationProcessError(Exception):
     pass
@@ -45,7 +44,7 @@ class SourceValidator:
                                                                                                                                                                                 descriptor_version, self.source_config.version)))
                 if type_invalid or name_invalid or version_invalid:
                     self.journal.error_event('Descriptor name validation failed')
-            if self.source_config.resource_manager not in BRENT_2_1_RM_TYPES and not isinstance(descriptor.lifecycle, dict) and allow_autocorrect is True:
+            if not isinstance(descriptor.lifecycle, dict) and allow_autocorrect is True:
                 self.journal.event('Found lifecycle list structure in Resource descriptor [{0}], attempting to autocorrect to latest structure'.format(descriptor_path))
                 new_lifecycle = {}
                 for lifecycle in descriptor.lifecycle:

@@ -52,7 +52,7 @@ class BrentContentHandlerDelegate(handlers_api.ResourceContentHandlerDelegate):
         super().__init__(root_path, meta)
         self.tree = BrentPkgContentTree(self.root_path)
 
-    def validate_content(self, journal, env_sessions):
+    def validate_content(self, journal, env_sessions, validation_options):
         errors = []
         warnings = []
         self.__validate_descriptor(journal, errors, warnings)
@@ -68,7 +68,7 @@ class BrentContentHandlerDelegate(handlers_api.ResourceContentHandlerDelegate):
 
     def __validate_res_pkg(self, journal, errors, warnings):
         journal.stage('Checking Resource package exists for {0}'.format(self.meta.name))
-        res_pkg_path = self.tree.gen_res_pkg_file_path(self.meta.full_name)
+        res_pkg_path = self.tree.gen_resource_package_file_path(self.meta.full_name)
         if not os.path.exists(res_pkg_path):
             msg = 'No Resource package found at: {0}'.format(res_pkg_path)
             journal.error_event(msg)

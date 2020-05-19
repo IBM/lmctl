@@ -1,0 +1,8 @@
+types: 
+  - lifecycle_type: ansible
+    infrastructure_type: Openstack
+  - lifecycle_type: ansible
+    infrastructure_type: Kubernetes
+  - lifecycle_type: shell
+    infrastructure_type: AWS
+    

@@ -183,7 +183,7 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
     def create_source(self, journal, source_request, file_ops_executor):
         source_tree = BrentSourceTree()
         file_ops = []
-        descriptor = descriptor_utils.Descriptor({})
+        descriptor = descriptor_utils.Descriptor({}, is_2_dot_1=True)
         descriptor.description = 'descriptor for {0}'.format(source_request.source_config.name)
 
         file_ops.append(handlers_api.CreateDirectoryOp(source_tree.definitions_path, handlers_api.EXISTING_IGNORE))
@@ -303,6 +303,7 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
                     with open(inf_manifest_path, 'r') as f:
                         inf_manifest_content = yaml.safe_load(f.read())
                     descriptor = descriptor_utils.DescriptorParser().read_from_file(self.get_main_descriptor())
+                    descriptor.is_2_dot_1 = True
                     if 'templates' in inf_manifest_content:
                         for template_entry in inf_manifest_content['templates']:
                             if 'infrastructure_type' in template_entry:
@@ -357,6 +358,7 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
                     with open(lifecycle_manifest_path, 'r') as f:
                         lifecycle_manifest_content = yaml.safe_load(f.read())
                     descriptor = descriptor_utils.DescriptorParser().read_from_file(self.get_main_descriptor())
+                    descriptor.is_2_dot_1 = True
                     if 'types' in lifecycle_manifest_content:
                         for entry in lifecycle_manifest_content['types']:
                             if 'lifecycle_type' in entry and 'infrastructure_type' in entry:

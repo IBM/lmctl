@@ -9,6 +9,7 @@ ASSEMBLY_TEMPLATES_GROUP = 'assemblies'
 RESOURCE_TEMPLATES_GROUP = 'resources'
 ANSIBLE_RM_RESOURCE_GROUP = 'ansiblerm'
 BRENT_RESOURCE_GROUP = 'brent'
+BRENT_2DOT1_RESOURCE_GROUP = 'brent2dot1'
 
 SUBPROJECTS_GROUP = 'subprojects'
 
@@ -71,6 +72,7 @@ SUBPROJECT_NAME_INVALID_BRENT_NO_INFRASTRUCTURE = 'sub_invalid_no_infrastructure
 SUBPROJECT_NAME_INVALID_BRENT_NO_LM_DEFINITIONS = 'sub_invalid_no_lm_definitions'
 SUBPROJECT_NAME_INVALID_BRENT_NO_DESCRIPTOR = 'sub_invalid_no_lm_descriptor'
 SUBPROJECT_NAME_INVALID_BRENT_NO_LIFECYCLE = 'sub_invalid_no_lifecycle'
+SUBPROJECT_NAME_BRENT_2DOT1_BASIC = 'sub_basic'
 
 ARM_BASIC = 'basic'
 INVALID_ARM_NO_DESCRIPTOR = 'invalid_no_descriptor'
@@ -88,6 +90,16 @@ INVALID_BRENT_NO_LIFECYCLE = 'invalid_no_lifecycle'
 BRENT_WITH_INFRASTRUCTURE_TEMPLATES = 'with_infrastructure_templates'
 BRENT_WITH_MISSING_DRIVER_SELECTOR = 'with_missing_driver_selector'
 
+BRENT_2DOT1_BASIC = 'basic'
+BRENT_2DOT1_PREALPHA_STYLE = 'prealpha-style'
+INVALID_BRENT_2DOT1_NO_DEFINITIONS = 'invalid_no_definitions'
+INVALID_BRENT_2DOT1_NO_INFRASTRUCTURE = 'invalid_no_infrastructure'
+INVALID_BRENT_2DOT1_NO_LM_DEFINITIONS = 'invalid_no_lm_definitions'
+INVALID_BRENT_2DOT1_NO_LM_DESCRIPTOR = 'invalid_no_lm_descriptor'
+INVALID_BRENT_2DOT1_MISMATCH_DESCRIPTOR_NAME = 'invalid_mismatch_lm_descriptor_name'
+INVALID_BRENT_2DOT1_NO_LIFECYCLE = 'invalid_no_lifecycle'
+BRENT_2DOT1_WITH_EMPTY_INFRASTRUCTURE = 'with_empty_infrastructure'
+
 PKG_ASSEMBLY_BASIC = 'basic-1.0.tgz'
 PKG_ASSEMBLY_DEPRECATED_CONTENT_BASIC = 'deprecated-content-basic-1.0.tgz'
 PKG_ASSEMBLY_WITH_BEHAVIOUR = 'with_behaviour-1.0.tgz'
@@ -99,10 +111,12 @@ PKG_ASSEMBLY_CONTAINS_ASSEMBLY_WITH_BEHAVIOUR_MULTI_TESTS = 'contains_with_behav
 PKG_ASSEMBLY_CONTAINS_ARM_BASIC = 'contains_basic-1.0.tgz'
 PKG_ASSEMBLY_OLD_STYLE = 'old_style-1.0.tgz'
 PKG_ASSEMBLY_CONTAINS_BRENT_BASIC = 'contains_basic-1.0.tgz'
+PKG_ASSEMBLY_CONTAINS_BRENT_2DOT1_BASIC = 'contains_basic-1.0.tgz'
 
 PKG_ARM_BASIC = 'basic-1.0.tgz'
 
 PKG_BRENT_BASIC = 'basic-1.0.tgz'
+PKG_BRENT_2DOT1_BASIC = 'basic-1.0.tgz'
 
 PKG_INVALID_ZIP = 'invalid_zip-1.0.zip'
 
@@ -257,6 +271,9 @@ class ProjectSimLab:
 
     def simulate_assembly_contains_brent_basic(self):
         return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), ASSEMBLY_CONTAINS_BRENT_BASIC))
+    
+    def simulate_assembly_contains_brent_2dot1_basic(self):
+        return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_2DOT1_RESOURCE_GROUP), ASSEMBLY_CONTAINS_BRENT_BASIC))
 
     def simulate_assembly_contains_invalid_brent_mismatch_descriptor_name(self):
         return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), ASSEMBLY_CONTAINS_INVALID_BRENT_MISMATCH_DESCRIPTOR_NAME))
@@ -303,6 +320,35 @@ class ProjectSimLab:
     def simulate_assembly_contains_invalid_arm_mismatch_descriptor_name(self):
         return self.__sim_project(assembly_subproject_template_path(os.path.join(RESOURCE_TEMPLATES_GROUP, ANSIBLE_RM_RESOURCE_GROUP), ASSEMBLY_CONTAINS_INVALID_ARM_MISMATCH_DESCRIPTOR_NAME))
 
+    def simulate_brent_2dot1_basic(self):
+        return self.__sim_project(resource_template_path(BRENT_2DOT1_RESOURCE_GROUP, BRENT_BASIC))
+
+    def simulate_brent_2dot1_with_empty_infrastructure(self):
+        project = self.__sim_project(resource_template_path(BRENT_2DOT1_RESOURCE_GROUP, BRENT_2DOT1_WITH_EMPTY_INFRASTRUCTURE))
+        os.remove(os.path.join(project.path, 'Definitions', 'infrastructure', '.gitkeep'))
+        return project
+
+    def simulate_brent_2dot1_with_prealpha_style(self):
+        return self.__sim_project(resource_template_path(BRENT_2DOT1_RESOURCE_GROUP, BRENT_2DOT1_PREALPHA_STYLE))
+
+    def simulate_invalid_brent_2dot1_mismatch_descriptor_name(self):
+        return self.__sim_project(resource_template_path(BRENT_2DOT1_RESOURCE_GROUP, INVALID_BRENT_2DOT1_MISMATCH_DESCRIPTOR_NAME))
+
+    def simulate_invalid_brent_2dot1_no_definitions(self):
+        return self.__sim_project(resource_template_path(BRENT_2DOT1_RESOURCE_GROUP, INVALID_BRENT_2DOT1_NO_DEFINITIONS))
+
+    def simulate_invalid_brent_2dot1_no_infrastructure(self):
+        return self.__sim_project(resource_template_path(BRENT_2DOT1_RESOURCE_GROUP, INVALID_BRENT_2DOT1_NO_INFRASTRUCTURE))
+
+    def simulate_invalid_brent_2dot1_no_lm_definitions(self):
+        return self.__sim_project(resource_template_path(BRENT_2DOT1_RESOURCE_GROUP, INVALID_BRENT_2DOT1_NO_LM_DEFINITIONS))
+
+    def simulate_invalid_brent_2dot1_no_lm_descriptor(self):
+        return self.__sim_project(resource_template_path(BRENT_2DOT1_RESOURCE_GROUP, INVALID_BRENT_2DOT1_NO_LM_DESCRIPTOR))
+
+    def simulate_invalid_brent_2dot1_no_lifecycle(self):
+        return self.__sim_project(resource_template_path(BRENT_2DOT1_RESOURCE_GROUP, INVALID_BRENT_2DOT1_NO_LIFECYCLE))
+
     def simulate_pkg_general_invalid_zip(self):
         return self.__sim_pkg(general_pkg_path(PKG_INVALID_ZIP))
 
@@ -342,8 +388,14 @@ class ProjectSimLab:
     def simulate_pkg_brent_basic(self):
         return self.__sim_pkg(resource_pkg_path(BRENT_RESOURCE_GROUP, PKG_BRENT_BASIC))
 
+    def simulate_pkg_brent_2dot1_basic(self):
+        return self.__sim_pkg(resource_pkg_path(BRENT_2DOT1_RESOURCE_GROUP, PKG_BRENT_2DOT1_BASIC))
+
     def simulate_pkg_assembly_contains_brent_basic(self):
         return self.__sim_pkg(assembly_subproject_pkg_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_RESOURCE_GROUP), PKG_ASSEMBLY_CONTAINS_BRENT_BASIC))
+
+    def simulate_pkg_assembly_contains_brent_2dot1_basic(self):
+        return self.__sim_pkg(assembly_subproject_pkg_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_2DOT1_RESOURCE_GROUP), PKG_ASSEMBLY_CONTAINS_BRENT_2DOT1_BASIC))
 
     def simulate_lm(self):
         return LmSimulator().start()
