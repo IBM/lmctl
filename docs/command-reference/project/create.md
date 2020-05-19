@@ -37,13 +37,13 @@ For example, the following sets the driver param to "ansible" for the root Proje
 --contains Resource::brent A --param driver ansible --param A.driver sol003
 ```
 
-The following table describes the known params available: 
+The following table describes the known params available for projects using the `brent` rm type: 
 
 | Name | Description | Options | Default | 
 | ---- | ---- | --- | --- |
-| driver | Used only when `--type Resource` and `--rm brent` (or `--contains Resource::brent`). This parameter guides the creation of the Project (or Subproject) with example files for the intended driver | ansible, sol003 | - |
+| driver | This parameter guides the creation of the Project (or Subproject) with example files for the intended driver | ansible, sol003 | - |
 | lifecycle | Deprecated: same as `driver` | ansible, sol003, kubernetes | - |
-| inf | Used only when `--type Resource` and `--rm brent` (or `--contains Resource::brent`). This parameter guides the creation of the Project (or Subproject) with example files for a separate driver to be used on Create/Delete | openstack, kubernetes | - |
+| inf | This parameter guides the creation of the Project (or Subproject) with example files for a separate driver to be used on Create/Delete | openstack, kubernetes | - |
 
 If both `driver` and `lifecycle` have not been set then the default for `driver` is set to `ansible` and the default for `inf` is set to `openstack`. This means if you choose to not set any parameters, you will have a Resource which will use the Openstack driver for Create/Delete but Ansible for all other transitions.
 
@@ -71,3 +71,11 @@ Resource with Openstack driver for Create/Delete (will be included in the genera
 ```
 lmctl project create --type Resource --param driver sol003 --param inf openstack
 ```
+
+### Params for Brent/LM 2.1
+The following table describes the known params available for projects using the `brent2.1`/`lm2.1` rm type: 
+
+| Name | Description | Options | Default | 
+| ---- | ---- | --- | --- |
+| lifecycle | This parameter guides the creation of the Project (or Subproject) with example files for the intended lifecycle driver | ansible, sol003 | ansible |
+| inf | This parameter guides the creation of the Project (or Subproject) with example files for the intended infrastructure driver | openstack | openstack |

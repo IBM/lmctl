@@ -11,11 +11,12 @@
 
 - [list](./envs/list.md)
 
-## resourcedriver
+## key
 
-- [add](./resourcedriver/add.md)
-- [delete](./resourcedriver/delete.md)
-- [get](./resourcedriver/get.md)
+- [add](./key/add.md)
+- [delete](./key/delete.md)
+- [get](./key/get.md)
+- [list](./key/list.md)
 
 ## pkg
 
@@ -31,3 +32,9 @@
 - [push](./project/push.md)
 - [test](./project/test.md)
 - [validate](./project/validate.md)
+
+## resourcedriver
+
+- [add](./resourcedriver/add.md)
+- [delete](./resourcedriver/delete.md)
+- [get](./resourcedriver/get.md)
