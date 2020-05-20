@@ -1,11 +1,6 @@
----
-title: Install
-weight: 10
----
-
 # Pre-requisites
 
-## Python 3.6+
+## Python 3.7+
 
 Before you begin you will need to install:
 
@@ -20,7 +15,7 @@ python --version
 python3 --version
 ```
 
-Use the version which responds with a `3.6.x` number or later.
+Use the version which responds with a `3.7.x` number or later.
 
 ## Python Virtual Environment
 
