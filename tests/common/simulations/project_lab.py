@@ -7,6 +7,7 @@ TEMPLATES = 'templates'
 GENERAL_TEMPLATES_GROUP = 'general'
 ASSEMBLY_TEMPLATES_GROUP = 'assemblies'
 RESOURCE_TEMPLATES_GROUP = 'resources'
+TYPE_TEMPLATES_GROUP = 'types'
 ANSIBLE_RM_RESOURCE_GROUP = 'ansiblerm'
 BRENT_RESOURCE_GROUP = 'brent'
 BRENT_2DOT1_RESOURCE_GROUP = 'brent2dot1'
@@ -100,6 +101,9 @@ INVALID_BRENT_2DOT1_MISMATCH_DESCRIPTOR_NAME = 'invalid_mismatch_lm_descriptor_n
 INVALID_BRENT_2DOT1_NO_LIFECYCLE = 'invalid_no_lifecycle'
 BRENT_2DOT1_WITH_EMPTY_INFRASTRUCTURE = 'with_empty_infrastructure'
 
+TYPE_BASIC = 'basic'
+TYPE_WITH_BEHAVIOUR = 'with_behaviour'
+
 PKG_ASSEMBLY_BASIC = 'basic-1.0.tgz'
 PKG_ASSEMBLY_DEPRECATED_CONTENT_BASIC = 'deprecated-content-basic-1.0.tgz'
 PKG_ASSEMBLY_WITH_BEHAVIOUR = 'with_behaviour-1.0.tgz'
@@ -119,6 +123,9 @@ PKG_BRENT_BASIC = 'basic-1.0.tgz'
 PKG_BRENT_2DOT1_BASIC = 'basic-1.0.tgz'
 
 PKG_INVALID_ZIP = 'invalid_zip-1.0.zip'
+
+PKG_TYPE_BASIC = 'basic-1.0.tgz'
+PKG_TYPE_WITH_BEHAVIOUR = 'with_behaviour-1.0.tgz'
 
 def templates_path():
     return os.path.join(os.path.dirname(__file__), TEMPLATES)
@@ -145,6 +152,11 @@ def resource_template_path(resource_type, template_name):
 def resource_pkg_path(resource_type, pkg_name):
     return os.path.join(templates_path(), RESOURCE_TEMPLATES_GROUP, resource_type, pkg_name)
 
+def type_template_path(template_name):
+    return os.path.join(templates_path(), TYPE_TEMPLATES_GROUP, template_name)
+
+def type_pkg_path(pkg_name):
+    return os.path.join(templates_path(), TYPE_TEMPLATES_GROUP, pkg_name)
 
 class ProjectSimLab:
 
@@ -349,6 +361,12 @@ class ProjectSimLab:
     def simulate_invalid_brent_2dot1_no_lifecycle(self):
         return self.__sim_project(resource_template_path(BRENT_2DOT1_RESOURCE_GROUP, INVALID_BRENT_2DOT1_NO_LIFECYCLE))
 
+    def simulate_type_basic(self):
+        return self.__sim_project(type_template_path(TYPE_BASIC))
+
+    def simulate_type_with_behaviour(self):
+        return self.__sim_project(type_template_path(TYPE_WITH_BEHAVIOUR))
+
     def simulate_pkg_general_invalid_zip(self):
         return self.__sim_pkg(general_pkg_path(PKG_INVALID_ZIP))
 
@@ -396,6 +414,12 @@ class ProjectSimLab:
 
     def simulate_pkg_assembly_contains_brent_2dot1_basic(self):
         return self.__sim_pkg(assembly_subproject_pkg_path(os.path.join(RESOURCE_TEMPLATES_GROUP, BRENT_2DOT1_RESOURCE_GROUP), PKG_ASSEMBLY_CONTAINS_BRENT_2DOT1_BASIC))
+
+    def simulate_pkg_type_basic(self):
+        return self.__sim_pkg(type_pkg_path(PKG_TYPE_BASIC))
+
+    def simulate_pkg_type_with_behaviour(self):
+        return self.__sim_pkg(type_pkg_path(PKG_TYPE_WITH_BEHAVIOUR))
 
     def simulate_lm(self):
         return LmSimulator().start()

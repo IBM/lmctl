@@ -62,6 +62,11 @@ BRENT_OPENSTACK_TOSCA_YAML_FILE = 'tosca.yaml'
 BRENT_OPENSTACK_DISCOVER_YAML_FILE = 'discover.yaml'
 BRENT_KUBERNETES_DIR = 'kubernetes'
 
+TYPE_DESCRIPTOR_DIR = 'Descriptor'
+TYPE_DESCRIPTOR_YML_FILE = 'type.yml'
+TYPE_DESCRIPTOR_YAML_FILE = 'type.yaml'
+
+
 class ProjectSimTestCase(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):

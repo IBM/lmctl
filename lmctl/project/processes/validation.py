@@ -33,6 +33,8 @@ class SourceValidator:
                 expected_type = descriptor_utils.ASSEMBLY_DESCRIPTOR_TYPE
                 if self.source_config.is_resource_project():
                     expected_type = descriptor_utils.RESOURCE_DESCRIPTOR_TYPE
+                elif self.source_config.is_type_project():
+                    expected_type = descriptor_utils.TYPE_DESCRIPTOR_TYPE
                 if descriptor_type != expected_type:
                     errors.append(validation.ValidationViolation('Descriptor [{0}]: name \'{1}\' includes type \'{2}\' but this should be \'{3}\' based on project configuration'.format(descriptor_path, descriptor.get_name(),
                                                                                                                                                                             descriptor_type, expected_type)))
