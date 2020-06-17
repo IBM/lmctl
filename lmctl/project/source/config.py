@@ -143,7 +143,7 @@ class ProjectConfigBase(ProjectConfig):
 
 class RootProjectConfig(ProjectConfigBase):
 
-    def __init__(self, schema, name, version, project_type, resource_manager=None, subproject_entries=None):
+    def __init__(self, schema, name, version, project_type, resource_manager=None, subproject_entries=None, packaging=None):
         super().__init__(name, project_type, resource_manager, subproject_entries)
         if not schema:
             raise ValueError('schema must be defined')
@@ -151,6 +151,9 @@ class RootProjectConfig(ProjectConfigBase):
         if not version:
             raise ValueError('version must be defined')
         self._version = version
+        if not packaging:
+            packaging = 'tgz'
+        self._packaging = packaging
 
     @property
     def schema(self):
@@ -160,6 +163,10 @@ class RootProjectConfig(ProjectConfigBase):
     def version(self):
         return self._version
 
+    @property
+    def packaging(self):
+        return self._packaging
+
     def to_dict(self):
         data = {}
         data['schema'] = self.schema
@@ -167,6 +174,7 @@ class RootProjectConfig(ProjectConfigBase):
         data['name'] = base_data['name']
         del base_data['name']
         data['version'] = self.version
+        data['packaging'] = self.packaging
         for key, value in base_data.items():
             data[key] = value
         return data
@@ -226,6 +234,7 @@ class ProjectConfigParserWorker:
 
     def parse(self):
         self.schema = self.__read_schema()
+        self.packaging = self.__read_packaging()
         self.project_name = self.__read_project_name(self.config_dict)
         self.project_type = self.__read_project_type(self.config_dict)
         self.project_version = self.__read_project_version(self.config_dict)
@@ -233,7 +242,7 @@ class ProjectConfigParserWorker:
         subprojects = self.__read_subprojects(self.config_dict)
         if types.is_resource_type(self.project_type):
             resource_manager = self.__read_resource_manager(self.config_dict)
-        return RootProjectConfig(self.schema, self.project_name, self.project_version, self.project_type, resource_manager, subprojects)
+        return RootProjectConfig(self.schema, self.project_name, self.project_version, self.project_type, resource_manager, subprojects, packaging=self.packaging)
 
     def __read_schema(self):
         if 'schema' not in self.config_dict:
@@ -242,6 +251,9 @@ class ProjectConfigParserWorker:
             else:
                 return None
         return self.config_dict['schema']
+
+    def __read_packaging(self):
+        return self.config_dict.get('packaging', None)
 
     def __read_project_name(self, config_dict):
         return config_dict.get('name', None)

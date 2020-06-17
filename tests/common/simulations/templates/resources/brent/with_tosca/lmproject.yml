@@ -1,0 +1,6 @@
+schema: '2.0'
+name: with_tosca
+version: '1.0'
+packaging: csar
+type: Resource
+resource-manager: lm

@@ -15,6 +15,8 @@ PROJECT_CONTAINS_DIR = 'Contains'
 PROJECT_VNFCS_DIR = 'VNFCs'
 PROJECT_FILE_YML = 'lmproject.yml'
 PROJECT_FILE_YAML = 'lmproject.yaml'
+PROJECT_TOSCA_META_DIR = 'TOSCA-Metadata'
+PROJECT_TOSCA_META_FILE = 'TOSCA.meta'
 
 PKG_DEPRECATED_CONTENT_DIR = 'content'
 PKG_META_YML_FILE = 'lmpkg.yml'
@@ -148,8 +150,12 @@ class PkgAssertions:
 
     def __enter__(self):
         self.temp_dir = tempfile.mkdtemp()
-        with tarfile.open(self.pkg.path, mode='r:gz') as pkg_tar:
-            pkg_tar.extractall(self.temp_dir)
+        if tarfile.is_tarfile(self.pkg.path):
+            with tarfile.open(self.pkg.path, mode='r:gz') as pkg_tar:
+                pkg_tar.extractall(self.temp_dir)
+        elif zipfile.is_zipfile(self.pkg.path):
+            with zipfile.ZipFile(self.pkg.path, mode='r') as pkg_csar:
+                pkg_csar.extractall(self.temp_dir)
         return self
 
     def __exit__(self, type, value, traceback):
@@ -218,6 +224,10 @@ class ZipFileAssertions:
 
     def assert_has_directory(self, rel_directory_path):
         full_path = self.__full_content_path(rel_directory_path)
+        self.tc.assertTrue(os.path.exists(full_path))
+
+    def assert_has_file_path(self, expected_file_path):
+        full_path = self.__full_content_path(expected_file_path)
         self.tc.assertTrue(os.path.exists(full_path))
 
     def assert_has_file(self, expected_file_path, expected_file_content):

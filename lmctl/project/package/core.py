@@ -1,6 +1,7 @@
 import os
 import yaml
 import tarfile
+import zipfile
 import tempfile
 import shutil
 import lmctl.utils.descriptors as descriptor_utils
@@ -161,8 +162,15 @@ class Pkg:
                 shutil.rmtree(tempdir)
 
     def extract(self, target_directory):
-        with tarfile.open(self.path, mode='r:gz') as pkg_tar:
-            pkg_tar.extractall(target_directory)
+        if tarfile.is_tarfile(self.path):
+            with tarfile.open(self.path, mode='r:gz') as pkg_tar:
+                pkg_tar.extractall(target_directory)
+        elif zipfile.is_zipfile(self.path):
+            with zipfile.ZipFile(self.path, mode='r') as pkg_csar:
+                pkg_csar.extractall(target_directory)
+        else:
+            raise InvalidPackageError('Could not determine if pkg {0} was a tgz or csar'.format(self.path))
+
 
     def open(self, target_directory=None):
         if target_directory is None:

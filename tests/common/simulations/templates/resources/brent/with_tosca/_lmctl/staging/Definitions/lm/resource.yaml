@@ -1,0 +1,23 @@
+name: resource::with_tosca::1.0
+description: descriptor for with_tosca
+infrastructure:
+  Openstack: {}
+lifecycle:
+  Create:
+    drivers:
+      openstack:
+        selector:
+          infrastructure-type:
+          - '*'
+  Install: {}
+  Delete:
+    drivers:
+      openstack:
+        selector:
+          infrastructure-type:
+          - '*'
+default-driver:
+  ansible:
+    selector:
+      infrastructure-type:
+      - '*'

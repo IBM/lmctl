@@ -90,6 +90,7 @@ INVALID_BRENT_MISMATCH_DESCRIPTOR_NAME = 'invalid_mismatch_lm_descriptor_name'
 INVALID_BRENT_NO_LIFECYCLE = 'invalid_no_lifecycle'
 BRENT_WITH_INFRASTRUCTURE_TEMPLATES = 'with_infrastructure_templates'
 BRENT_WITH_MISSING_DRIVER_SELECTOR = 'with_missing_driver_selector'
+BRENT_TOSCA = 'with_tosca'
 
 BRENT_2DOT1_BASIC = 'basic'
 BRENT_2DOT1_PREALPHA_STYLE = 'prealpha-style'
@@ -121,6 +122,7 @@ PKG_ARM_BASIC = 'basic-1.0.tgz'
 
 PKG_BRENT_BASIC = 'basic-1.0.tgz'
 PKG_BRENT_2DOT1_BASIC = 'basic-1.0.tgz'
+PKG_BRENT_TOSCA = 'with_tosca-1.0.csar'
 
 PKG_INVALID_ZIP = 'invalid_zip-1.0.zip'
 
@@ -256,6 +258,9 @@ class ProjectSimLab:
 
     def simulate_brent_basic(self):
         return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, BRENT_BASIC))
+
+    def simulate_brent_tosca(self):
+        return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, BRENT_TOSCA))
 
     def simulate_brent_with_missing_driver_selector(self):
         return self.__sim_project(resource_template_path(BRENT_RESOURCE_GROUP, BRENT_WITH_MISSING_DRIVER_SELECTOR))
@@ -405,6 +410,9 @@ class ProjectSimLab:
 
     def simulate_pkg_brent_basic(self):
         return self.__sim_pkg(resource_pkg_path(BRENT_RESOURCE_GROUP, PKG_BRENT_BASIC))
+
+    def simulate_pkg_brent_tosca(self):
+        return self.__sim_pkg(resource_pkg_path(BRENT_RESOURCE_GROUP, PKG_BRENT_TOSCA))
 
     def simulate_pkg_brent_2dot1_basic(self):
         return self.__sim_pkg(resource_pkg_path(BRENT_2DOT1_RESOURCE_GROUP, PKG_BRENT_2DOT1_BASIC))

@@ -1,6 +1,13 @@
 import abc
 import os
 import shutil
+from lmctl.project.source.config import RootProjectConfig
+
+PACKAGING_PARAM = 'packaging'
+TGZ_PACKAGING = 'tgz'
+CSAR_PACKAGING = 'csar'
+TOSCA_METADATA = 'TOSCA-Metadata'
+TOSCA_META_FILE = 'TOSCA.meta'
 
 ############################
 # Source Creator Exceptions
@@ -59,6 +66,7 @@ class SourceCreator(abc.ABC):
 
     def _validate_expected_params(self, journal, source_request):
         params = self.get_params(source_request)
+        params.append(SourceParam(PACKAGING_PARAM, required=False, default_value=TGZ_PACKAGING, allowed_values=[TGZ_PACKAGING, CSAR_PACKAGING]))
         mandatory_params = {}
         optional_params = {}
         for param in params:
@@ -107,11 +115,26 @@ class SourceCreator(abc.ABC):
 
     def create_source(self, journal, source_request):
         self._validate_expected_params(journal, source_request)
+        self._do_create_common_source(journal, source_request)
         self._do_create_source(journal, source_request)
 
     @abc.abstractmethod
     def _do_create_source(self, journal, source_request):
         pass
+
+    def _do_create_common_source(self, journal, source_request):
+        file_ops = []
+        #Only create for the root project
+        if isinstance(source_request.source_config, RootProjectConfig):
+            packaging_type = source_request.param_values.get_value(PACKAGING_PARAM)
+            if packaging_type == CSAR_PACKAGING:
+                file_ops.append(CreateDirectoryOp(TOSCA_METADATA, EXISTING_IGNORE))
+                meta_content = 'TOSCA-Meta-File-Version: 1.0'
+                meta_content += '\nCSAR-Version: 1.1'
+                meta_content += '\nCreated-by: Author Here'
+                meta_content += '\nEntry-Definitions: Definitions'
+                file_ops.append(CreateFileOp(os.path.join(TOSCA_METADATA, TOSCA_META_FILE), meta_content, EXISTING_IGNORE))
+        self._execute_file_ops(file_ops, source_request.target_path, journal)
 
 class ResourceSourceCreatorDelegate(abc.ABC):
 

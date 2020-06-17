@@ -34,7 +34,8 @@ class TestCreateTypeProjects(ProjectSimTestCase):
             'schema':  '2.0',
             'name': 'Test',
             'version': '1.0',
-            'type': 'Type'
+            'type': 'Type',
+            'packaging': 'tgz'
         })
 
     def test_create(self):
@@ -54,7 +55,8 @@ class TestCreateTypeProjects(ProjectSimTestCase):
             'schema':  '2.0',
             'name': 'Test',
             'version': '9.9',
-            'type': 'Type'
+            'type': 'Type',
+            'packaging': 'tgz'
         })
 
     def test_create_with_subprojects(self):
@@ -83,6 +85,7 @@ class TestCreateTypeProjects(ProjectSimTestCase):
             'name': 'Test',
             'version': '9.9',
             'type': 'Type',
+            'packaging': 'tgz',
             'contains': [
                 {
                     'name': 'SubA',

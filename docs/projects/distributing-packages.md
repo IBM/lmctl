@@ -6,7 +6,7 @@ The distributable package produced by a `build` of your project (also produced o
 
 To deploy a package produced by LMCTL, complete the following:
 
-1. Download/copy the `.tgz` package you intend to deploy, to a target location on your machine (navigate to this location)
+1. Download/copy the `.tgz` or `.csar` package you intend to deploy, to a target location on your machine (navigate to this location)
 2. Execute the `pkg push` command, naming the target environment from your LMCTL configuration file. If Ansible RM Resources are included, name the RM to push to:
    ```
    lmctl pkg push example-1.0.tgz dev --armname defaultrm
