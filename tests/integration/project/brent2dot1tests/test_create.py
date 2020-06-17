@@ -179,6 +179,7 @@ class TestCreateBrentProjects(ProjectSimTestCase):
             'name': 'Test',
             'version': '9.9',
             'type': 'Resource',
+            'packaging': 'tgz',
             'resource-manager': 'brent2.1'
         })
         tester.assert_has_directory(BRENT_DEFINITIONS_DIR)
@@ -218,6 +219,7 @@ class TestCreateBrentProjects(ProjectSimTestCase):
             'name': 'Test',
             'version': '9.9',
             'type': 'Resource',
+            'packaging': 'tgz',
             'resource-manager': 'brent2.1'
         })
         tester.assert_has_directory(os.path.join(BRENT_DEFINITIONS_DIR))
@@ -269,6 +271,7 @@ class TestCreateBrentProjects(ProjectSimTestCase):
             'name': 'Test',
             'version': '9.9',
             'type': 'Resource',
+            'packaging': 'tgz',
             'resource-manager': 'brent2.1',
             'contains': [
                 {

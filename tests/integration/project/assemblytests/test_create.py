@@ -36,7 +36,8 @@ class TestCreateAssemblyProjects(ProjectSimTestCase):
             'schema':  '2.0',
             'name': 'Test',
             'version': '1.0',
-            'type': 'Assembly'
+            'type': 'Assembly',
+            'packaging': 'tgz'
         })
         
     def test_create(self):
@@ -57,7 +58,8 @@ class TestCreateAssemblyProjects(ProjectSimTestCase):
             'schema':  '2.0',
             'name': 'Test',
             'version': '9.9',
-            'type': 'Assembly'
+            'type': 'Assembly',
+            'packaging': 'tgz'
         })
 
     def test_create_with_template(self):
@@ -110,6 +112,7 @@ class TestCreateAssemblyProjects(ProjectSimTestCase):
             'name': 'Test',
             'version': '9.9',
             'type': 'Assembly',
+            'packaging': 'tgz',
             'contains': [
                 {
                     'name': 'SubA',

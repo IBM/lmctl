@@ -34,6 +34,7 @@ class TestCreateAnsibleRmProjects(ProjectSimTestCase):
             'name': 'Test',
             'version': '1.0',
             'type': 'Resource',
+            'packaging': 'tgz',
             'resource-manager': 'ansiblerm'
         })
     
@@ -56,6 +57,7 @@ class TestCreateAnsibleRmProjects(ProjectSimTestCase):
             'name': 'Test',
             'version': '9.9',
             'type': 'Resource',
+            'packaging': 'tgz',
             'resource-manager': 'ansiblerm'
         })
 
@@ -88,6 +90,7 @@ class TestCreateAnsibleRmProjects(ProjectSimTestCase):
             'name': 'Test',
             'version': '9.9',
             'type': 'Resource',
+            'packaging': 'tgz',
             'resource-manager': 'ansiblerm',
             'contains': [
                 {

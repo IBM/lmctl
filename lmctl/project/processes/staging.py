@@ -5,6 +5,7 @@ import lmctl.project.mutate.descriptor as descriptor_mutations
 import lmctl.project.source.config_references as refs
 import lmctl.project.handlers.interface as handlers_api
 from .common import LIFECYCLE_WORKSPACE
+from lmctl.project.source.config import RootProjectConfig
 
 class StagingTree(files.Tree):
     CONTAINS_DIR = 'Contains'
@@ -69,6 +70,14 @@ class StageWorker:
             self.project.source_handler.stage_sources(self.journal, source_stager)
         except handlers_api.SourceHandlerError as e:
             raise StageProcessError(str(e)) from e
+        self.__stage_tosca(source_stager)
+
+    def __stage_tosca(self, source_stager):
+        if isinstance(self.project.config, RootProjectConfig):
+            tosca_metadata_path = self.project.tree.resolve_relative_path(handlers_api.TOSCA_METADATA)
+            if os.path.exists(tosca_metadata_path):
+                self.journal.event('Staging TOSCA-Metadata at {0}'.format(tosca_metadata_path))
+                source_stager.stage_tree(self.project.tree.resolve_relative_path(handlers_api.TOSCA_METADATA), handlers_api.TOSCA_METADATA)
     
     def __stage_child_projects(self):
         subprojects = self.project.subprojects
