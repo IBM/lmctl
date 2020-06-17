@@ -35,6 +35,21 @@ The following table details the relevance of each item in the project tree:
 
 The remaining structure of the project, and each subproject, depends on the type of service under development.
 
+## TOSCA Additions
+
+In addition to the normal project structure, you may also include a `TOSCA-Metadata` directory to be included in the final package. This directory is expected to have a single `TOSCA.meta` file in.
+
+```
+myproject/
+    lmproject.yaml
+    Contains/
+      ...
+    TOSCA-Metadata/
+      TOSCA.meta
+```
+
+> Tip: use `--param packaging csar` on the `lmctl project create` command to generate example content for this file
+
 ## Assembly Projects
 
 An Assembly project is expected to include a descriptor and, optionally, behavior test related artifacts.

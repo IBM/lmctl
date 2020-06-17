@@ -1,0 +1,37 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Basic example to deploy a single VM
+
+parameters:
+  key_name:
+    type: string
+    default: helloworld
+  image:
+    type: string
+    default: xenial-server-cloudimg-amd64-disk1
+resources:
+  hello_world_server:
+    type: OS::Nova::Server
+    properties:
+      flavor: ds2G
+      user_data_format: SOFTWARE_CONFIG
+      image:
+        get_param: image
+      key_name:
+        get_param: key_name
+      networks:
+      - port: { get_resource: hello_world_server_port }
+  hello_world_server_port:
+    type: OS::Neutron::Port
+    properties:
+      network: private
+outputs:
+  hello_world_private_ip:
+    value:
+      get_attr:
+      - hello_world_server
+      - networks
+      - private
+      - 0
+    description: The private IP address of the hello_world_server

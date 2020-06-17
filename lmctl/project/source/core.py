@@ -206,6 +206,8 @@ class ProjectBaseTree(files.Tree):
 
     CONTAINS_DIR = 'Contains'
     VNFCS_DIR = 'VNFCs'
+    TOSCA_METADATA_DIR = 'TOSCA-Metadata'
+    TOSCA_META_FILE = 'TOSCA.meta'
 
     def __relative_child_projects_path(self):
         return self.relative_path(ProjectBaseTree.CONTAINS_DIR)
@@ -219,6 +221,14 @@ class ProjectBaseTree(files.Tree):
             return vnfcs_path
         else:
             return contains_path
+
+    @property
+    def tosca_metadata_path(self):
+        return self.resolve_relative_path(ProjectBaseTree.TOSCA_METADATA_DIR)
+
+    @property
+    def tosca_meta_file_path(self):
+        return self.resolve_relative_path(ProjectBaseTree.TOSCA_META_FILE)
 
     @property
     def vnfcs_path(self):
