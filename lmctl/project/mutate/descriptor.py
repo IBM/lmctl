@@ -1,5 +1,6 @@
 from .base import Mutator
 import lmctl.reference as refs
+import lmctl.utils.descriptors as descriptor_utils
 
 class DescriptorStageMutator(Mutator):
 
@@ -8,9 +9,13 @@ class DescriptorStageMutator(Mutator):
         self.config_references = config_references
         self.journal = journal
 
-    def apply(self, descriptor):
+    def apply(self, descriptor, is_template=False):
         if not descriptor.has_name():
-            descriptor_name = self.source_config.descriptor_name
+            if is_template:
+                descriptor_name = descriptor_utils.DescriptorName(descriptor_utils.ASSEMBLY_TEMPLATE_DESCRIPTOR_TYPE, \
+                    self.source_config.full_name, self.source_config.version).name_str()
+            else:
+                descriptor_name = self.source_config.descriptor_name
             descriptor.raw.insert(0, 'name', descriptor_name)
         self.resolve_references(descriptor)
         return descriptor

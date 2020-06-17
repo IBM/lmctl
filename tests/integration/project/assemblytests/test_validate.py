@@ -39,6 +39,19 @@ class TestValidateAssemblyProjects(ProjectSimTestCase):
         expected_errors.append('Descriptor [{0}]: name \'resource::notvalid::9.7\' includes version \'9.7\' but this should be \'1.0\' based on project configuration'.format(descriptor_path))
         self.assert_validation_errors(result, *expected_errors)
 
+    def test_validate_assembly_descriptor_template_name(self):
+        project_sim = self.simlab.simulate_invalid_assembly_mismatch_descriptor_template_name()
+        project = Project(project_sim.path)
+        validate_options = ValidateOptions()
+        result = project.validate(validate_options)
+        descriptor_path = os.path.join(project_sim.path, ASSEMBLY_DESCRIPTOR_DIR, 'assembly-template.yml')
+        expected_errors = []
+        expected_errors.append('Descriptor [{0}]: name \'resource::notvalid::9.7\' includes type \'resource\' but this should be \'assembly-template\' based on project configuration'.format(descriptor_path))
+        expected_errors.append(
+            'Descriptor [{0}]: name \'resource::notvalid::9.7\' includes \'notvalid\' but this should be \'invalid_mismatch_descriptor_template_name\' based on project configuration'.format(descriptor_path))
+        expected_errors.append('Descriptor [{0}]: name \'resource::notvalid::9.7\' includes version \'9.7\' but this should be \'1.0\' based on project configuration'.format(descriptor_path))
+        self.assert_validation_errors(result, *expected_errors)
+
     def test_validate_assembly_with_non_json_configuration(self):
         project_sim = self.simlab.simulate_invalid_assembly_non_json_configuration()
         project = Project(project_sim.path)

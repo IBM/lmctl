@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 ASSEMBLY_DESCRIPTOR_TYPE = 'assembly'
 RESOURCE_DESCRIPTOR_TYPE = 'resource'
+ASSEMBLY_TEMPLATE_DESCRIPTOR_TYPE = 'assembly-template'
 
 yaml = ryaml.YAML()
 yaml.default_flow_style = False

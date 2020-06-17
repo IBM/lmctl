@@ -24,6 +24,7 @@ INVALID_ASSEMBLY_INVALID_JSON_RUNTIME = 'invalid_json_runtime'
 INVALID_ASSEMBLY_INVALID_JSON_TEST = 'invalid_json_test'
 INVALID_ASSEMBLY_NO_DESCRIPTOR = 'invalid_no_descriptor'
 INVALID_ASSEMBLY_MISMATCH_DESCRIPTOR_NAME = 'invalid_mismatch_descriptor_name'
+INVALID_ASSEMBLY_MISMATCH_DESCRIPTOR_TEMPLATE_NAME = 'invalid_mismatch_descriptor_template_name'
 ASSEMBLY_CONTAINS_ASSEMBLY_BASIC = 'contains_basic'
 ASSEMBLY_CONTAINS_ASSEMBLY_WITH_BEHAVIOUR = 'contains_with_behaviour'
 ASSEMBLY_CONTAINS_INVALID_ASSEMBLY_NON_JSON_CONFIGURATION = 'contains_invalid_non_json_configuration'
@@ -49,6 +50,7 @@ ASSEMBLY_WITH_OLD_STYLE = 'old_style'
 ASSEMBLY_WITH_DESCRIPTOR_REFERENCES = 'with_descriptor_references'
 ASSEMBLY_WITH_BEHAVIOUR_REFERENCES = 'with_behaviour_references'
 ASSEMBLY_WITH_UNRESOLVABLE_REFERENCES = 'with_unresolvable_references'
+ASSEMBLY_WITH_TEMPLATE = 'with_template'
 
 SUBPROJECT_NAME_ASSEMBLY_BASIC = 'sub_basic'
 SUBPROJECT_NAME_ASSEMBLY_WITH_BEHAVIOUR = 'sub_with_behaviour'
@@ -101,6 +103,7 @@ INVALID_BRENT_2DOT1_NO_LIFECYCLE = 'invalid_no_lifecycle'
 BRENT_2DOT1_WITH_EMPTY_INFRASTRUCTURE = 'with_empty_infrastructure'
 
 PKG_ASSEMBLY_BASIC = 'basic-1.0.tgz'
+PKG_ASSEMBLY_WITH_TEMPLATE = 'with_template-1.0.tgz'
 PKG_ASSEMBLY_DEPRECATED_CONTENT_BASIC = 'deprecated-content-basic-1.0.tgz'
 PKG_ASSEMBLY_WITH_BEHAVIOUR = 'with_behaviour-1.0.tgz'
 PKG_ASSEMBLY_WITH_BEHAVIOUR_MULTI_TESTS = 'with_behaviour_multi_tests-1.0.tgz'
@@ -181,6 +184,9 @@ class ProjectSimLab:
 
     def simulate_assembly_with_unresolvable_references(self):
         return self.__sim_project(assembly_template_path(ASSEMBLY_WITH_UNRESOLVABLE_REFERENCES))
+    
+    def simulate_assembly_with_template(self):
+        return self.__sim_project(assembly_template_path(ASSEMBLY_WITH_TEMPLATE))
 
     def simulate_assembly_with_yaml_project_file(self):
         return self.__sim_project(assembly_template_path(ASSEMBLY_WITH_YAML_PROJECT_FILE_PROJECT))
@@ -190,6 +196,9 @@ class ProjectSimLab:
 
     def simulate_invalid_assembly_mismatch_descriptor_name(self):
         return self.__sim_project(assembly_template_path(INVALID_ASSEMBLY_MISMATCH_DESCRIPTOR_NAME))
+
+    def simulate_invalid_assembly_mismatch_descriptor_template_name(self):
+        return self.__sim_project(assembly_template_path(INVALID_ASSEMBLY_MISMATCH_DESCRIPTOR_TEMPLATE_NAME))
 
     def simulate_assembly_with_behaviour(self):
         return self.__sim_project(assembly_template_path(ASSEMBLY_WITH_BEHAVIOUR))
@@ -223,7 +232,7 @@ class ProjectSimLab:
 
     def simulate_assembly_contains_invalid_assembly_mismatch_descriptor_name(self):
         return self.__sim_project(assembly_subproject_template_path(ASSEMBLY_TEMPLATES_GROUP, ASSEMBLY_CONTAINS_INVALID_ASSEMBLY_MISMATCH_DESCRIPTOR_NAME))
-
+    
     def simulate_assembly_contains_invalid_assembly_non_json_configuration(self):
         return self.__sim_project(assembly_subproject_template_path(ASSEMBLY_TEMPLATES_GROUP, ASSEMBLY_CONTAINS_INVALID_ASSEMBLY_NON_JSON_CONFIGURATION))
 
@@ -354,6 +363,9 @@ class ProjectSimLab:
 
     def simulate_pkg_assembly_basic(self):
         return self.__sim_pkg(assembly_pkg_path(PKG_ASSEMBLY_BASIC))
+
+    def simulate_pkg_assembly_with_template(self):
+        return self.__sim_pkg(assembly_pkg_path(PKG_ASSEMBLY_WITH_TEMPLATE))
 
     def simulate_pkg_assembly_deprecated_content_basic(self):
         return self.__sim_pkg(assembly_pkg_path(PKG_ASSEMBLY_DEPRECATED_CONTENT_BASIC))

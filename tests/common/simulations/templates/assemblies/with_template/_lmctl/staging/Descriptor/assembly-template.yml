@@ -1,0 +1,43 @@
+name: assembly-template::with_template::1.0
+description: |
+  This is a template that may be used with Design Template Engine service (Kami)
+  Properties on this template may be referenced in the template using Jinja2 syntax e.g. {{ propertyName }}
+  The template may also use Jinja2 control structures such as If/else and for loops
+  Properties may only be of type string. If you need to pass complex datatypes to the template (e.g. a list or dictionary to iterate over)
+  then the template user will have to pass a JSON string to those properties.
+properties:
+  descriptorName:
+    type: string
+  vendor:
+    type: string
+  elements:
+    type: string
+template: |
+  name: {{descriptorName}}
+  properties:
+    deploymentLocation:
+      type: string
+    resourceManager:
+      type: string
+  composition:
+  # Example of using an IF statement
+  {% if vendor == 'kingcomm' %}
+    kingcomm-extra:
+      type: resource::kingcomm-extra::1.0
+      properties:
+        deploymentLocation:
+          value: ${deploymentLocation}
+        resourceManager:
+          value: ${resourceManager}
+  {% endif %}
+  # Example of iterating over a dictionary property passed in as a JSON string
+  {% set elementMap = elements|fromJson %}
+  {% for elementName, details in elementMap.items() %}
+    {{ elementName }}:
+      type: {{ details.type }}
+      properties:
+        deploymentLocation:
+          value: ${deploymentLocation}
+        resourceManager:
+          value: ${resourceManager}
+  {% endfor %}

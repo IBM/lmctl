@@ -9,7 +9,9 @@ SUPPORTED_PROTOCOLS = [HTTP_PROTOCOL, HTTPS_PROTOCOL]
 
 class LmEnvironment(Environment):
 
-    def __init__(self, name, host, port=None, protocol=HTTPS_PROTOCOL, path=None,**kwargs):
+    def __init__(self, name, host, port=None, protocol=HTTPS_PROTOCOL, path=None, secure=False, \
+                                    username=None, password=None, auth_host=None, auth_port=None, auth_protocol=None, \
+                                         brent_name='brent', kami_port=31289, kami_protocol=HTTP_PROTOCOL):
         name = value_or_default(name, None)
         if not name:
             raise EnvironmentConfigError('LM environment cannot be configured without property: name')
@@ -18,20 +20,21 @@ class LmEnvironment(Environment):
         if not host:
             raise EnvironmentConfigError('LM environment cannot be configured without property: host (ip_address)')
         self.host = host
-        self.port = value_or_default(port, None)
-        self.path = value_or_default(path, None)
-        protocol = str(value_or_default(protocol, HTTPS_PROTOCOL))
+        self.port = value_or_default(port, default=None)
+        self.path = value_or_default(path, default=None)
+        protocol = str(value_or_default(protocol, default=HTTPS_PROTOCOL))
         self.protocol = protocol.lower()
         if self.protocol not in SUPPORTED_PROTOCOLS:
             raise EnvironmentConfigError('LM environment cannot be configured with unsupported protocol \'{0}\'. Must be one of: {1}'.format(self.protocol, SUPPORTED_PROTOCOLS))
-        self.__validate_for_unsupported_keys(kwargs)
-        self.brent_name = get_value_or_default(kwargs, 'brent_name', 'brent')
-        self.secure = bool(get_value_or_default(kwargs, 'secure', False))
-        self.username = get_value_or_default(kwargs, 'username', None)
-        self.auth_host = get_value_or_default(kwargs, 'auth_host', self.host)
-        self.auth_port = get_value_or_default(kwargs, 'auth_port', self.port)
-        self.auth_protocol = str(get_value_or_default(kwargs, 'auth_protocol', self.protocol)).lower()
-        self.password = get_value_or_default(kwargs, 'password', None)
+        self.brent_name = value_or_default(brent_name, default='brent')
+        self.kami_port = kami_port
+        self.kami_protocol = value_or_default(kami_protocol, default=self.protocol).lower()
+        self.secure = value_or_default(secure, default=False)
+        self.username = value_or_default(username, default=None)
+        self.auth_host = value_or_default(auth_host, default=self.host)
+        self.auth_port = value_or_default(auth_port, default=self.port)
+        self.auth_protocol = value_or_default(auth_protocol, default=self.protocol).lower()
+        self.password = value_or_default(password, default=None)
         if self.secure:
             if not self.username:
                 raise EnvironmentConfigError('Secure LM environment cannot be configured without property: username. If the LM environment is not secure then set \'secure\' to False')
@@ -39,11 +42,6 @@ class LmEnvironment(Environment):
                 raise EnvironmentConfigError('Secure LM environment cannot be configured without property: auth_host')
             if self.auth_protocol not in SUPPORTED_PROTOCOLS:
                 raise EnvironmentConfigError('LM environment cannot be configured with unsupported auth_protocol \'{0}\'. Must be one of: {1}'.format(self.auth_protocol, SUPPORTED_PROTOCOLS))
-
-    def __validate_for_unsupported_keys(self, kwargs):
-        for key,value in kwargs.items():
-            if key not in CONFIG_KWARGS:
-                raise EnvironmentConfigError('Unsupported key argument: {0}'.format(key))
 
     def create_session_config(self):
         return LmSessionConfig(self, self.username, self.password)
@@ -72,6 +70,13 @@ class LmEnvironment(Environment):
         base = '{0}://{1}'.format(self.auth_protocol, self.auth_host)
         if self.auth_port:
             base += ':{0}'.format(self.auth_port)
+        return base
+
+    @property
+    def kami_address(self):
+        base = '{0}://{1}'.format(self.kami_protocol, self.host)
+        if self.kami_port:
+            base += ':{0}'.format(self.kami_port)
         return base
 
 class LmSessionConfig:
@@ -103,6 +108,7 @@ class LmSession:
         self.__resource_driver_mgmt_driver = None
         self.__resource_pkg_driver = None
         self.__infrastructure_keys_driver = None
+        self.__descriptor_template_driver = None
 
     def __get_lm_security_ctrl(self):
         if self.env.is_secure:
@@ -231,3 +237,15 @@ class LmSession:
         if not self.__infrastructure_keys_driver:
             self.__infrastructure_keys_driver = lm_drivers.LmInfrastructureKeysDriver(self.env.api_address, self.__get_lm_security_ctrl())
         return self.__infrastructure_keys_driver
+
+    @property
+    def descriptor_template_driver(self):
+        """
+        Obtain a LmDescriptorTemplatesDriver configured for use against this LM environment
+
+        Returns:
+            LmDescriptorTemplatesDriver: a configured LmDescriptorTemplatesDriver for this LM environment
+        """
+        if not self.__descriptor_template_driver:
+            self.__descriptor_template_driver = lm_drivers.LmDescriptorTemplatesDriver(self.env.kami_address)
+        return self.__descriptor_template_driver

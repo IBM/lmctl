@@ -3,10 +3,11 @@ import os
 import tests.common.simulations.project_lab as project_lab
 import lmctl.project.package.core as pkgs
 from tests.common.project_testing import (ProjectSimTestCase, PROJECT_VNFCS_DIR, PROJECT_CONTAINS_DIR,
-                                          ASSEMBLY_DESCRIPTOR_DIR, ASSEMBLY_DESCRIPTOR_YML_FILE,
+                                          ASSEMBLY_DESCRIPTOR_DIR, ASSEMBLY_DESCRIPTOR_YML_FILE, ASSEMBLY_DESCRIPTOR_TEMPLATE_YML_FILE,
                                           ASSEMBLY_BEHAVIOUR_DIR, ASSEMBLY_CONFIGURATIONS_DIR, ASSEMBLY_RUNTIME_DIR, ASSEMBLY_TESTS_DIR,
                                           ARM_DESCRIPTOR_DIR)
 from lmctl.project.source.core import Project, BuildResult, BuildOptions
+from lmctl.project.handlers.assembly.assembly_src import TEMPLATE_CONTENT
 
 BASIC_ASSEMBLY_DESCRIPTOR_YAML = """\
 name: assembly::basic::1.0
@@ -177,7 +178,14 @@ SUB_WITH_BEHAVIOUR_TEST_JSON = """\
   "projectId": "assembly::sub_with_behaviour-contains_with_behaviour::1.0"
 }"""
 
+WITH_TEMPLATE_ASSEMBLY_TEMPLATE_DESCRIPTOR_YAML = "name: assembly-template::with_template::1.0"
+WITH_TEMPLATE_ASSEMBLY_TEMPLATE_DESCRIPTOR_YAML += "\n"
+WITH_TEMPLATE_ASSEMBLY_TEMPLATE_DESCRIPTOR_YAML += TEMPLATE_CONTENT
 
+WITH_TEMPLATE_ASSEMBLY_DESCRIPTOR_YAML = """\
+name: assembly::with_template::1.0
+description: descriptor for with_template
+"""
 class TestBuildAssemblyProjects(ProjectSimTestCase):
 
     def test_build(self):
@@ -197,6 +205,28 @@ class TestBuildAssemblyProjects(ProjectSimTestCase):
             pkg_tester.assert_has_meta({
                 'schema': '2.0',
                 'name': 'basic',
+                'version': '1.0',
+                'type': 'Assembly'
+            })
+
+    def test_build_with_template(self):
+        project_sim = self.simlab.simulate_assembly_with_template()
+        project = Project(project_sim.path)
+        build_options = BuildOptions()
+        result = project.build(build_options)
+        self.assertIsInstance(result, BuildResult)
+        self.assertFalse(result.validation_result.has_warnings())
+        pkg = result.pkg
+        self.assertIsNotNone(pkg)
+        self.assertIsInstance(pkg, pkgs.Pkg)
+        package_base_name = os.path.basename(pkg.path)
+        self.assertEqual(package_base_name, 'with_template-1.0.tgz')
+        with self.assert_package(pkg) as pkg_tester:
+            pkg_tester.assert_has_descriptor_file(os.path.join(ASSEMBLY_DESCRIPTOR_DIR, ASSEMBLY_DESCRIPTOR_YML_FILE), WITH_TEMPLATE_ASSEMBLY_DESCRIPTOR_YAML)
+            pkg_tester.assert_has_descriptor_file(os.path.join(ASSEMBLY_DESCRIPTOR_DIR, ASSEMBLY_DESCRIPTOR_TEMPLATE_YML_FILE), WITH_TEMPLATE_ASSEMBLY_TEMPLATE_DESCRIPTOR_YAML)
+            pkg_tester.assert_has_meta({
+                'schema': '2.0',
+                'name': 'with_template',
                 'version': '1.0',
                 'type': 'Assembly'
             })

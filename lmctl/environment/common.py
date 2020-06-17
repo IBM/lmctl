@@ -16,11 +16,10 @@ class EnvironmentRuntimeError(Exception):
 class EnvironmentConfigError(Exception):
     pass
 
-def value_or_default(value, default=None, **kwargs):
+def value_or_default(value, default=None, allow_empty=False):
     if value is None:
         return default
     if type(value) is str:
-        allow_empty = bool(kwargs.get('allow_empty', False))
         if not allow_empty:
             if len(value.strip()) == 0:
                 return default
