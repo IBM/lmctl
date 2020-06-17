@@ -82,7 +82,8 @@ class TestCreateAssemblyProjects(ProjectSimTestCase):
             'schema':  '2.0',
             'name': 'Test',
             'version': '9.9',
-            'type': 'Assembly'
+            'type': 'Assembly',
+            'packaging': 'tgz'
         })
 
     def test_create_with_subprojects(self):
