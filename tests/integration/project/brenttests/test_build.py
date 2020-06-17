@@ -1,4 +1,5 @@
 import os
+import zipfile
 from tests.common.project_testing import (ProjectSimTestCase,
                                           PROJECT_CONTAINS_DIR, BRENT_DEFINITIONS_DIR, BRENT_INFRASTRUCTURE_DIR, BRENT_DESCRIPTOR_DIR,
                                           BRENT_LIFECYCLE_DIR, BRENT_DESCRIPTOR_YML_FILE, 
@@ -126,6 +127,29 @@ class TestBuildBrentProjects(ProjectSimTestCase):
                 zip_tester.assert_has_file(os.path.join(ansible_config_dir, 'inventory'), BASIC_INVENTORY)
                 zip_tester.assert_has_file(os.path.join(ansible_config_dir, 'host_vars', 'example-host.yml'), BASIC_EXAMPLE_HOST_YAML)
     
+    def test_build_csar(self):
+        project_sim = self.simlab.simulate_brent_tosca()
+        project = Project(project_sim.path)
+        build_options = BuildOptions()
+        result = project.build(build_options)
+        self.assertIsInstance(result, BuildResult)
+        self.assertFalse(result.validation_result.has_warnings())
+        pkg = result.pkg
+        self.assertIsNotNone(pkg)
+        self.assertIsInstance(pkg, pkgs.Pkg)
+        package_base_name = os.path.basename(pkg.path)
+        self.assertEqual(package_base_name, 'with_tosca-1.0.csar')
+        self.assertTrue(zipfile.is_zipfile(pkg.path))
+        with self.assert_package(pkg) as pkg_tester:
+          pkg_tester.assert_has_file_path('with_tosca.zip')
+          pkg_tester.assert_has_file_path(BRENT_DESCRIPTOR_YML_FILE)
+          pkg_tester.assert_has_meta({
+              'schema': '2.0',
+              'name': 'with_tosca',
+              'version': '1.0',
+              'type': 'Resource',
+              'resource-manager': 'lm'
+          })
 
 class TestBuildBrentSubprojects(ProjectSimTestCase):
 

@@ -13,7 +13,8 @@ from tests.common.project_testing import (ProjectSimTestCase, PROJECT_CONTAINS_D
                                             BRENT_SOL003_HEAL_VNF_REQUEST_FILE, BRENT_SOL003_INSTANTIATE_VNF_REQUEST_FILE,
                                             BRENT_SOL003_OPERATE_VNF_REQUEST_START_FILE, BRENT_SOL003_OPERATE_VNF_REQUEST_STOP_FILE,
                                             BRENT_SOL003_SCALE_VNF_REQUEST_FILE, BRENT_SOL003_TERMINATE_VNF_REQUEST_FILE,
-                                            BRENT_SOL003_VNF_INSTANCE_FILE)
+                                            BRENT_SOL003_VNF_INSTANCE_FILE, 
+                                            PROJECT_TOSCA_META_DIR, PROJECT_TOSCA_META_FILE)
 from lmctl.project.source.core import Project
 
 EXPECTED_OPENSTACK_EXAMPLE_HEAT = '''\
@@ -158,6 +159,12 @@ default-driver:
       - \'*\'
 '''
 
+EXPECTED_TOSCA_META = '''\
+TOSCA-Meta-File-Version: 1.0
+CSAR-Version: 1.1
+Created-by: Author Here
+Entry-Definitions: Definitions'''
+
 class TestCreateBrentProjects(ProjectSimTestCase):
 
     def setUp(self):
@@ -181,6 +188,7 @@ class TestCreateBrentProjects(ProjectSimTestCase):
             'schema':  '2.0',
             'name': 'Test',
             'version': '9.9',
+            'packaging': 'tgz',
             'type': 'Resource',
             'resource-manager': 'brent'
         })
@@ -206,6 +214,29 @@ class TestCreateBrentProjects(ProjectSimTestCase):
         tester.assert_has_directory(ansible_hostvars_dir)
         tester.assert_has_file(os.path.join(ansible_hostvars_dir, 'example-host.yml'), EXPECTED_ANSIBLE_HOST_VARS)
     
+    def test_create_csar_packaging(self):
+        request = CreateResourceProjectRequest()
+        request.name = 'Test'
+        request.version = '9.9'
+        request.target_location = self.tmp_dir
+        request.resource_manager = 'brent'
+        request.params['packaging'] = 'csar'
+        creator = ProjectCreator(request, CreateOptions())
+        creator.create()
+        project = Project(self.tmp_dir)
+        tester = self.assert_project(project)
+        tester.assert_has_config({
+            'schema':  '2.0',
+            'name': 'Test',
+            'version': '9.9',
+            'packaging': 'csar',
+            'type': 'Resource',
+            'resource-manager': 'brent'
+        })
+        tester.assert_has_directory(PROJECT_TOSCA_META_DIR)
+        tester.assert_has_file(os.path.join(PROJECT_TOSCA_META_DIR, PROJECT_TOSCA_META_FILE), EXPECTED_TOSCA_META)
+    
+
     def test_create_sol003(self):
         request = CreateResourceProjectRequest()
         request.name = 'Test'
@@ -221,6 +252,7 @@ class TestCreateBrentProjects(ProjectSimTestCase):
             'schema':  '2.0',
             'name': 'Test',
             'version': '9.9',
+            'packaging': 'tgz',
             'type': 'Resource',
             'resource-manager': 'brent'
         })
@@ -258,6 +290,7 @@ class TestCreateBrentProjects(ProjectSimTestCase):
             'schema':  '2.0',
             'name': 'Test',
             'version': '9.9',
+            'packaging': 'tgz',
             'type': 'Resource',
             'resource-manager': 'brent'
         })
@@ -306,6 +339,7 @@ class TestCreateBrentProjects(ProjectSimTestCase):
         tester.assert_has_config({
             'schema':  '2.0',
             'name': 'Test',
+            'packaging': 'tgz',
             'version': '9.9',
             'type': 'Resource',
             'resource-manager': 'brent',

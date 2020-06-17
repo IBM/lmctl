@@ -37,6 +37,12 @@ For example, the following sets the driver param to "ansible" for the root Proje
 --contains Resource::brent A --param driver ansible --param A.driver sol003
 ```
 
+The following table describes the known params available for all projects: 
+
+| Name | Description | Options | Default | 
+| ---- | ---- | --- | --- |
+| packaging | Decide if the project will be packaged as a TGZ or CSAR (with TOSCA metadata) | tgz, csar | tgz |
+
 The following table describes the known params available for projects using the `brent` rm type: 
 
 | Name | Description | Options | Default | 

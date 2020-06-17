@@ -12,7 +12,7 @@ To build a project, navigate to it's directory and execute build:
 lmctl project build
 ```
 
-This command will produce a `.tgz` package in the auto-created LMCTL build workspace directory (`_lmctl/build`) relative to your project. This package includes:
+This command will produce a `.tgz` package (or `.csar` if packaging is configured in the lmproject file) in the auto-created LMCTL build workspace directory (`_lmctl/build`) relative to your project. This package includes:
 
 - All artifacts required by the root service of your project
 - All artifacts required by each subproject
