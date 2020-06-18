@@ -165,7 +165,7 @@ def list(project_path, element):
 @click.argument('location', default='./')
 @click.option('--name', help='Name of the Assembly/Resource managed in the project, by default the target directory name is used')
 @click.option('--version', default='1.0', help='Version of the Assembly managed in the project')
-@click.option('--type', 'project_type', default='Assembly', help='Type of service managed in the Project. Options: Assembly, NS (same as Assembly), VNF (same as Assembly), Resource')
+@click.option('--type', 'project_type', default='Assembly', help='Type of service managed in the Project. Options: Assembly, NS (same as Assembly), VNF (same as Assembly), Resource, Type')
 @click.option('--rm', default='lm', help='Resource projects only - type of Resource Manager this Resource supports')
 @click.option('--contains', nargs=2, type=click.Tuple([str, str]), multiple=True, help='Subprojects to initiate under this project. Must specify 2 values separated by spaces: type name. For a Resource subproject, you may set the rm by including it it in the type value using the format \'type::rm\' e.g. Resource::ansiblerm. If no rm is set then the value of the --rm option will be used instead')
 @click.option('--servicetype', help='(Deprecated: use --type instead) type of Service managed in the Project (NS or VNF)')
@@ -263,6 +263,8 @@ def __build_request_for_type(project_type):
         return creator.CreateAssemblyProjectRequest()
     elif project_types.is_resource_type(project_type):
         return creator.CreateResourceProjectRequest()
+    elif project_types.is_type_project_type(project_type):
+        return creator.CreateTypeProjectRequest()
     else:
         lifecycle_cli.printer.print_text('Error: --type option must be one of: {0}'.format([project_types.ASSEMBLY_PROJECT_TYPE,
                                                                                             project_types.NS_PROJECT_TYPE, project_types.VNF_PROJECT_TYPE, project_types.RESOURCE_PROJECT_TYPE]))
@@ -274,6 +276,8 @@ def __build_subproject_request_for_type(project_type):
         return creator.AssemblySubprojectRequest()
     elif project_types.is_resource_type(project_type):
         return creator.ResourceSubprojectRequest()
+    elif project_types.is_type_project_type(project_type):
+        return creator.TypeSubprojectRequest()
     else:
         lifecycle_cli.printer.print_text('Error: --subproject option must include a type of: {0}'.format([project_types.ASSEMBLY_PROJECT_TYPE,
                                                                                                           project_types.NS_PROJECT_TYPE, project_types.VNF_PROJECT_TYPE, project_config.RESOURCE_PROJECT_TYPE]))
