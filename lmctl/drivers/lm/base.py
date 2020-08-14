@@ -1,4 +1,4 @@
-
+import yaml
 
 class LmDriver:
 
@@ -22,6 +22,10 @@ class LmDriver:
             elif 'message' in json_body:
                 message = json_body['message']
         except ValueError as e:
+            pass
+        try:
+            message = yaml.safe_load(response.text)
+        except yaml.YAMLError as e:
             pass
         error_msg = ''
         if error_prefx is not None:

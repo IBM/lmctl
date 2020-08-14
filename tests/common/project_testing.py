@@ -24,6 +24,7 @@ PKG_META_YML_FILE = 'lmpkg.yml'
 ASSEMBLY_DESCRIPTOR_DIR = 'Descriptor'
 ASSEMBLY_DESCRIPTOR_YML_FILE = 'assembly.yml'
 ASSEMBLY_DESCRIPTOR_YAML_FILE = 'assembly.yaml'
+ASSEMBLY_DESCRIPTOR_TEMPLATE_YML_FILE = 'assembly-template.yml'
 
 ASSEMBLY_BEHAVIOUR_DIR = 'Behaviour'
 ASSEMBLY_CONFIGURATIONS_DIR = 'Configurations'
@@ -63,6 +64,11 @@ BRENT_OPENSTACK_HEAT_YAML_FILE = 'heat.yaml'
 BRENT_OPENSTACK_TOSCA_YAML_FILE = 'tosca.yaml'
 BRENT_OPENSTACK_DISCOVER_YAML_FILE = 'discover.yaml'
 BRENT_KUBERNETES_DIR = 'kubernetes'
+
+TYPE_DESCRIPTOR_DIR = 'Descriptor'
+TYPE_DESCRIPTOR_YML_FILE = 'type.yml'
+TYPE_DESCRIPTOR_YAML_FILE = 'type.yaml'
+
 
 class ProjectSimTestCase(unittest.TestCase):
 

@@ -5,6 +5,11 @@ import tests.common.simulations.project_lab as project_lab
 from tests.common.project_testing import (ProjectSimTestCase, PROJECT_CONTAINS_DIR)
 from lmctl.project.sessions import EnvironmentSessions
 from lmctl.project.package.core import Pkg, PkgContent, PushOptions
+from lmctl.project.handlers.assembly.assembly_src import TEMPLATE_CONTENT
+
+WITH_TEMPLATE_ASSEMBLY_TEMPLATE_DESCRIPTOR_YAML = "name: assembly-template::with_template::1.0"
+WITH_TEMPLATE_ASSEMBLY_TEMPLATE_DESCRIPTOR_YAML += "\n"
+WITH_TEMPLATE_ASSEMBLY_TEMPLATE_DESCRIPTOR_YAML += TEMPLATE_CONTENT
 
 class TestPushAssemblyPkgs(ProjectSimTestCase):
 
@@ -33,6 +38,32 @@ class TestPushAssemblyPkgs(ProjectSimTestCase):
         lm_session.descriptor_driver.get_descriptor.assert_called_once_with('assembly::basic::1.0')
         lm_session.descriptor_driver.create_descriptor.assert_not_called()
         lm_session.descriptor_driver.update_descriptor.assert_called_once_with('assembly::basic::1.0', 'name: assembly::basic::1.0\ndescription: basic_assembly\n')
+
+    def test_push_creates_descriptor_template(self):
+        pkg_sim = self.simlab.simulate_pkg_assembly_with_template()
+        pkg = Pkg(pkg_sim.path)
+        push_options = PushOptions()
+        lm_sim = self.simlab.simulate_lm()
+        lm_session = lm_sim.as_mocked_session()
+        env_sessions = EnvironmentSessions(lm_session)
+        result = pkg.push(env_sessions, push_options)
+        self.assertIsInstance(result, PkgContent)
+        lm_session.descriptor_template_driver.get_descriptor_template.assert_called_once_with('assembly-template::with_template::1.0')
+        lm_session.descriptor_template_driver.create_descriptor_template.assert_called_once_with(WITH_TEMPLATE_ASSEMBLY_TEMPLATE_DESCRIPTOR_YAML)
+
+    def test_push_updates_descriptors_template_if_exists(self):
+        pkg_sim = self.simlab.simulate_pkg_assembly_with_template()
+        pkg = Pkg(pkg_sim.path)
+        push_options = PushOptions()
+        lm_sim = self.simlab.simulate_lm()
+        lm_sim.add_descriptor_template('name: assembly-template::with_template::1.0\ndescription: pre-update\n')
+        lm_session = lm_sim.as_mocked_session()
+        env_sessions = EnvironmentSessions(lm_session)
+        result = pkg.push(env_sessions, push_options)
+        self.assertIsInstance(result, PkgContent)
+        lm_session.descriptor_template_driver.get_descriptor_template.assert_called_once_with('assembly-template::with_template::1.0')
+        lm_session.descriptor_template_driver.create_descriptor_template.assert_not_called()
+        lm_session.descriptor_template_driver.update_descriptor_template.assert_called_once_with('assembly-template::with_template::1.0', WITH_TEMPLATE_ASSEMBLY_TEMPLATE_DESCRIPTOR_YAML)
 
     def test_push_creates_behaviour_configuration(self):
         pkg_sim = self.simlab.simulate_pkg_assembly_with_behaviour() 

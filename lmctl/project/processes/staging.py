@@ -124,9 +124,9 @@ class SourceStager:
         files.copy_tree(orig_path, target_path)
         return target_path
 
-    def stage_descriptor(self, orig_path, relative_staging_path):
+    def stage_descriptor(self, orig_path, relative_staging_path, is_template=False):
         staged_path = self.stage_file(orig_path, relative_staging_path)
         descriptor = descriptor_utils.DescriptorParser().read_from_file(staged_path)
-        descriptor = descriptor_mutations.DescriptorStageMutator(self.source_config, self.references, self.journal).apply(descriptor)
+        descriptor = descriptor_mutations.DescriptorStageMutator(self.source_config, self.references, self.journal).apply(descriptor, is_template=is_template)
         descriptor_utils.DescriptorParser().write_to_file(descriptor, staged_path)
         return staged_path

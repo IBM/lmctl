@@ -13,6 +13,8 @@ class AssemblySourceTree(files.Tree):
 
     DESCRIPTOR_FILE_YML = 'assembly.yml'
     DESCRIPTOR_FILE_YAML = 'assembly.yaml'
+    DESCRIPTOR_TEMPLATE_FILE_YML = 'assembly-template.yml'
+    DESCRIPTOR_TEMPLATE_FILE_YAML = 'assembly-template.yaml'
     DESCRIPTOR_DIR_NAME = 'Descriptor'
     BEHAVIOUR_DIR_NAME = 'Behaviour'
     BEHAVIOR_DIR_NAME = 'Behavior'
@@ -32,6 +34,18 @@ class AssemblySourceTree(files.Tree):
             if os.path.exists(yml_path):
                 raise handlers_api.InvalidSourceError('Project has both a {0} file and a {1} file when there should only be one'.format(
                     AssemblySourceTree.DESCRIPTOR_FILE_YML, AssemblySourceTree.DESCRIPTOR_FILE_YAML))
+            return yaml_path
+        else:
+            return yml_path
+
+    @property
+    def descriptor_template_file_path(self):
+        yml_path = self.resolve_relative_path(AssemblySourceTree.DESCRIPTOR_DIR_NAME, AssemblySourceTree.DESCRIPTOR_TEMPLATE_FILE_YML)
+        yaml_path = self.resolve_relative_path(AssemblySourceTree.DESCRIPTOR_DIR_NAME, AssemblySourceTree.DESCRIPTOR_TEMPLATE_FILE_YAML)
+        if os.path.exists(yaml_path):
+            if os.path.exists(yml_path):
+                raise handlers_api.InvalidSourceError('Project has both a {0} file and a {1} file when there should only be one'.format(
+                    AssemblySourceTree.DESCRIPTOR_TEMPLATE_FILE_YML, AssemblySourceTree.DESCRIPTOR_TEMPLATE_FILE_YAML))
             return yaml_path
         else:
             return yml_path
@@ -77,10 +91,64 @@ class AssemblySourceTree(files.Tree):
         safe_file_name = '{0}.json'.format(files.safe_file_name(test_name))
         return self.resolve_relative_path(self.service_behaviour_name, AssemblySourceTree.BEHAVIOUR_TESTS_DIR_NAME, safe_file_name)
 
+INCLUDE_TEMPLATE_PARAM_NAME = 'template'
+INCLUDE_TEMPLATE_YES_VALUES = [True, 'True', 'true', 'yes', 'YES', 'Y', 'y']
+INCLUDE_TEMPLATE_NO_VALUES = [False, 'False', 'false', 'no', 'NO', 'N', 'n']
+
+TEMPLATE_CONTENT = '''\
+description: |
+  This is a template that may be used with Design Template Engine service (Kami)
+  Properties on this template may be referenced in the template using Jinja2 syntax e.g. {{ propertyName }}
+  The template may also use Jinja2 control structures such as If/else and for loops
+  Properties may only be of type string. If you need to pass complex datatypes to the template (e.g. a list or dictionary to iterate over)
+  then the template user will have to pass a JSON string to those properties.
+properties:
+  descriptorName:
+    type: string
+  vendor:
+    type: string
+  elements:
+    type: string
+template: |
+  name: {{descriptorName}}
+  properties:
+    deploymentLocation:
+      type: string
+    resourceManager:
+      type: string
+  composition:
+  # Example of using an IF statement
+  {% if vendor == 'kingcomm' %}
+    kingcomm-extra:
+      type: resource::kingcomm-extra::1.0
+      properties:
+        deploymentLocation:
+          value: ${deploymentLocation}
+        resourceManager:
+          value: ${resourceManager}
+  {% endif %}
+  # Example of iterating over a dictionary property passed in as a JSON string
+  {% set elementMap = elements|fromJson %}
+  {% for elementName, details in elementMap.items() %}
+    {{ elementName }}:
+      type: {{ details.type }}
+      properties:
+        deploymentLocation:
+          value: ${deploymentLocation}
+        resourceManager:
+          value: ${resourceManager}
+  {% endfor %}
+'''
+
 class AssemblySourceCreator(handlers_api.SourceCreator):
 
     def __init__(self):
         super().__init__()
+
+    def get_params(self, source_request):
+        params = []
+        params.append(handlers_api.SourceParam(INCLUDE_TEMPLATE_PARAM_NAME, required=False, default_value=False, allowed_values=(INCLUDE_TEMPLATE_YES_VALUES+INCLUDE_TEMPLATE_NO_VALUES)))
+        return params
 
     def _do_create_source(self, journal, source_request):
         source_tree = AssemblySourceTree()
@@ -91,6 +159,12 @@ class AssemblySourceCreator(handlers_api.SourceCreator):
         file_ops.append(handlers_api.CreateDirectoryOp(source_tree.service_behaviour_configurations_path, handlers_api.EXISTING_IGNORE))
         file_ops.append(handlers_api.CreateDirectoryOp(source_tree.service_behaviour_runtime_path, handlers_api.EXISTING_IGNORE))
         file_ops.append(handlers_api.CreateDirectoryOp(source_tree.service_behaviour_tests_path, handlers_api.EXISTING_IGNORE))
+        
+        include_template = source_request.param_values.get_value(INCLUDE_TEMPLATE_PARAM_NAME)
+        if type(include_template) == str:
+            include_template = include_template in INCLUDE_TEMPLATE_YES_VALUES
+        if include_template:
+            file_ops.append(handlers_api.CreateFileOp(source_tree.descriptor_template_file_path, TEMPLATE_CONTENT, handlers_api.EXISTING_IGNORE))
         self._execute_file_ops(file_ops, source_request.target_path, journal)
 
 class AssemblySourceHandler(handlers_api.SourceHandler):
@@ -130,6 +204,7 @@ class AssemblySourceHandler(handlers_api.SourceHandler):
         errors = []
         warnings = []
         self.__validate_descriptor(journal, source_validator, errors, warnings)
+        self.__validate_descriptor_template(journal, source_validator, errors, warnings)
         self.__validate_service_behaviour(journal, source_validator, errors, warnings)
         return ValidationResult(errors, warnings)
 
@@ -137,6 +212,12 @@ class AssemblySourceHandler(handlers_api.SourceHandler):
         journal.stage('Validating assembly descriptor for {0}'.format(self.source_config.name))
         descriptor_path = self.tree.descriptor_file_path
         source_validator.validate_descriptor(descriptor_path, errors, warnings)
+
+    def __validate_descriptor_template(self, journal, source_validator, errors, warnings):
+        if os.path.exists(self.tree.descriptor_template_file_path):
+            journal.stage('Validating assembly descriptor template for {0}'.format(self.source_config.name))
+            path = self.tree.descriptor_template_file_path
+            source_validator.validate_descriptor(path, errors, warnings, is_template=True)
 
     def __validate_service_behaviour(self, journal, source_validator, errors, warnings):
         journal.stage('Validating service behaviour for {0}'.format(self.source_config.name))
@@ -188,6 +269,7 @@ class AssemblySourceHandler(handlers_api.SourceHandler):
     def stage_sources(self, journal, source_stager):
         staging_tree = AssemblyPkgContentTree()
         project_descriptor_name = self.__stage_descriptor(journal, source_stager, staging_tree)
+        self.__stage_descriptor_template(journal, source_stager, staging_tree)
         self.__stage_service_behaviour(journal, source_stager, staging_tree, project_descriptor_name)
 
     def __stage_descriptor(self, journal, source_stager, staging_tree):
@@ -196,6 +278,12 @@ class AssemblySourceHandler(handlers_api.SourceHandler):
         staged_descriptor_path = source_stager.stage_descriptor(descriptor_path, staging_tree.descriptor_file_path)
         descriptor = descriptors.DescriptorParser().read_from_file(staged_descriptor_path)
         return descriptor.get_name()
+
+    def __stage_descriptor_template(self, journal, source_stager, staging_tree):
+        if os.path.exists(self.tree.descriptor_template_file_path):
+            template_path = self.tree.descriptor_template_file_path
+            journal.event('Staging assembly descriptor template for {0} at {1}'.format(self.source_config.name, template_path))
+            source_stager.stage_descriptor(template_path, staging_tree.descriptor_template_file_path, is_template=True)
 
     def __stage_service_behaviour(self, journal, source_stager, staging_tree, project_descriptor_name):
         behaviour_path = self.tree.service_behaviour_path
@@ -347,7 +435,7 @@ class AssemblyStagedSourceHandler(handlers_api.StagedSourceHandler):
 
     def compile_sources(self, journal, source_compiler):
         compile_tree = AssemblyPkgContentTree()
-        journal.event('Compiling descriptor for: {0}'.format(self.source_config.full_name))
+        journal.event('Compiling descriptor(s) for: {0}'.format(self.source_config.full_name))
         source_compiler.compile_tree(self.tree.descriptor_path, compile_tree.descriptor_path)
         behaviour_path = self.tree.service_behaviour_path
         if not os.path.exists(behaviour_path):

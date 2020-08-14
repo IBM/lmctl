@@ -100,6 +100,16 @@ class ScenarioPushMutator(BehaviourMutator):
     def __replace_actor_refs_with_ids(self, scenario):
         for actor in scenario['assemblyActors']:
             if not actor['provided']:
+                if "baseConfigurationRef" in actor:
+                    configuration_ref = actor["baseConfigurationRef"]
+                    configuration_id_to_use = configuration_ref
+
+                    matching_configuration = self.__find_assembly_configuration_by_name(configuration_ref)
+                    if matching_configuration is not None:
+                        configuration_id_to_use = matching_configuration["id"]
+
+                    actor.pop("baseConfigurationRef", None)
+                    actor["baseConfigurationId"] = configuration_id_to_use
                 if "assemblyConfigurationRef" in actor:
                     configuration_ref = actor["assemblyConfigurationRef"]
                     configuration_id_to_use = configuration_ref
@@ -133,10 +143,18 @@ class ScenarioPullMutator(BehaviourMutator):
     def __swap_assembly_configuration_ids_for_names(self, scenario):
         for actor in scenario['assemblyActors']:
             if not actor['provided']:
-                configuration_id = actor["assemblyConfigurationId"]
-                configuration_name = configuration_id
-                if configuration_id in self.configurations_by_id:
-                    configuration_name = self.configurations_by_id[configuration_id]["name"]
-                actor.pop("assemblyConfigurationId", None)
-                actor["assemblyConfigurationRef"] = configuration_name
+                if 'baseConfigurationId' in actor and actor['baseConfigurationId'] != None:
+                    configuration_id = actor["baseConfigurationId"]
+                    configuration_name = configuration_id
+                    if configuration_id in self.configurations_by_id:
+                        configuration_name = self.configurations_by_id[configuration_id]["name"]
+                    actor.pop("baseConfigurationId", None)
+                    actor["baseConfigurationRef"] = configuration_name
+                if 'assemblyConfigurationId' in actor and actor['assemblyConfigurationId'] != None:
+                    configuration_id = actor["assemblyConfigurationId"]
+                    configuration_name = configuration_id
+                    if configuration_id in self.configurations_by_id:
+                        configuration_name = self.configurations_by_id[configuration_id]["name"]
+                    actor.pop("assemblyConfigurationId", None)
+                    actor["assemblyConfigurationRef"] = configuration_name
         return scenario

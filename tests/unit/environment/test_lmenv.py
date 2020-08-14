@@ -21,9 +21,9 @@ class TestLmEnvironment(unittest.TestCase):
         self.assertEqual(str(context.exception), 'LM environment cannot be configured with unsupported protocol \'ftp\'. Must be one of: [\'http\', \'https\']')
 
     def test_init_fails_with_unsupported_kwargs(self):
-        with self.assertRaises(EnvironmentConfigError) as context:
+        with self.assertRaises(TypeError) as context:
             config = LmEnvironment('lm', 'test', 80, not_a_key='test')
-        self.assertEqual(str(context.exception), 'Unsupported key argument: not_a_key')
+        self.assertEqual(str(context.exception), '__init__() got an unexpected keyword argument \'not_a_key\'')
 
     def test_init_fails_when_secure_and_username_is_none(self):
         with self.assertRaises(EnvironmentConfigError) as context:
@@ -121,6 +121,10 @@ class TestLmEnvironment(unittest.TestCase):
     def test_auth_address(self):
         env = LmEnvironment('lm', 'test', 80, 'http', secure=True, username='user', auth_host='auth', auth_port=82, auth_protocol='https')
         self.assertEqual(env.auth_address, 'https://auth:82')
+
+    def test_kami_address(self):
+        env = LmEnvironment('lm', 'test', 80, 'http', secure=True, username='user', auth_host='auth', auth_port=82, auth_protocol='https')
+        self.assertEqual(env.kami_address, 'http://test:31289')
 
     def test_create_session_config(self):
         env = LmEnvironment('lm', 'test')
