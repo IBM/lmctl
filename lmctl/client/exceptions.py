@@ -27,11 +27,10 @@ class LmClientHttpError(LmClientError):
                 self.body = yaml.safe_load(self.cause.response.text)
             except yaml.YAMLError as e:
                 pass
-        else:
-            self.body = self.cause.response.text
-        self.detail_message = str(self.cause)
-        if isinstance(self.body, dict):
+        if self.body is not None and isinstance(self.body, dict):
             if 'localizedMessage' in self.body:
                 self.detail_message = self.body.get('localizedMessage')
             elif 'message' in self.body:
                 self.detail_message = self.body.get('message')
+        else:
+            self.detail_message = str(self.cause)

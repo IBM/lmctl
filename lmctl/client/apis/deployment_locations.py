@@ -1,6 +1,6 @@
+from typing import List
 
-
-class DeploymentLocationApi:
+class DeploymentLocationAPI:
 
     def __init__(self, base_client: 'LmClient'):
         self.base_client = base_client
@@ -12,18 +12,12 @@ class DeploymentLocationApi:
     def _by_id_endpoint(self, location_id: str) -> str:
         return f'{self.endpoint}/{location_id}'
 
-    def all(self):
+    def all(self) -> List:
         url = self._endpoint()
-        headers = self._configure_access_headers()
-        response = self.base_client.make_request('GET', self.endpoint)
-        return response.json()
+        location_list = self.base_client.make_request_for_json('GET', self.endpoint)
+        return location_list
 
-    def get_locations_by_name(self, deployment_location_name):
+    def all_by_name(self, deployment_location_name: str) -> List:
         url = self.__location_by_name_api(deployment_location_name)
-        headers = self._configure_access_headers()
-        response = requests.get(url, headers=headers, verify=False)
-        if response.status_code == 200:
-            locations = response.json()
-            return locations
-        else:
-            self._raise_unexpected_status_exception(response)
+        location_list = self.base_client.make_request_for_json('GET', self.endpoint)
+        return location_list

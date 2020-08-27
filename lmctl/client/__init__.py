@@ -1,5 +1,8 @@
-#from lmctl.client import LmClient
+from .client import LmClient
+from .exceptions import LmClientError, LmClientHttpError
+from .client_factory import LmClientFactory
 
-#lm_client = LmClient()
+factory = LmClientFactory()
 
-#lm.descriptors.get()
+def build(address: str, auth: AuthType=None) -> LmClient:
+    return factory.build()
