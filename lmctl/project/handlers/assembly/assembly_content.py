@@ -24,6 +24,7 @@ def reset_polling_period():
 class AssemblyPkgContentTree(files.Tree):
 
     DESCRIPTOR_FILE_YML = 'assembly.yml'
+    DESCRIPTOR_TEMPLATE_FILE_YML = 'assembly-template.yml'
     DESCRIPTOR_DIR_NAME = 'Descriptor'
     BEHAVIOUR_DIR_NAME = 'Behaviour'
     BEHAVIOUR_CONFIGURATIONS_DIR_NAME = 'Configurations'
@@ -44,8 +45,17 @@ class AssemblyPkgContentTree(files.Tree):
         return os.path.basename(full_path)
 
     @property
+    def descriptor_template_file_name(self):
+        full_path = self.descriptor_template_file_path
+        return os.path.basename(full_path)
+
+    @property
     def descriptor_file_path(self):
         return self.resolve_relative_path(AssemblyPkgContentTree.DESCRIPTOR_DIR_NAME, AssemblyPkgContentTree.DESCRIPTOR_FILE_YML)
+   
+    @property
+    def descriptor_template_file_path(self):
+        return self.resolve_relative_path(AssemblyPkgContentTree.DESCRIPTOR_DIR_NAME, AssemblyPkgContentTree.DESCRIPTOR_TEMPLATE_FILE_YML)
 
     @property
     def service_behaviour_path(self):
@@ -83,7 +93,7 @@ class AssemblyContentHandler(handlers_api.PkgContentHandler):
         return ValidationResult(errors, warnings)
 
     def __validate_descriptor(self, journal, errors, warnings):
-        journal.stage('Validating Assembly descriptor for {0}'.format(self.meta.name))
+        journal.stage('Validating assembly descriptor for {0}'.format(self.meta.name))
         descriptor_path = self.tree.descriptor_file_path
         if not os.path.exists(descriptor_path):
             msg = 'No descriptor found at: {0}'.format(descriptor_path)
@@ -92,6 +102,7 @@ class AssemblyContentHandler(handlers_api.PkgContentHandler):
 
     def push_content(self, journal, env_sessions):
         project_id = self.__push_descriptor(journal, env_sessions)
+        self.__push_descriptor_template(journal, env_sessions)
         self.__push_service_behaviour(journal, env_sessions, project_id)
 
     def __push_descriptor(self, journal, env_sessions):
@@ -114,6 +125,26 @@ class AssemblyContentHandler(handlers_api.PkgContentHandler):
             descriptor_driver.create_descriptor(descriptor_yml_str)
         env_sessions.mark_lm_updated()
         return descriptor_name
+
+    def __push_descriptor_template(self, journal, env_sessions):
+        lm_session = env_sessions.lm
+        descriptor_template_path = self.tree.descriptor_template_file_path
+        if os.path.exists(descriptor_template_path):
+            descriptor, descriptor_yml_str = descriptors.DescriptorParser().read_from_file_with_raw(descriptor_template_path)
+            descriptor_name = descriptor.get_name()
+            descriptor_template_driver = lm_session.descriptor_template_driver
+            journal.event('Checking for Descriptor Template {0} in LM ({1})'.format(descriptor_name, descriptor_template_driver.lm_base))
+            found = True
+            try:
+                descriptor_template_driver.get_descriptor_template(descriptor_name)
+            except lm_drivers.NotFoundException:
+                found = False
+            if found:
+                journal.event('Descriptor Template {0} already exists, updating'.format(descriptor_name))
+                descriptor_template_driver.update_descriptor_template(descriptor_name, descriptor_yml_str)
+            else:
+                journal.event('Not found, creating Descriptor Template {0}'.format(descriptor_name))
+                descriptor_template_driver.create_descriptor_template(descriptor_yml_str)
 
     def __push_service_behaviour(self, journal, env_sessions, project_id):
         lm_session = env_sessions.lm

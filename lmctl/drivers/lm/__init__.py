@@ -10,3 +10,4 @@ from .resourcedriver import LmResourceDriverMgmtDriver
 from .infrastructure_keys import LmInfrastructureKeysDriver
 from .lifecycledriver import LmLifecycleDriverMgmtDriver
 from .vimdriver import LmVimDriverMgmtDriver
+from .descriptor_templates import LmDescriptorTemplatesDriver

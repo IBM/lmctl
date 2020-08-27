@@ -26,6 +26,11 @@ class CreateAssemblyProjectRequest(CreateProjectRequest):
     def __init__(self):
         super().__init__()
 
+class CreateTypeProjectRequest(CreateProjectRequest):
+
+    def __init__(self):
+        super().__init__()
+
 class CreateResourceProjectRequest(CreateProjectRequest):
 
     def __init__(self):
@@ -44,6 +49,10 @@ class AssemblySubprojectRequest(SubprojectRequest):
     def __init__(self):
         super().__init__()
 
+class TypeSubprojectRequest(SubprojectRequest):
+
+    def __init__(self):
+        super().__init__()
 
 class ResourceSubprojectRequest(SubprojectRequest):
 
@@ -108,6 +117,8 @@ class ProjectCreator:
         if isinstance(self.request, CreateResourceProjectRequest):
             project_type = types.RESOURCE_PROJECT_TYPE
             resource_manager = self.request.resource_manager
+        elif isinstance(self.request, CreateTypeProjectRequest):
+            project_type = types.TYPE_PROJECT_TYPE
         packaging = handlers_api.TGZ_PACKAGING
         if 'packaging' in self.request.params:
             packaging = self.request.params['packaging']
@@ -131,6 +142,8 @@ class ProjectCreator:
             if isinstance(subproject_request, ResourceSubprojectRequest):
                 project_type = types.RESOURCE_PROJECT_TYPE
                 resource_manager = subproject_request.resource_manager
+            elif isinstance(subproject_request, TypeSubprojectRequest):
+                project_type = types.TYPE_PROJECT_TYPE
             nested_subproject_requests = subproject_request.subproject_requests
             param_values = handlers_api.SourceCreationParamValues(subproject_request.params, parent_param_values)
             new_name_chain = [*name_chain, subproject_request.name]

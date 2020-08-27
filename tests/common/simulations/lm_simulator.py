@@ -77,6 +77,7 @@ class SimulatedLm:
 
     def __init__(self):
         self.descriptors = {}
+        self.descriptor_templates = {}
         self.projects = {}
         self.assembly_configurations = {}
         self.assembly_configurations_by_project = {}
@@ -164,6 +165,27 @@ class SimulatedLm:
         self.mock.update_descriptor(descriptor)
         parsed_descriptor = descriptor_utils.DescriptorParser().read_from_str(descriptor)
         self.__update(self.descriptors, parsed_descriptor.get_name(), descriptor)
+
+    def get_descriptor_template(self, descriptor_name):
+        self.mock.get_descriptor_template(descriptor_name)
+        descriptor = self.__get(self.descriptor_templates, descriptor_name)
+        return descriptor
+
+    def add_descriptor_template(self, descriptor_template):
+        self.mock.add_descriptor_template(descriptor_template)
+        parsed_descriptor = descriptor_utils.DescriptorParser().read_from_str(descriptor_template)
+        self.__add(self.descriptor_templates, parsed_descriptor.get_name(), descriptor_template)
+        if parsed_descriptor.get_name() not in self.projects:
+            self.__add(self.projects, parsed_descriptor.get_name(), {'id': parsed_descriptor.get_name(), 'name': parsed_descriptor.get_name()})
+
+    def delete_descriptor_template(self, descriptor_name):
+        self.mock.delete_descriptor_template(descriptor_name)
+        self.__delete(self.descriptor_templates, descriptor_name)
+
+    def update_descriptor_template(self, descriptor_template):
+        self.mock.update_descriptor_template(descriptor_template)
+        parsed_descriptor = descriptor_utils.DescriptorParser().read_from_str(descriptor_template)
+        self.__update(self.descriptor_templates, parsed_descriptor.get_name(), descriptor_template)
 
     def add_resource_package(self, package_name, package_content):
         self.mock.add_package(package_name, package_content)
@@ -500,6 +522,8 @@ class SimulatedLmSession(LmSession):
         self.sim = lm_sim
         self.__descriptor_driver = MagicMock()
         self.__descriptor_driver_sim = SimDescriptorDriver(self.sim)
+        self.__descriptor_template_driver = MagicMock()
+        self.__descriptor_template_driver_sim = SimDescriptorTemplateDriver(self.sim)
         self.__onboard_rm_driver = MagicMock()
         self.__onboard_rm_driver_sim = SimOnboardRmDriver(self.sim)
         self.__topology_driver = MagicMock()
@@ -524,6 +548,10 @@ class SimulatedLmSession(LmSession):
         self.__descriptor_driver.get_descriptor.side_effect = self.__descriptor_driver_sim.get_descriptor
         self.__descriptor_driver.create_descriptor.side_effect = self.__descriptor_driver_sim.create_descriptor
         self.__descriptor_driver.update_descriptor.side_effect = self.__descriptor_driver_sim.update_descriptor
+        self.__descriptor_template_driver.delete_descriptor_template.side_effect = self.__descriptor_template_driver_sim.delete_descriptor_template
+        self.__descriptor_template_driver.get_descriptor_template.side_effect = self.__descriptor_template_driver_sim.get_descriptor_template
+        self.__descriptor_template_driver.create_descriptor_template.side_effect = self.__descriptor_template_driver_sim.create_descriptor_template
+        self.__descriptor_template_driver.update_descriptor_template.side_effect = self.__descriptor_template_driver_sim.update_descriptor_template
         self.__behaviour_driver.create_project.side_effect = self.__behaviour_driver_sim.create_project
         self.__behaviour_driver.update_project.side_effect = self.__behaviour_driver_sim.update_project
         self.__behaviour_driver.get_project.side_effect = self.__behaviour_driver_sim.get_project
@@ -566,6 +594,10 @@ class SimulatedLmSession(LmSession):
     @property
     def descriptor_driver(self):
         return self.__descriptor_driver
+
+    @property
+    def descriptor_template_driver(self):
+        return self.__descriptor_template_driver
 
     @property
     def onboard_rm_driver(self):
@@ -739,6 +771,40 @@ class SimDescriptorDriver:
             self.sim_lm.update_descriptor(descriptor_content)
         except NotFoundError as e:
             raise lm_drivers.NotFoundException('No descriptor with name {0}'.format(descriptor_name))
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+class SimDescriptorTemplateDriver:
+    def __init__(self, sim_lm):
+        self.sim_lm = sim_lm
+
+    def delete_descriptor_template(self, descriptor_name):
+        try:
+            self.sim_lm.delete_descriptor_template(descriptor_name)
+        except NotFoundError as e:
+            raise lm_drivers.NotFoundException('No descriptor template with name {0}'.format(descriptor_name))
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def get_descriptor_template(self, descriptor_name):
+        try:
+            return self.sim_lm.get_descriptor_template(descriptor_name)
+        except NotFoundError as e:
+            raise lm_drivers.NotFoundException('No descriptor template with name {0}'.format(descriptor_name))
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def create_descriptor_template(self, descriptor_content):
+        try:
+            self.sim_lm.add_descriptor_template(descriptor_content)
+        except Exception as e:
+            raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
+
+    def update_descriptor_template(self, descriptor_name, descriptor_content):
+        try:
+            self.sim_lm.update_descriptor_template(descriptor_content)
+        except NotFoundError as e:
+            raise lm_drivers.NotFoundException('No descriptor template with name {0}'.format(descriptor_name))
         except Exception as e:
             raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
 

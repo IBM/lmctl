@@ -23,11 +23,11 @@ setup(
     packages=find_namespace_packages(include=['lmctl*']),
     include_package_data=True,
     install_requires=[
-        'click',
-        'requests',
-        'ruamel.yaml',
-        'oyaml',
-        'tabulate'
+        'click>=7.1,<8.0',
+        'requests>=2.23,<3.0',
+        'ruamel.yaml>=0.16,<1.0',
+        'oyaml>=0.8,<1.0',
+        'tabulate>=0.8,<1.0'
     ],
     entry_points='''
         [console_scripts]

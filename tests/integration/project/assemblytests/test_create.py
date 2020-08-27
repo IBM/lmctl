@@ -4,10 +4,11 @@ import shutil
 import os
 from tests.common.project_testing import (ProjectSimTestCase,
                                           PROJECT_CONTAINS_DIR, ASSEMBLY_DESCRIPTOR_DIR, ASSEMBLY_DESCRIPTOR_YML_FILE, 
-                                          ASSEMBLY_BEHAVIOUR_DIR, ASSEMBLY_CONFIGURATIONS_DIR, 
+                                          ASSEMBLY_DESCRIPTOR_TEMPLATE_YML_FILE, ASSEMBLY_BEHAVIOUR_DIR, ASSEMBLY_CONFIGURATIONS_DIR, 
                                           ASSEMBLY_RUNTIME_DIR, ASSEMBLY_TESTS_DIR)
 from lmctl.project.source.creator import CreateAssemblyProjectRequest, AssemblySubprojectRequest, ProjectCreator, CreateOptions
 from lmctl.project.source.core import Project
+from lmctl.project.handlers.assembly.assembly_src import TEMPLATE_CONTENT
 
 class TestCreateAssemblyProjects(ProjectSimTestCase):
 
@@ -49,6 +50,30 @@ class TestCreateAssemblyProjects(ProjectSimTestCase):
         project = Project(self.tmp_dir)
         tester = self.assert_project(project)
         tester.assert_has_file(os.path.join(ASSEMBLY_DESCRIPTOR_DIR, ASSEMBLY_DESCRIPTOR_YML_FILE), 'description: descriptor for Test')
+        tester.assert_has_directory(os.path.join(ASSEMBLY_BEHAVIOUR_DIR))
+        tester.assert_has_directory(os.path.join(ASSEMBLY_BEHAVIOUR_DIR, ASSEMBLY_CONFIGURATIONS_DIR))
+        tester.assert_has_directory(os.path.join(ASSEMBLY_BEHAVIOUR_DIR, ASSEMBLY_RUNTIME_DIR))
+        tester.assert_has_directory(os.path.join(ASSEMBLY_BEHAVIOUR_DIR, ASSEMBLY_TESTS_DIR))
+        tester.assert_has_config({
+            'schema':  '2.0',
+            'name': 'Test',
+            'version': '9.9',
+            'type': 'Assembly',
+            'packaging': 'tgz'
+        })
+
+    def test_create_with_template(self):
+        request = CreateAssemblyProjectRequest()
+        request.name = 'Test'
+        request.target_location = self.tmp_dir
+        request.version = '9.9'
+        request.params['template'] = 'yes'
+        creator = ProjectCreator(request, CreateOptions())
+        creator.create()
+        project = Project(self.tmp_dir)
+        tester = self.assert_project(project)
+        tester.assert_has_file(os.path.join(ASSEMBLY_DESCRIPTOR_DIR, ASSEMBLY_DESCRIPTOR_YML_FILE), 'description: descriptor for Test')
+        tester.assert_has_file(os.path.join(ASSEMBLY_DESCRIPTOR_DIR, ASSEMBLY_DESCRIPTOR_TEMPLATE_YML_FILE), TEMPLATE_CONTENT)
         tester.assert_has_directory(os.path.join(ASSEMBLY_BEHAVIOUR_DIR))
         tester.assert_has_directory(os.path.join(ASSEMBLY_BEHAVIOUR_DIR, ASSEMBLY_CONFIGURATIONS_DIR))
         tester.assert_has_directory(os.path.join(ASSEMBLY_BEHAVIOUR_DIR, ASSEMBLY_RUNTIME_DIR))

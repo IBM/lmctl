@@ -58,6 +58,9 @@ class PkgMeta:
     def is_assembly_content(self):
         return types.is_assembly_type(self.content_type)
 
+    def is_type_content(self):
+        return types.is_type_project_type(self.content_type)
+
 class PkgMetaBase(PkgMeta):
 
     def __init__(self, name, content_type, resource_manager=None, subpkg_entries=None):
@@ -99,6 +102,8 @@ class PkgMetaBase(PkgMeta):
         descriptor_type = descriptor_utils.ASSEMBLY_DESCRIPTOR_TYPE
         if self.is_resource_content():
             descriptor_type = descriptor_utils.RESOURCE_DESCRIPTOR_TYPE
+        elif self.is_type_content():
+            descriptor_type = descriptor_utils.TYPE_DESCRIPTOR_TYPE
         return descriptor_utils.DescriptorName(descriptor_type, self.full_name, self.version).name_str()
 
     @property
@@ -318,7 +323,7 @@ class PkgMetaParserWorker:
         if 'type' not in meta_dict:
             return types.ASSEMBLY_PROJECT_TYPE
         content_type = meta_dict['type']
-        expected_types = [types.ASSEMBLY_PROJECT_TYPE, types.RESOURCE_PROJECT_TYPE, types.NS_PROJECT_TYPE, types.VNF_PROJECT_TYPE]
+        expected_types = [types.ASSEMBLY_PROJECT_TYPE, types.RESOURCE_PROJECT_TYPE, types.NS_PROJECT_TYPE, types.VNF_PROJECT_TYPE, types.TYPE_PROJECT_TYPE]
         if content_type not in expected_types:
             raise PkgMetaParsingException('Pkg type must be one of: {0}'.format(expected_types))
         return content_type
