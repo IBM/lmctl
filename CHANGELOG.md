@@ -1,5 +1,14 @@
 # Change Log
 
+## [2.6.0](https://github.com/accanto-systems/lmctl/tree/2.6.0) (2020-08-28)
+[Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.5.0...2.6.0)
+
+**Implemented enhancements:**
+
+- Support CSAR packaging and Tosca metadata directory [\#53](https://github.com/accanto-systems/lmctl/issues/53)
+- Support Assembly Templates [\#58](https://github.com/accanto-systems/lmctl/issues/58)
+- Support Type projects [\#59](https://github.com/accanto-systems/lmctl/issues/59)
+
 ## [2.5.0](https://github.com/accanto-systems/lmctl/tree/2.5.0) (2020-05-19)
 [Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.4.1...2.5.0)
 
