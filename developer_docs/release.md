@@ -2,10 +2,10 @@
 
 The following steps detail how an lmctl release is produced. This may only be performed by a user with admin rights to this Git repository and the Pypi repository.
 
-You will need to install the following python library:
+You will need to install extra Python requirements
 
 ```
-python3 -m pip install GitPython==3.1.3
+python3 -m pip install -r build_requirements.txt
 ```
 
 ## Ensure Milestone
@@ -32,6 +32,8 @@ Confirm the tags/commits were pushed to the repository origin.
 ## Update Release Notes
 
 Look at previous releases to see the format. Usually, we will list the issues fixed (make sure each issue is assigned to the milestone for the release) and include links to the Pypi location of the release.
+
+Also ensure the `-docs.tgz` file created by `build.py` is attached to the release. You should then delete this file from your machine to avoid accidentally pushing it into the repo.
 
 ## Close milestone
 

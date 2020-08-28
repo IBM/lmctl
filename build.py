@@ -227,6 +227,7 @@ class Builder:
             repo.index.add([os.path.join(PKG_ROOT, PKG_INFO)])
             repo.index.commit('Update version for development')
             origin = repo.remote('origin')
+            origin.push()
             origin.push(tags=True)
 
     def push_whl(self):
