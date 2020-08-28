@@ -14,6 +14,10 @@ Ensure there is a milestone created for the release at: [https://github.com/acca
 
 Also ensure all issues going into this release are assigned to this milestone.
 
+## Update CHANGLOG
+
+Update the `CHANGELOG.md` file with a list of issues fixed by this release (see other items in this file to get an idea of the desired format).
+
 ## Build and Release
 
 Run the `build.py` program to perform a release:
@@ -31,7 +35,7 @@ Confirm the tags/commits were pushed to the repository origin.
 
 ## Update Release Notes
 
-Look at previous releases to see the format. Usually, we will list the issues fixed (make sure each issue is assigned to the milestone for the release) and include links to the Pypi location of the release.
+Look at previous releases to see the format. Usually, we will list the issues fixed (make sure each issue is assigned to the milestone for the release) and include links to the Pypi location of the release. This is essentially the same content you have already added to `CHANGELOG.md`.
 
 Also ensure the `-docs.tgz` file created by `build.py` is attached to the release. You should then delete this file from your machine to avoid accidentally pushing it into the repo.
 
