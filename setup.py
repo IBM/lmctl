@@ -14,7 +14,7 @@ setup(
     description='Lifecycle Manager command line tool',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/accanto-systems/lmctl",
+    url="https://github.com/IBM/lmctl",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
