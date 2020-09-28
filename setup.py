@@ -10,7 +10,7 @@ with open("Readme.md", "r") as description_file:
 setup(
     name='lmctl',
     version=_pkg_info['version'],
-    author='Accanto Systems',
+    author='IBM',
     description='Lifecycle Manager command line tool',
     long_description=long_description,
     long_description_content_type="text/markdown",
