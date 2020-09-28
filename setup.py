@@ -10,11 +10,11 @@ with open("Readme.md", "r") as description_file:
 setup(
     name='lmctl',
     version=_pkg_info['version'],
-    author='Accanto Systems',
+    author='IBM',
     description='Lifecycle Manager command line tool',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/accanto-systems/lmctl",
+    url="https://github.com/IBM/lmctl",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
