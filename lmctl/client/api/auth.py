@@ -1,11 +1,12 @@
 import base64
 from typing import Dict
+from .api_base import APIBase
 from lmctl.client.exceptions import LmClientError, LmClientHttpError
 
-class AuthenticationAPI:
+class AuthenticationAPI(APIBase):
 
     def __init__(self, base_client: 'LmClient'):
-        self.base_client = base_client
+        super().__init__(base_client)
         self.login_endpoint = f'{self.base_client.address}/ui/api/login'
         self.old_login_endpoint = f'{self.base_client.address}/api/login'
         self.oauth_endpoint = f'{self.base_client.address}/oauth/token'

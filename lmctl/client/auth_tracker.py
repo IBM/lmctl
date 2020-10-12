@@ -13,7 +13,7 @@ class AuthTracker:
 
     @property
     def has_access_expired(self):
-        if self._current_access_token is None:
+        if self.current_access_token is None:
             return True
         logger.debug('Checking if LM access token has expired')
         now = datetime.datetime.now()
@@ -31,5 +31,5 @@ class AuthTracker:
     
     def accept_auth_response(self, auth_response):
         self._time_of_auth = datetime.datetime.now()
-        self._current_access_token = auth_response.get('accessToken')
+        self.current_access_token = auth_response.get('accessToken')
         self._access_expiration = auth_response.get('expiresIn')
