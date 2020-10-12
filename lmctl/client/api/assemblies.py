@@ -1,15 +1,15 @@
 import urllib
 from typing import List, Dict
-from .resource_api_base import ResourceAPIBase, json_response_handler
+from .resource_api_base import ResourceAPIBase, json_response_handler, obj_json_request_builder, location_id_response_handler
 
 class AssembliesAPI(ResourceAPIBase):
     endpoint = 'api/topology/assemblies'
 
-    # These operations must be performed via Intents
+    # These operations must be performed via Intents so disable the bootstrap methods from ResourceAPIBase
     enable_create_api = False
     enable_delete_api = False
     enable_update_api = False
-    # Cannot be named "all" - replaced with "top_N"
+    # Cannot be named "all" - replaced with "get_topN"
     enable_list_api = False
 
     # "N" is determined by a config property on the target application
@@ -28,3 +28,41 @@ class AssembliesAPI(ResourceAPIBase):
         endpoint = f'{self.endpoint}?{urllib.parse.urlencode(params)}'
         response = self.base_client.make_request(method='GET', endpoint=endpoint)
         return json_response_handler(response)
+
+    def intent(self, intent_name: str, intent_obj: Dict) -> str:
+        return self._intent_request_impl(intent_name, intent_obj)
+
+    def intent_create(self, intent_obj: Dict) -> str:
+        return self._intent_request_impl('createAssembly', intent_obj)
+
+    def intent_upgrade(self, intent_obj: Dict) -> str:
+        return self._intent_request_impl('upgradeAssembly', intent_obj)
+
+    def intent_delete(self, intent_obj: Dict) -> str:
+        return self._intent_request_impl('deleteAssembly', intent_obj)
+
+    def intent_change_state(self, intent_obj: Dict) -> str:
+        return self._intent_request_impl('changeAssemblyState', intent_obj)
+
+    def intent_scale_out(self, intent_obj: Dict) -> str:
+        return self._intent_request_impl('scaleOutAssembly', intent_obj)
+
+    def intent_scale_in(self, intent_obj: Dict) -> str:
+        return self._intent_request_impl('scaleInAssembly', intent_obj)
+
+    def intent_heal(self, intent_obj: Dict) -> str:
+        return self._intent_request_impl('healAssembly', intent_obj)
+
+    def intent_adopt(self, intent_obj: Dict) -> str:
+        return self._intent_request_impl('adoptAssembly', intent_obj)   
+
+    def _intent_endpoint(self, intent_name: str) -> str:
+        return f'api/intent/{intent_name}'
+
+    def _intent_request_impl(self, intent_name: str, intent_obj: Dict) -> str:
+        endpoint = self._intent_endpoint(intent_name)
+        request = obj_json_request_builder(intent_obj)
+        request['endpoint'] = endpoint
+        request['method'] = 'POST'
+        response = self.base_client.make_request(**request)
+        return location_id_response_handler(response)

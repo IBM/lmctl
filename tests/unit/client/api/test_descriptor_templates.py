@@ -40,4 +40,18 @@ class TestDescriptorTemplatesAPI(unittest.TestCase):
         self.assertIsNone(response)
         self.mock_client.make_request.assert_called_with(method='DELETE', endpoint='api/catalog/descriptorTemplates/assembly-template::Test::1.0')
     
+    def test_render(self):
+        mock_response = 'name: assembly::Result::1.0'
+        self.mock_client.make_request.return_value = MagicMock(text=mock_response)
+        render_request = {'properties': {'propA': 'valueA'}}
+        response = self.descriptor_templates.render('assembly-template::Test::1.0', render_request)
+        self.assertEqual(response, {'name': 'assembly::Result::1.0'})
+        self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/catalog/descriptorTemplates/assembly-template::Test::1.0/render', data=yaml.safe_dump(render_request), headers={'Content-Type': 'application/yaml'})
 
+    def test_render_raw(self):
+        mock_response = 'name: assembly::Result::1.0'
+        self.mock_client.make_request.return_value = MagicMock(text=mock_response)
+        render_request = {'properties': {'propA': 'valueA'}}
+        response = self.descriptor_templates.render_raw('assembly-template::Test::1.0', render_request)
+        self.assertEqual(response, mock_response)
+        self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/catalog/descriptorTemplates/assembly-template::Test::1.0/render-raw', data=yaml.safe_dump(render_request), headers={'Content-Type': 'application/yaml'})
