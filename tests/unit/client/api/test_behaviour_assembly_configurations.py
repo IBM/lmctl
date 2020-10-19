@@ -8,13 +8,6 @@ class TestBehaviourAssemblyConfigurationsAPI(unittest.TestCase):
         self.mock_client = MagicMock()
         self.behaviour_assembly_configurations = BehaviourAssemblyConfigurationsAPI(self.mock_client)
 
-    def test_all(self):
-        all_objects = [{'id': 'Test', 'name': 'Test'}]
-        self.mock_client.make_request.return_value.json.return_value = all_objects
-        response = self.behaviour_assembly_configurations.all()
-        self.assertEqual(response, all_objects)
-        self.mock_client.make_request.assert_called_with(method='GET', endpoint='api/behaviour/assemblyConfigurations')
-    
     def test_all_in_project(self):
         mock_response = [{'id': 'Test', 'name': 'Test'}]
         self.mock_client.make_request.return_value.json.return_value = mock_response

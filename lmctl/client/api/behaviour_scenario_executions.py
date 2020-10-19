@@ -32,7 +32,8 @@ class BehaviourScenarioExecutionsAPI(ResourceAPIBase):
     
     def cancel(self, execution_id: str):
         endpoint = self._execution_cancel_endpoint(execution_id)
-        self.base_client.make_request(method='POST', endpoint=endpoint)
+        response = self.base_client.make_request(method='POST', endpoint=endpoint)
+        return json_response_handler(response)
 
     def all_in_project(self, project_id: str, include_scenario: bool = False) -> List:
         endpoint = self._by_project_endpoint(project_id)
@@ -75,6 +76,6 @@ class BehaviourScenarioExecutionsAPI(ResourceAPIBase):
         return f'{self.endpoint}/{execution_id}/metrics'
 
     def _execution_metric_endpoint(self, execution_id: str, metric_id: str) -> str:
-        return f'{self.endpoint}/{execution_id}/metric/{metric_id}'
+        return f'{self.endpoint}/{execution_id}/metrics/{metric_id}'
 
 

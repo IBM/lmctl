@@ -2,9 +2,7 @@ import json
 import yaml
 
 class LmClientError(Exception):
-    def __init__(self, msg, *args, **kwargs):
-        full_msg = f'{self.__class__.__name__}: {msg}'
-        super().__init__(full_msg, *args, **kwargs)
+    pass
 
 class LmClientHttpError(LmClientError):
     
@@ -24,6 +22,8 @@ class LmClientHttpError(LmClientError):
                 self.detail_message = self.body.get('localizedMessage')
             elif 'message' in self.body:
                 self.detail_message = self.body.get('message')
+            else:
+                self.detail_message = str(self.body)
         else:
             self.detail_message = str(self.cause)
 

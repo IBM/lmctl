@@ -8,8 +8,10 @@ from .deployment_locations import DeploymentLocationAPI
 from .descriptors import DescriptorsAPI
 from .descriptor_templates import DescriptorTemplatesAPI
 from .lifecycle_drivers import LifecycleDriversAPI
+from .processes import ProcessesAPI
 from .resource_drivers import ResourceDriversAPI
 from .resource_packages import ResourcePackagesAPI
 from .resource_managers import ResourceManagersAPI
 from .shared_infrastructure_keys import SharedInfrastructureKeysAPI
 from .vim_drivers import VIMDriversAPI
+

@@ -1,6 +1,9 @@
 import unittest
 from unittest.mock import patch, MagicMock
 from lmctl.client.api import AssembliesAPI
+from lmctl.client.models import (CreateAssemblyIntent, UpgradeAssemblyIntent, ChangeAssemblyStateIntent, 
+                                    DeleteAssemblyIntent, ScaleAssemblyIntent, HealAssemblyIntent,
+                                    AdoptAssemblyIntent)
 
 class TestAssembliesAPI(unittest.TestCase):
 
@@ -35,7 +38,7 @@ class TestAssembliesAPI(unittest.TestCase):
         response = self.assemblies.all_with_name_containing('Test')
         self.assertEqual(response, mock_response)
         self.mock_client.make_request.assert_called_with(method='GET', endpoint='api/topology/assemblies?nameContains=Test')
-    
+
     def test_intent(self):
         mock_response = MagicMock(headers={'Location': '/api/processes/123'})
         self.mock_client.make_request.return_value = mock_response
@@ -43,24 +46,62 @@ class TestAssembliesAPI(unittest.TestCase):
         response = self.assemblies.intent('createAssembly', intent)
         self.assertEqual(response, '123')
         self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/intent/createAssembly', json=intent)
-   
+    
     def test_intent_create(self):
+        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        self.mock_client.make_request.return_value = mock_response
+        intent = CreateAssemblyIntent(descriptor_name='assembly::Test::1.0', assembly_name='Test', intended_state='Active') 
+        response = self.assemblies.intent_create(intent)
+        self.assertEqual(response, '123')
+        self.mock_client.make_request.assert_called_with(method='POST', 
+                                                            endpoint='api/intent/createAssembly', 
+                                                            json={
+                                                                'descriptorName': 'assembly::Test::1.0', 
+                                                                'assemblyName': 'Test', 
+                                                                'intendedState': 'Active',
+                                                                'properties': {}
+                                                            })
+
+    def test_intent_create_with_dict(self):
         mock_response = MagicMock(headers={'Location': '/api/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = {'descriptorName': 'assembly::Test::1.0', 'assemblyName': 'Test', 'intendedState': 'Active'}
         response = self.assemblies.intent_create(intent)
         self.assertEqual(response, '123')
         self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/intent/createAssembly', json=intent)
-
+    
     def test_intent_upgrade(self):
+        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        self.mock_client.make_request.return_value = mock_response
+        intent = UpgradeAssemblyIntent(assembly_name='Test', descriptor_name='assembly::Test::1.0', intended_state='Active')
+        response = self.assemblies.intent_upgrade(intent)
+        self.assertEqual(response, '123')
+        self.mock_client.make_request.assert_called_with(method='POST', 
+                                                            endpoint='api/intent/upgradeAssembly', 
+                                                            json={
+                                                                'descriptorName': 'assembly::Test::1.0', 
+                                                                'assemblyName': 'Test', 
+                                                                'intendedState': 'Active',
+                                                                'properties': {}
+                                                            })
+
+    def test_intent_upgrade_with_dict(self):
         mock_response = MagicMock(headers={'Location': '/api/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = {'descriptorName': 'assembly::Test::1.0', 'assemblyName': 'Test', 'intendedState': 'Active'}
         response = self.assemblies.intent_upgrade(intent)
         self.assertEqual(response, '123')
         self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/intent/upgradeAssembly', json=intent)
-
+    
     def test_intent_delete(self):
+        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        self.mock_client.make_request.return_value = mock_response
+        intent = DeleteAssemblyIntent(assembly_name='Test')
+        response = self.assemblies.intent_delete(intent)
+        self.assertEqual(response, '123')
+        self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/intent/deleteAssembly', json={'assemblyName': 'Test'})
+    
+    def test_intent_delete_with_dict(self):
         mock_response = MagicMock(headers={'Location': '/api/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = {'assemblyName': 'Test'}
@@ -71,6 +112,14 @@ class TestAssembliesAPI(unittest.TestCase):
     def test_intent_change_state(self):
         mock_response = MagicMock(headers={'Location': '/api/processes/123'})
         self.mock_client.make_request.return_value = mock_response
+        intent = ChangeAssemblyStateIntent(assembly_name='Test', intended_state='Active')
+        response = self.assemblies.intent_change_state(intent)
+        self.assertEqual(response, '123')
+        self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/intent/changeAssemblyState', json={'assemblyName': 'Test', 'intendedState': 'Active'})
+    
+    def test_intent_change_state_with_dict(self):
+        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        self.mock_client.make_request.return_value = mock_response
         intent = {'assemblyName': 'Test', 'intendedState': 'Active'}
         response = self.assemblies.intent_change_state(intent)
         self.assertEqual(response, '123')
@@ -79,12 +128,28 @@ class TestAssembliesAPI(unittest.TestCase):
     def test_intent_scale_out(self):
         mock_response = MagicMock(headers={'Location': '/api/processes/123'})
         self.mock_client.make_request.return_value = mock_response
+        intent = ScaleAssemblyIntent(assembly_name='Test', cluster_name='A')
+        response = self.assemblies.intent_scale_out(intent)
+        self.assertEqual(response, '123')
+        self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/intent/scaleOutAssembly', json={'assemblyName': 'Test', 'clusterName': 'A'})
+
+    def test_intent_scale_out_with_dict(self):
+        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        self.mock_client.make_request.return_value = mock_response
         intent = {'assemblyName': 'Test', 'clusterName': 'A'}
         response = self.assemblies.intent_scale_out(intent)
         self.assertEqual(response, '123')
         self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/intent/scaleOutAssembly', json=intent)
-
+    
     def test_intent_scale_in(self):
+        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        self.mock_client.make_request.return_value = mock_response
+        intent = ScaleAssemblyIntent(assembly_name='Test', cluster_name='A')
+        response = self.assemblies.intent_scale_in(intent)
+        self.assertEqual(response, '123')
+        self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/intent/scaleInAssembly', json={'assemblyName': 'Test', 'clusterName': 'A'})
+
+    def test_intent_scale_in_with_dict(self):
         mock_response = MagicMock(headers={'Location': '/api/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = {'assemblyName': 'Test', 'clusterName': 'A'}
@@ -95,6 +160,14 @@ class TestAssembliesAPI(unittest.TestCase):
     def test_intent_heal(self):
         mock_response = MagicMock(headers={'Location': '/api/processes/123'})
         self.mock_client.make_request.return_value = mock_response
+        intent = HealAssemblyIntent(assembly_name='Test', broken_component_name='A')
+        response = self.assemblies.intent_heal(intent)
+        self.assertEqual(response, '123')
+        self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/intent/healAssembly', json={'assemblyName': 'Test', 'brokenComponentName': 'A'})
+    
+    def test_intent_heal_with_dict(self):
+        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        self.mock_client.make_request.return_value = mock_response
         intent = {'assemblyName': 'Test', 'brokenComponentName': 'A'}
         response = self.assemblies.intent_heal(intent)
         self.assertEqual(response, '123')
@@ -103,7 +176,22 @@ class TestAssembliesAPI(unittest.TestCase):
     def test_intent_adopt(self):
         mock_response = MagicMock(headers={'Location': '/api/processes/123'})
         self.mock_client.make_request.return_value = mock_response
-        intent = {'assemblyName': 'Test'}
+        intent = AdoptAssemblyIntent(assembly_name='Test', descriptor_name='assembly::Test::1.0', clusters={'B': 1})
+        response = self.assemblies.intent_adopt(intent)
+        self.assertEqual(response, '123')
+        self.mock_client.make_request.assert_called_with(method='POST', 
+                                                        endpoint='api/intent/adoptAssembly', 
+                                                        json={
+                                                            'assemblyName': 'Test',
+                                                            'descriptorName': 'assembly::Test::1.0',
+                                                            'clusters': {'B': 1},
+                                                            'properties': {}
+                                                        })
+    
+    def test_intent_adopt_with_dict(self):
+        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        self.mock_client.make_request.return_value = mock_response
+        intent = {'assemblyName': 'Test', 'descriptorName': 'assembly::Test::1.0', 'clusters': {'B': 1}}
         response = self.assemblies.intent_adopt(intent)
         self.assertEqual(response, '123')
         self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/intent/adoptAssembly', json=intent)

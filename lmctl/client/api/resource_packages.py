@@ -6,6 +6,9 @@ from .resource_api_base import location_id_response_handler
 class ResourcePackagesAPI(APIBase):
     endpoint = 'api/resource-manager/resource-packages'
 
+    enable_list_api = False
+    enable_read_api = False
+
     def create(self, resource_pkg_path: Union[str,Path]) -> str:
         with open(resource_pkg_path, 'rb') as resource_pkg:
             files = {'file': resource_pkg}

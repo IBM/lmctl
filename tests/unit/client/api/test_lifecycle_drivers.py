@@ -30,12 +30,6 @@ class TestLifecycleDriversAPI(unittest.TestCase):
         self.assertEqual(response, {'id': '123', 'type': 'Ansible'})
         self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/resource-manager/lifecycle-drivers', json=test_obj)
 
-    def test_update(self):
-        test_obj = {'id': '123', 'type': 'Ansible'}
-        response = self.resource_drivers.update(test_obj)
-        self.assertIsNone(response)
-        self.mock_client.make_request.assert_called_with(method='PUT', endpoint='api/resource-manager/lifecycle-drivers/123', json=test_obj)
-
     def test_delete(self):
         response = self.resource_drivers.delete('123')
         self.assertIsNone(response)

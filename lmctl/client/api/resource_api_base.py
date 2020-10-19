@@ -129,6 +129,8 @@ class ResourceAPIBase(APIBase):
             request_kwargs.update(request_builder)
         request_kwargs['method'] = method
         request_kwargs['endpoint'] = endpoint
+        if hasattr(self, 'override_address') and getattr(self, 'override_address') is not None:
+            request_kwargs['override_address'] = self.override_address
         return request_kwargs
 
     def _list_api_impl(self) -> List:

@@ -4,6 +4,8 @@ from .resource_api_base import ResourceAPIBase, json_response_handler
 class BehaviourAssemblyConfigurationsAPI(ResourceAPIBase):
     endpoint = 'api/behaviour/assemblyConfigurations'
 
+    enabled_list_api = False
+
     def _by_project_endpoint(self, project_id: str) -> str:
         return f'{self.endpoint}?projectId={project_id}'
 

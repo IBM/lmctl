@@ -27,7 +27,8 @@ setup(
         'requests>=2.23,<3.0',
         'ruamel.yaml>=0.16,<1.0',
         'oyaml>=0.8,<1.0',
-        'tabulate>=0.8,<1.0'
+        'tabulate>=0.8,<1.0',
+        'Jinja2==2.11.2'
     ],
     entry_points='''
         [console_scripts]

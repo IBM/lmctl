@@ -1,0 +1,15 @@
+name: resource::[[ execution_id ]]-lmctl-dummy::1.0
+description: Resource used in Lmctl client testing
+properties:
+  dummyProp:
+    type: string
+infrastructure:
+  Other: {}
+lifecycle:
+  Start: {}
+  Stop: {}
+default-driver:
+  ansible:
+    selector:
+      infrastructure-type: 
+        - '*'

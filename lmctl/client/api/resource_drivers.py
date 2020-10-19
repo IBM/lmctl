@@ -5,6 +5,7 @@ class ResourceDriversAPI(ResourceAPIBase):
     endpoint = 'api/resource-manager/resource-drivers'
 
     enable_list_api = False
+    enable_update_api = False
 
     def _by_type_endpoint(self, driver_type: str) -> str:
         return f'{self.endpoint}?type={driver_type}'

@@ -30,12 +30,6 @@ class TestVIMDriversAPI(unittest.TestCase):
         self.assertEqual(response, {'id': '123', 'type': 'Openstack'})
         self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/resource-manager/vim-drivers', json=test_obj)
 
-    def test_update(self):
-        test_obj = {'id': '123', 'type': 'Openstack'}
-        response = self.resource_drivers.update(test_obj)
-        self.assertIsNone(response)
-        self.mock_client.make_request.assert_called_with(method='PUT', endpoint='api/resource-manager/vim-drivers/123', json=test_obj)
-
     def test_delete(self):
         response = self.resource_drivers.delete('123')
         self.assertIsNone(response)

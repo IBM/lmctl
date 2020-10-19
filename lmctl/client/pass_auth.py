@@ -17,9 +17,10 @@ class UserPassAuth(AuthType):
 
 class LegacyUserPassAuth(AuthType):
 
-    def __init__(self, username: str, password: str):
+    def __init__(self, username: str, password: str, legacy_auth_address: str = None):
         self.username = username
         self.password = password
+        self.legacy_auth_address = legacy_auth_address
 
     def handle(self, client: 'LmClient') -> Dict:
-        return client.auth.legacy_login(username=self.username, password=self.password)
+        return client.auth.legacy_login(username=self.username, password=self.password, legacy_auth_address=self.legacy_auth_address)

@@ -30,8 +30,11 @@ class TestBehaviourScenarioExecutionsAPI(unittest.TestCase):
         self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/behaviour/executions', json={'scenarioId': 'scenarioA', 'assemblyId': 'assemblyA'})
 
     def test_cancel(self):
-        self.behaviour_scenario_execs.cancel('Test')
+        mock_response = {'success': True}
+        self.mock_client.make_request.return_value.json.return_value = mock_response
+        response = self.behaviour_scenario_execs.cancel('Test')
         self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/behaviour/executions/Test/cancel')
+        self.assertEqual(response, mock_response)
 
     def test_get(self):
         mock_response = {'id': 'Test', 'name': 'Test'}
@@ -85,4 +88,4 @@ class TestBehaviourScenarioExecutionsAPI(unittest.TestCase):
         self.mock_client.make_request.return_value.json.return_value = mock_response
         response = self.behaviour_scenario_execs.get_metric('Test', 'TestMetric')
         self.assertEqual(response, mock_response)
-        self.mock_client.make_request.assert_called_with(method='GET', endpoint='api/behaviour/executions/Test/metric/TestMetric')
+        self.mock_client.make_request.assert_called_with(method='GET', endpoint='api/behaviour/executions/Test/metrics/TestMetric')
