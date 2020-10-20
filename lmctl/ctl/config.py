@@ -54,8 +54,6 @@ class ConfigRewriter:
         for key, value in lm_config.items():
             if key == 'ip_address':
                 key = 'host'
-            elif key == 'auth_address':
-                key = 'auth_host'
             elif key == 'secure_port':
                 key = 'protocol'
                 value = 'https'
@@ -167,8 +165,6 @@ class Ctl:
         if env_name not in self.environments:
             raise ConfigError('No environment group with name: {0}'.format(env_name))
         return self.environments[env_name]
-
-
 
 global_ctl = None
 

@@ -1,47 +1,107 @@
-from .common import Environment, EnvironmentConfigError, EnvironmentRuntimeError, get_value_or_default, value_or_default
+from typing import Union
+from .common import Environment, EnvironmentConfigError, EnvironmentRuntimeError, build_address
+from urllib.parse import urlparse
 import lmctl.drivers.lm as lm_drivers
 
-CONFIG_KWARGS = ['secure', 'username', 'auth_host', 'auth_port', 'auth_protocol', 'password', 'brent_name']
-
-HTTP_PROTOCOL = 'http'
-HTTPS_PROTOCOL = 'https'
-SUPPORTED_PROTOCOLS = [HTTP_PROTOCOL, HTTPS_PROTOCOL]
+KAMI_PORT = '31289'
+DEFAULT_BRENT_NAME = 'brent'
 
 class LmEnvironment(Environment):
 
-    def __init__(self, name, host, port=None, protocol=HTTPS_PROTOCOL, path=None, secure=False, \
-                                    username=None, password=None, auth_host=None, auth_port=None, auth_protocol=None, \
-                                         brent_name='brent', kami_port=31289, kami_protocol=HTTP_PROTOCOL):
-        name = value_or_default(name, None)
+    def __init__(self, name, 
+                       host: str = None, 
+                       port: Union[str,int] = None,
+                       protocol: str = 'https', 
+                       path: str = None, 
+                       address: str = None,
+                       secure: bool = False,
+                       client_id: str = None,
+                       client_secret: str = None,
+                       username: str = None, 
+                       password: str= None, 
+                       auth_address: str = None,
+                       auth_host: str = None, 
+                       auth_port: str = None, 
+                       auth_protocol: str = None, 
+                       brent_name: str = DEFAULT_BRENT_NAME, 
+                       kami_address: str = None,
+                       kami_port: Union[str,int] = KAMI_PORT, 
+                       kami_protocol: str = 'http'):
+        name = name.strip() if name is not None else None
         if not name:
-            raise EnvironmentConfigError('LM environment cannot be configured without property: name')
+            raise EnvironmentConfigError('LM environment cannot be configured without "name" property')
         self.name = name
-        host = value_or_default(host, None)
-        if not host:
-            raise EnvironmentConfigError('LM environment cannot be configured without property: host (ip_address)')
-        self.host = host
-        self.port = value_or_default(port, default=None)
-        self.path = value_or_default(path, default=None)
-        protocol = str(value_or_default(protocol, default=HTTPS_PROTOCOL))
-        self.protocol = protocol.lower()
-        if self.protocol not in SUPPORTED_PROTOCOLS:
-            raise EnvironmentConfigError('LM environment cannot be configured with unsupported protocol \'{0}\'. Must be one of: {1}'.format(self.protocol, SUPPORTED_PROTOCOLS))
-        self.brent_name = value_or_default(brent_name, default='brent')
-        self.kami_port = kami_port
-        self.kami_protocol = value_or_default(kami_protocol, default=self.protocol).lower()
-        self.secure = value_or_default(secure, default=False)
-        self.username = value_or_default(username, default=None)
-        self.auth_host = value_or_default(auth_host, default=self.host)
-        self.auth_port = value_or_default(auth_port, default=self.port)
-        self.auth_protocol = value_or_default(auth_protocol, default=self.protocol).lower()
-        self.password = value_or_default(password, default=None)
-        if self.secure:
-            if not self.username:
-                raise EnvironmentConfigError('Secure LM environment cannot be configured without property: username. If the LM environment is not secure then set \'secure\' to False')
-            if not self.auth_host:
-                raise EnvironmentConfigError('Secure LM environment cannot be configured without property: auth_host')
-            if self.auth_protocol not in SUPPORTED_PROTOCOLS:
-                raise EnvironmentConfigError('LM environment cannot be configured with unsupported auth_protocol \'{0}\'. Must be one of: {1}'.format(self.auth_protocol, SUPPORTED_PROTOCOLS))
+        self._read_addresses(
+            address=address,
+            host=host, 
+            port=port,
+            protocol=protocol,
+            path=path,
+            auth_address=auth_address,
+            auth_host=auth_host,
+            auth_port=auth_port,
+            auth_protocol=auth_protocol, 
+            kami_address=kami_address,
+            kami_port=kami_port, 
+            kami_protocol=kami_protocol
+        )
+        if brent_name is None or len(brent_name.strip()) == 0:
+            brent_name = DEFAULT_BRENT_NAME
+        self.brent_name = brent_name.strip()
+        self.secure = secure
+        self._read_security(client_id=client_id, client_secret=client_secret, username=username, password=password)
+
+    def _read_security(self, client_id: str = None,
+                             client_secret: str = None,
+                             username: str = None,
+                             password: str = None):
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.username = username
+        self.password = password
+        if self.secure and not self.client_id and not self.username:
+            raise EnvironmentConfigError('Secure LM environment cannot be configured without "client_id" or "username" property. If the LM environment is not secure then set "secure" to False')
+            
+    def _read_addresses(self, address: str = None, 
+                              protocol: str = 'https', 
+                              host: str = None, 
+                              port: Union[str, int] = None, 
+                              path: str = None, 
+                              auth_address: str = None,
+                              auth_host: str = None,
+                              auth_port: str = None,
+                              auth_protocol: str = None, 
+                              kami_address: str = None,
+                              kami_port: Union[str,int] = KAMI_PORT, 
+                              kami_protocol: str = 'http'):
+        if address is not None:
+            self._address = address
+        else:
+            host = host.strip() if host is not None else None
+            if not host:
+                raise EnvironmentConfigError('LM environment cannot be configured without "address" property or "host" property')
+            self._address = build_address(host, protocol=protocol, port=port, path=path)
+        #Auth host
+        if auth_address is not None:
+            self.auth_address = auth_address
+        else:
+            auth_host = auth_host.strip() if auth_host is not None else None
+            if auth_host:
+                self.auth_address = build_address(auth_host, protocol=(auth_protocol or protocol), port=auth_port)
+            else:
+                self.auth_address = self._address
+        self.auth_address = self.auth_address
+        #Kami Address
+        if kami_address is None:
+            parsed_url = urlparse(self._address)
+            if parsed_url.port:
+                new_netloc = parsed_url.netloc.replace(f':{parsed_url.port}', f':{kami_port}')
+            else:
+                new_netloc = f'{parsed_url.netloc}:{kami_port}'
+            parsed_url = parsed_url._replace(scheme=kami_protocol, netloc=new_netloc, path='')
+            self.kami_address = parsed_url.geturl()
+        else:
+            self.kami_address = kami_address
 
     def create_session_config(self):
         return LmSessionConfig(self, self.username, self.password)
@@ -52,32 +112,11 @@ class LmEnvironment(Environment):
 
     @property
     def address(self):
-        return self.api_address
+        return self._address
 
     @property
     def api_address(self):
-        base = '{0}://{1}'.format(self.protocol, self.host)
-        if self.port:
-            base += ':{0}'.format(self.port)
-        if self.path:
-            base += '/{0}'.format(self.path)
-        return base
-
-    @property
-    def auth_address(self):
-        if not self.secure:
-            raise EnvironmentRuntimeError('auth_address cannot be determined for a non-secure LM environment')
-        base = '{0}://{1}'.format(self.auth_protocol, self.auth_host)
-        if self.auth_port:
-            base += ':{0}'.format(self.auth_port)
-        return base
-
-    @property
-    def kami_address(self):
-        base = '{0}://{1}'.format(self.kami_protocol, self.host)
-        if self.kami_port:
-            base += ':{0}'.format(self.kami_port)
-        return base
+        return self._address
 
 class LmSessionConfig:
 

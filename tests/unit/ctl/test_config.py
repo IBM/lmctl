@@ -24,7 +24,7 @@ environments:
     alm:
       host: 127.0.0.1
       protocol: https
-      auth_host: 127.0.0.2
+      auth_address: 127.0.0.2
       secure: false
 """
 OLD_CONFIG_NON_SECURE_PORT = """\
@@ -48,7 +48,7 @@ test:
     username: jack
     secure_port: True
     auth_port: 4643
-    auth_address: 127.0.0.2
+    auth_host: 127.0.0.2
     password: secret
 """
 NEW_CONFIG_KEEP_OTHER_PROPS = """\
@@ -94,6 +94,7 @@ environments:
         port: 2222
         protocol: http
 """
+
 class TestConfigRewriter(unittest.TestCase):
 
     def setUp(self):
@@ -115,7 +116,7 @@ class TestConfigRewriter(unittest.TestCase):
                     'alm': {
                         'host': '127.0.0.1',
                         'protocol': 'https',
-                        'auth_host': '127.0.0.2',
+                        'auth_address': '127.0.0.2',
                         'secure': False
                     }
                 }
@@ -224,7 +225,7 @@ class TestConfigRewriter(unittest.TestCase):
         self.assertEqual(new_config, NEW_ARM_CONFIG)
 
 
-PARSER_TEST_CONFIG = """\
+PARSER_TEST_CONFIG_PARTS = """\
 environments:
   test:
     alm:
@@ -236,9 +237,13 @@ environments:
       auth_protocol: http
       username: jack
       password: secret
+      kami_port: 34567
+      kami_protocol: https
     arm:
       default:
         host: default
+        port: 8765
+        protocol: http
   test2:
     arm:
       first:
@@ -261,6 +266,15 @@ testarm:
       secure_port: False
 """
 
+ADDRESS_BASED_CONFIG = """\
+environments:
+  test:
+    lm:
+      address: http://some.lm.example.com
+    arm:
+      default:
+        address: http://some.arm.example.com
+"""
 class TestConfigParser(unittest.TestCase):
 
     def setUp(self):
@@ -276,7 +290,7 @@ class TestConfigParser(unittest.TestCase):
 
     def test_from_file(self):
         config_file_path = os.path.join(self.tmp_dir, 'config.yaml')
-        self.__write_file(config_file_path, PARSER_TEST_CONFIG)
+        self.__write_file(config_file_path, PARSER_TEST_CONFIG_PARTS)
         config = ConfigParser().from_file(config_file_path)
         self.assertIsNotNone(config)
         self.assertIsInstance(config, Config)
@@ -285,19 +299,16 @@ class TestConfigParser(unittest.TestCase):
         test_env = config.environments['test']
         self.assertIsInstance(test_env, EnvironmentGroup)
         self.assertIsInstance(test_env.lm, LmEnvironment)
-        self.assertEqual(test_env.lm.host, '127.0.0.1')
-        self.assertEqual(test_env.lm.port, 1111)
-        self.assertEqual(test_env.lm.protocol, 'https')
-        self.assertEqual(test_env.lm.auth_host, 'auth')
-        self.assertEqual(test_env.lm.auth_port, 4643)
+        self.assertEqual(test_env.lm.address, 'https://127.0.0.1:1111')
+        self.assertEqual(test_env.lm.auth_address, 'http://auth:4643')
         self.assertEqual(test_env.lm.username, 'jack')
         self.assertEqual(test_env.lm.password, 'secret')
-        self.assertEqual(test_env.lm.auth_protocol, 'http')
+        self.assertEqual(test_env.lm.kami_address, 'https://127.0.0.1:34567')
         arms_config = test_env.arms
         self.assertEqual(len(arms_config), 1)
         default_arm_config = arms_config['default']
         self.assertIsInstance(default_arm_config, ArmEnvironment)
-        self.assertEqual(default_arm_config.host, 'default')
+        self.assertEqual(default_arm_config.address, 'http://default:8765')
         self.assertIn('test2', config.environments)
         test2_env = config.environments['test2']
         arms_config = test2_env.arms
@@ -311,14 +322,11 @@ class TestConfigParser(unittest.TestCase):
         config = ConfigParser().from_file(config_file_path)
         self.assertEqual(len(config.environments), 2)
         testlm_env = config.environments['testlm']
-        self.assertEqual(testlm_env.lm.host, '127.0.0.1')
-        self.assertEqual(testlm_env.lm.protocol, 'https')
-        self.assertEqual(testlm_env.lm.auth_host, '127.0.0.2')
+        self.assertEqual(testlm_env.lm.address, 'https://127.0.0.1')
         self.assertEqual(testlm_env.lm.secure, True)
         self.assertEqual(testlm_env.lm.username, 'jack')
         testarm_env = config.environments['testarm']
-        self.assertEqual(testarm_env.arms['default'].host, '127.0.0.3')
-        self.assertEqual(testarm_env.arms['default'].protocol, 'http')
+        self.assertEqual(testarm_env.arms['default'].address, 'http://127.0.0.3')
 
     @mock.patch('lmctl.ctl.config.ConfigRewriter.rewrite')
     def test_rewrite_fails(self, mock_rewrite):

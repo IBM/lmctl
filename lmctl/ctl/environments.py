@@ -24,9 +24,16 @@ class EnvironmentGroupParserWorker:
         description = group_config_dict.get('description', None)
         lm_env = None
         arm_envs = None
-        if 'lm' in group_config_dict and 'alm' in group_config_dict:
-            raise ConfigError('Environment should not feature both \'lm\' and \'alm\'')
-        lm_config_dict = group_config_dict.get('lm', group_config_dict.get('alm', None))
+        lm_conf = group_config_dict.get('lm', None)
+        alm_conf = group_config_dict.get('alm', None)
+        tnco_conf = group_config_dict.get('tnco', None)
+        if lm_conf is not None and alm_conf is not None:
+            raise ConfigError('Environment should not feature both "lm" and "alm"')
+        if lm_conf is not None and tnco_conf is not None:
+            raise ConfigError('Environment should not feature both "lm" and "tnco"')
+        if alm_conf is not None and tnco_conf is not None:
+            raise ConfigError('Environment should not feature both "alm" and "tnco"')
+        lm_config_dict = tnco_conf or lm_conf or alm_conf
         if lm_config_dict:
             lm_env = self.__parse_lm_env(lm_config_dict)
         arm_configs_dict = group_config_dict.get('arm', None)
@@ -39,24 +46,18 @@ class EnvironmentGroupParserWorker:
 
     def __parse_lm_env(self, lm_config_dict):
         name = 'alm'
-        host = lm_config_dict.get('host', lm_config_dict.get('ip_address', None))
-        port = lm_config_dict.get('port', None)
-        path = lm_config_dict.get('path', None)
-        protocol = lm_config_dict.get('protocol', None)
-        if not protocol:
-            secure_port = lm_config_dict.get('secure_port', None)
+        if 'ip_address' in lm_config_dict and 'host' not in lm_config_dict:
+            lm_config_dict['host'] = lm_config_dict['ip_address']
+        if 'protocol' not in lm_config_dict and 'secure_port' in lm_config_dict:
+            secure_port = lm_config_dict['secure_port']
             if secure_port is True:
-                protocol = lmenvs.HTTPS_PROTOCOL
-            elif secure_port is False:
-                protocol = lmenvs.HTTP_PROTOCOL
-        secure = lm_config_dict.get('secure', False)
-        username = lm_config_dict.get('username', None)
-        auth_host = lm_config_dict.get('auth_host', lm_config_dict.get('auth_address', None))
-        auth_port = lm_config_dict.get('auth_port', None)
-        password = lm_config_dict.get('password', None)
-        auth_protocol = lm_config_dict.get('auth_protocol', None)
+                lm_config_dict['protocol'] = 'https'
+            else:
+                lm_config_dict['protocol'] = 'http'
+        lm_config_dict.pop('ip_address', None)
+        lm_config_dict.pop('secure_port', None)
         try:
-            return lmenvs.LmEnvironment(name, host, port, protocol, path=path, secure=secure,  username=username, password=password, auth_host=auth_host, auth_port=auth_port, auth_protocol=auth_protocol)
+            return lmenvs.LmEnvironment(name, **lm_config_dict)
         except envgroups.EnvironmentConfigError as e:
             raise ConfigError(str(e)) from e
 
@@ -67,17 +68,17 @@ class EnvironmentGroupParserWorker:
         return arm_configs
 
     def __parse_arm_env(self, name, arm_config_dict):
-        host = arm_config_dict.get('host', arm_config_dict.get('ip_address', None))
-        port = arm_config_dict.get('port', None)
-        protocol = arm_config_dict.get('protocol', None)
-        if not protocol:
-            secure_port = arm_config_dict.get('secure_port', None)
+        if 'ip_address' in arm_config_dict and 'host' not in arm_config_dict:
+            arm_config_dict['host'] = arm_config_dict['ip_address']
+        if 'protocol' not in arm_config_dict and 'secure_port' in arm_config_dict:
+            secure_port = arm_config_dict['secure_port']
             if secure_port is True:
-                protocol = armenvs.HTTPS_PROTOCOL
-            elif secure_port is False:
-                protocol = armenvs.HTTP_PROTOCOL
-        onboarding_addr = arm_config_dict.get('onboarding_addr', None)
+                arm_config_dict['protocol'] = 'https'
+            else:
+                arm_config_dict['protocol'] = 'http'
+        arm_config_dict.pop('ip_address', None)
+        arm_config_dict.pop('secure_port', None)
         try:
-            return armenvs.ArmEnvironment(name, host, port, protocol, onboarding_addr=onboarding_addr)
+            return armenvs.ArmEnvironment(name, **arm_config_dict)
         except envgroups.EnvironmentConfigError as e:
             raise ConfigError(str(e)) from e
