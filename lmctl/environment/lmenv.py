@@ -105,7 +105,7 @@ class LmEnvironment(Environment):
             self.kami_address = kami_address
 
     def create_session_config(self):
-        return LmSessionConfig(self, self.username, self.password)
+        return LmSessionConfig(self, username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret)
 
     def build_client(self):
         builder = LmClientBuilder()
@@ -137,10 +137,12 @@ class LmEnvironment(Environment):
 
 class LmSessionConfig:
 
-    def __init__(self, env, username=None, password=None):
+    def __init__(self, env, username=None, password=None, client_id=None, client_secret=None):
         self.env = env
         self.username = username
         self.password = password
+        self.client_id = client_id
+        self.client_secret = client_secret
 
     def create(self):
         return LmSession(self)
@@ -151,6 +153,8 @@ class LmSession:
         if not session_config:
             raise EnvironmentConfigError('config not provided to session')
         self.env = session_config.env
+        self.client_id = session_config.client_id
+        self.client_secret = session_config.client_secret
         self.username = session_config.username
         self.password = session_config.password
         self.__lm_security_ctrl = None
@@ -169,7 +173,16 @@ class LmSession:
     def __get_lm_security_ctrl(self):
         if self.env.is_secure:
             if not self.__lm_security_ctrl:
-                self.__lm_security_ctrl = lm_drivers.LmSecurityCtrl(self.env.auth_address, self.username, self.password)
+                oauth_address = None
+                if self.client_id is not None:
+                    oauth_address = self.env.address
+                self.__lm_security_ctrl = lm_drivers.LmSecurityCtrl(self.env.auth_address, 
+                                                                    username=self.username, 
+                                                                    password=self.password,
+                                                                    client_id=self.client_id, 
+                                                                    client_secret=self.client_secret,
+                                                                    oauth_address=oauth_address
+                                                                )
             return self.__lm_security_ctrl
         return None
 

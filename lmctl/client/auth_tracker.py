@@ -14,6 +14,7 @@ class AuthTracker:
     @property
     def has_access_expired(self):
         if self.current_access_token is None:
+            logger.debug('No current access token, must request one')
             return True
         logger.debug('Checking if LM access token has expired')
         now = datetime.datetime.now()
