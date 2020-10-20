@@ -2,6 +2,7 @@ import datetime
 import requests
 import logging
 import time
+from .base import LmDriver
 # Temporarily use new client to control auth in order to support client_credential authentication
 # Eventually this class and all classes in the drivers section will be replaced by the new client
 from lmctl.client import LmClientBuilder, LmClient, AuthTracker

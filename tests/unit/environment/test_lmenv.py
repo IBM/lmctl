@@ -224,7 +224,7 @@ class TestLmSession(unittest.TestCase):
     def test_descriptor_driver_with_security(self, descriptor_driver_init, mock_security_ctrl_init):
         session = LmSession(LmSessionConfig(LmEnvironment('lm', host='test', port=80, protocol='https', secure=True, username='user', auth_host='auth', auth_port=81, auth_protocol='http'), 'user', 'secret'))
         driver = session.descriptor_driver
-        mock_security_ctrl_init.assert_called_once_with('http://auth:81', 'user', 'secret')
+        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, oauth_address=None)
         descriptor_driver_init.assert_called_once_with('https://test:80', mock_security_ctrl_init.return_value)
         self.assertEqual(driver, descriptor_driver_init.return_value)
 
@@ -240,7 +240,7 @@ class TestLmSession(unittest.TestCase):
     def test_onboard_rm_driver_with_security(self, onboard_rm_driver_init, mock_security_ctrl_init):
         session = LmSession(LmSessionConfig(LmEnvironment('lm', host='test', port=80, protocol='https', secure=True, username='user', auth_host='auth', auth_port=81, auth_protocol='http'), 'user', 'secret'))
         driver = session.onboard_rm_driver
-        mock_security_ctrl_init.assert_called_once_with('http://auth:81', 'user', 'secret')
+        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, oauth_address=None)
         onboard_rm_driver_init.assert_called_once_with('https://test:80', mock_security_ctrl_init.return_value)
         self.assertEqual(driver, onboard_rm_driver_init.return_value)
 
@@ -256,7 +256,7 @@ class TestLmSession(unittest.TestCase):
     def test_topology_driver_with_security(self, topology_driver_init, mock_security_ctrl_init):
         session = LmSession(LmSessionConfig(LmEnvironment('lm', host='test', port=80, protocol='https', secure=True, username='user', auth_host='auth', auth_port=81, auth_protocol='http'), 'user', 'secret'))
         driver = session.topology_driver
-        mock_security_ctrl_init.assert_called_once_with('http://auth:81', 'user', 'secret')
+        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, oauth_address=None)
         topology_driver_init.assert_called_once_with('https://test:80', mock_security_ctrl_init.return_value)
         self.assertEqual(driver, topology_driver_init.return_value)
 
@@ -272,7 +272,7 @@ class TestLmSession(unittest.TestCase):
     def test_behaviour_driver_with_security(self, behaviour_driver_init, mock_security_ctrl_init):
         session = LmSession(LmSessionConfig(LmEnvironment('lm', host='test', port=80, protocol='https', secure=True, username='user', auth_host='auth', auth_port=81, auth_protocol='http'), 'user', 'secret'))
         driver = session.behaviour_driver
-        mock_security_ctrl_init.assert_called_once_with('http://auth:81', 'user', 'secret')
+        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, oauth_address=None)
         behaviour_driver_init.assert_called_once_with('https://test:80', mock_security_ctrl_init.return_value)
         self.assertEqual(driver, behaviour_driver_init.return_value)
 
@@ -288,7 +288,7 @@ class TestLmSession(unittest.TestCase):
     def test_deployment_location_driver_with_security(self, deployment_location_driver_init, mock_security_ctrl_init):
         session = LmSession(LmSessionConfig(LmEnvironment('lm', host='test', port=80, protocol='https', secure=True, username='user', auth_host='auth', auth_port=81, auth_protocol='http'), 'user', 'secret'))
         driver = session.deployment_location_driver
-        mock_security_ctrl_init.assert_called_once_with('http://auth:81', 'user', 'secret')
+        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, oauth_address=None)
         deployment_location_driver_init.assert_called_once_with('https://test:80', mock_security_ctrl_init.return_value)
         self.assertEqual(driver, deployment_location_driver_init.return_value)
 
@@ -304,6 +304,6 @@ class TestLmSession(unittest.TestCase):
     def test_infrastructure_keys_driver_with_security(self, infrastructure_keys_driver_init, mock_security_ctrl_init):
         session = LmSession(LmSessionConfig(LmEnvironment('lm', host='test', port=80, protocol='https', secure=True, username='user', auth_host='auth', auth_port=81, auth_protocol='http'), 'user', 'secret'))
         driver = session.infrastructure_keys_driver
-        mock_security_ctrl_init.assert_called_once_with('http://auth:81', 'user', 'secret')
+        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, oauth_address=None)
         infrastructure_keys_driver_init.assert_called_once_with('https://test:80', mock_security_ctrl_init.return_value)
         self.assertEqual(driver, infrastructure_keys_driver_init.return_value)
