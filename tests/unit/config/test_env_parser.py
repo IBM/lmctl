@@ -1,6 +1,5 @@
 import unittest
-from lmctl.ctl.common import ConfigError
-from lmctl.ctl.environments import EnvironmentGroupsParser
+from lmctl.config import ConfigError, EnvironmentGroupsParser
 from lmctl.environment.lmenv import LmEnvironment
 from lmctl.environment.armenv import ArmEnvironment
 

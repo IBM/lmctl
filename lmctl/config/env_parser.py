@@ -1,4 +1,4 @@
-from .common import ConfigError
+from .exceptions import ConfigError
 import lmctl.environment.group as envgroups
 import lmctl.environment.lmenv as lmenvs
 import lmctl.environment.armenv as armenvs
