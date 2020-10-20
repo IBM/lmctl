@@ -16,17 +16,9 @@ class LmClient:
     PUT = 'put'
     DELETE = 'delete'
 
-    def __init__(self, address: str, auth: AuthType = None, kami_address: str = None):
+    def __init__(self, address: str, auth_type: AuthType = None, kami_address: str = None):
         self.address = address
-        self.auth_type = auth
-        if kami_address is None:
-            parsed_url = urlparse(address)
-            if parsed_url.port:
-                new_netloc = parsed_url.netloc.replace(f':{parsed_url.port}', ':31289')
-            else:
-                new_netloc = f'{parsed_url.netloc}:31289'
-            parsed_url = parsed_url._replace(scheme='http', netloc=new_netloc, path='')
-            kami_address = parsed_url.geturl()
+        self.auth_type = auth_type
         self.kami_address = kami_address
         self.auth_tracker = AuthTracker() if self.auth_type is not None else None
         self._session = None

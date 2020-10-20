@@ -8,7 +8,6 @@ class LmClientBuilder:
     def __init__(self):
         self._address = None
         self._kami_address = None
-        self._legacy_auth_address = None
         self._auth = None
     
     @property
@@ -48,4 +47,4 @@ class LmClientBuilder:
         return self
     
     def build(self):
-        return LmClient(self._address, auth=self._auth, kami_address=self._kami_address)
+        return LmClient(self._address, auth_type=self._auth, kami_address=self._kami_address)

@@ -2,6 +2,7 @@ from typing import Union
 from .common import Environment, EnvironmentConfigError, EnvironmentRuntimeError, build_address
 from urllib.parse import urlparse
 import lmctl.drivers.lm as lm_drivers
+from lmctl.client import LmClient, LmClientBuilder
 
 KAMI_PORT = '31289'
 DEFAULT_BRENT_NAME = 'brent'
@@ -105,6 +106,22 @@ class LmEnvironment(Environment):
 
     def create_session_config(self):
         return LmSessionConfig(self, self.username, self.password)
+
+    def build_client(self):
+        builder = LmClientBuilder()
+        builder.address(self.address)
+        builder.kami_address(self.kami_address)
+        if self.secure:
+            if self.username is not None:
+                # Using password auth
+                if self.client_id is not None:
+                    builder.user_pass_auth(username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret)
+                else:
+                    # Legacy password auth
+                    builder.legacy_user_pass_auth(username=self.username, password=self.password, legacy_auth_address=self.auth_address)
+            else:
+                builder.client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret)
+        return builder.build()
 
     @property
     def is_secure(self):

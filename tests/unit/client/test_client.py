@@ -13,22 +13,6 @@ class TestLmClient(unittest.TestCase):
         mock_auth.handle.return_value = {'expiresIn': 100000, 'accessToken': '123'}
         return mock_auth
 
-    def test_generate_kami_address(self):
-        client = LmClient('https://test.example.com')
-        self.assertEqual(client.kami_address, 'http://test.example.com:31289')
-        client = LmClient('https://test.example.com/somepath')
-        self.assertEqual(client.kami_address, 'http://test.example.com:31289')
-        client = LmClient('https://test.example.com:8082')
-        self.assertEqual(client.kami_address, 'http://test.example.com:31289')
-        client = LmClient('http://127.0.0.1')
-        self.assertEqual(client.kami_address, 'http://127.0.0.1:31289')
-        client = LmClient('http://127.0.0.1:80')
-        self.assertEqual(client.kami_address, 'http://127.0.0.1:31289')
-        client = LmClient('http://127.0.0.1/path')
-        self.assertEqual(client.kami_address, 'http://127.0.0.1:31289')
-        client = LmClient('http://127.0.0.1:8082/path')
-        self.assertEqual(client.kami_address, 'http://127.0.0.1:31289')
-
     @patch('lmctl.client.client.requests.Session')
     def test_make_request(self, requests_session_builder):
         client = LmClient('https://test.example.com')
@@ -71,7 +55,7 @@ class TestLmClient(unittest.TestCase):
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_with_auth(self, requests_session_builder):
         mock_auth = self._build_mocked_auth_type()
-        client = LmClient('https://test.example.com', auth=mock_auth)
+        client = LmClient('https://test.example.com', auth_type=mock_auth)
         client.make_request('GET', 'api/test')
         mock_session = self._get_requests_session(requests_session_builder)
         mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={'Authorization': 'Bearer 123'}, verify=False)
@@ -79,7 +63,7 @@ class TestLmClient(unittest.TestCase):
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_with_auth_but_include_auth_false(self, requests_session_builder):
         mock_auth = self._build_mocked_auth_type()
-        client = LmClient('https://test.example.com', auth=mock_auth)
+        client = LmClient('https://test.example.com', auth_type=mock_auth)
         client.make_request('GET', 'api/test', include_auth=False)
         mock_session = self._get_requests_session(requests_session_builder)
         mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={}, verify=False)
