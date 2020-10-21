@@ -3,6 +3,8 @@ import tempfile
 import shutil
 import os
 import yaml
+from pathlib import Path
+from unittest.mock import patch
 from lmctl.config import ConfigError, ConfigFinder
 
 class TestConfigFinder(unittest.TestCase):
@@ -15,9 +17,19 @@ class TestConfigFinder(unittest.TestCase):
             shutil.rmtree(self.tmp_dir)
 
     def __write_file(self, file_path, content):
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
         with open(file_path, 'w') as f:
             f.write(content)
 
+    @patch('lmctl.config.finder.Path')
+    def test_find_default_location(self, mock_path):
+        # Mock home directory
+        mock_path.home.return_value = Path(self.tmp_dir)
+        default_config_file_path = os.path.join(self.tmp_dir, '.lmctl', 'config.yaml')
+        self.__write_file(default_config_file_path, 'test')
+        finder = ConfigFinder()
+        self.assertEqual(default_config_file_path, finder.find())
+    
     def test_find_by_path(self):
         config_file_path = os.path.join(self.tmp_dir, 'config.yaml')
         self.__write_file(config_file_path, 'test')
@@ -28,7 +40,7 @@ class TestConfigFinder(unittest.TestCase):
         config_file_path = os.path.join(self.tmp_dir, 'config.yaml')
         with self.assertRaises(ConfigError) as context:
             ConfigFinder(config_file_path).find()
-        self.assertEqual(str(context.exception), 'Path provided to load control config does not exist: {0}'.format(config_file_path))
+        self.assertEqual(str(context.exception), 'Provided config path does not exist: {0}'.format(config_file_path))
     
     def test_find_by_env_var(self):
         config_file_path = os.path.join(self.tmp_dir, 'config.yaml')
@@ -46,7 +58,7 @@ class TestConfigFinder(unittest.TestCase):
         try:
             with self.assertRaises(ConfigError) as context:
                 ConfigFinder(None, 'LMCONFIG').find()
-            self.assertEqual(str(context.exception), 'Config environment variable LMCONFIG path does not exist: {0}'.format(config_file_path))
+            self.assertEqual(str(context.exception), 'Config path on environment variable LMCONFIG does not exist: {0}'.format(config_file_path))
         finally:
             del os.environ['LMCONFIG']
 
@@ -57,7 +69,8 @@ class TestConfigFinder(unittest.TestCase):
             del os.environ['LMCONFIG']
         with self.assertRaises(ConfigError) as context:
             ConfigFinder(None, 'LMCONFIG').find()
-        self.assertEqual(str(context.exception), 'Config environment variable LMCONFIG is not set'.format(config_file_path))
+        expected_default_path = str(Path.home().joinpath('.lmctl').joinpath('config.yaml'))
+        self.assertEqual(str(context.exception), f'Config file could not be found at default location "{expected_default_path}" or from environment variable LMCONFIG')
 
     def test_find_by_path_not_env_var(self):
         config_file_path = os.path.join(self.tmp_dir, 'config.yaml')

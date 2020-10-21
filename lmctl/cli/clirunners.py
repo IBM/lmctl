@@ -1,5 +1,6 @@
 import click
 import lmctl.drivers.lm.base as lm_drivers
+from lmctl.client import LmClientError
 import traceback
 import logging
 
@@ -27,7 +28,7 @@ class ExceptionSafety(ExceptionSafetyNet):
 class LmDriverSafety(ExceptionSafetyNet):
     
     def __exit__(self, etype, value, traceback):
-        if value and isinstance(value, lm_drivers.LmDriverException):
+        if value and (isinstance(value, lm_drivers.LmDriverException) or isinstance(value, LmClientError)):
             logger.exception(value)
             click.echo('LM error occurred: {0}'.format(str(value)), err=True)
             exit(1)
