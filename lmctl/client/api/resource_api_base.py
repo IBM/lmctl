@@ -159,7 +159,7 @@ class ResourceAPIBase(APIBase):
     def _update_api_impl(self, obj: Dict):
         id_value = obj.get(self.id_attr, None)
         if id_value is None:
-            raise ValueError(f'Cannot update object missing "{self.id_attr}" attribute value')
+            raise LmClientError(f'Cannot update object missing "{self.id_attr}" attribute value')
         endpoint = self._get_endpoint(self.endpoint, self.update_meta, obj=obj, id_value=id_value, id_attr=self.id_attr)
         request_builder = self.update_meta.request_builder(obj=obj, id_value=id_value, id_attr=self.id_attr)
         request = self._build_request_kwargs(self.update_meta.method, endpoint, request_builder)

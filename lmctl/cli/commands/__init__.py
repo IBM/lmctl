@@ -6,3 +6,4 @@ from .resourcedriver import resourcedriver as resourcedriver_group
 from .infrastructure_key import key as key_group
 from .lifecycledriver import lifecycledriver as lifecycledriver_group
 from .vimdriver import vimdriver as vimdriver_group
+from .actions import actions, targets

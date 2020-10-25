@@ -7,18 +7,13 @@ logger = logging.getLogger(__name__)
 
 class ConfigFinder:
 
-    def __init__(self, potential_path=None, potential_env_var=None):
-        self.potential_path = potential_path
+    def __init__(self, potential_env_var=None):
         self.potential_env_var = potential_env_var
 
     def _get_default_config_path(self):
         return str(Path.home().joinpath('.lmctl').joinpath('config.yaml'))
 
     def find(self):
-        if self.potential_path:
-            if not os.path.exists(self.potential_path):
-                raise ConfigError('Provided config path does not exist: {0}'.format(self.potential_path))
-            return self.potential_path
         # Env variable
         env_var_value = None
         if self.potential_env_var:

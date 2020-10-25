@@ -1,7 +1,6 @@
 import unittest
 import unittest.mock as mock
-from lmctl.environment.common import EnvironmentConfigError, EnvironmentRuntimeError
-from lmctl.environment.lmenv import LmEnvironment, LmSessionConfig, LmSession
+from lmctl.environment import EnvironmentConfigError, EnvironmentRuntimeError, LmEnvironment, LmSessionConfig, LmSession
 from lmctl.client import LmClient, LegacyUserPassAuth, UserPassAuth, ClientCredentialsAuth
 
 class TestLmEnvironment(unittest.TestCase):

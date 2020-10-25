@@ -4,7 +4,7 @@ import yaml
 import os
 import json
 import lmctl.cli.ctlmgmt as ctlmgmt
-import lmctl.cli.clirunners as clirunners
+from lmctl.cli.safety_net import lm_driver_safety_net
 from lmctl.cli.format import determine_format_class, TableFormat
 
 logger = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ def format_dl_list(output_format, dl_list):
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
 def list_locations(environment, config, pwd, output_format):
     dl_driver = get_dl_driver(environment, config, pwd)
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         dl_list = dl_driver.get_locations()
     result = format_dl_list(output_format, dl_list)
     click.echo(result)
@@ -77,7 +77,7 @@ def add(environment, name, config, pwd, rm, infrastructure_type, description, pr
         new_dl['infrastructureSpecificProperties'] = loaded_properties
     else:
         new_dl['infrastructureSpecificProperties'] = {}
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         new_dl = dl_driver.add_location(new_dl)
     click.echo(format_dl(output_format, new_dl))
 
@@ -88,7 +88,7 @@ def add(environment, name, config, pwd, rm, infrastructure_type, description, pr
 @click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
 def delete(environment, name, config, pwd):
     dl_driver = get_dl_driver(environment, config, pwd)
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         dl_list = dl_driver.get_locations_by_name(name)
     if len(dl_list) == 0:
         click.echo('Error: No deployment location with name: {0}'.format(name), err=True)
@@ -96,7 +96,7 @@ def delete(environment, name, config, pwd):
     matched_dl = dl_list[0]
     dl_id = matched_dl['id']
     click.echo('Deleting deployment location: {0}...'.format(dl_id))
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         dl_driver.delete_location(dl_id)
     click.echo('Deleted deployment location: {0}'.format(dl_id))
 
@@ -108,7 +108,7 @@ def delete(environment, name, config, pwd):
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
 def get(environment, name, config, pwd, output_format):
     dl_driver = get_dl_driver(environment, config, pwd)
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         dl_list = dl_driver.get_locations_by_name(name)
     if len(dl_list) == 0:
         click.echo('Error: No deployment location with name: {0}'.format(name), err=True)

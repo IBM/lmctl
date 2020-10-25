@@ -1,8 +1,5 @@
 import unittest
-from lmctl.environment.group import EnvironmentGroup
-from lmctl.environment.lmenv import LmEnvironment
-from lmctl.environment.armenv import ArmEnvironment
-from lmctl.environment.common import EnvironmentConfigError, EnvironmentRuntimeError
+from lmctl.environment import EnvironmentGroup, LmEnvironment, ArmEnvironment,EnvironmentConfigError, EnvironmentRuntimeError
 
 class TestEnvironmentGroup(unittest.TestCase):
 

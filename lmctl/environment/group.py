@@ -1,6 +1,6 @@
 from .common import EnvironmentRuntimeError, EnvironmentConfigError, value_or_default
-import lmctl.environment.lmenv as lmenvs
-import lmctl.environment.armenv as armenvs
+from .lmenv import LmEnvironment
+from .armenv import ArmEnvironment
 
 class EnvironmentGroup:
 
@@ -11,7 +11,7 @@ class EnvironmentGroup:
         self.name = name
         self.description = description
         if lm_env is not None:
-            if not isinstance(lm_env, lmenvs.LmEnvironment):
+            if not isinstance(lm_env, LmEnvironment):
                 raise EnvironmentConfigError('lm_env provided must be of type LmEnvironment')
         self.lm_env = lm_env
         if arm_envs is None:
@@ -19,7 +19,7 @@ class EnvironmentGroup:
         if type(arm_envs) is not dict:
             raise EnvironmentConfigError('arm_envs must be name/value pairs')
         for key, value in arm_envs.items():
-            if not isinstance(value, armenvs.ArmEnvironment):
+            if not isinstance(value, ArmEnvironment):
                 raise EnvironmentConfigError('Items in arm_envs dict must be of type ArmEnvironment')
         self.arm_envs = arm_envs
 

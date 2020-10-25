@@ -1,7 +1,7 @@
 import click
 import logging
 import lmctl.cli.ctlmgmt as ctlmgmt
-import lmctl.cli.clirunners as clirunners
+from lmctl.cli.safety_net import lm_driver_safety_net
 from lmctl.cli.format import determine_format_class, TableFormat
 from lmctl.utils.certificates import read_certificate_file
 
@@ -47,7 +47,7 @@ def add(environment, config, pwd, driver_type, url, certificate, output_format):
             click.echo('Error: reading certificate: {0}'.format(str(e)), err=True)
             exit(1)
 
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         resource_driver = resource_mgmt_driver.add_resource_driver(new_resource_driver)
     click.echo(format_resource_driver(output_format, resource_driver))
 
@@ -65,12 +65,12 @@ def delete(environment, driver_id, config, pwd, driver_type):
         if driver_type is None:
             click.echo('Error: Must specify driver-id argument or type option')
             exit(1)
-        with clirunners.lm_driver_safety():
+        with lm_driver_safety_net():
             resource_driver = resource_mgmt_driver.get_resource_driver_by_type(driver_type)
         driver_id = resource_driver['id']
         click.echo('Found resource driver matching type \'{0}\'. Id: {1}'.format(driver_type, driver_id))
     click.echo('Deleting resource driver: {0}...'.format(driver_id))
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         resource_mgmt_driver.delete_resource_driver(driver_id)
     click.echo('Deleted resource driver: {0}'.format(driver_id))
 
@@ -88,10 +88,10 @@ def get(environment, driver_id, config, pwd, driver_type, output_format):
         if driver_type is None:
             click.echo('Error: Must specify driver-id argument or type option')
             exit(1)
-        with clirunners.lm_driver_safety():
+        with lm_driver_safety_net():
             resource_driver = resource_mgmt_driver.get_resource_driver_by_type(driver_type)
     else:
-        with clirunners.lm_driver_safety():
+        with lm_driver_safety_net():
             resource_driver = resource_mgmt_driver.get_resource_driver(driver_id)
     click.echo(format_resource_driver(output_format, resource_driver))
 

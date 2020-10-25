@@ -1,7 +1,7 @@
 import click
 import logging
 import lmctl.cli.ctlmgmt as ctlmgmt
-import lmctl.cli.clirunners as clirunners
+from lmctl.cli.safety_net import lm_driver_safety_net
 from lmctl.cli.format import determine_format_class, TableFormat
 from lmctl.utils.certificates import read_certificate_file
 
@@ -47,7 +47,7 @@ def add(environment, config, pwd, inf_type, url, certificate, output_format):
             click.echo('Error: reading certificate: {0}'.format(str(e)), err=True)
             exit(1)
 
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         vim_driver = vim_mgmt_driver.add_vim_driver(new_vim_driver)
     click.echo(format_vim_driver(output_format, vim_driver))
 
@@ -65,12 +65,12 @@ def delete(environment, driver_id, config, pwd, inf_type):
         if inf_type is None:
             click.echo('Error: Must specify driver-id argument or type option')
             exit(1)
-        with clirunners.lm_driver_safety():
+        with lm_driver_safety_net():
             vim_driver = vim_mgmt_driver.get_vim_driver_by_type(inf_type)
         driver_id = vim_driver['id']
         click.echo('Found VIM driver matching type \'{0}\'. Id: {1}'.format(inf_type, driver_id))
     click.echo('Deleting VIM driver: {0}...'.format(driver_id))
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         vim_mgmt_driver.delete_vim_driver(driver_id)
     click.echo('Deleted VIM driver: {0}'.format(driver_id))
 
@@ -88,10 +88,10 @@ def get(environment, driver_id, config, pwd, inf_type, output_format):
         if inf_type is None:
             click.echo('Error: Must specify driver-id argument or type option')
             exit(1)
-        with clirunners.lm_driver_safety():
+        with lm_driver_safety_net():
             vim_driver = vim_mgmt_driver.get_vim_driver_by_type(inf_type)
     else:
-        with clirunners.lm_driver_safety():
+        with lm_driver_safety_net():
             vim_driver = vim_mgmt_driver.get_vim_driver(driver_id)
     click.echo(format_vim_driver(output_format, vim_driver))
 

@@ -1,8 +1,6 @@
 import unittest
 import unittest.mock as mock
-from lmctl.environment.common import EnvironmentConfigError
-from lmctl.environment.armenv import ArmEnvironment, ArmSession, ArmSessionConfig
-
+from lmctl.environment import EnvironmentConfigError, ArmEnvironment, ArmSession, ArmSessionConfig
 
 class TestArmEnvironment(unittest.TestCase):
 

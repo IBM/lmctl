@@ -1,7 +1,7 @@
 import click
 import logging
 import lmctl.cli.ctlmgmt as ctlmgmt
-import lmctl.cli.clirunners as clirunners
+from lmctl.cli.safety_net import lm_driver_safety_net
 from lmctl.cli.format import determine_format_class, TableFormat
 from lmctl.utils.certificates import read_certificate_file
 
@@ -47,7 +47,7 @@ def add(environment, config, pwd, lifecycle_type, url, certificate, output_forma
             click.echo('Error: reading certificate: {0}'.format(str(e)), err=True)
             exit(1)
 
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         lifecycle_driver = lifecycle_mgmt_driver.add_lifecycle_driver(new_lifecycle_driver)
     click.echo(format_lifecycle_driver(output_format, lifecycle_driver))
 
@@ -65,12 +65,12 @@ def delete(environment, driver_id, config, pwd, lifecycle_type):
         if lifecycle_type is None:
             click.echo('Error: Must specify driver-id argument or type option')
             exit(1)
-        with clirunners.lm_driver_safety():
+        with lm_driver_safety_net():
             lifecycle_driver = lifecycle_mgmt_driver.get_lifecycle_driver_by_type(lifecycle_type)
         driver_id = lifecycle_driver['id']
         click.echo('Found lifecycle driver matching type \'{0}\'. Id: {1}'.format(lifecycle_type, driver_id))
     click.echo('Deleting lifecycle driver: {0}...'.format(driver_id))
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         lifecycle_mgmt_driver.delete_lifecycle_driver(driver_id)
     click.echo('Deleted lifecycle driver: {0}'.format(driver_id))
 
@@ -88,10 +88,10 @@ def get(environment, driver_id, config, pwd, lifecycle_type, output_format):
         if lifecycle_type is None:
             click.echo('Error: Must specify driver-id argument or type option')
             exit(1)
-        with clirunners.lm_driver_safety():
+        with lm_driver_safety_net():
             lifecycle_driver = lifecycle_mgmt_driver.get_lifecycle_driver_by_type(lifecycle_type)
     else:
-        with clirunners.lm_driver_safety():
+        with lm_driver_safety_net():
             lifecycle_driver = lifecycle_mgmt_driver.get_lifecycle_driver(driver_id)
     click.echo(format_lifecycle_driver(output_format, lifecycle_driver))
 
