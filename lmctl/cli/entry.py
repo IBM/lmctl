@@ -6,10 +6,10 @@ import lmctl.cli.commands as lmctl_commands
 import lmctl.utils.logging as lmctl_logging
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-@click.group()
+@click.group(help='TNCO (ALM) command line tools')
 @click.version_option()
 def cli():
-    """Lifecycle Manager Control tools"""
+    pass
 
 def init_cli():
 
