@@ -7,7 +7,7 @@ from lmctl.cli.format import determine_format_class, TableFormat
 
 logger = logging.getLogger(__name__)
 
-@click.group(name='key', help='Commands for managing shared infrastructure keys')
+@click.group(name='key', help='DEPRECATED in v3.0: Commands for managing shared infrastructure keys')
 def key():
     logger.debug('Infrastructure Key Management')
 

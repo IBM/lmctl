@@ -1,6 +1,6 @@
 import click
 from typing import Dict
-from lmctl.client import LmClient
+from lmctl.client import LmClient, LmClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
 from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete
@@ -16,16 +16,16 @@ class DeploymentLocationTable(Table):
 
 output_formats = common_output_format_handler(table=DeploymentLocationTable())
     
-class DeploymentLocation(LmTarget):
+class DeploymentLocations(LmTarget):
     name = 'deploymentlocation'
     plural = 'deploymentlocations'
     display_name = 'Deployment Location'
 
-    @LmGet(output_formats=output_formats, help=f'''
+    @LmGet(output_formats=output_formats, help=f'''\
                                             Get all {display_name}s or get by name or get by partial name match\
-                                            - Use NAME argument to get by name\
-                                            - Omit NAME argument to get all\
-                                            - Omit name and use --name-contains option to get by partial name match''')
+                                            \n\nUse NAME argument to get by name\
+                                            \n\nOmit NAME argument to get all\
+                                            \n\nOmit NAME argument and use --name-contains option to get by partial name match''')
     @click.argument('name', required=False)
     @click.option('--name-contains', help='Partial name search string')
     def get(self, lm_client: LmClient, ctx: click.Context, name: str = None, name_contains: str = None):
@@ -62,8 +62,8 @@ class DeploymentLocation(LmTarget):
         else:
             if name is None:
                 raise click.BadArgumentUsage(message='Must set "NAME" argument when no "-f, --file" option specified', ctx=ctx)
-            deployment_location = set_values
-            deployment_location['name'] = name
+            deployment_location = api.get(name)
+            deployment_location.update(set_values)
         if 'id' not in deployment_location:
             deployment_location['id'] = deployment_location.get('name', None)
         result = api.update(deployment_location)
@@ -84,5 +84,14 @@ class DeploymentLocation(LmTarget):
             if name is None:
                 raise click.BadArgumentUsage(message='Must set "NAME" argument when no "-f, --file" option specified', ctx=ctx)
             deployment_location_id = name
-        result = api.delete(deployment_location_id)
+        try:
+            result = api.delete(deployment_location_id)
+        except LmClientHttpError as e:
+            if e.status_code == 404:
+                # Not found
+                if ignore_missing:
+                    ctl = self._get_controller()
+                    ctl.io.print(f'No {self.display_name} found with name {deployment_location_id} (ignoring)')
+                    return
+            raise
         return deployment_location_id

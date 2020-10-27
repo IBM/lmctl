@@ -11,6 +11,10 @@ class FileInputs:
     def __init__(self):
         self._formats = OrderedDict()
 
+    @property
+    def formats(self):
+        return self._formats
+
     def add_format(self, name: str, format_instance: InputFormat) -> 'InputFormats':
         self._formats[name] = format_instance
         return self
@@ -18,8 +22,6 @@ class FileInputs:
     def _callback(self, ctx, param, value):
         if value is None:
             return None
-        if not os.path.exists(value):
-            raise click.BadParameter(f'File path given does not exist: {value}', ctx=ctx, param=param)
         with open(value) as f:
             content = f.read()
         failures = OrderedDict()
@@ -33,11 +35,12 @@ class FileInputs:
             error_msg += f'\n\t{name}: {error}'
         raise click.BadParameter(error_msg, ctx=ctx, param=param)
 
-    def option(self):
+    def option(self, help: str = None):
         def decorator(f):
             return click.option('-f', '--file', 'file_content', 
-                                help='Path to file used to create the object',
+                                help=help or 'Path to file used as object',
                                 required=False,
+                                type=click.Path(exists=True),
                                 callback=self._callback
                             )(f)
         return decorator

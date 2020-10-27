@@ -35,6 +35,8 @@ class LmTarget(Target):
                     wrapper = self._wrap_with_builder(self._update_cmd_builder, attr_value)
                 elif cmd_type == 'LmDelete':
                     wrapper = self._wrap_with_builder(self._delete_cmd_builder, attr_value)
+                elif cmd_type == 'LmCmd':
+                    wrapper = self._wrap_with_builder(self._basic_cmd_builder, attr_value)
                 else:
                     raise ValueError(f'Unknown value for "__lm_cmd_type__": {cmd_type}')
                 setattr(self, attr_name, wrapper)
@@ -50,6 +52,25 @@ class LmTarget(Target):
             return handler_function.__help__
         else:
             return default_help
+
+    def _basic_cmd_builder(self, handler_function: Callable) -> click.Command:
+        # Build up a command (but don't decorate it as one yet)
+        @environment_name_option()
+        @click.pass_context
+        def cmd(ctx: click.Context, environment_name: str, **kwargs):
+            ctl = self._get_controller()
+            with ctl.lm_client_safety_net():
+                lm_client = ctl.get_lm_client(environment_name)
+                result = handler_function(lm_client, ctx=ctx, **kwargs)
+                if result is not None:
+                    ctl.io.print(result)
+        # Add any extra arguments or options decorated on the handler_function
+        if hasattr(handler_function, '__click_params__'):
+            cmd.__click_params__.extend(handler_function.__click_params__)
+        # Build final command
+        cmd_kwargs = {} if not hasattr(handler_function, '__cmd_kwargs__') else handler_function.__cmd_kwargs__
+        cmd = click.command(**cmd_kwargs)(cmd)
+        return cmd
 
     def _get_cmd_builder(self, handler_function: Callable) -> click.Command:
         if hasattr(handler_function, '__output_formats__'):
@@ -76,7 +97,13 @@ class LmTarget(Target):
         if hasattr(handler_function, '__click_params__'):
             cmd.__click_params__.extend(handler_function.__click_params__)
         # Build final command
-        cmd = click.command(help=self._get_help(handler_function, f'Get {self.display_name} by name'))(cmd)
+        cmd_kwargs = {} if not hasattr(handler_function, '__cmd_kwargs__') else handler_function.__cmd_kwargs__
+        if 'help' not in cmd_kwargs:
+            help = f'Get {self.display_name}'
+            cmd_kwargs['help'] = help
+        if 'short_help' not in cmd_kwargs:
+            cmd_kwargs['short_help'] = f'Get {self.display_name}'
+        cmd = click.command(**cmd_kwargs)(cmd)
         return cmd
 
     def _create_cmd_builder(self, handler_function: Callable) -> click.Command:
@@ -84,6 +111,9 @@ class LmTarget(Target):
             file_inputs = handler_function.__file_inputs__
         else:
             file_inputs = default_file_inputs_handler()
+        print_result = True
+        if hasattr(handler_function, '__print_result__'):
+            print_result = handler_function.__print_result__
 
         @environment_name_option()
         @file_inputs.option()
@@ -94,13 +124,21 @@ class LmTarget(Target):
             with ctl.lm_client_safety_net():
                 lm_client = ctl.get_lm_client(environment_name)
                 result = handler_function(lm_client, ctx=ctx, file_content=file_content, set_values=set_values, **kwargs)
-                if result is not None:
+                if result is not None and print_result:
                     ctl.io.print(f'Created: {result}')
         # Add any extra arguments or options decorated on the handler_function
         if hasattr(handler_function, '__click_params__'):
             cmd.__click_params__.extend(handler_function.__click_params__)
         # Build final command
-        cmd = click.command(help=self._get_help(handler_function, f'Create {self.display_name}'))(cmd)
+        cmd_kwargs = {} if not hasattr(handler_function, '__cmd_kwargs__') else handler_function.__cmd_kwargs__
+        if 'help' not in cmd_kwargs:
+            help = f'Create {self.display_name}'
+            help += f'\n\nUse the "-f, --file" option to parse a file in a supported format: {list(file_inputs.formats.keys())}'
+            help += f'\n\nOtherwise, use "--set" option to set attributes as key=value pairs'
+            cmd_kwargs['help'] = help
+        if 'short_help' not in cmd_kwargs:
+            cmd_kwargs['short_help'] = f'Create {self.display_name}'
+        cmd = click.command(**cmd_kwargs)(cmd)
         return cmd
 
     def _update_cmd_builder(self, handler_function: Callable) -> click.Command:
@@ -108,6 +146,9 @@ class LmTarget(Target):
             file_inputs = handler_function.__file_inputs__
         else:
             file_inputs = default_file_inputs_handler()
+        print_result = True
+        if hasattr(handler_function, '__print_result__'):
+            print_result = handler_function.__print_result__
 
         @environment_name_option()
         @file_inputs.option()
@@ -118,13 +159,21 @@ class LmTarget(Target):
             with ctl.lm_client_safety_net():
                 lm_client = ctl.get_lm_client(environment_name)
                 result = handler_function(lm_client, ctx=ctx, file_content=file_content, set_values=set_values, **kwargs)
-                if result is not None:
+                if result is not None and print_result:
                     ctl.io.print(f'Updated: {result}')
         # Add any extra arguments or options decorated on the handler_function
         if hasattr(handler_function, '__click_params__'):
             cmd.__click_params__.extend(handler_function.__click_params__)
         # Build final command
-        cmd = click.command(help=self._get_help(handler_function, f'Update {self.display_name}'))(cmd)
+        cmd_kwargs = {} if not hasattr(handler_function, '__cmd_kwargs__') else handler_function.__cmd_kwargs__
+        if 'help' not in cmd_kwargs:
+            help = f'Update {self.display_name}'
+            help += f'\n\nUse the "-f, --file" option to parse a file in a supported format: {list(file_inputs.formats.keys())}'
+            help += f'\n\nOtherwise, use "--set" option to set attributes as key=value pairs'
+            cmd_kwargs['help'] = help
+        if 'short_help' not in cmd_kwargs:
+            cmd_kwargs['short_help'] = f'Update {self.display_name}'
+        cmd = click.command(**cmd_kwargs)(cmd)
         return cmd
 
     def _delete_cmd_builder(self, handler_function: Callable) -> click.Command:
@@ -132,6 +181,9 @@ class LmTarget(Target):
             file_inputs = handler_function.__file_inputs__
         else:
             file_inputs = default_file_inputs_handler()
+        print_result = True
+        if hasattr(handler_function, '__print_result__'):
+            print_result = handler_function.__print_result__
 
         @environment_name_option()
         @file_inputs.option()
@@ -142,52 +194,70 @@ class LmTarget(Target):
             with ctl.lm_client_safety_net():
                 lm_client = ctl.get_lm_client(environment_name)
                 result = handler_function(lm_client, ctx=ctx, file_content=file_content, ignore_missing=ignore_missing, **kwargs)
-                if result is not None:
+                if result is not None and print_result:
                     ctl.io.print(f'Removed: {result}')
         # Add any extra arguments or options decorated on the handler_function
         if hasattr(handler_function, '__click_params__'):
             cmd.__click_params__.extend(handler_function.__click_params__)
         # Build final command
-        cmd = click.command(help=self._get_help(handler_function, f'Remove {self.display_name}'))(cmd)
+        cmd_kwargs = {} if not hasattr(handler_function, '__cmd_kwargs__') else handler_function.__cmd_kwargs__
+        if 'help' not in cmd_kwargs:
+            help = f'Delete {self.display_name}'
+            help += f'\n\n If "-f, --file" option is set then the target {self.display_name} will be discovered from this file'
+            cmd_kwargs['help'] = help
+        if 'short_help' not in cmd_kwargs:
+            cmd_kwargs['short_help'] = f'Delete {self.display_name}'
+        cmd = click.command(**cmd_kwargs)(cmd)
         return cmd
 
-def LmGet(help: str = None, output_formats: OutputFormats = None):
+def LmGet(output_formats: OutputFormats = None, **cmd_kwargs):
     def decorator(f):
         if output_formats is not None:
             f.__output_formats__ = output_formats
-        if help is not None:
-            f.__help__ = help
+        if len(cmd_kwargs) > 0:
+            f.__cmd_kwargs__ = cmd_kwargs
         f.__lm_cmd_type__ = 'LmGet'
         return f
     return decorator
 
-def LmCreate(help: str = None, file_inputs: FileInputs = None):
+def LmCreate(file_inputs: FileInputs = None, print_result: bool = True, **cmd_kwargs):
     def decorator(f):
         if file_inputs is not None:
             f.__file_inputs__ = file_inputs
-        if help is not None:
-            f.__help__ = help
+        f.__print_result__ = print_result
+        if len(cmd_kwargs) > 0:
+            f.__cmd_kwargs__ = cmd_kwargs
         f.__lm_cmd_type__ = 'LmCreate'
         return f
     return decorator
 
 
-def LmUpdate(help: str = None, file_inputs: FileInputs = None):
+def LmUpdate(file_inputs: FileInputs = None, print_result: bool = True, **cmd_kwargs):
     def decorator(f):
         if file_inputs is not None:
             f.__file_inputs__ = file_inputs
-        if help is not None:
-            f.__help__ = help
+        f.__print_result__ = print_result
+        if len(cmd_kwargs) > 0:
+            f.__cmd_kwargs__ = cmd_kwargs
         f.__lm_cmd_type__ = 'LmUpdate'
         return f
     return decorator
 
-def LmDelete(help: str = None, file_inputs: FileInputs = None):
+def LmDelete(file_inputs: FileInputs = None, print_result: bool = True, **cmd_kwargs):
     def decorator(f):
         if file_inputs is not None:
             f.__file_inputs__ = file_inputs
-        if help is not None:
-            f.__help__ = help
+        f.__print_result__ = print_result
+        if len(cmd_kwargs) > 0:
+            f.__cmd_kwargs__ = cmd_kwargs
         f.__lm_cmd_type__ = 'LmDelete'
+        return f
+    return decorator
+
+def LmCmd(**cmd_kwargs):
+    def decorator(f):
+        if len(cmd_kwargs) > 0:
+            f.__cmd_kwargs__ = cmd_kwargs
+        f.__lm_cmd_type__ = 'LmCmd'
         return f
     return decorator

@@ -33,6 +33,12 @@ def id_path_builder(endpoint: str, id_value: str, *args, extra_request_params: D
         built_endpoint = f'{built_endpoint}?{urllib.parse.urlencode(extra_request_params)}'
     return built_endpoint
 
+def query_param_builder(endpoint: str, *args, extra_request_params: Dict = None, **kwargs):
+    built_endpoint = endpoint
+    if extra_request_params is not None and len(extra_request_params) > 0:
+        built_endpoint = f'{built_endpoint}?{urllib.parse.urlencode(extra_request_params)}'
+    return built_endpoint
+
 def obj_json_request_builder(obj: Dict, *args, **kwargs) -> Dict:
     return {
         'json': obj
@@ -47,11 +53,16 @@ class APIArg:
         self.validator = validator
 
 class ListAPIMeta:
-    def __init__(self, method: str = 'GET', request_builder: Callable = noop_builder, endpoint_builder: Callable = None, response_handler: Callable = json_response_handler):
+    def __init__(self, method: str = 'GET', 
+                        request_builder: Callable = noop_builder, 
+                        endpoint_builder: Callable = query_param_builder, 
+                        response_handler: Callable = json_response_handler,
+                        extra_request_params: Dict = None):
         self.method = method
         self.request_builder = request_builder
         self.endpoint_builder = endpoint_builder
         self.response_handler = response_handler
+        self.extra_request_params = extra_request_params
 
 class ReadAPIMeta:
     def __init__(self, method: str = 'GET', 
@@ -133,8 +144,9 @@ class ResourceAPIBase(APIBase):
             request_kwargs['override_address'] = self.override_address
         return request_kwargs
 
-    def _list_api_impl(self) -> List:
-        endpoint = self._get_endpoint(self.endpoint, self.list_meta)
+    def _list_api_impl(self, **kwargs) -> List:
+        extra_request_params = self._parse_extra_args(self.list_meta, **kwargs)
+        endpoint = self._get_endpoint(self.endpoint, self.list_meta, extra_request_params=extra_request_params)
         request_builder = self.list_meta.request_builder(id_attr=self.id_attr)
         request = self._build_request_kwargs(self.list_meta.method, endpoint, request_builder)
         response = self.base_client.make_request(**request)

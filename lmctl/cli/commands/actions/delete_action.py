@@ -3,5 +3,5 @@ from .action import Action
 class Delete(Action):
     name = 'delete'
     group_attrs = {
-        'help': 'Delete objects'
+        'help': 'Delete supported objects'
     }

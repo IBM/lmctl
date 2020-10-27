@@ -1,5 +1,6 @@
 import urllib
 from typing import List, Dict, Union
+from lmctl.client.exceptions import LmClientError
 from .resource_api_base import ResourceAPIBase, json_response_handler, obj_json_request_builder, location_id_response_handler
 from lmctl.client.models import (CreateAssemblyIntent, UpgradeAssemblyIntent, ChangeAssemblyStateIntent, 
                                     DeleteAssemblyIntent, ScaleAssemblyIntent, HealAssemblyIntent,
@@ -19,7 +20,14 @@ class AssembliesAPI(ResourceAPIBase):
     def get_topN(self) -> List:
         response = self.base_client.make_request(method='GET', endpoint=self.endpoint)
         return json_response_handler(response)
-    
+
+    def get_by_name(self, name: str) -> Dict:
+        result = self.all_with_name(name)
+        if len(result) == 0:
+            raise LmClientError('No Assembly found with name matching "{name}"')
+        else:
+            return result[0]
+
     def all_with_name(self, name: str) -> List:
         params = {'name': name}
         endpoint = f'{self.endpoint}?{urllib.parse.urlencode(params)}'

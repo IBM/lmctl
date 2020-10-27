@@ -3,5 +3,5 @@ from .action import Action
 class Create(Action):
     name = 'create'
     group_attrs = {
-        'help': 'Create objects'
+        'help': 'Create supported objects'
     }

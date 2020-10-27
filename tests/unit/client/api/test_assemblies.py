@@ -18,6 +18,13 @@ class TestAssembliesAPI(unittest.TestCase):
         self.assertEqual(response, mock_response)
         self.mock_client.make_request.assert_called_with(method='GET', endpoint='api/topology/assemblies/123')
     
+    def test_get_by_name(self):
+        mock_response = [{'id': '123', 'name': 'Test'}]
+        self.mock_client.make_request.return_value.json.return_value = mock_response
+        response = self.assemblies.get_by_name('Test')
+        self.assertEqual(response, mock_response[0])
+        self.mock_client.make_request.assert_called_with(method='GET', endpoint='api/topology/assemblies?name=Test')
+   
     def test_get_topN(self):
         mock_response = [{'id': '123', 'name': 'Test'}]
         self.mock_client.make_request.return_value.json.return_value = mock_response

@@ -11,6 +11,10 @@ class OutputFormats:
         self._choices = {}
         self._default_choice = None
 
+    @property
+    def choices(self):
+        return self._choices
+
     def add_choice(self, name: str, format_instance: OutputFormat, is_default: bool = False) -> 'OutputFormats':
         self._choices[name] = format_instance
         if is_default:

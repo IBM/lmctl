@@ -39,7 +39,6 @@ class ConfigParserWorker:
         self.config_dict = config_dict
 
     def parse(self):
-        env_groups = {}
-        environments = self.config_dict.get('environments', {})
-        environments = EnvironmentGroupsParser.from_dict(environments)
-        return Config(environments)
+        raw_environments = self.config_dict.get('environments', {})
+        environments = EnvironmentGroupsParser.from_dict(raw_environments)
+        return Config(environments, raw_environments=raw_environments)

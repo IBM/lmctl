@@ -9,7 +9,7 @@ from lmctl.cli.format import determine_format_class, TableFormat
 
 logger = logging.getLogger(__name__)
 
-@click.group(name='deployment', help='Commands for managing Deployment Locations')
+@click.group(name='deployment', help='DEPRECATED in v3.0: Commands for managing Deployment Locations')
 def deployment():
     logger.debug('Deployment Location Management')
 

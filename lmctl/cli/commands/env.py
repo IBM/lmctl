@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 ######################################################
 
 
-@click.group(help='Commands for inspecting available LM environments')
+@click.group(help='DEPRECATED in v3.0: Commands for inspecting available LM environments')
 def env():
     logger.debug('Environments')
 
