@@ -8,10 +8,16 @@ class YamlFormat(OutputFormat):
 
     def convert_list(self, element_list: List[Any]) -> str:
         data = {'items': element_list}
-        return yaml.dump(data, sort_keys=False)
+        try:
+            return yaml.dump(data, sort_keys=False)
+        except yaml.YAMLError as e:
+            raise BadFormatError(f'Failed to convert to YAML: {e}') from e
 
     def convert_element(self, element: Any) -> str:
-        return yaml.dump(element, sort_keys=False)
+        try:
+            return yaml.dump(element, sort_keys=False)
+        except yaml.YAMLError as e:
+            raise BadFormatError(f'Failed to convert to YAML: {e}') from e
 
     def read(self, content: str) -> Dict:
         try:

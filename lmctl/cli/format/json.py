@@ -8,10 +8,16 @@ class JsonFormat(OutputFormat, InputFormat):
 
     def convert_list(self, element_list: List[Any]) -> str:
         data = {'items': element_list}
-        return json.dumps(data, indent=2)
+        try:
+            return json.dumps(data, indent=2)
+        except json.JSONDecodeError as e:
+            raise BadFormatError(f'Failed to convert to JSON: {e}') from e
 
     def convert_element(self, element: Any) -> str:
-        return json.dumps(element, indent=2)
+        try:
+            return json.dumps(element, indent=2)
+        except json.JSONDecodeError as e:
+            raise BadFormatError(f'Failed to convert to JSON: {e}') from e
 
     def read(self, content: str) -> Dict:
         try:
