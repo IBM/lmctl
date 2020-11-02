@@ -25,18 +25,27 @@ class Scenarios(LmTarget):
     @LmCmd(help=f'''\
                     Execute a Behaviour Scenario (by ID)
                     ''')
-    @click.argument('scenario', required=False)
-    @exec_file_inputs.option(help='Path to file containing a Scenario to be executed')
+    @click.argument('ID', required=False)
+    @exec_file_inputs.option(var_name='scenario_file_content', help='Path to file containing a Scenario to be executed')
+    @exec_file_inputs.option(var_name='exec_file_content', options=['-r', '--request-file'], help='Path to file with execution request parameters')
     @set_param_option(help='Set parameters on the execution request')
-    def execute(self, lm_client: LmClient, ctx: click.Context, scenario: str, set_values: Dict, file_content: Dict):
+    def execute(self, lm_client: LmClient, ctx: click.Context, id: str = None, set_values: Dict = None, scenario_file_content: Dict = None, exec_file_content: Dict = None):
         api = lm_client.behaviour_scenario_execs
-        if file_content is not None:
-            if scenario is not None:
-                raise click.BadArgumentUsage(message='Do not use "SCENARIO" argument when using "-f, --file" option', ctx=ctx)
-            scenario = file_content.get('id', None)
-            if scenario is None:
+        if scenario_file_content is not None:
+            if id is not None:
+                raise click.BadArgumentUsage(message='Do not use "ID" argument when using "-f, --file" option', ctx=ctx)
+            id = scenario_file_content.get('id', None)
+            if id is None:
                 raise click.BadArgumentUsage(message='Object from file does not contain an "id" attribute', ctx=ctx)
-        execution_id = api.execute(scenario_id=scenario, execution_request=set_values)
+        elif id is None:
+            raise click.BadArgumentUsage(message='Must set "ID" argument when no "-f, --file" option specified', ctx=ctx)
+        if exec_file_content is not None and len(exec_file_content) > 0:
+            if set_values is not None and len(set_values) > 0:
+                raise click.BadArgumentUsage(message='Do not use "--set" option when using "-r, --request-file" option', ctx=ctx)
+            exec_request = exec_file_content
+        else:
+            exec_request = set_values
+        execution_id = api.execute(scenario_id=id, execution_request=exec_request)
         return f'Created Scenario Execution: {execution_id}'
 
     @LmGet(output_formats=output_formats, help=f'''\
@@ -61,7 +70,7 @@ class Scenarios(LmTarget):
         api = lm_client.behaviour_scenarios
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
-                raise click.BadArgumentUsage(message='Do not use "set" option when using "-f, --file" option', ctx=ctx)
+                raise click.BadArgumentUsage(message='Do not use "--set" option when using "-f, --file" option', ctx=ctx)
             scenario = file_content
         else:
             scenario = set_values

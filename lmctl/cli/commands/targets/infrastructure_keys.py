@@ -32,13 +32,13 @@ class InfrastructureKeys(LmTarget):
             return api.get(name, include_private_key=include_private)
         else:
             return api.all(include_private_key=include_private) 
-        
+
     @LmCreate()
     def create(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
         api = lm_client.shared_inf_keys
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
-                raise click.BadArgumentUsage(message='Do not use "set" option when using "-f, --file" option', ctx=ctx)
+                raise click.BadArgumentUsage(message='Do not use "--set" option when using "-f, --file" option', ctx=ctx)
             inf_key = file_content
         else:
             inf_key = set_values

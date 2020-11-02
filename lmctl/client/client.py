@@ -16,21 +16,25 @@ class LmClient:
     PUT = 'put'
     DELETE = 'delete'
 
-    def __init__(self, address: str, auth_type: AuthType = None, kami_address: str = None):
+    def __init__(self, address: str, auth_type: AuthType = None, kami_address: str = None, use_sessions: bool = False):
         self.address = address
         self.auth_type = auth_type
         self.kami_address = kami_address
         self.auth_tracker = AuthTracker() if self.auth_type is not None else None
         self._session = None
+        self.use_sessions = use_sessions
 
     def close(self):
         if self._session is not None:
             self._session.close()
     
-    def _curr_session(self) -> requests.Session:
-        if self._session is None:
-            self._session = requests.Session()
-        return self._session
+    def _curr_session(self):
+        if self.use_sessions:
+            if self._session is None:
+                self._session = requests.Session()
+            return self._session
+        else:
+            return requests
 
     def _add_auth_headers(self, headers: Dict=None) -> Dict:
         if headers is None:

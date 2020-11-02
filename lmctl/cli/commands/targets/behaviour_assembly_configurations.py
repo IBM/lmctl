@@ -43,7 +43,7 @@ class AssemblyConfigurations(LmTarget):
         api = lm_client.behaviour_assembly_confs
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
-                raise click.BadArgumentUsage(message='Do not use "set" option when using "-f, --file" option', ctx=ctx)
+                raise click.BadArgumentUsage(message='Do not use "--set" option when using "-f, --file" option', ctx=ctx)
             assembly_conf = file_content
         else:
             assembly_conf = set_values

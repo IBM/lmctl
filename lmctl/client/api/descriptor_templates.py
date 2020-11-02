@@ -13,6 +13,8 @@ class DescriptorTemplatesAPI(DescriptorsAPI):
         super().__init__(base_client)
 
     def render(self, template_name: str, render_request: Dict) -> Dict:
+        if render_request is None:
+            render_request = {}
         endpoint = self._render_endpoint(template_name)
         request = obj_yaml_request_builder(render_request)
         request['headers']['Accept'] = 'application/yaml'
@@ -24,6 +26,8 @@ class DescriptorTemplatesAPI(DescriptorsAPI):
         return yaml_response_handler(response)
 
     def render_raw(self, template_name: str, render_request: Dict) -> str:
+        if render_request is None:
+            render_request = {}
         endpoint = self._render_raw_endpoint(template_name)
         request = obj_yaml_request_builder(render_request)
         request['headers']['Accept'] = 'text/plain'

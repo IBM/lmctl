@@ -9,6 +9,7 @@ from .behaviour_projects import Projects
 from .behaviour_scenarios import Scenarios
 from .behaviour_scenario_executions import ScenarioExecutions
 from .descriptors import Descriptors
+from .descriptor_templates import DescriptorTemplates
 from .resource_managers import ResourceManagers
 from .resource_packages import ResourcePackages
 from .assemblies import Assemblies
@@ -28,6 +29,7 @@ targets = [
     Scenarios(),
     ScenarioExecutions(),
     Descriptors(),
+    DescriptorTemplates(),
     ResourceManagers(),
     ResourcePackages(),
     Assemblies(),

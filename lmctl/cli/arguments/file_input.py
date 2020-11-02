@@ -35,21 +35,22 @@ class FileInputs:
             error_msg += f'\n\t{name}: {error}'
         raise click.BadParameter(error_msg, ctx=ctx, param=param)
 
-    def option(self, help: str = None):
+    def option(self, var_name: str = 'file_content', required: bool = False, 
+                        help: str = 'Path to file used as object', options: str = ['-f', '--file']):
         def decorator(f):
-            return click.option('-f', '--file', 'file_content', 
-                                help=help or 'Path to file used as object',
-                                required=False,
+            return click.option(*options, var_name, 
+                                help=help,
+                                required=required,
                                 type=click.Path(exists=True),
                                 callback=self._callback
                             )(f)
         return decorator
 
-def file_inputs_handler():
-    return FileInputs()
+def file_inputs_handler(**kwargs):
+    return FileInputs(**kwargs)
 
-def default_file_inputs_handler():
-    return file_inputs_handler()\
+def default_file_inputs_handler(**kwargs):
+    return file_inputs_handler(**kwargs)\
         .add_format(YAML_VALUE, YamlFormat())\
         .add_format(JSON_VALUE, JsonFormat())
 

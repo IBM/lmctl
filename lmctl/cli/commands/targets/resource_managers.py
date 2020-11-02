@@ -34,7 +34,7 @@ class ResourceManagers(LmTarget):
                                             \n\nUse NAME argument to get by name\
                                             \n\nOmit NAME argument to get all''')
     @click.argument('name', required=False)
-    def get(self, lm_client: LmClient, ctx: click.Context, name: str = None, name_contains: str = None):
+    def get(self, lm_client: LmClient, ctx: click.Context, name: str = None):
         api = lm_client.resource_managers
         if name is not None:
             return api.get(name)
@@ -63,7 +63,7 @@ class ResourceManagers(LmTarget):
         output_formatter = onboarding_report_formats.resolve_choice(output_format)
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
-                raise click.BadArgumentUsage(message='Do not use "set" option when using "-f, --file" option', ctx=ctx)
+                raise click.BadArgumentUsage(message='Do not use "--set" option when using "-f, --file" option', ctx=ctx)
             resource_manager = file_content
         else:
             resource_manager = set_values

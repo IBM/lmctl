@@ -13,7 +13,7 @@ class ResourcePackages(LmTarget):
     @LmCmd(short_help=f'Upload {display_name}', help=f'''Upload {display_name}\
                         \n\nNOTE: Resource Packages are not synonymous with LMCTL project packages, even when the project contains a Resource.
                         The package for an LMCTL package can be extracted to find the Resource Package with zip/tar, depending on the chosen package format for your project''')
-    @click.option('-f',' --file', 'file_path', 
+    @click.option('-f','--file', 'file_path', 
                     required=True,
                     type=click.Path(exists=True)
                 )
@@ -50,4 +50,4 @@ class ResourcePackages(LmTarget):
                     ctl.io.print(f'No {self.display_name} found with name {resource_name} (ignoring)')
                     return
             raise
-        return f'Deleted package for: {resource_name}'
+        return f'Removed package for: {resource_name}'

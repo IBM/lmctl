@@ -25,7 +25,10 @@ class ConfigParser:
                 self.__rewrite_config(config_path, config_dict)
                 config_dict = self.__read_file(config_path)
         return ConfigParserWorker(config_dict).parse()
-    
+
+    def from_dict(self, config_dict):    
+        return ConfigParserWorker(config_dict).parse()
+
     def __rewrite_config(self, config_path, config_dict):
         try:
             ConfigRewriter(config_path, config_dict).rewrite()

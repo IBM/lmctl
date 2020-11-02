@@ -4,6 +4,7 @@ from lmctl.client import LmClient, LmClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
 from .lm_target import LmTarget, LmGet, LmCreate, LmDelete
+from lmctl.utils.certificates import read_certificate_file
 
 class ResourceDriverTable(Table):
     
@@ -38,14 +39,22 @@ class ResourceDrivers(LmTarget):
             raise click.BadArgumentUsage('Must set either "ID" argument or "--type" option', ctx=ctx) 
         
     @LmCreate()
-    def create(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
+    @click.option('--certificate', type=click.Path(exists=True), help='Path to a file containing the public certificate of the resource driver')
+    def create(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None, certificate: str = None):
         api = lm_client.resource_drivers
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
-                raise click.BadArgumentUsage(message='Do not use "set" option when using "-f, --file" option', ctx=ctx)
+                raise click.BadArgumentUsage(message='Do not use "--set" option when using "-f, --file" option', ctx=ctx)
             resource_driver = file_content
         else:
             resource_driver = set_values
+        if certificate is not None:
+            try:
+                resource_driver['certificate'] = read_certificate_file(certificate)
+            except IOError as e:
+                ctl = self._get_controller()
+                ctl.io.print_error(f'Error: reading certificate: {str(e)}')
+                exit(1)
         result = api.create(resource_driver)
         return result.get('id')
 

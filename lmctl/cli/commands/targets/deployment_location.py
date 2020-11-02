@@ -44,7 +44,7 @@ class DeploymentLocations(LmTarget):
         api = lm_client.deployment_locations
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
-                raise click.BadArgumentUsage(message='Do not use "set" option when using "-f, --file" option', ctx=ctx)
+                raise click.BadArgumentUsage(message='Do not use "--set" option when using "-f, --file" option', ctx=ctx)
             deployment_location = file_content
         else:
             deployment_location = set_values

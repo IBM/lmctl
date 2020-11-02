@@ -1,0 +1,7 @@
+name: assembly-template::[[ execution_id ]]-lmctl-dummy-[[ suffix ]]::1.0
+properties:
+  dummyProp:
+    type: string
+template: |
+  name: assembly::JustTesting::1.0
+  description: Adding a value from template properties -> {{ dummyProp }}

@@ -24,7 +24,7 @@ class AssembliesAPI(ResourceAPIBase):
     def get_by_name(self, name: str) -> Dict:
         result = self.all_with_name(name)
         if len(result) == 0:
-            raise LmClientError('No Assembly found with name matching "{name}"')
+            raise LmClientError(f'No Assembly found with name matching "{name}"')
         else:
             return result[0]
 

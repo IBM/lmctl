@@ -23,7 +23,7 @@ class Intents(LmTarget):
         api = lm_client.assemblies
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
-                raise click.BadArgumentUsage(message='Do not use "set" option when using "-f, --file" option', ctx=ctx)
+                raise click.BadArgumentUsage(message='Do not use "--set" option when using "-f, --file" option', ctx=ctx)
             intent_request = file_content
             intent_name = intent_request.pop('intentType', None)
             if intent_name is None:

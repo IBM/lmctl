@@ -1,0 +1,21 @@
+config:
+  environments:
+    default:
+      lm: 
+        address: https://9.20.196.224
+        secure: True
+        client_id: LmClient
+        client_secret: admin
+# Credentials used in Auth testing
+auth_testing:
+  client_credentials:
+    client_id: LmClient
+    client_secret: admin
+  user_pass:
+    client_id: NimrodClient
+    client_secret: pass123
+    username: jack
+    password: jack
+  legacy_user_pass:
+    username: jack
+    password: jack

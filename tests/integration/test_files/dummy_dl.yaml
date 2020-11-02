@@ -1,0 +1,6 @@
+name: "[[ execution_id ]]-dl-[[ suffix ]]"
+description: Some lmctl testing
+infrastructureType: Other
+resourceManager: brent
+properties:
+  testing: "true"

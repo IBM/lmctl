@@ -1,0 +1,30 @@
+name: assembly::[[ execution_id ]]-lmctl-dummy-[[ suffix ]]::1.0
+properties:
+  resourceManager:
+    type: string
+  deploymentLocation:
+    type: string
+  dummyProp:
+    type: string
+composition: 
+  A: 
+    type: resource::[[ execution_id ]]-lmctl-dummy-[[ suffix ]]::1.0
+    properties:
+      dummyProp:
+        value: ${dummyProp}
+      resourceManager:
+        value: ${resourceManager}
+      deploymentLocation:
+        value: ${deploymentLocation}
+  B:
+    type: resource::[[ execution_id ]]-lmctl-dummy-[[ suffix ]]::1.0
+    cluster:
+      initial-quantity: '1'
+      scaling-increment: '1'
+      minimum-nodes: '1'
+      maximum-nodes: '10'
+    properties:
+      resourceManager:
+        value: ${resourceManager}
+      deploymentLocation:
+        value: ${deploymentLocation}

@@ -37,7 +37,7 @@ class Projects(LmTarget):
         api = lm_client.behaviour_projects
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
-                raise click.BadArgumentUsage(message='Do not use "set" option when using "-f, --file" option', ctx=ctx)
+                raise click.BadArgumentUsage(message='Do not use "--set" option when using "-f, --file" option', ctx=ctx)
             project = file_content
         else:
             project = set_values
@@ -73,7 +73,7 @@ class Projects(LmTarget):
                 raise click.BadArgumentUsage(message='Object from file does not contain an "name" (or "id") attribute', ctx=ctx)
         else:
             if name is None:
-                raise click.BadArgumentUsage(message='Must set "ID" argument when no "-f, --file" option specified', ctx=ctx)
+                raise click.BadArgumentUsage(message='Must set "NAME" argument when no "-f, --file" option specified', ctx=ctx)
             project_id = name
         try:
             result = api.delete(project_id)

@@ -14,7 +14,7 @@ class AssemblyComponentMixin:
         elif assembly_name is not None:
             request['assemblyName'] = assembly_name
         else:
-            raise click.BadArgumentUsage(message=f'Must set "--assembly-id" option or "--assembly-name" option to identify the Assembly this {display_name} belongs to')
+            raise click.BadArgumentUsage(message=f'Must set "--assembly-id" option or "--assembly-name" option to identify the Assembly this {self.display_name} belongs to', ctx=ctx)
         if name is not None:
             if id is not None:
                 raise click.BadArgumentUsage(message='Do not use "NAME" argument when using "--id" option', ctx=ctx)
@@ -28,7 +28,7 @@ class AssemblyComponentMixin:
         elif metric_key is not None:
             request['brokenComponentMetricKey'] = metric_key
         else:
-            raise click.BadArgumentUsage(message=f'Must set "NAME" argument or "--id" option or "--metric-key" to identify the {self.display_name} to be healed')   
+            raise click.BadArgumentUsage(message=f'Must set "NAME" argument or "--id" option or "--metric-key" to identify the {self.display_name} to be healed', ctx=ctx)   
         result = api.intent_heal(request)
         ctl = self._get_controller()
         ctl.io.print(f'Accepted - Process: {result}')
@@ -49,7 +49,7 @@ class AssemblyComponents(LmTarget):
                         \n\nHeal using {display_name} metric key: lmctl heal {name} --metric-key 5fd27c1e-403c-402b-a033-fef0940974d5 --assembly-name my-assembly-name 
                         \n\nHeal using {display_name} name and Assembly ID: lmctl heal {name} my-component --assembly-id 7f528478-8180-442d-9a3f-c4e5869c9617
                     ''')
-    @click.argument('name')
+    @click.argument('name', required=False)
     @click.option('--id', help='Reference the target component by ID')
     @click.option('--metric-key', help='Reference the target component by metric key')
     @click.option('--assembly-id', help='Reference the target Assembly by ID')

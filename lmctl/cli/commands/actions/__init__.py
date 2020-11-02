@@ -9,5 +9,6 @@ from .change_state_action import ChangeState
 from .scale_action import Scale
 from .heal_action import Heal
 from .adopt_action import Adopt
+from .render_action import Render
 
-actions = [Get, Create, Update, Delete, Execute, Cancel, ChangeState, Scale, Heal, Adopt]
+actions = [Get, Create, Update, Delete, Execute, Cancel, ChangeState, Scale, Heal, Adopt, Render]
