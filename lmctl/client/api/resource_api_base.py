@@ -1,19 +1,19 @@
 import requests 
 import urllib
 from typing import Dict, List, Any, Callable, Union
-from lmctl.client.exceptions import LmClientError
+from lmctl.client.exceptions import TNCOClientError
 from .api_base import APIBase
 
 def json_response_handler(response, *args, **kwargs):
     try:
         return response.json()
     except ValueError as e:
-        raise LmClientError(f'Failed to parse response as JSON: {str(e)}') from e
+        raise TNCOClientError(f'Failed to parse response as JSON: {str(e)}') from e
 
 def location_id_suplemented_response_handler(response: requests.Response, obj: Dict, id_attr: str, *args, **kwargs) -> Dict:
     location_header = response.headers.get('Location', response.headers.get('location', None))
     if location_header is None:
-        raise LmClientError(f'Failed to find location header in response')
+        raise TNCOClientError(f'Failed to find location header in response')
     location_parts = location_header.split('/')
     id_value = location_parts[len(location_parts)-1]
     obj[id_attr] = id_value
@@ -22,7 +22,7 @@ def location_id_suplemented_response_handler(response: requests.Response, obj: D
 def location_id_response_handler(response: requests.Response, *args, **kwargs) -> str:
     location_header = response.headers.get('Location', response.headers.get('location', None))
     if location_header is None:
-        raise LmClientError(f'Failed to find location header in response')
+        raise TNCOClientError(f'Failed to find location header in response')
     location_parts = location_header.split('/')
     id_value = location_parts[len(location_parts)-1]
     return id_value
@@ -99,7 +99,7 @@ class DeleteAPIMeta:
 
 class ResourceAPIBase(APIBase):
 
-    def __init__(self, base_client: 'LmClient'):
+    def __init__(self, base_client: 'TNCOClient'):
         super().__init__(base_client)
         if not hasattr(self, 'endpoint'):
             raise ValueError(f'Subclass of ResourceAPIBase must set "endpoint" class attribute: Subclass={self.__class__.__name__}')
@@ -171,7 +171,7 @@ class ResourceAPIBase(APIBase):
     def _update_api_impl(self, obj: Dict):
         id_value = obj.get(self.id_attr, None)
         if id_value is None:
-            raise LmClientError(f'Cannot update object missing "{self.id_attr}" attribute value')
+            raise TNCOClientError(f'Cannot update object missing "{self.id_attr}" attribute value')
         endpoint = self._get_endpoint(self.endpoint, self.update_meta, obj=obj, id_value=id_value, id_attr=self.id_attr)
         request_builder = self.update_meta.request_builder(obj=obj, id_value=id_value, id_attr=self.id_attr)
         request = self._build_request_kwargs(self.update_meta.method, endpoint, request_builder)

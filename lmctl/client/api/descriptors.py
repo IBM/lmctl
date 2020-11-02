@@ -1,6 +1,6 @@
 import yaml
 from typing import List, Dict
-from lmctl.client.exceptions import LmClientError
+from lmctl.client.exceptions import TNCOClientError
 from .resource_api_base import ResourceAPIBase, ListAPIMeta, ReadAPIMeta, CreateAPIMeta, UpdateAPIMeta
 
 def accept_yaml_or_json_header_request_builder(*args, **kwargs):
@@ -14,7 +14,7 @@ def yaml_response_handler(response, *args, **kwargs):
     try:
         return yaml.safe_load(response.text)
     except yaml.YAMLError as e:
-        raise LmClientError(f'Failed to parse response as YAML: {str(e)}') from e
+        raise TNCOClientError(f'Failed to parse response as YAML: {str(e)}') from e
 
 def obj_yaml_request_builder(obj: Dict, *args, **kwargs) -> Dict:
     return {

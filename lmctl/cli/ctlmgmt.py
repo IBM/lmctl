@@ -35,7 +35,7 @@ def get_environment_group(environment_group_name, config_path=None):
         exit(1)
 
 def create_lm_session(environment_group_name, lm_pwd=None, config_path=None, lm_client_secret=None):
-    warnings.warn('create_lm_session is deprecated as the LmSession class is deprecated, replaced with a new LmClient. Use get_global_controller from lmctl.cli.controller then use build_client', DeprecationWarning)
+    warnings.warn('create_lm_session is deprecated as the LmSession class is deprecated, replaced with a new TNCOClient. Use get_global_controller from lmctl.cli.controller then use build_client', DeprecationWarning)
     env_group = get_environment_group(environment_group_name, config_path)
     if not env_group.has_lm:
         output.printer.error('Error: LM environment not configured on group: {0}'.format(environment_group_name))

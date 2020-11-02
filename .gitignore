@@ -111,3 +111,5 @@ test_workspace/
 
 # VS Code
 .vscode/
+
+tests/integration/local_test_properties.yaml

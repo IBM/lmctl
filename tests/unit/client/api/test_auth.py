@@ -2,7 +2,7 @@ import unittest
 import base64
 from unittest.mock import MagicMock, call
 from lmctl.client.api import AuthenticationAPI
-from lmctl.client.exceptions import LmClientHttpError
+from lmctl.client.exceptions import TNCOClientHttpError
 from requests.auth import HTTPBasicAuth
 
 class TestAuthenticationAPI(unittest.TestCase):
@@ -55,7 +55,7 @@ class TestAuthenticationAPI(unittest.TestCase):
     def test_legacy_login_older_environments(self):
         def request_mock(endpoint, *args, **kwargs):
             if endpoint == 'ui/api/login':
-                raise LmClientHttpError('Mock error', cause=MagicMock(response=MagicMock(status_code=404, headers={}, body=b'')))
+                raise TNCOClientHttpError('Mock error', cause=MagicMock(response=MagicMock(status_code=404, headers={}, body=b'')))
             else:
                 return {'accessToken': '123', 'expiresIn': 60}
         self.mock_client.make_request_for_json.side_effect = request_mock

@@ -1,5 +1,5 @@
 from tests.integration.integration_test_base import IntegrationTest
-from lmctl.client import LmClientHttpError
+from lmctl.client import TNCOClientHttpError
 import os
 
 class TestResourceManagersAPI(IntegrationTest):
@@ -30,7 +30,7 @@ class TestResourceManagersAPI(IntegrationTest):
         tester.default_client.resource_packages.delete(cls.test_case_props['dummy_res_pkg_id'])
         try:
             tester.default_client.descriptors.get(cls.test_case_props['dummy_resource_descriptor_name'])
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             ## Ignore not found error
             if e.status_code != 404:
                 raise

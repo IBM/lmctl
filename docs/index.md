@@ -1,17 +1,26 @@
-# Overview
-# Lmctl
+# LMCTL
 
-LMCTL is a command-line client for the Stratoss™ Lifecycle Manager (Stratoss LM) that provides commands for interacting with LM environments. It includes an opinionated pattern for managing service designs during the CICD lifecycle as projects, to produce packages suitable for release into production.
+LMCTL is a command-line client that provides commands for interacting with Telco Network Cloud Orchestrator (TNCO/ALM) environments. 
 
-The tool may also be used to manage deployment locations and drivers in Stratoss LM environments.
+In addition it includes an opinionated pattern for managing xNF/Network Service designs during the CICD lifecycle, as file based projects, to produce packages suitable for production release.
 
-This version of LMCTL supports LM version 2.2+  but may also be used with 2.1 versions by updating your lmproject file (see [Using with LM 2.1](use-with-lm-2.1.md))
+This version of LMCTL supports TNCO version 1.2+ (ALM version 2.2+).
+
+You may still be able to manage LMCTL projects in older ALM versions by updating your lmproject file (see [Using with ALM 2.1](use-with-lm-2.1.md))
 
 # Table of Contents
 
-- [What's New?](./what-is-new.md)
-- [Install](./install.md)
-- [Configure](./configure.md)
-- [Using with LM 2.1](./use-with-lm-2.1.md)
-- [Lmctl Projects](./projects/intro.md)
-- [Command Reference](./command-reference/index.md)
+- [What's New?](what-is-new.md)
+- [Install](install.md)
+
+## Command Line
+
+- [Configure Command Line](configure.md)
+- [Using with LM 2.1](use-with-lm-2.1.md)
+- [Lmctl Projects](projects/overview.md)
+- [Command Reference](command-reference/index.md)
+
+## Python Client
+
+- [TNCO Python Client](client/index.md)
+- [Client Usage Examples](client/examples.md)

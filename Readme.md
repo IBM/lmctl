@@ -1,17 +1,38 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Build Status](https://travis-ci.com/accanto-systems/lmctl.svg?branch=master)](https://travis-ci.com/accanto-systems/lmctl)
+[![Build Status](https://travis-ci.com/IBM/lmctl.svg?branch=master)](https://travis-ci.com/IBM/lmctl)
 [![PyPI version](https://badge.fury.io/py/lmctl.svg)](https://badge.fury.io/py/lmctl)
 
-# Lifecycle Manager Controller (lmctl)
+# LMCTL 
 
-LMCTL is a command-line client for the Stratoss™ Lifecycle Manager (Stratoss LM) that provides commands for interacting with LM environments. It includes an opinionated pattern for managing service designs during the CICD lifecycle as projects, to produce packages suitable for release into production.
+:computer: LMCTL is a command-line client that provides commands for interacting with Telco Network Cloud Manager (TNCM) Orchestrator (TNCO/ALM) environments. 
 
-The tool may also be used to manage deployment locations and drivers in Stratoss LM environments.
+In addition it includes an opinionated pattern for managing xNF/Network Service designs during the CICD lifecycle, as file based projects, to produce packages suitable for production release.
 
-# Using LMCTL
+# Quick Install
 
-To start using LMCTL read the [User Guide](./docs/index.md)
+Assumes you already have Python3.6+ and have decided if LMCTL should be installed in a [virtual environment](https://pypi.org/project/virtualenv/) (recommended) or globallly.
+
+:rocket: Install the latest from Pypi:
+```
+python3 -m pip install lmctl
+```
+
+:roller_coaster: Want bleeding edge? Install from source code:
+```
+git clone git@github.com:IBM/lmctl.git
+cd ./lmctl
+python3 -m pip install .
+```
+
+Verify LMCTL is ready to use:
+```
+lmctl --version
+```
+
+# User Guide
+
+:notebook: To get started, read the [User Guide](./docs/index.md)
 
 # Development Docs
 
-For documentation related to developing LMCTL please see the [development docs](./developer_docs/index.md)
+:clipboard: For documentation related to developing LMCTL please see the [development docs](./developer_docs/index.md)

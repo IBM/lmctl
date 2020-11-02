@@ -1,6 +1,6 @@
 import click
 from typing import Dict
-from lmctl.client import LmClient, LmClientHttpError
+from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler, ignore_missing_option
 from lmctl.cli.format import Table, Column
 from .lm_target import LmTarget, LmCmd
@@ -17,7 +17,7 @@ class ResourcePackages(LmTarget):
                     required=True,
                     type=click.Path(exists=True)
                 )
-    def create(self, lm_client: LmClient, ctx: click.Context, file_path: str):
+    def create(self, lm_client: TNCOClient, ctx: click.Context, file_path: str):
         api = lm_client.resource_packages
         resource_name = api.create(file_path)
         return f'Created from package: {resource_name}'
@@ -30,7 +30,7 @@ class ResourcePackages(LmTarget):
                     required=True,
                     type=click.Path(exists=True)
                 )
-    def update(self, lm_client: LmClient, ctx: click.Context, resource_name: str, file_path: str):
+    def update(self, lm_client: TNCOClient, ctx: click.Context, resource_name: str, file_path: str):
         api = lm_client.resource_packages
         api.update(resource_name, file_path)
         return f'Updated package for: {resource_name}'
@@ -38,11 +38,11 @@ class ResourcePackages(LmTarget):
     @LmCmd()
     @click.argument('resource_name', required=True)
     @ignore_missing_option()
-    def delete(self, lm_client: LmClient, ctx: click.Context, resource_name: str, ignore_missing: bool = None):
+    def delete(self, lm_client: TNCOClient, ctx: click.Context, resource_name: str, ignore_missing: bool = None):
         api = lm_client.resource_packages
         try:
             result = api.delete(resource_name)
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code == 404:
                 # Not found
                 if ignore_missing:

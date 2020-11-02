@@ -9,7 +9,7 @@ class UserPassAuth(AuthType):
         self.client_id = client_id
         self.client_secret = client_secret
 
-    def handle(self, client: 'LmClient') -> Dict:
+    def handle(self, client: 'TNCOClient') -> Dict:
         return client.auth.request_user_access(client_id=self.client_id, 
                                                 client_secret=self.client_secret, 
                                                 username=self.username, 
@@ -22,5 +22,5 @@ class LegacyUserPassAuth(AuthType):
         self.password = password
         self.legacy_auth_address = legacy_auth_address
 
-    def handle(self, client: 'LmClient') -> Dict:
+    def handle(self, client: 'TNCOClient') -> Dict:
         return client.auth.legacy_login(username=self.username, password=self.password, legacy_auth_address=self.legacy_auth_address)

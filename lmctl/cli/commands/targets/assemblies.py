@@ -1,6 +1,6 @@
 import click
 from typing import Dict
-from lmctl.client import LmClient, LmClientHttpError, LmClientError
+from lmctl.client import TNCOClient, TNCOClientHttpError, TNCOClientError
 from lmctl.cli.arguments import common_output_format_handler, default_file_inputs_handler, set_param_option
 from lmctl.cli.format import Table, Column
 from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
@@ -31,7 +31,7 @@ class Assemblies(LmTarget):
     @click.option('--id', help='Get by ID')
     @click.option('--name-contains', help='Partial name search string')
     @click.option('--topN', is_flag=True, help=f'Get {display_name} instances that have recently changed')
-    def get(self, lm_client: LmClient, ctx: click.Context, id: str = None, name: str = None, name_contains: str = None, topn: bool = False):
+    def get(self, lm_client: TNCOClient, ctx: click.Context, id: str = None, name: str = None, name_contains: str = None, topn: bool = False):
         api = lm_client.assemblies
         if name is not None:
             if id is not None:
@@ -66,7 +66,7 @@ class Assemblies(LmTarget):
                     ''',
                     print_result=False)
     @set_param_option(options=['--prop'], var_name='prop_values', help='Directly set a property passed to the request')
-    def create(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None, prop_values: Dict = None):
+    def create(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None, prop_values: Dict = None):
         api = lm_client.assemblies
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
@@ -101,7 +101,7 @@ class Assemblies(LmTarget):
     @click.argument('name', required=False)
     @click.option('--id', help='Reference the target Assembly by ID instead of name')
     @set_param_option(options=['--prop'], var_name='prop_values', help='Directly set a property passed to the request')
-    def update(self, lm_client: LmClient, ctx: click.Context, name: str = None, id: str = None, file_content: Dict = None, set_values: Dict = None, prop_values: Dict = None):
+    def update(self, lm_client: TNCOClient, ctx: click.Context, name: str = None, id: str = None, file_content: Dict = None, set_values: Dict = None, prop_values: Dict = None):
         api = lm_client.assemblies
         # Build request
         if file_content is not None:
@@ -135,7 +135,7 @@ class Assemblies(LmTarget):
                     print_result=False)
     @click.argument('name', required=False)
     @click.option('--id', help=f'Reference the target {display_name} by ID instead of name')
-    def delete(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, name: str = None, id: str = None, ignore_missing: bool = None):
+    def delete(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, id: str = None, ignore_missing: bool = None):
         api = lm_client.assemblies
         assembly_req_content = self._resolve_assembly_identity_crisis(ctx, request_content=file_content, name=name, id=id)
         delete_req = {
@@ -144,7 +144,7 @@ class Assemblies(LmTarget):
         }
         try:
             result = api.intent_delete(delete_req)
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code == 400 and ('Cannot find assembly instance with name' in e.detail_message or 'Cannot find assembly instance with id' in e.detail_message):
                 # Not found
                 if ignore_missing:
@@ -168,7 +168,7 @@ class Assemblies(LmTarget):
     @click.option('--id', help=f'Reference the target {display_name} by ID instead of name')
     @click.option('--intended-state', '--state', help='Intended state to change to, if not included in "-f, --file" option')
     @file_inputs.option()
-    def changestate(self, lm_client: LmClient, ctx: click.Context, name: str = None, id: str = None, file_content: Dict = None, intended_state: str = None):
+    def changestate(self, lm_client: TNCOClient, ctx: click.Context, name: str = None, id: str = None, file_content: Dict = None, intended_state: str = None):
         api = lm_client.assemblies
         assembly_req_content = self._resolve_assembly_identity_crisis(ctx, request_content=file_content, name=name, id=id)
         if 'intendedState' in assembly_req_content:
@@ -198,7 +198,7 @@ class Assemblies(LmTarget):
                         \n\nclusters - An optional map of cluster sizes, if the descriptor includes clusters\
                         \n\nresources - Associated topology for each resource instance
                     ''')
-    def adopt(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
+    def adopt(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
         api = lm_client.assemblies
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:

@@ -26,7 +26,13 @@ class EnvironmentGroup:
     @property
     def lm(self):
         if not self.lm_env:
-            raise EnvironmentRuntimeError('No LM environment has been configured on this group: {0}'.format(self.name))
+            raise EnvironmentRuntimeError('No TNCO environment has been configured on this group: {0}'.format(self.name))
+        return self.lm_env
+
+    @property
+    def tnco(self):
+        if not self.lm_env:
+            raise EnvironmentRuntimeError('No TNCO environment has been configured on this group: {0}'.format(self.name))
         return self.lm_env
 
     @property

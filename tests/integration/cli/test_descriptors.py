@@ -2,7 +2,7 @@ from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict
 from lmctl.cli.entry import cli
 from lmctl.cli.format import TableFormat
-from lmctl.client import LmClientHttpError
+from lmctl.client import TNCOClientHttpError
 from lmctl.cli.commands.targets.descriptors import DescriptorTable
 import yaml
 import json
@@ -207,7 +207,7 @@ class TestDescriptors(CLIIntegrationTest):
         try:
             api_get_result = self.tester.default_client.descriptors.get(descriptor_name)
             self.fail('Descriptor should have been deleted but it can still be found')
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code != 404:
                 self.fail(f'Retrieving the Descriptor failed with an unexpected error: {str(e)}')
     
@@ -233,7 +233,7 @@ class TestDescriptors(CLIIntegrationTest):
         try:
             api_get_result = self.tester.default_client.descriptors.get(descriptor_name)
             self.fail('Descriptor should have been deleted but it can still be found')
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code != 404:
                 self.fail(f'Retrieving the Descriptor failed with an unexpected error: {str(e)}')
     
@@ -257,7 +257,7 @@ class TestDescriptors(CLIIntegrationTest):
         try:
             api_get_result = self.tester.default_client.descriptors.get(descriptor_name)
             self.fail('Descriptor should have been deleted but it can still be found')
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code != 404:
                 self.fail(f'Retrieving the Descriptor failed with an unexpected error: {str(e)}')
     

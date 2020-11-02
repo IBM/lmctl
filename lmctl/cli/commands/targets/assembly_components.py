@@ -1,10 +1,10 @@
 import click
-from lmctl.client import LmClient
+from lmctl.client import TNCOClient
 from .lm_target import LmTarget, LmCmd
 
 class AssemblyComponentMixin:
 
-    def request_heal(self, lm_client: LmClient, ctx: click.Context, name: str = None, id: str = None, metric_key: str = None, assembly_name: str = None, assembly_id: str = None):
+    def request_heal(self, lm_client: TNCOClient, ctx: click.Context, name: str = None, id: str = None, metric_key: str = None, assembly_name: str = None, assembly_id: str = None):
         api = lm_client.assemblies
         request = {}
         if assembly_id is not None:
@@ -54,7 +54,7 @@ class AssemblyComponents(LmTarget):
     @click.option('--metric-key', help='Reference the target component by metric key')
     @click.option('--assembly-id', help='Reference the target Assembly by ID')
     @click.option('--assembly-name', help='Reference the target Assembly by ID')
-    def heal(self, lm_client: LmClient, ctx: click.Context, name: str = None, id: str = None, metric_key: str = None, assembly_name: str = None, assembly_id: str = None):
+    def heal(self, lm_client: TNCOClient, ctx: click.Context, name: str = None, id: str = None, metric_key: str = None, assembly_name: str = None, assembly_id: str = None):
         return self.request_heal(
             lm_client=lm_client, 
             ctx=ctx, name=name, 

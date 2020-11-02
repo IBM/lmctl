@@ -18,6 +18,7 @@ from .assembly_components import AssemblyComponents
 from .resources import Resource
 from .intents import Intents
 from .processes import Processes
+from .config import Configuration
 
 targets = [
     DeploymentLocations(), 
@@ -37,5 +38,6 @@ targets = [
     AssemblyComponents(),
     Resource(), 
     Intents(),
-    Processes()
+    Processes(),
+    Configuration()
 ]

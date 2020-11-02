@@ -1,10 +1,10 @@
 import json
 import yaml
 
-class LmClientError(Exception):
+class TNCOClientError(Exception):
     pass
 
-class LmClientHttpError(LmClientError):
+class TNCOClientHttpError(TNCOClientError):
     
     def __init__(self, msg, cause, *args, **kwargs):
         self.msg = msg

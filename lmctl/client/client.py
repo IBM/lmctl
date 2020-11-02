@@ -1,6 +1,6 @@
 from .api import *
 from typing import Dict
-from .exceptions import LmClientError, LmClientHttpError
+from .exceptions import TNCOClientError, TNCOClientHttpError
 from .auth_type import AuthType
 from .auth_tracker import AuthTracker
 from urllib.parse import urlparse
@@ -9,7 +9,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class LmClient:
+class TNCOClient:
 
     POST = 'post'
     GET = 'get'
@@ -56,12 +56,12 @@ class LmClient:
         try:
             response = self._curr_session().request(method, url, headers=headers, verify=False, **kwargs)
         except requests.RequestException as e:
-            raise LmClientError(str(e)) from e
+            raise TNCOClientError(str(e)) from e
         logger.debug(f'LM request has returned: Method={method}, URL={url}, Response={response}')
         try:
             response.raise_for_status()
         except requests.HTTPError as e:
-            raise LmClientHttpError(f'{method} request to {url} failed', e) from e
+            raise TNCOClientHttpError(f'{method} request to {url} failed', e) from e
         return response
 
     def make_request_for_json(self, method: str, endpoint: str, include_auth: bool = True, override_address: str = None, **kwargs) -> Dict:
@@ -69,7 +69,7 @@ class LmClient:
         try:
             return response.json()
         except ValueError as e:
-            raise LmClientError(f'Failed to parse response to JSON: {str(e)}') from e
+            raise TNCOClientError(f'Failed to parse response to JSON: {str(e)}') from e
 
     @property
     def auth(self) -> AuthenticationAPI:

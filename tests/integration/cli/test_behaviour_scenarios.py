@@ -2,7 +2,7 @@ from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict
 from lmctl.cli.entry import cli
 from lmctl.cli.format import TableFormat
-from lmctl.client import LmClientHttpError
+from lmctl.client import TNCOClientHttpError
 from lmctl.client.models import CreateAssemblyIntent, DeleteAssemblyIntent
 from lmctl.cli.commands.targets.behaviour_scenarios import ScenarioTable
 import yaml
@@ -296,7 +296,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
         try:
             api_get_result = self.tester.default_client.behaviour_scenarios.get(scenario_id)
             self.fail('Scenario should have been deleted but it can still be found')
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code != 404:
                 self.fail(f'Retrieving the Scenario failed with an unexpected error: {str(e)}')
     
@@ -323,7 +323,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
         try:
             api_get_result = self.tester.default_client.behaviour_scenarios.get(scenario_id)
             self.fail('Scenario should have been deleted but it can still be found')
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code != 404:
                 self.fail(f'Retrieving the Scenario failed with an unexpected error: {str(e)}')
     
@@ -348,7 +348,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
         try:
             api_get_result = self.tester.default_client.behaviour_scenarios.get(scenario_id)
             self.fail('Scenario should have been deleted but it can still be found')
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code != 404:
                 self.fail(f'Retrieving the Scenario failed with an unexpected error: {str(e)}')
     

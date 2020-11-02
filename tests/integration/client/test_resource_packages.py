@@ -1,5 +1,5 @@
 from tests.integration.integration_test_base import IntegrationTest
-from lmctl.client import LmClientHttpError
+from lmctl.client import TNCOClientHttpError
 import os
 
 class TestResourcePackagesAPI(IntegrationTest):

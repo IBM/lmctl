@@ -1,6 +1,6 @@
 import click
 from typing import Dict
-from lmctl.client import LmClient, LmClientHttpError
+from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
 from .lm_target import LmTarget, LmGet
@@ -24,6 +24,6 @@ class Processes(LmTarget):
     @LmGet(output_formats=output_formats, help=f'''Get the status of an {display_name}''')
     @click.argument('ID')
     @click.option('--shallow', is_flag=True, show_default=True, help='Retreive a shallow copy of the process')
-    def get(self, lm_client: LmClient, ctx: click.Context, id: str, shallow: bool = False):
+    def get(self, lm_client: TNCOClient, ctx: click.Context, id: str, shallow: bool = False):
         api = lm_client.processes
         return api.get(id, shallow=shallow)

@@ -2,7 +2,7 @@ from typing import Union
 from .common import Environment, EnvironmentConfigError, EnvironmentRuntimeError, build_address
 from urllib.parse import urlparse
 import lmctl.drivers.lm as lm_drivers
-from lmctl.client import LmClient, LmClientBuilder
+from lmctl.client import TNCOClient, TNCOClientBuilder
 
 KAMI_PORT = '31289'
 DEFAULT_BRENT_NAME = 'brent'
@@ -108,7 +108,7 @@ class LmEnvironment(Environment):
         return LmSessionConfig(self, username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret)
 
     def build_client(self):
-        builder = LmClientBuilder()
+        builder = TNCOClientBuilder()
         builder.address(self.address)
         builder.kami_address(self.kami_address)
         if self.secure:

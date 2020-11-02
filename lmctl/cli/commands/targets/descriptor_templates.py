@@ -1,6 +1,6 @@
 import click
 from typing import Dict
-from lmctl.client import LmClient, LmClientHttpError
+from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler, default_file_inputs_handler, default_output_format_handler, set_param_option
 from lmctl.cli.format import Table, Column
 from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
@@ -37,7 +37,7 @@ class DescriptorTemplates(LmTarget):
                             instead passing the output back unchecked. This is useful for debugging normal render requests 
                             of a template which produce output that cannot be parsed as YAML
                             NOTE: when this option is enabled, the value of "-o" is ignored as the output must be in plain text''')
-    def render(self, lm_client: LmClient, ctx: click.Context, output_format: str, name: str = None, raw: bool = False, set_values: Dict = None, prop_values: Dict = None, template_file_content: Dict = None, request_file_content: Dict = None):
+    def render(self, lm_client: TNCOClient, ctx: click.Context, output_format: str, name: str = None, raw: bool = False, set_values: Dict = None, prop_values: Dict = None, template_file_content: Dict = None, request_file_content: Dict = None):
         api = lm_client.descriptor_templates
         if template_file_content is not None:
             if name is not None:
@@ -75,7 +75,7 @@ class DescriptorTemplates(LmTarget):
                                             \n\nUse NAME argument to get one by name\
                                             \n\nOmit NAME argument to get all''')
     @click.argument('name', required=False)
-    def get(self, lm_client: LmClient, ctx: click.Context, name: str = None):
+    def get(self, lm_client: TNCOClient, ctx: click.Context, name: str = None):
         api = lm_client.descriptor_templates
         if name is not None:
             return api.get(name)
@@ -83,7 +83,7 @@ class DescriptorTemplates(LmTarget):
             return api.all()
         
     @LmCreate()
-    def create(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
+    def create(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
         api = lm_client.descriptor_templates
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
@@ -96,7 +96,7 @@ class DescriptorTemplates(LmTarget):
 
     @LmUpdate()
     @click.argument('name', required=False)
-    def update(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, name: str = None, set_values: Dict = None):
+    def update(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, set_values: Dict = None):
         api = lm_client.descriptor_templates
         if file_content is not None:
             if name is not None:
@@ -112,7 +112,7 @@ class DescriptorTemplates(LmTarget):
 
     @LmDelete()
     @click.argument('name', required=False)
-    def delete(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
+    def delete(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
         api = lm_client.descriptor_templates
         if file_content is not None:
             if name is not None:
@@ -127,7 +127,7 @@ class DescriptorTemplates(LmTarget):
             descriptor_name = name
         try:
             result = api.delete(descriptor_name)
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code == 404:
                 # Not found
                 if ignore_missing:

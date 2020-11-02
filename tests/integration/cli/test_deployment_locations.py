@@ -2,7 +2,7 @@ from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict
 from lmctl.cli.entry import cli
 from lmctl.cli.format import TableFormat
-from lmctl.client import LmClientHttpError
+from lmctl.client import TNCOClientHttpError
 from lmctl.cli.commands.targets.deployment_location import DeploymentLocationTable
 import yaml
 import json
@@ -261,7 +261,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
         try:
             api_get_result = self.tester.default_client.deployment_locations.get(dl_name)
             self.fail('Deployment location should have been deleted but it can still be found')
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code != 404:
                 self.fail(f'Retrieving the deployment location failed with an unexpected error: {str(e)}')
     
@@ -283,7 +283,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
         try:
             api_get_result = self.tester.default_client.deployment_locations.get(dl_name)
             self.fail('Deployment location should have been deleted but it can still be found')
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code != 404:
                 self.fail(f'Retrieving the deployment location failed with an unexpected error: {str(e)}')
 
@@ -305,7 +305,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
         try:
             api_get_result = self.tester.default_client.deployment_locations.get(dl_name)
             self.fail('Deployment location should have been deleted but it can still be found')
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code != 404:
                 self.fail(f'Retrieving the deployment location failed with an unexpected error: {str(e)}')
     

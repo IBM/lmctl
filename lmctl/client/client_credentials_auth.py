@@ -7,7 +7,7 @@ class ClientCredentialsAuth(AuthType):
         self.client_id = client_id
         self.client_secret = client_secret
         
-    def handle(self, client: 'LmClient') -> Dict:
+    def handle(self, client: 'TNCOClient') -> Dict:
         return client.auth.request_client_access(self.client_id, self.client_secret)
 
     

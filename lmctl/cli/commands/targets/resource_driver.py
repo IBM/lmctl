@@ -1,6 +1,6 @@
 import click
 from typing import Dict
-from lmctl.client import LmClient, LmClientHttpError
+from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
 from .lm_target import LmTarget, LmGet, LmCreate, LmDelete
@@ -27,7 +27,7 @@ class ResourceDrivers(LmTarget):
                                             \n\nOmit ID and use --type option to get by type''')
     @click.argument('ID', required=False)
     @click.option('--type', 'driver_type', help='Type of driver to fetch')
-    def get(self, lm_client: LmClient, ctx: click.Context, id: str = None, driver_type: str = None):
+    def get(self, lm_client: TNCOClient, ctx: click.Context, id: str = None, driver_type: str = None):
         api = lm_client.resource_drivers
         if id is not None:
             if driver_type is not None:
@@ -40,7 +40,7 @@ class ResourceDrivers(LmTarget):
         
     @LmCreate()
     @click.option('--certificate', type=click.Path(exists=True), help='Path to a file containing the public certificate of the resource driver')
-    def create(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None, certificate: str = None):
+    def create(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None, certificate: str = None):
         api = lm_client.resource_drivers
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
@@ -65,7 +65,7 @@ class ResourceDrivers(LmTarget):
                 \n\nAlternatively, set a file path on the "-f, --file" option and the ID/type (discovered in that order) in this file will be used''')
     @click.argument('ID', required=False)
     @click.option('--type', 'driver_type', help='Type of driver to remove')
-    def delete(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, id: str = None, driver_type: str = None, ignore_missing: bool = None):
+    def delete(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, id: str = None, driver_type: str = None, ignore_missing: bool = None):
         api = lm_client.resource_drivers
         resource_driver_id = None
         resource_driver_type = None
@@ -96,7 +96,7 @@ class ResourceDrivers(LmTarget):
                 resource_driver_get = api.get_by_type(resource_driver_type)
                 api.delete(resource_driver_get['id'])
                 return resource_driver_get['id']
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code == 404:
                 # Not found
                 if ignore_missing:

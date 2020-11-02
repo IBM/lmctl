@@ -2,7 +2,7 @@ from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict
 from lmctl.cli.entry import cli
 from lmctl.cli.format import TableFormat
-from lmctl.client import LmClientHttpError
+from lmctl.client import TNCOClientHttpError
 from lmctl.cli.commands.targets.resource_managers import ResourceManagerTable
 import yaml
 import json
@@ -307,7 +307,7 @@ class TestResourceManagers(CLIIntegrationTest):
         try:
             api_get_result = self.tester.default_client.resource_managers.get(rm_name)
             self.fail('Resource Manager should have been deleted but it can still be found')
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code != 404:
                 self.fail(f'Retrieving the Resource Manager failed with an unexpected error: {str(e)}')
     
@@ -332,7 +332,7 @@ class TestResourceManagers(CLIIntegrationTest):
         try:
             api_get_result = self.tester.default_client.resource_managers.get(rm_name)
             self.fail('Resource Manager should have been deleted but it can still be found')
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code != 404:
                 self.fail(f'Retrieving the Resource Manager failed with an unexpected error: {str(e)}')
     
@@ -356,7 +356,7 @@ class TestResourceManagers(CLIIntegrationTest):
         try:
             api_get_result = self.tester.default_client.resource_managers.get(rm_name)
             self.fail('Resource Manager should have been deleted but it can still be found')
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code != 404:
                 self.fail(f'Retrieving the Resource Manager failed with an unexpected error: {str(e)}')
     

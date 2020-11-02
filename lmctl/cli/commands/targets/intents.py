@@ -1,6 +1,6 @@
 import click
 from typing import Dict
-from lmctl.client import LmClient, LmClientHttpError, LmClientError
+from lmctl.client import TNCOClient, TNCOClientHttpError, TNCOClientError
 from lmctl.cli.arguments import common_output_format_handler, default_file_inputs_handler
 from lmctl.cli.format import Table, Column
 from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
@@ -19,7 +19,7 @@ class Intents(LmTarget):
                         \n\nNote: your chosen type is not validated against this list so if a new type of intent has been added in TNCO, this command is still usable
                     ''',
                     print_result=False)
-    def create(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
+    def create(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
         api = lm_client.assemblies
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:

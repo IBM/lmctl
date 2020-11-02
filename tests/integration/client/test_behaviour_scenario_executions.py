@@ -70,7 +70,7 @@ class TestBehaviourScenarioExecutionsAPI(IntegrationTest):
         scenario_id = self._create_scenario('test-cancel')
         executions_api = self.tester.default_client.behaviour_scenario_execs
         execution_id = executions_api.execute({'scenarioId': scenario_id})
-        ## Cacncel
+        ## Cancel
         cancel_response = executions_api.cancel(execution_id)
         self.assertTrue(cancel_response['success'])
 

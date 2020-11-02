@@ -1,6 +1,6 @@
 import click
 from typing import Dict
-from lmctl.client import LmClient, LmClientHttpError
+from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
 from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
@@ -26,7 +26,7 @@ class ScenarioExecutions(LmTarget):
                 Cancel {display_name} by ID
                 ''')
     @click.argument('ID')
-    def cancel(self, lm_client: LmClient, ctx: click.Context, id: str = None):
+    def cancel(self, lm_client: TNCOClient, ctx: click.Context, id: str = None):
         api = lm_client.behaviour_scenario_execs
         result = api.cancel(id)
         if 'success' in result and result['success'] is False:
@@ -44,7 +44,7 @@ class ScenarioExecutions(LmTarget):
     @click.argument('ID', required=False)
     @click.option('--project', help=f'ID of a project to retrieve {display_name}s from')
     @click.option('--scenario', help=f'ID of a scenario to retrieve {display_name}s of')
-    def get(self, lm_client: LmClient, ctx: click.Context, id: str = None, project: str = None, scenario: str = None):
+    def get(self, lm_client: TNCOClient, ctx: click.Context, id: str = None, project: str = None, scenario: str = None):
         api = lm_client.behaviour_scenario_execs
         if id is not None:
             if project is not None:
@@ -63,7 +63,7 @@ class ScenarioExecutions(LmTarget):
 
     @LmDelete()
     @click.argument('ID', required=False)
-    def delete(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, id: str = None, ignore_missing: bool = None):
+    def delete(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, id: str = None, ignore_missing: bool = None):
         api = lm_client.behaviour_scenario_execs
         if file_content is not None:
             if id is not None:
@@ -78,7 +78,7 @@ class ScenarioExecutions(LmTarget):
             scenario_exec_id = id
         try:
             result = api.delete(scenario_exec_id)
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code == 404:
                 # Not found
                 if ignore_missing:

@@ -5,7 +5,7 @@ import time
 from .base import LmDriver
 # Temporarily use new client to control auth in order to support client_credential authentication
 # Eventually this class and all classes in the drivers section will be replaced by the new client
-from lmctl.client import LmClientBuilder, LmClient, AuthTracker
+from lmctl.client import TNCOClientBuilder, TNCOClient, AuthTracker
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ class LmSecurityCtrl:
             address = oauth_address
         else:
             address = login_address
-        client_builder = LmClientBuilder()
+        client_builder = TNCOClientBuilder()
         client_builder.address(address)
         if self.__username is not None:
             # Using password auth

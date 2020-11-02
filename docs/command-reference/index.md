@@ -1,5 +1,44 @@
 #  Command Reference
 
+We aim to maintain readable and useful help pages which can be access directly from lmctl:
+
+```
+lmctl --help
+
+lmctl create --help
+lmctl delete --help
+
+lmctl create assembly --help
+lmctl create descriptor --help 
+```
+
+We recommend referring to these first. If you find they are unclear or not helpful, please raise a Github issue with your feedback so we can improve them :speech_balloon:
+
+As a result, we are no longer adding command reference documents to this section. 
+
+Below are a list of command references written previously, which will maintained for the forseeable.
+
+## Project command reference
+
+## pkg
+
+- [inspect](./pkg/inspect.md)
+- [push](./pkg/push.md)
+
+## project
+
+- [build](./project/build.md)
+- [create](./project/create.md)
+- [list](./project/list.md)
+- [pull](./project/pull.md)
+- [push](./project/push.md)
+- [test](./project/test.md)
+- [validate](./project/validate.md)
+
+## Deprecated command reference
+
+These commands are deprecated in v3.0
+
 ## deployment
 
 - [add](./deployment/add.md)
@@ -17,21 +56,6 @@
 - [delete](./key/delete.md)
 - [get](./key/get.md)
 - [list](./key/list.md)
-
-## pkg
-
-- [inspect](./pkg/inspect.md)
-- [push](./pkg/push.md)
-
-## project
-
-- [build](./project/build.md)
-- [create](./project/create.md)
-- [list](./project/list.md)
-- [pull](./project/pull.md)
-- [push](./project/push.md)
-- [test](./project/test.md)
-- [validate](./project/validate.md)
 
 ## resourcedriver (LM 2.2+ only)
 

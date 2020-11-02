@@ -5,7 +5,7 @@ from .resource_api_base import ResourceAPIBase, ListAPIMeta, ReadAPIMeta, Create
 class DescriptorTemplatesAPI(DescriptorsAPI):
     endpoint = 'api/catalog/descriptorTemplates'
 
-    def __init__(self, base_client: 'LmClient'):
+    def __init__(self, base_client: 'TNCOClient'):
         if base_client.kami_address is not None:
             self.override_address = base_client.kami_address
         else:

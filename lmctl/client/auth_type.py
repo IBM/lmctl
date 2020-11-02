@@ -3,6 +3,6 @@ from typing import Dict
 
 class AuthType:
 
-    def handle(self, client: 'LmClient') -> Dict:
+    def handle(self, client: 'TNCOClient') -> Dict:
         pass
 

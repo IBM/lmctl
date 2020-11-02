@@ -2,7 +2,7 @@ from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict
 from lmctl.cli.entry import cli
 from lmctl.cli.format import TableFormat
-from lmctl.client import LmClientHttpError
+from lmctl.client import TNCOClientHttpError
 from lmctl.cli.commands.targets.behaviour_assembly_configurations import AssemblyConfigurationTable
 import yaml
 import json
@@ -262,7 +262,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
         try:
             api_get_result = self.tester.default_client.behaviour_assembly_confs.get(assembly_config_id)
             self.fail('Assembly Configuration should have been deleted but it can still be found')
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code != 404:
                 self.fail(f'Retrieving the Assembly Configuration failed with an unexpected error: {str(e)}')
     
@@ -290,7 +290,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
         try:
             api_get_result = self.tester.default_client.behaviour_assembly_confs.get(assembly_config_id)
             self.fail('Assembly Configuration should have been deleted but it can still be found')
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code != 404:
                 self.fail(f'Retrieving the Assembly Configuration failed with an unexpected error: {str(e)}')
     
@@ -316,7 +316,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
         try:
             api_get_result = self.tester.default_client.behaviour_assembly_confs.get(assembly_config_id)
             self.fail('Assembly Configuration should have been deleted but it can still be found')
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code != 404:
                 self.fail(f'Retrieving the Assembly Configuration failed with an unexpected error: {str(e)}')
     

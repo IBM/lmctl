@@ -1,33 +1,197 @@
-# What's new in LMCTL 2.5.0
+# What's new in LMCTL 3.0
 
-# Changes for LM 2.2+
+:tada:
 
-## resourcedriver command
+Contents:
+- :file_folder: [Default LMCTL config file location](#default-lmctl-config-file-location)
+- :muscle: [Expanded Command Capabilities](#expanded-command-capabilities)
+- :snake: [TNCO Python Client](#new-tnco-python-client)
+- :wrench: [TNCO environment address improvements](#tnco-environment-address-improvements)
+- :closed_lock_with_key: [Client Credential Authentication](#client-credential-authentication)
+- :smirk: [New Brand Support](#new-brand-support)
 
-New `resourcedriver` command added to manage drivers. 
-Note: `vimdriver` and `lifecycledriver` should not be used with LM 2.2+, use `resourcedriver` instead. 
+# Default LMCTL config file location
 
-## Kubernetes driver project support
+Tired of making sure the `LMCONFIG` environment variable is set? :sleeping:
 
-`lmctl project create` can generated the basic files needed to build a Resource suitable for the [Kubernetes driver](https://github.com/accanto-systems/kubernetes-driver) 
+In v3.0, LMCTL will now check for a configuration file at `<Home directory>/.lmctl/config.yaml`. 
 
-Try it out:
+Create/move your configuration file into this location OR create a new one with the new `config` commands:
+
 ```
-lmctl project create --type Resource --param driver kubernetes
+lmctl create config
+
+# Check the option on this command:
+# lmctl create config --help
 ```
 
-## Support latest Brent package changes
+Check your configuration file is loaded (from the correct place) with:
 
-The version of Brent included in LM 2.2+ no longer needs a `infrastructure` directory in the Resource package. Instead, templates are held in the lifecycle directory for the intended Resource driver. 
+```
+lmctl get config --print-path
+```
 
-LMCTL has been updated to understand this new structure, so any new projects will adhere to the latest changes. 
+> Note: if set, the path on the `LMCONFIG` environment variable takes precedence over the default location
 
-Any existing projects must be refactored and may use the `--autocorrect` option on `project validate`, `project build` or `project push` commands to do so. Existing packages may also be refactored with the `--autocorrect` option on `pkg push`. 
+Read more about configuring LMCTL in the [configuration section of the user guide](configure.md)
 
-If you intend to use this version of LMCTL with a 2.1 version of LM, then you must read [Use with LM 2.1](use-with-lm-2.1.md) and make changes to your project. Otherwise, use an older version of LMCTL when dealing with LM 2.1
+# Expanded Command Capabilities
 
-# Other Changes
+In v3.0 the number of available commands has increased significantly :muscle:
 
-## Commands for managing infrastructure keys
+You can now manage descriptors, assemblies, behaviour scenarios and much more. 
 
-A group of commands named `key` have been added to allow you to manage infrastructure keys in LM. 
+You'll also notice a change in command style, with the action coming before the entity type:
+
+- Old command style: `lmctl resourcedriver get my-env some-driver-id`
+- New command style: `lmctl get resourcedriver some-driver-id -e my-env`
+
+We hope, by moving the verb to the front of the command, the readability of the command increases. Also, by moving the environment name to an option, it reduces the confusion between this value of the name/ID of the object being interaced with (e.g. which arg is the resourcedriver ID and which is the environment name?)
+
+> Note: the `lmctl project` and `lmctl pkg` commands have not yet been changed, so they still accept the environment name as an argument
+
+Don't worry, if you've got scripts using the old style, they will still work! (But they are deprecated, so refactor these when possible)
+
+Every entity in TNCO has been grouped by the actions allowed on them. Check out the actions available:
+
+```
+lmctl --help
+```
+
+Pick an action and check the TNCO entities you can interact with:
+
+```
+lmctl get --help
+```
+
+The arguments/options for each entity are similar in style but there are differences, so be sure to check the help page for each:
+
+```
+lmctl get descriptor --help
+```
+
+Read more about commands in the [command reference section of the user guide](command-reference/index.md)
+
+# TNCO Python Client
+
+For command line users this part will appear boring but for Python developers looking to interact with TNCO from their favourite language, you're in luck! 
+
+The previous client module was not built with external use in mind (everything from the `lmctl.drivers` package). In v3.0, we've added a new client module (`lmctl.client`) to be imported and used in Python code outside of LMCTL!
+
+What does this mean? It means you can write Python code to interact with TNCO:
+
+```
+from lmctl.client import client_builder
+
+tnco_client = client_builder().address('https://tnco-api-host').client_credentials_auth('LmClient', 'admin').build()
+
+# Retrieve a descriptor (as a dictionary)
+descriptor = tnco_client.descriptors.get('assembly::my-descriptor::1.0')
+
+# Update
+descriptor['description'] = 'I just updated this description with the LMCTL client library'
+tnco_client.descriptors.update(descriptor)
+```
+
+Read more about the Python client capabilities in the [client section of the user guide](client/index.md)
+
+# TNCO environment address improvements
+
+Previously, when configuring a target TNCO (ALM) environment you would use multiple properties to set the address: 
+
+```yaml
+environments:
+  default:
+    lm:
+      host: 127.0.0.1
+      port: 32443
+      protocol: https
+      secure: True
+      username: jack
+```
+
+In v3.0, we've added shorter configuration options. For example, you can use `address` to configure `host`, `port` and `protocol` in one:
+
+```yaml
+environments:
+  default:
+    lm:
+      address: https://127.0.0.1:32443
+      secure: True
+      username: jack
+```
+
+# Client Credential Authentication
+
+Before v3.0 you could only authenticate with a secure TNCO environment using client credential-less username/password. In short, this means authenticating with just a username/password. Although allowed, this is not a supported TNCO authentication method so could disappear at any time. 
+
+In v3.0, we've added support for legitimate username/password authentication in combination with client credentials AND support for client credentials authentication.
+
+Don't worry, the existing method works so your configuration files don't need any immediate updates. 
+
+However, if you wish to use the new methods, the example below shows the three different types of authentication:
+
+```yaml
+environments:
+  # The old way
+  the-old-way:
+    lm:
+      address: https://my-tnco-env
+      secure: True
+      username: jack
+      password: some-pass
+
+  # Valid Username/Password authentication
+  valid-username-pass-env:
+    lm:
+      address: https://my-tnco-env
+      secure: True
+      # Legit username/password access (update values with valid credentials for your environment)
+      client_id: NimrodClient
+      client_secret: some-secret
+      username: jack
+      password: some-pass
+ 
+  # Client credential access
+  client-env:
+    lm:
+      address: https://my-tnco-env
+      secure: True
+      client_id: LmClient
+      client_secret: some-secret
+```
+
+# New Brand Support
+
+The tool remains named `lmctl` however, as `LM` is now part of `TNCO`, we've added support for `tnco` in some places.
+
+Firstly, on the command line:
+
+```
+# Both work
+lmctl --help
+
+tnco --help
+```
+
+Secondly, in your LMCTL configuration file, you may use `tnco` instead of `alm`/`lm` in the `environments` section. 
+
+In the below example, we show 2 environments, which are fundamentally the same, however one uses `tnco` instead of `lm`:
+
+```yaml
+environments:
+  envA:
+    lm:
+      host: 127.0.0.1
+      port: 32443
+      protocol: https
+      secure: True
+      username: jack
+  envB:
+    tnco:
+      host: 127.0.0.1
+      port: 32443
+      protocol: https
+      secure: True
+      username: jack
+```

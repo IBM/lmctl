@@ -1,7 +1,7 @@
 import unittest
 import unittest.mock as mock
 from lmctl.environment import EnvironmentConfigError, EnvironmentRuntimeError, LmEnvironment, LmSessionConfig, LmSession
-from lmctl.client import LmClient, LegacyUserPassAuth, UserPassAuth, ClientCredentialsAuth
+from lmctl.client import TNCOClient, LegacyUserPassAuth, UserPassAuth, ClientCredentialsAuth
 
 class TestLmEnvironment(unittest.TestCase):
 
@@ -134,7 +134,7 @@ class TestLmEnvironment(unittest.TestCase):
                          auth_protocol='https'
                          )
         client = config.build_client()
-        self.assertIsInstance(client, LmClient)
+        self.assertIsInstance(client, TNCOClient)
         self.assertEqual(client.address, 'http://test:80/gateway')
         self.assertEqual(client.kami_address, 'http://test:31289')
 
@@ -149,7 +149,7 @@ class TestLmEnvironment(unittest.TestCase):
                          auth_protocol='https'
                          )
         client = config.build_client()
-        self.assertIsInstance(client, LmClient)
+        self.assertIsInstance(client, TNCOClient)
         self.assertIsInstance(client.auth_type, LegacyUserPassAuth)
         self.assertEqual(client.auth_type.username, 'user')
         self.assertEqual(client.auth_type.password, 'secret')
@@ -159,30 +159,30 @@ class TestLmEnvironment(unittest.TestCase):
         config = LmEnvironment('lm',
                          address='https://testing',
                          secure=True, 
-                         client_id='LmClient',
+                         client_id='TNCOClient',
                          client_secret='sosecret',
                          username='user', 
                          password='secret'
                          )
         client = config.build_client()
-        self.assertIsInstance(client, LmClient)
+        self.assertIsInstance(client, TNCOClient)
         self.assertIsInstance(client.auth_type, UserPassAuth)
         self.assertEqual(client.auth_type.username, 'user')
         self.assertEqual(client.auth_type.password, 'secret')
-        self.assertEqual(client.auth_type.client_id, 'LmClient')
+        self.assertEqual(client.auth_type.client_id, 'TNCOClient')
         self.assertEqual(client.auth_type.client_secret, 'sosecret')
     
     def test_build_client_credentials_auth(self):
         config = LmEnvironment('lm',
                          address='https://testing',
                          secure=True, 
-                         client_id='LmClient',
+                         client_id='TNCOClient',
                          client_secret='sosecret'
                          )
         client = config.build_client()
-        self.assertIsInstance(client, LmClient)
+        self.assertIsInstance(client, TNCOClient)
         self.assertIsInstance(client.auth_type, ClientCredentialsAuth)
-        self.assertEqual(client.auth_type.client_id, 'LmClient')
+        self.assertEqual(client.auth_type.client_id, 'TNCOClient')
         self.assertEqual(client.auth_type.client_secret, 'sosecret')
 
 class TestLmSessionConfig(unittest.TestCase):

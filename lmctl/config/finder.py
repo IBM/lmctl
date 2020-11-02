@@ -10,7 +10,7 @@ class ConfigFinder:
     def __init__(self, potential_env_var=None):
         self.potential_env_var = potential_env_var
 
-    def _get_default_config_path(self):
+    def get_default_config_path(self):
         return str(Path.home().joinpath('.lmctl').joinpath('config.yaml'))
 
     def find(self):
@@ -25,7 +25,7 @@ class ConfigFinder:
                     raise ConfigError('Config path on environment variable {0} does not exist: {1}'.format(self.potential_env_var, env_var_value))
                 return env_var_value
         # Default path
-        default_path = self._get_default_config_path()
+        default_path = self.get_default_config_path()
         logger.debug('Checking default location for config file: {0}'.format(default_path))
         if os.path.exists(default_path):
             return default_path

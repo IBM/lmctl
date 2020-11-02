@@ -1,6 +1,6 @@
 import urllib
 from typing import List, Dict, Union
-from lmctl.client.exceptions import LmClientError
+from lmctl.client.exceptions import TNCOClientError
 from .resource_api_base import ResourceAPIBase, json_response_handler, obj_json_request_builder, location_id_response_handler
 from lmctl.client.models import (CreateAssemblyIntent, UpgradeAssemblyIntent, ChangeAssemblyStateIntent, 
                                     DeleteAssemblyIntent, ScaleAssemblyIntent, HealAssemblyIntent,
@@ -24,7 +24,7 @@ class AssembliesAPI(ResourceAPIBase):
     def get_by_name(self, name: str) -> Dict:
         result = self.all_with_name(name)
         if len(result) == 0:
-            raise LmClientError(f'No Assembly found with name matching "{name}"')
+            raise TNCOClientError(f'No Assembly found with name matching "{name}"')
         else:
             return result[0]
 

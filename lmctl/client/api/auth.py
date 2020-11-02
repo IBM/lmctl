@@ -3,7 +3,7 @@ import logging
 from requests.auth import HTTPBasicAuth
 from typing import Dict
 from .api_base import APIBase
-from lmctl.client.exceptions import LmClientError, LmClientHttpError
+from lmctl.client.exceptions import TNCOClientError, TNCOClientHttpError
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class AuthenticationAPI(APIBase):
                                                                     include_auth=False, 
                                                                     override_address=legacy_auth_address, 
                                                                     json=body)
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code == 404:
                 logger.info(f'Failed to access login API at {self.legacy_login_endpoint}, responded with {e.status_code} status code...may be an older LM environment, trying {self.older_legacy_login_endpoint}')
                 auth_response = self.base_client.make_request_for_json(method='POST', 

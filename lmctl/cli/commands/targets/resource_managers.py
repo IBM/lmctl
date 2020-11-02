@@ -1,6 +1,6 @@
 import click
 from typing import Dict, List
-from lmctl.client import LmClient, LmClientHttpError
+from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler, default_output_format_handler
 from lmctl.cli.format import Table, Column, TableFormat
 from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete
@@ -34,7 +34,7 @@ class ResourceManagers(LmTarget):
                                             \n\nUse NAME argument to get by name\
                                             \n\nOmit NAME argument to get all''')
     @click.argument('name', required=False)
-    def get(self, lm_client: LmClient, ctx: click.Context, name: str = None):
+    def get(self, lm_client: TNCOClient, ctx: click.Context, name: str = None):
         api = lm_client.resource_managers
         if name is not None:
             return api.get(name)
@@ -53,7 +53,7 @@ class ResourceManagers(LmTarget):
     @LmCreate()
     @onboarding_report_formats.option()
     @click.option('--print-report', is_flag=True)
-    def create(self, lm_client: LmClient, 
+    def create(self, lm_client: TNCOClient, 
                         ctx: click.Context, 
                         output_format: str, 
                         file_content: Dict = None, 
@@ -89,7 +89,7 @@ class ResourceManagers(LmTarget):
     @click.argument('name', required=False)
     @onboarding_report_formats.option()
     @click.option('--print-report', is_flag=True)
-    def update(self, lm_client: LmClient, 
+    def update(self, lm_client: TNCOClient, 
                         ctx: click.Context,
                         output_format: str,
                         file_content: Dict = None, 
@@ -127,7 +127,7 @@ class ResourceManagers(LmTarget):
 
     @LmDelete()
     @click.argument('name', required=False)
-    def delete(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
+    def delete(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
         api = lm_client.resource_managers
         if file_content is not None:
             if name is not None:
@@ -142,7 +142,7 @@ class ResourceManagers(LmTarget):
             resource_manager_name = name
         try:
             result = api.delete(resource_manager_name)
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code == 404:
                 # Not found
                 if ignore_missing:

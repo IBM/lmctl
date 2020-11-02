@@ -2,7 +2,7 @@ from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict, Tuple
 from lmctl.cli.entry import cli
 from lmctl.cli.format import TableFormat
-from lmctl.client import LmClientHttpError
+from lmctl.client import TNCOClientHttpError
 from lmctl.client.models import CreateAssemblyIntent, DeleteAssemblyIntent
 from lmctl.cli.commands.targets.processes import ProcessTable
 import yaml

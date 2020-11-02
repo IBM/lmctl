@@ -1,6 +1,6 @@
 import click
 from typing import Dict
-from lmctl.client import LmClient, LmClientHttpError
+from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
 from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete
@@ -25,7 +25,7 @@ class Projects(LmTarget):
                                             \n\nOmit NAME argument get all projects\
                                             \n\nNote: all Assembly descriptors have a Behaviour Project associated with them so can be found using their name e.g. assembly::example::1.0''')
     @click.argument('name', required=False)
-    def get(self, lm_client: LmClient, ctx: click.Context, name: str = None):
+    def get(self, lm_client: TNCOClient, ctx: click.Context, name: str = None):
         api = lm_client.behaviour_projects
         if name is not None:
             return api.get(name)
@@ -33,7 +33,7 @@ class Projects(LmTarget):
             return api.all()
 
     @LmCreate()
-    def create(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
+    def create(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
         api = lm_client.behaviour_projects
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
@@ -46,7 +46,7 @@ class Projects(LmTarget):
 
     @LmUpdate()
     @click.argument('name', required=False)
-    def update(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, name: str = None, set_values: Dict = None):
+    def update(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, set_values: Dict = None):
         api = lm_client.behaviour_projects
         if file_content is not None:
             if name is not None:
@@ -62,7 +62,7 @@ class Projects(LmTarget):
 
     @LmDelete()
     @click.argument('name', required=False)
-    def delete(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
+    def delete(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
         api = lm_client.behaviour_projects
         if file_content is not None:
             if name is not None:
@@ -77,7 +77,7 @@ class Projects(LmTarget):
             project_id = name
         try:
             result = api.delete(project_id)
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code == 404:
                 # Not found
                 if ignore_missing:

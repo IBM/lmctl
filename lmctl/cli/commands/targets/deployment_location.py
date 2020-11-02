@@ -1,6 +1,6 @@
 import click
 from typing import Dict
-from lmctl.client import LmClient, LmClientHttpError
+from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
 from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete
@@ -28,7 +28,7 @@ class DeploymentLocations(LmTarget):
                                             \n\nOmit NAME argument and use --name-contains option to get by partial name match''')
     @click.argument('name', required=False)
     @click.option('--name-contains', help='Partial name search string')
-    def get(self, lm_client: LmClient, ctx: click.Context, name: str = None, name_contains: str = None):
+    def get(self, lm_client: TNCOClient, ctx: click.Context, name: str = None, name_contains: str = None):
         api = lm_client.deployment_locations
         if name is not None:
             if name_contains is not None:
@@ -40,7 +40,7 @@ class DeploymentLocations(LmTarget):
             return api.all() 
         
     @LmCreate()
-    def create(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
+    def create(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
         api = lm_client.deployment_locations
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
@@ -53,7 +53,7 @@ class DeploymentLocations(LmTarget):
 
     @LmUpdate()
     @click.argument('name', required=False)
-    def update(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, name: str = None, set_values: Dict = None):
+    def update(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, set_values: Dict = None):
         api = lm_client.deployment_locations
         if file_content is not None:
             if name is not None:
@@ -71,7 +71,7 @@ class DeploymentLocations(LmTarget):
 
     @LmDelete()
     @click.argument('name', required=False)
-    def delete(self, lm_client: LmClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
+    def delete(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
         api = lm_client.deployment_locations
         if file_content is not None:
             if name is not None:
@@ -86,7 +86,7 @@ class DeploymentLocations(LmTarget):
             deployment_location_id = name
         try:
             result = api.delete(deployment_location_id)
-        except LmClientHttpError as e:
+        except TNCOClientHttpError as e:
             if e.status_code == 404:
                 # Not found
                 if ignore_missing:

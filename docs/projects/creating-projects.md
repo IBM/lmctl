@@ -40,11 +40,11 @@ To include subprojects, specify the name of each with the `--contains` option. F
 lmctl project create --name example --version 1.0 --type Assembly --contains Assembly subassembly --contains Resource::brent subresource
 ```
 
-# Creating a Project from existing sources in LM
+# Creating a Project from existing sources in TNCO (ALM)
 
-If you have already designed a service in Stratoss LM you can base a project around it and pull the existing content using LMCTL. (Note: currently it is not possible to pull the contents of Resources from Ansible RM or Brent):
+If you have already designed a service in TNCO you can base a project around it and pull the existing content using LMCTL. (Note: currently it is not possible to pull the contents of Resources from Ansible RM or Brent):
 
-1. Create a Project as explained in [Creating a new Project](#creating-a-new-project). Ensure the name and version correspond with the service design in Stratoss LM you intend to base this project on. For example, if you designed `assembly::example::2.0` then make sure your project type is Assembly, name is 'example' and version is '2.0'.
+1. Create a Project as explained in [Creating a new Project](#creating-a-new-project). Ensure the name and version correspond with the service design in TNCO you intend to base this project on. For example, if you designed `assembly::example::2.0` then make sure your project type is Assembly, name is 'example' and version is '2.0'.
 
 2. Use the `project pull` command to pull the contents from a target named environment:
 
@@ -55,3 +55,7 @@ If you have already designed a service in Stratoss LM you can base a project aro
 3. Verify the `Descriptor/assembly.yml` file has been populated with the design of your service and the `Behaviour` directory has been populated with any Assembly Configurations and/or Scenarios you have in Stratoss LM
 
 The pull command will also pull the contents of any subprojects that are also of the Assembly type.
+
+# Next Steps
+
+[Build the project](building-projects.md)
