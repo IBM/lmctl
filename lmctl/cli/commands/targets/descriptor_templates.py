@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler, default_file_inputs_handler, default_output_format_handler, set_param_option
 from lmctl.cli.format import Table, Column
-from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
 
 class DescriptorTemplatesTable(Table):
     
@@ -16,7 +16,7 @@ output_formats = common_output_format_handler(table=DescriptorTemplatesTable())
 render_output_formats = default_output_format_handler()
 file_inputs = default_file_inputs_handler()
 
-class DescriptorTemplates(LmTarget):
+class DescriptorTemplates(TNCOTarget):
     name = 'descriptortemplate'
     plural = 'descriptortemplates'
     display_name = 'Descriptor Template'

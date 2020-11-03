@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler, set_param_option, default_file_inputs_handler
 from lmctl.cli.format import Table, Column
-from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
 
 class ScenarioTable(Table):
     
@@ -17,7 +17,7 @@ output_formats = common_output_format_handler(table=ScenarioTable())
 
 exec_file_inputs = default_file_inputs_handler()
 
-class Scenarios(LmTarget):
+class Scenarios(TNCOTarget):
     name = 'scenario'
     plural = 'scenarios'
     display_name = 'Scenario'

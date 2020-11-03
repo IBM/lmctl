@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError, TNCOClientError
 from lmctl.cli.arguments import common_output_format_handler, default_file_inputs_handler, set_param_option
 from lmctl.cli.format import Table, Column
-from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
 
 class AssemblyTable(Table):
     
@@ -17,7 +17,7 @@ class AssemblyTable(Table):
 output_formats = common_output_format_handler(table=AssemblyTable())
 file_inputs = default_file_inputs_handler()
 
-class Assemblies(LmTarget):
+class Assemblies(TNCOTarget):
     name = 'assembly'
     plural = 'assemblies'
     display_name = 'Assembly'

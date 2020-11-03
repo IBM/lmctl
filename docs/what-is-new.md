@@ -5,8 +5,8 @@
 Contents:
 - :file_folder: [Default LMCTL config file location](#default-lmctl-config-file-location)
 - :muscle: [Expanded Command Capabilities](#expanded-command-capabilities)
-- :snake: [TNCO Python Client](#new-tnco-python-client)
-- :wrench: [TNCO environment address improvements](#tnco-environment-address-improvements)
+- :snake: [TNCO Python Client](#tnco-python-client)
+- :wrench: [TNCO Environment Improvements](#tnco-environment-address-improvements)
 - :closed_lock_with_key: [Client Credential Authentication](#client-credential-authentication)
 - :smirk: [New Brand Support](#new-brand-support)
 

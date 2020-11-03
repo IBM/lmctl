@@ -40,6 +40,10 @@ class EnvironmentGroup:
         return self.lm_env is not None
 
     @property
+    def has_tnco(self):
+        return self.has_lm
+
+    @property
     def arms(self):
         return self.arm_envs
 

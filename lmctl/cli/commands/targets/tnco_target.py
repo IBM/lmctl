@@ -7,11 +7,13 @@ from lmctl.cli.arguments import (OutputFormats,
                                 environment_name_option, 
                                 default_file_inputs_handler,
                                 set_param_option,
-                                ignore_missing_option)
+                                ignore_missing_option, 
+                                tnco_client_secret_option, 
+                                tnco_pwd_option)
 import click
 import functools
 
-class LmTarget(Target):
+class TNCOTarget(Target):
 
     def __init__(self, display_name: str = None, **kwargs):
         super().__init__(**kwargs)
@@ -56,11 +58,13 @@ class LmTarget(Target):
     def _basic_cmd_builder(self, handler_function: Callable) -> click.Command:
         # Build up a command (but don't decorate it as one yet)
         @environment_name_option()
+        @tnco_client_secret_option()
+        @tnco_pwd_option()
         @click.pass_context
-        def cmd(ctx: click.Context, environment_name: str, **kwargs):
+        def cmd(ctx: click.Context, environment_name: str, pwd: str = None, client_secret: str = None, **kwargs):
             ctl = self._get_controller()
-            with ctl.lm_client_safety_net():
-                lm_client = ctl.get_lm_client(environment_name)
+            with ctl.tnco_client_safety_net():
+                lm_client = ctl.get_tnco_client(environment_name, input_pwd=pwd, input_client_secret=client_secret)
                 result = handler_function(lm_client, ctx=ctx, **kwargs)
                 if result is not None:
                     ctl.io.print(result)
@@ -81,12 +85,14 @@ class LmTarget(Target):
         # Build up a command (but don't decorate it as one yet)
         @environment_name_option()
         @output_formats.option()
+        @tnco_client_secret_option()
+        @tnco_pwd_option()
         @click.pass_context
-        def cmd(ctx: click.Context, environment_name: str, output_format: str, **kwargs):
+        def cmd(ctx: click.Context, environment_name: str, output_format: str, pwd: str = None, client_secret: str = None, **kwargs):
             ctl = self._get_controller()
             output_formatter = output_formats.resolve_choice(output_format)
-            with ctl.lm_client_safety_net():
-                lm_client = ctl.get_lm_client(environment_name)
+            with ctl.tnco_client_safety_net():
+                lm_client = ctl.get_tnco_client(environment_name, input_pwd=pwd, input_client_secret=client_secret)
                 result = handler_function(lm_client, ctx=ctx, **kwargs)
                 if isinstance(result, list):
                     ctl.io.print(output_formatter.convert_list(result))
@@ -118,11 +124,13 @@ class LmTarget(Target):
         @environment_name_option()
         @file_inputs.option()
         @set_param_option()
+        @tnco_client_secret_option()
+        @tnco_pwd_option()
         @click.pass_context
-        def cmd(ctx: click.Context, environment_name: str, file_content: Any, set_values: Any, **kwargs):
+        def cmd(ctx: click.Context, environment_name: str, file_content: Any, set_values: Any, pwd: str = None, client_secret: str = None, **kwargs):
             ctl = self._get_controller()
-            with ctl.lm_client_safety_net():
-                lm_client = ctl.get_lm_client(environment_name)
+            with ctl.tnco_client_safety_net():
+                lm_client = ctl.get_tnco_client(environment_name, input_pwd=pwd, input_client_secret=client_secret)
                 result = handler_function(lm_client, ctx=ctx, file_content=file_content, set_values=set_values, **kwargs)
                 if result is not None and print_result:
                     ctl.io.print(f'Created: {result}')
@@ -153,11 +161,13 @@ class LmTarget(Target):
         @environment_name_option()
         @file_inputs.option()
         @set_param_option()
+        @tnco_client_secret_option()
+        @tnco_pwd_option()
         @click.pass_context
-        def cmd(ctx: click.Context, environment_name: str, file_content: Any, set_values: Any, **kwargs):
+        def cmd(ctx: click.Context, environment_name: str, file_content: Any, set_values: Any, pwd: str = None, client_secret: str = None, **kwargs):
             ctl = self._get_controller()
-            with ctl.lm_client_safety_net():
-                lm_client = ctl.get_lm_client(environment_name)
+            with ctl.tnco_client_safety_net():
+                lm_client = ctl.get_tnco_client(environment_name, input_pwd=pwd, input_client_secret=client_secret)
                 result = handler_function(lm_client, ctx=ctx, file_content=file_content, set_values=set_values, **kwargs)
                 if result is not None and print_result:
                     ctl.io.print(f'Updated: {result}')
@@ -188,11 +198,13 @@ class LmTarget(Target):
         @environment_name_option()
         @file_inputs.option()
         @ignore_missing_option()
+        @tnco_client_secret_option()
+        @tnco_pwd_option()
         @click.pass_context
-        def cmd(ctx: click.Context, environment_name: str, file_content: Any, ignore_missing: bool, **kwargs):
+        def cmd(ctx: click.Context, environment_name: str, file_content: Any, ignore_missing: bool, pwd: str = None, client_secret: str = None, **kwargs):
             ctl = self._get_controller()
-            with ctl.lm_client_safety_net():
-                lm_client = ctl.get_lm_client(environment_name)
+            with ctl.tnco_client_safety_net():
+                lm_client = ctl.get_tnco_client(environment_name, input_pwd=pwd, input_client_secret=client_secret)
                 result = handler_function(lm_client, ctx=ctx, file_content=file_content, ignore_missing=ignore_missing, **kwargs)
                 if result is not None and print_result:
                     ctl.io.print(f'Removed: {result}')

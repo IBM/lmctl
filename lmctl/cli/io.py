@@ -12,7 +12,7 @@ class IOController:
         return global_io
     
     def prompt(self, *args, **kwargs):
-        click.prompt(*args, **kwargs)
+        return click.prompt(*args, **kwargs)
 
     def print_error(self, text):
         self.__print(text, err=True)

@@ -3,7 +3,7 @@ from typing import Dict, List
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler, default_output_format_handler
 from lmctl.cli.format import Table, Column, TableFormat
-from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete
 
 class ResourceManagerTable(Table):
     
@@ -24,7 +24,7 @@ class ResourceManagerOnboardingReportTable(Table):
 output_formats = common_output_format_handler(table=ResourceManagerTable())
 onboarding_report_formats = common_output_format_handler(table=ResourceManagerOnboardingReportTable())
 
-class ResourceManagers(LmTarget):
+class ResourceManagers(TNCOTarget):
     name = 'resourcemanager'
     plural = 'resourcemanagers'
     display_name = 'Resource Manager'

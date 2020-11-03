@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
-from .lm_target import LmTarget, LmGet
+from .tnco_target import TNCOTarget, LmGet
 
 class ProcessTable(Table):
 
@@ -16,7 +16,7 @@ class ProcessTable(Table):
 
 output_formats = common_output_format_handler(table=ProcessTable())
 
-class Processes(LmTarget):
+class Processes(TNCOTarget):
     name = 'process'
     plural = 'processes'
     display_name = 'Assembly Process'

@@ -39,7 +39,7 @@ class TestEnvironmentGroup(unittest.TestCase):
         group = EnvironmentGroup('test', 'test')
         with self.assertRaises(EnvironmentRuntimeError) as context:
             group.lm
-        self.assertEqual(str(context.exception), 'No LM environment has been configured on this group: test')
+        self.assertEqual(str(context.exception), 'No TNCO environment has been configured on this group: test')
 
     def tests_fails_when_arm_not_found(self):
         group = EnvironmentGroup('test', 'test')

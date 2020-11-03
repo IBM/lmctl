@@ -1,8 +1,8 @@
 import click
 from lmctl.client import TNCOClient
-from .lm_target import LmTarget, LmCmd
+from .tnco_target import TNCOTarget, LmCmd
 
-class Cluster(LmTarget):
+class Cluster(TNCOTarget):
     name = 'cluster'
     plural = 'clusters'
     display_name = 'Cluster'

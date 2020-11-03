@@ -3,9 +3,9 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError, TNCOClientError
 from lmctl.cli.arguments import common_output_format_handler, default_file_inputs_handler
 from lmctl.cli.format import Table, Column
-from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
 
-class Intents(LmTarget):
+class Intents(TNCOTarget):
     name = 'intent'
     plural = 'intents'
     display_name = 'Intent'

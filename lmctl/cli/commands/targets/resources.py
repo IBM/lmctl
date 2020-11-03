@@ -1,9 +1,9 @@
 import click
 from lmctl.client import TNCOClient
-from .lm_target import LmTarget, LmCmd
+from .tnco_target import TNCOTarget, LmCmd
 from .assembly_components import AssemblyComponentMixin, AssemblyComponents
 
-class Resource(LmTarget, AssemblyComponentMixin):
+class Resource(TNCOTarget, AssemblyComponentMixin):
     name = 'resource'
     plural = 'resources'
     display_name = 'Resource'

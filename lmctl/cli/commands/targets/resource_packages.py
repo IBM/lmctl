@@ -3,9 +3,9 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler, ignore_missing_option
 from lmctl.cli.format import Table, Column
-from .lm_target import LmTarget, LmCmd
+from .tnco_target import TNCOTarget, LmCmd
 
-class ResourcePackages(LmTarget):
+class ResourcePackages(TNCOTarget):
     name = 'resourcepkg'
     plural = 'resourcepkgs'
     display_name = 'Brent Resource Package'

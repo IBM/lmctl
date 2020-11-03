@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
-from .lm_target import LmTarget, LmGet, LmCreate, LmDelete
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmDelete
 from lmctl.utils.certificates import read_certificate_file
 
 class ResourceDriverTable(Table):
@@ -16,7 +16,7 @@ class ResourceDriverTable(Table):
 
 output_formats = common_output_format_handler(table=ResourceDriverTable())
     
-class ResourceDrivers(LmTarget):
+class ResourceDrivers(TNCOTarget):
     name = 'resourcedriver'
     plural = 'resourcedrivers'
     display_name = 'Resource Driver'

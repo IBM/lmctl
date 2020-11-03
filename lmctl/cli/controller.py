@@ -3,7 +3,7 @@ import logging
 from lmctl.cli.io import IOController
 from lmctl.config import get_global_config, Config, ConfigError
 from lmctl.environment import EnvironmentGroup, EnvironmentRuntimeError
-from .safety_net import safety_net, lm_client_safety_net
+from .safety_net import safety_net, tnco_client_safety_net
 
 logger = logging.getLogger(__name__)
 
@@ -16,8 +16,8 @@ class CLIController:
     def safety_net(self, *catchable_exceptions):
         return safety_net(*catchable_exceptions, io_controller=self.io)
 
-    def lm_client_safety_net(self):
-        return lm_client_safety_net(io_controller=self.io)
+    def tnco_client_safety_net(self):
+        return tnco_client_safety_net(io_controller=self.io)
 
     def get_environment_group_named(self, environment_group_name: str) -> EnvironmentGroup:
         env_group = self.config.environments.get(environment_group_name, None)
@@ -26,27 +26,27 @@ class CLIController:
             exit(1)
         return env_group
 
-    def get_lm_client(self, environment_group_name: str, input_pwd: str = None, input_client_secret: str = None) -> 'TNCOClient':
+    def get_tnco_client(self, environment_group_name: str, input_pwd: str = None, input_client_secret: str = None) -> 'TNCOClient':
         env_group = self.get_environment_group_named(environment_group_name)
-        if not env_group.has_lm:
+        if not env_group.has_tnco:
             self.io.print_error(f'Error: LM environment not configured on group: {environment_group_name}')
             exit(1)
-        lm = env_group.lm
-        if lm.is_secure:
-            if lm.username is not None:
-                if input_pwd is not None and len(input_pwd.strip()) > 0:
-                    lm.password = input_pwd
-                elif lm.password is None:
-                    prompt_pwd = self.io.prompt(f'Please enter password for LM user {lm.username}', hide_input=True, default='')
-                    lm.password = prompt_pwd
-            if lm.client_id is not None:
-                if lm.client_secret is None:
+        tnco = env_group.tnco
+        if tnco.is_secure:
+            if tnco.client_id is not None:
+                if tnco.client_secret is None:
                     if input_client_secret is not None and len(input_client_secret.strip()) > 0:
-                        lm.client_secret = input_client_secret
-                    elif lm.client_secret is None:
-                        prompt_secret = self.io.prompt(f'Please enter secret for LM client {lm.client_id}', hide_input=True, default='')
-                        lm.client_secret = prompt_secret
-        return lm.build_client()
+                        tnco.client_secret = input_client_secret
+                    elif tnco.client_secret is None:
+                        prompt_secret = self.io.prompt(f'Please enter secret for TNCO (ALM) client {tnco.client_id}', hide_input=True, default='')
+                        tnco.client_secret = prompt_secret
+            if tnco.username is not None:
+                if input_pwd is not None and len(input_pwd.strip()) > 0:
+                    tnco.password = input_pwd
+                elif tnco.password is None:
+                    prompt_pwd = self.io.prompt(f'Please enter password for TNCO (ALM) user {tnco.username}', hide_input=True, default='')
+                    tnco.password = prompt_pwd
+        return tnco.build_client()
 
     def create_arm_session(self, environment_group_name: str, arm_name: str):
         env_group = self.get_environment_group_named(environment_group_name)

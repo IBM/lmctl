@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
-from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete
 
 class ProjectTable(Table):
     
@@ -14,7 +14,7 @@ class ProjectTable(Table):
 
 output_formats = common_output_format_handler(table=ProjectTable())
 
-class Projects(LmTarget):
+class Projects(TNCOTarget):
     name = 'behaviourproject'
     plural = 'behaviourprojects'
     display_name = 'Behaviour Project'

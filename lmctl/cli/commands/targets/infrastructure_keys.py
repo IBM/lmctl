@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
-from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete
 
 class InfrastructureKeyTable(Table):
     
@@ -15,7 +15,7 @@ class InfrastructureKeyTable(Table):
 
 output_formats = common_output_format_handler(table=InfrastructureKeyTable())
     
-class InfrastructureKeys(LmTarget):
+class InfrastructureKeys(TNCOTarget):
     name = 'infrastructurekey'
     plural = 'infrastructurekeys'
     display_name = 'Infrastructure Key'

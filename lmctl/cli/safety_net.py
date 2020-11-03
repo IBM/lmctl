@@ -29,7 +29,7 @@ def safety_net(*catchable_exceptions, error_prefix: str = 'Error: ', io_controll
         catchable_exceptions = [Exception]
     return ExceptionSafetyNet(catchable_exceptions, error_prefix=error_prefix, io_controller=io_controller)
 
-def lm_client_safety_net(io_controller: IOController = None):
+def tnco_client_safety_net(io_controller: IOController = None):
     return safety_net(TNCOClientError, error_prefix='TNCO error occurred: ', io_controller=io_controller)
 
 def lm_driver_safety_net(io_controller: IOController = None):

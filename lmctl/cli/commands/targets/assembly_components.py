@@ -1,6 +1,6 @@
 import click
 from lmctl.client import TNCOClient
-from .lm_target import LmTarget, LmCmd
+from .tnco_target import TNCOTarget, LmCmd
 
 class AssemblyComponentMixin:
 
@@ -33,7 +33,7 @@ class AssemblyComponentMixin:
         ctl = self._get_controller()
         ctl.io.print(f'Accepted - Process: {result}')
 
-class AssemblyComponents(LmTarget):
+class AssemblyComponents(TNCOTarget):
     name = 'assemblycomponent'
     plural = 'assemblycomponents'
     display_name = 'Assembly Component'

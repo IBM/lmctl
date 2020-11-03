@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
-from .lm_target import LmTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
 #, accessor=lambda x: x.get('scenarioSummary').get('name') if 'scenarioSummary' in x else None),
 class ScenarioExecutionTable(Table):
     
@@ -17,7 +17,7 @@ class ScenarioExecutionTable(Table):
 
 output_formats = common_output_format_handler(table=ScenarioExecutionTable())
 
-class ScenarioExecutions(LmTarget):
+class ScenarioExecutions(TNCOTarget):
     name = 'scenarioexecution'
     plural = 'scenarioexecutions'
     display_name = 'Scenario Execution'
