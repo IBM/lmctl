@@ -69,7 +69,9 @@ class Environments(Target):
         return _get
 
     def ping(self):
-        @click.command(help=f'Test connection with {self.display_name} from active config file')
+        @click.command(help=f'''\
+                    Test connection with {self.display_name} from active config file
+                    \n\nConnection is tested by making requests to a few pre-selected APIs on the configured TNCO (ALM)''')
         @click.argument('name')
         @tnco_client_secret_option()
         @tnco_pwd_option()

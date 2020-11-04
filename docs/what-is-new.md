@@ -8,6 +8,7 @@ Contents:
 - :snake: [TNCO Python Client](#tnco-python-client)
 - :wrench: [TNCO Environment Improvements](#tnco-environment-address-improvements)
 - :closed_lock_with_key: [Client Credential Authentication](#client-credential-authentication)
+- :point_right: [Ping TNCO environment to check configuration](#ping-tnco-environment-to-check-configuration)
 - :smirk: [New Brand Support](#new-brand-support)
 
 # Default LMCTL config file location
@@ -159,6 +160,14 @@ environments:
       secure: True
       client_id: LmClient
       client_secret: some-secret
+```
+
+# Ping TNCO environment to check configuration
+
+Check you've configured your environment(s) correctly by testing the connection:
+
+```
+lmctl ping env <name of env>
 ```
 
 # New Brand Support
