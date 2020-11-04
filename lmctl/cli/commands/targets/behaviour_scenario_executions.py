@@ -26,8 +26,8 @@ class ScenarioExecutions(TNCOTarget):
                 Cancel {display_name} by ID
                 ''')
     @click.argument('ID')
-    def cancel(self, lm_client: TNCOClient, ctx: click.Context, id: str = None):
-        api = lm_client.behaviour_scenario_execs
+    def cancel(self, tnco_client: TNCOClient, ctx: click.Context, id: str = None):
+        api = tnco_client.behaviour_scenario_execs
         result = api.cancel(id)
         if 'success' in result and result['success'] is False:
             ctl = self._get_controller()
@@ -44,8 +44,8 @@ class ScenarioExecutions(TNCOTarget):
     @click.argument('ID', required=False)
     @click.option('--project', help=f'ID of a project to retrieve {display_name}s from')
     @click.option('--scenario', help=f'ID of a scenario to retrieve {display_name}s of')
-    def get(self, lm_client: TNCOClient, ctx: click.Context, id: str = None, project: str = None, scenario: str = None):
-        api = lm_client.behaviour_scenario_execs
+    def get(self, tnco_client: TNCOClient, ctx: click.Context, id: str = None, project: str = None, scenario: str = None):
+        api = tnco_client.behaviour_scenario_execs
         if id is not None:
             if project is not None:
                 raise click.BadArgumentUsage('Do not use "ID" argument when using the "--project" option', ctx=ctx)
@@ -63,8 +63,8 @@ class ScenarioExecutions(TNCOTarget):
 
     @LmDelete()
     @click.argument('ID', required=False)
-    def delete(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, id: str = None, ignore_missing: bool = None):
-        api = lm_client.behaviour_scenario_execs
+    def delete(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, id: str = None, ignore_missing: bool = None):
+        api = tnco_client.behaviour_scenario_execs
         if file_content is not None:
             if id is not None:
                 raise click.BadArgumentUsage(message='Do not use "ID" argument when using "-f, --file" option', ctx=ctx)

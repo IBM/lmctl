@@ -4,12 +4,19 @@ from .exceptions import TNCOClientError, TNCOClientHttpError
 from .auth_type import AuthType
 from .auth_tracker import AuthTracker
 from urllib.parse import urlparse
+from .error_capture import tnco_error_capture
+from .client_test_result import TestResult, TestResults
 import requests
 import logging
 
 logger = logging.getLogger(__name__)
 
 class TNCOClient:
+    """
+    Base client for TNCO 
+
+    TNCO APIs are grouped by functional attributes.
+    """
 
     POST = 'post'
     GET = 'get'
@@ -70,6 +77,26 @@ class TNCOClient:
             return response.json()
         except ValueError as e:
             raise TNCOClientError(f'Failed to parse response to JSON: {str(e)}') from e
+
+    def ping(self, include_template_engine: bool = False) -> Dict:
+        with tnco_error_capture() as A:
+            self.descriptors.all()
+        with tnco_error_capture() as B:
+            self.deployment_locations.all()
+        with tnco_error_capture() as C:
+            self.behaviour_projects.all()
+        with tnco_error_capture() as D:
+            self.shared_inf_keys.all()
+        tests = []
+        tests.append(TestResult(name='Descriptors', error=A.error))
+        tests.append(TestResult(name='Topology', error=B.error))
+        tests.append(TestResult(name='Behaviour', error=C.error))
+        tests.append(TestResult(name='Resource Manager', error=D.error))
+        if include_template_engine:
+            with tnco_error_capture() as templates:
+                self.descriptor_templates.all()
+            tests.append(TestResult(name='Template Engine', error=templates.error))
+        return TestResults(tests=tests)
 
     @property
     def auth(self) -> AuthenticationAPI:

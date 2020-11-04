@@ -14,6 +14,8 @@ class TestDescriptorsAPI(IntegrationTest):
             names.append(template['name'])
         self.assertIn(descriptor_A['name'], names)
         self.assertIn(descriptor_B['name'], names)
+        descriptors_api.delete(descriptor_A['name'])
+        descriptors_api.delete(descriptor_B['name'])
 
     def test_crud(self):
         descriptor = self.tester.load_descriptor_from(self.tester.test_file('dummy_assembly.yaml'), suffix='descriptor-test-crud-A')

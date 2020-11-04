@@ -24,16 +24,16 @@ class Descriptors(TNCOTarget):
                                             \n\nUse NAME argument to get one by name\
                                             \n\nOmit NAME argument to get all''')
     @click.argument('name', required=False)
-    def get(self, lm_client: TNCOClient, ctx: click.Context, name: str = None):
-        api = lm_client.descriptors
+    def get(self, tnco_client: TNCOClient, ctx: click.Context, name: str = None):
+        api = tnco_client.descriptors
         if name is not None:
             return api.get(name)
         else:
             return api.all()
         
     @LmCreate()
-    def create(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
-        api = lm_client.descriptors
+    def create(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
+        api = tnco_client.descriptors
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
                 raise click.BadArgumentUsage(message='Do not use "--set" option when using "-f, --file" option', ctx=ctx)
@@ -45,8 +45,8 @@ class Descriptors(TNCOTarget):
 
     @LmUpdate()
     @click.argument('name', required=False)
-    def update(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, set_values: Dict = None):
-        api = lm_client.descriptors
+    def update(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, set_values: Dict = None):
+        api = tnco_client.descriptors
         if file_content is not None:
             if name is not None:
                 raise click.BadArgumentUsage(message='Do not use "NAME" argument when using "-f, --file" option', ctx=ctx)
@@ -61,8 +61,8 @@ class Descriptors(TNCOTarget):
 
     @LmDelete()
     @click.argument('name', required=False)
-    def delete(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
-        api = lm_client.descriptors
+    def delete(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
+        api = tnco_client.descriptors
         if file_content is not None:
             if name is not None:
                 raise click.BadArgumentUsage(message='Do not use "NAME" argument when using "-f, --file" option', ctx=ctx)

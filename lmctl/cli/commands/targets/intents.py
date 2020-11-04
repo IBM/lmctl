@@ -19,8 +19,8 @@ class Intents(TNCOTarget):
                         \n\nNote: your chosen type is not validated against this list so if a new type of intent has been added in TNCO, this command is still usable
                     ''',
                     print_result=False)
-    def create(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
-        api = lm_client.assemblies
+    def create(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
+        api = tnco_client.assemblies
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
                 raise click.BadArgumentUsage(message='Do not use "--set" option when using "-f, --file" option', ctx=ctx)

@@ -64,8 +64,8 @@ class TNCOTarget(Target):
         def cmd(ctx: click.Context, environment_name: str, pwd: str = None, client_secret: str = None, **kwargs):
             ctl = self._get_controller()
             with ctl.tnco_client_safety_net():
-                lm_client = ctl.get_tnco_client(environment_name, input_pwd=pwd, input_client_secret=client_secret)
-                result = handler_function(lm_client, ctx=ctx, **kwargs)
+                tnco_client = ctl.get_tnco_client(environment_name, input_pwd=pwd, input_client_secret=client_secret)
+                result = handler_function(tnco_client, ctx=ctx, **kwargs)
                 if result is not None:
                     ctl.io.print(result)
         # Add any extra arguments or options decorated on the handler_function
@@ -92,8 +92,8 @@ class TNCOTarget(Target):
             ctl = self._get_controller()
             output_formatter = output_formats.resolve_choice(output_format)
             with ctl.tnco_client_safety_net():
-                lm_client = ctl.get_tnco_client(environment_name, input_pwd=pwd, input_client_secret=client_secret)
-                result = handler_function(lm_client, ctx=ctx, **kwargs)
+                tnco_client = ctl.get_tnco_client(environment_name, input_pwd=pwd, input_client_secret=client_secret)
+                result = handler_function(tnco_client, ctx=ctx, **kwargs)
                 if isinstance(result, list):
                     ctl.io.print(output_formatter.convert_list(result))
                 else:
@@ -130,8 +130,8 @@ class TNCOTarget(Target):
         def cmd(ctx: click.Context, environment_name: str, file_content: Any, set_values: Any, pwd: str = None, client_secret: str = None, **kwargs):
             ctl = self._get_controller()
             with ctl.tnco_client_safety_net():
-                lm_client = ctl.get_tnco_client(environment_name, input_pwd=pwd, input_client_secret=client_secret)
-                result = handler_function(lm_client, ctx=ctx, file_content=file_content, set_values=set_values, **kwargs)
+                tnco_client = ctl.get_tnco_client(environment_name, input_pwd=pwd, input_client_secret=client_secret)
+                result = handler_function(tnco_client, ctx=ctx, file_content=file_content, set_values=set_values, **kwargs)
                 if result is not None and print_result:
                     ctl.io.print(f'Created: {result}')
         # Add any extra arguments or options decorated on the handler_function
@@ -167,8 +167,8 @@ class TNCOTarget(Target):
         def cmd(ctx: click.Context, environment_name: str, file_content: Any, set_values: Any, pwd: str = None, client_secret: str = None, **kwargs):
             ctl = self._get_controller()
             with ctl.tnco_client_safety_net():
-                lm_client = ctl.get_tnco_client(environment_name, input_pwd=pwd, input_client_secret=client_secret)
-                result = handler_function(lm_client, ctx=ctx, file_content=file_content, set_values=set_values, **kwargs)
+                tnco_client = ctl.get_tnco_client(environment_name, input_pwd=pwd, input_client_secret=client_secret)
+                result = handler_function(tnco_client, ctx=ctx, file_content=file_content, set_values=set_values, **kwargs)
                 if result is not None and print_result:
                     ctl.io.print(f'Updated: {result}')
         # Add any extra arguments or options decorated on the handler_function
@@ -204,8 +204,8 @@ class TNCOTarget(Target):
         def cmd(ctx: click.Context, environment_name: str, file_content: Any, ignore_missing: bool, pwd: str = None, client_secret: str = None, **kwargs):
             ctl = self._get_controller()
             with ctl.tnco_client_safety_net():
-                lm_client = ctl.get_tnco_client(environment_name, input_pwd=pwd, input_client_secret=client_secret)
-                result = handler_function(lm_client, ctx=ctx, file_content=file_content, ignore_missing=ignore_missing, **kwargs)
+                tnco_client = ctl.get_tnco_client(environment_name, input_pwd=pwd, input_client_secret=client_secret)
+                result = handler_function(tnco_client, ctx=ctx, file_content=file_content, ignore_missing=ignore_missing, **kwargs)
                 if result is not None and print_result:
                     ctl.io.print(f'Removed: {result}')
         # Add any extra arguments or options decorated on the handler_function

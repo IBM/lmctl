@@ -27,8 +27,8 @@ class ResourceDrivers(TNCOTarget):
                                             \n\nOmit ID and use --type option to get by type''')
     @click.argument('ID', required=False)
     @click.option('--type', 'driver_type', help='Type of driver to fetch')
-    def get(self, lm_client: TNCOClient, ctx: click.Context, id: str = None, driver_type: str = None):
-        api = lm_client.resource_drivers
+    def get(self, tnco_client: TNCOClient, ctx: click.Context, id: str = None, driver_type: str = None):
+        api = tnco_client.resource_drivers
         if id is not None:
             if driver_type is not None:
                 raise click.BadArgumentUsage('Do not use "ID" argument when using the "--type" option', ctx=ctx)
@@ -40,8 +40,8 @@ class ResourceDrivers(TNCOTarget):
         
     @LmCreate()
     @click.option('--certificate', type=click.Path(exists=True), help='Path to a file containing the public certificate of the resource driver')
-    def create(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None, certificate: str = None):
-        api = lm_client.resource_drivers
+    def create(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None, certificate: str = None):
+        api = tnco_client.resource_drivers
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
                 raise click.BadArgumentUsage(message='Do not use "--set" option when using "-f, --file" option', ctx=ctx)
@@ -65,8 +65,8 @@ class ResourceDrivers(TNCOTarget):
                 \n\nAlternatively, set a file path on the "-f, --file" option and the ID/type (discovered in that order) in this file will be used''')
     @click.argument('ID', required=False)
     @click.option('--type', 'driver_type', help='Type of driver to remove')
-    def delete(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, id: str = None, driver_type: str = None, ignore_missing: bool = None):
-        api = lm_client.resource_drivers
+    def delete(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, id: str = None, driver_type: str = None, ignore_missing: bool = None):
+        api = tnco_client.resource_drivers
         resource_driver_id = None
         resource_driver_type = None
         if file_content is not None:

@@ -21,8 +21,8 @@ class Cluster(TNCOTarget):
     @click.option('--assembly-name', help='Reference the target Assembly by ID')
     @click.option('--in', 'scale_in', is_flag=True, help=f'Scale the {display_name} in')
     @click.option('--out', 'scale_out', is_flag=True, help=f'Scale the {display_name} out')
-    def scale(self, lm_client: TNCOClient, ctx: click.Context, name: str = None, assembly_name: str = None, assembly_id: str = None, scale_in: bool = False, scale_out: bool = False):
-        api = lm_client.assemblies
+    def scale(self, tnco_client: TNCOClient, ctx: click.Context, name: str = None, assembly_name: str = None, assembly_id: str = None, scale_in: bool = False, scale_out: bool = False):
+        api = tnco_client.assemblies
         scale_req = {
             'clusterName': name
         }

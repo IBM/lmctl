@@ -27,8 +27,8 @@ class AssemblyConfigurations(TNCOTarget):
                                             \n\nOmit ID argument and set "--project" option to get all in a Behaviour Project''')
     @click.argument('ID', required=False)
     @click.option('--project', help=f'ID of a project to retrieve {display_name}s from')
-    def get(self, lm_client: TNCOClient, ctx: click.Context, id: str = None, project: str = None):
-        api = lm_client.behaviour_assembly_confs
+    def get(self, tnco_client: TNCOClient, ctx: click.Context, id: str = None, project: str = None):
+        api = tnco_client.behaviour_assembly_confs
         if id is not None:
             if project is not None:
                 raise click.BadArgumentUsage('Do not use "ID" argument when using the "--project" option', ctx=ctx)
@@ -39,8 +39,8 @@ class AssemblyConfigurations(TNCOTarget):
             raise click.BadArgumentUsage('Must set either "ID" argument or "--project" option', ctx=ctx) 
         
     @LmCreate()
-    def create(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
-        api = lm_client.behaviour_assembly_confs
+    def create(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
+        api = tnco_client.behaviour_assembly_confs
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
                 raise click.BadArgumentUsage(message='Do not use "--set" option when using "-f, --file" option', ctx=ctx)
@@ -52,8 +52,8 @@ class AssemblyConfigurations(TNCOTarget):
 
     @LmUpdate()
     @click.argument('ID', required=False)
-    def update(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, id: str = None, set_values: Dict = None):
-        api = lm_client.behaviour_assembly_confs
+    def update(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, id: str = None, set_values: Dict = None):
+        api = tnco_client.behaviour_assembly_confs
         if file_content is not None:
             if id is not None:
                 raise click.BadArgumentUsage(message='Do not use "ID" argument when using "-f, --file" option', ctx=ctx)
@@ -68,8 +68,8 @@ class AssemblyConfigurations(TNCOTarget):
 
     @LmDelete()
     @click.argument('ID', required=False)
-    def delete(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, id: str = None, ignore_missing: bool = None):
-        api = lm_client.behaviour_assembly_confs
+    def delete(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, id: str = None, ignore_missing: bool = None):
+        api = tnco_client.behaviour_assembly_confs
         if file_content is not None:
             if id is not None:
                 raise click.BadArgumentUsage(message='Do not use "ID" argument when using "-f, --file" option', ctx=ctx)

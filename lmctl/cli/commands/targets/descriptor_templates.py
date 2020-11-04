@@ -37,8 +37,8 @@ class DescriptorTemplates(TNCOTarget):
                             instead passing the output back unchecked. This is useful for debugging normal render requests 
                             of a template which produce output that cannot be parsed as YAML
                             NOTE: when this option is enabled, the value of "-o" is ignored as the output must be in plain text''')
-    def render(self, lm_client: TNCOClient, ctx: click.Context, output_format: str, name: str = None, raw: bool = False, set_values: Dict = None, prop_values: Dict = None, template_file_content: Dict = None, request_file_content: Dict = None):
-        api = lm_client.descriptor_templates
+    def render(self, tnco_client: TNCOClient, ctx: click.Context, output_format: str, name: str = None, raw: bool = False, set_values: Dict = None, prop_values: Dict = None, template_file_content: Dict = None, request_file_content: Dict = None):
+        api = tnco_client.descriptor_templates
         if template_file_content is not None:
             if name is not None:
                 raise click.BadArgumentUsage(message='Do not use "NAME" argument when using "-f, --file" option', ctx=ctx)
@@ -75,16 +75,16 @@ class DescriptorTemplates(TNCOTarget):
                                             \n\nUse NAME argument to get one by name\
                                             \n\nOmit NAME argument to get all''')
     @click.argument('name', required=False)
-    def get(self, lm_client: TNCOClient, ctx: click.Context, name: str = None):
-        api = lm_client.descriptor_templates
+    def get(self, tnco_client: TNCOClient, ctx: click.Context, name: str = None):
+        api = tnco_client.descriptor_templates
         if name is not None:
             return api.get(name)
         else:
             return api.all()
         
     @LmCreate()
-    def create(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
-        api = lm_client.descriptor_templates
+    def create(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
+        api = tnco_client.descriptor_templates
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
                 raise click.BadArgumentUsage(message='Do not use "--set" option when using "-f, --file" option', ctx=ctx)
@@ -96,8 +96,8 @@ class DescriptorTemplates(TNCOTarget):
 
     @LmUpdate()
     @click.argument('name', required=False)
-    def update(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, set_values: Dict = None):
-        api = lm_client.descriptor_templates
+    def update(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, set_values: Dict = None):
+        api = tnco_client.descriptor_templates
         if file_content is not None:
             if name is not None:
                 raise click.BadArgumentUsage(message='Do not use "NAME" argument when using "-f, --file" option', ctx=ctx)
@@ -112,8 +112,8 @@ class DescriptorTemplates(TNCOTarget):
 
     @LmDelete()
     @click.argument('name', required=False)
-    def delete(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
-        api = lm_client.descriptor_templates
+    def delete(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
+        api = tnco_client.descriptor_templates
         if file_content is not None:
             if name is not None:
                 raise click.BadArgumentUsage(message='Do not use "NAME" argument when using "-f, --file" option', ctx=ctx)

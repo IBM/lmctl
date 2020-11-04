@@ -1,7 +1,8 @@
 import click
 from .target import Target
+from lmctl.client import TNCOClientError
 from lmctl.cli.format import Table, Column, TableFormat
-from lmctl.cli.arguments import common_output_format_handler
+from lmctl.cli.arguments import common_output_format_handler, tnco_client_secret_option, tnco_pwd_option
 from lmctl.environment import EnvironmentGroup
 
 def build_arms_string(env_group: EnvironmentGroup):
@@ -14,6 +15,13 @@ def build_arms_string(env_group: EnvironmentGroup):
                 arms_str += '\n'
             arms_str += '{0} - {1}'.format(arm_name, arm_env.address)
     return arms_str
+
+class PingTable(Table):
+    columns = [
+        Column('name', header='Test Name'),
+        Column('result', header='Result', accessor=lambda x: 'OK' if x.passed else 'Failed'),
+        Column('error', header='Error')
+    ]
 
 class EnvironmentTable(Table):
     
@@ -59,3 +67,30 @@ class Environments(Target):
             else:
                 ctl.io.print(output_formatter.convert_element(result))
         return _get
+
+    def ping(self):
+        @click.command(help=f'Test connection with {self.display_name} from active config file')
+        @click.argument('name')
+        @tnco_client_secret_option()
+        @tnco_pwd_option()
+        @click.option('--include-template-engine', '--include-kami', 'include_template_engine', is_flag=True, help='Include tests for connection to Kami, an optional demo component')
+        @click.pass_context
+        def _ping(ctx: click.Context, name: str = None, pwd: str = None, client_secret: str = None, include_template_engine: bool = False):
+            ctl = self._get_controller()
+            env = ctl.config.environments.get(name, None)
+            happy_exit = True
+            if env.has_tnco:
+                tnco_client = ctl.get_tnco_client(environment_group_name=name, input_pwd=pwd, input_client_secret=client_secret)
+                ctl.io.print(f'Pinging TNCO (ALM): {env.tnco.address}')
+                tnco_ping_result = tnco_client.ping(include_template_engine=include_template_engine)
+                ctl.io.print(TableFormat(table=PingTable()).convert_list(tnco_ping_result.tests))
+                if tnco_ping_result.passed:
+                    ctl.io.print(f'TNCO (ALM) tests passed! ✅')
+                else:
+                    ctl.io.print_error(f'TNCO (ALM) tests failed! ❌')
+                    happy_exit = False
+            else:
+                ctl.io.print('No TNCO (ALM) configured (skipping)')
+            if not happy_exit:
+                exit(1)
+        return _ping

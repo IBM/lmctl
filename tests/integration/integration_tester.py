@@ -7,7 +7,6 @@ import tempfile
 import time
 import shutil
 import jinja2 as jinja
-import lmctl.client as lm_clients
 from typing import Callable, Dict
 from .names import generate_name
 from .integration_test_properties import IntegrationTestProperties

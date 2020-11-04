@@ -16,11 +16,10 @@ class TestBehaviourScenarioExecutionsAPI(IntegrationTest):
         ## Deletes project and all scenarios
         tester.default_client.descriptors.delete(cls.test_case_props['dummy_assembly_descriptor_name'])
    
-    def _create_scenario(self, name_suffix: str):
+    def _create_scenario(self, scenario_file_name: str, name_suffix: str):
         ## Add Scenario - need a unique scenario for each test 
         # so we don't have to worry about execution names (based on current time, precise to seconds) colliding
-        scenario = self.tester.load_behaviour_scenario_from(self.tester.test_file('metric_scenario.json'), suffix='scenarioexec-tests')
-        scenario['name'] = self.tester.exec_prepended_name(name_suffix)
+        scenario = self.tester.load_behaviour_scenario_from(self.tester.test_file(scenario_file_name), suffix=name_suffix)
         scenario['projectId'] = self.test_case_props['dummy_assembly_descriptor_name']
         create_scenario_response = self.tester.default_client.behaviour_scenarios.create(scenario)
         return create_scenario_response['id']
@@ -37,7 +36,8 @@ class TestBehaviourScenarioExecutionsAPI(IntegrationTest):
             return False
 
     def test_execute_and_get(self):
-        scenario_id = self._create_scenario('test-execute-and-get')
+        suffix = 'test-execute-and-get'
+        scenario_id = self._create_scenario('metric_scenario.json', suffix)
         executions_api = self.tester.default_client.behaviour_scenario_execs
         execution_id = executions_api.execute({'scenarioId': scenario_id})
         ## Get
@@ -60,14 +60,14 @@ class TestBehaviourScenarioExecutionsAPI(IntegrationTest):
         get_metrics_response = executions_api.get_metrics(execution_id)
         self.assertIsNotNone(get_metrics_response)
         self.assertEqual(len(get_metrics_response), 1)
-        self.assertEqual(get_metrics_response[0]['name'], 'test-metric-heartbeat')
+        self.assertEqual(get_metrics_response[0]['name'], f'test-metric-heartbeat-{suffix}')
         ## Get Metric
         get_metric_response = executions_api.get_metric(execution_id, get_metrics_response[0]['id'])
         self.assertIsNotNone(get_metric_response)
-        self.assertEqual(get_metric_response['name'], 'test-metric-heartbeat')
+        self.assertEqual(get_metric_response['name'], f'test-metric-heartbeat-{suffix}')
     
     def test_cancel(self):
-        scenario_id = self._create_scenario('test-cancel')
+        scenario_id = self._create_scenario('cancel_scenario.json', 'test-cancel')
         executions_api = self.tester.default_client.behaviour_scenario_execs
         execution_id = executions_api.execute({'scenarioId': scenario_id})
         ## Cancel
@@ -76,9 +76,9 @@ class TestBehaviourScenarioExecutionsAPI(IntegrationTest):
 
     def test_all_in_project_and_scenario(self):
         executions_api = self.tester.default_client.behaviour_scenario_execs
-        scenario_A_id = self._create_scenario('test-all-in-A')
+        scenario_A_id = self._create_scenario('metric_scenario.json', 'test-all-in-A')
         execution_A_id = executions_api.execute({'scenarioId': scenario_A_id})
-        scenario_B_id = self._create_scenario('test-all-in-B')
+        scenario_B_id = self._create_scenario('metric_scenario.json', 'test-all-in-B')
         execution_B_id = executions_api.execute({'scenarioId': scenario_B_id})
         ## All in project
         all_in_project_response = executions_api.all_in_project(self.test_case_props['dummy_assembly_descriptor_name'])

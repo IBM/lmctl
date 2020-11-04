@@ -19,6 +19,8 @@ class TestDescriptorTemplatesAPI(IntegrationTest):
             names.append(template['name'])
         self.assertIn(descriptor_template_A['name'], names)
         self.assertIn(descriptor_template_B['name'], names)
+        templates_api.delete(descriptor_template_A['name'])
+        templates_api.delete(descriptor_template_B['name'])
 
     def test_crud(self):
         descriptor_template = self.tester.load_descriptor_from(self.tester.test_file('dummy_template.yaml'), suffix='descriptortmpl-test-crud')

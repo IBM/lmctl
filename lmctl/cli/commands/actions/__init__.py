@@ -10,5 +10,19 @@ from .scale_action import Scale
 from .heal_action import Heal
 from .adopt_action import Adopt
 from .render_action import Render
+from .ping_action import Ping
 
-actions = [Get, Create, Update, Delete, Execute, Cancel, ChangeState, Scale, Heal, Adopt, Render]
+actions = [
+    Get, 
+    Create, 
+    Update, 
+    Delete, 
+    Execute, 
+    Cancel, 
+    ChangeState, 
+    Scale, 
+    Heal, 
+    Adopt, 
+    Render, 
+    Ping
+]

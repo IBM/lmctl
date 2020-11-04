@@ -25,16 +25,16 @@ class Projects(TNCOTarget):
                                             \n\nOmit NAME argument get all projects\
                                             \n\nNote: all Assembly descriptors have a Behaviour Project associated with them so can be found using their name e.g. assembly::example::1.0''')
     @click.argument('name', required=False)
-    def get(self, lm_client: TNCOClient, ctx: click.Context, name: str = None):
-        api = lm_client.behaviour_projects
+    def get(self, tnco_client: TNCOClient, ctx: click.Context, name: str = None):
+        api = tnco_client.behaviour_projects
         if name is not None:
             return api.get(name)
         else:
             return api.all()
 
     @LmCreate()
-    def create(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
-        api = lm_client.behaviour_projects
+    def create(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
+        api = tnco_client.behaviour_projects
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
                 raise click.BadArgumentUsage(message='Do not use "--set" option when using "-f, --file" option', ctx=ctx)
@@ -46,8 +46,8 @@ class Projects(TNCOTarget):
 
     @LmUpdate()
     @click.argument('name', required=False)
-    def update(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, set_values: Dict = None):
-        api = lm_client.behaviour_projects
+    def update(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, set_values: Dict = None):
+        api = tnco_client.behaviour_projects
         if file_content is not None:
             if name is not None:
                 raise click.BadArgumentUsage(message='Do not use "NAME" argument when using "-f, --file" option', ctx=ctx)
@@ -62,8 +62,8 @@ class Projects(TNCOTarget):
 
     @LmDelete()
     @click.argument('name', required=False)
-    def delete(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
-        api = lm_client.behaviour_projects
+    def delete(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
+        api = tnco_client.behaviour_projects
         if file_content is not None:
             if name is not None:
                 raise click.BadArgumentUsage(message='Do not use "NAME" argument when using "-f, --file" option', ctx=ctx)

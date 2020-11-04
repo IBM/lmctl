@@ -24,9 +24,9 @@ class Resource(TNCOTarget, AssemblyComponentMixin):
     @click.option('--metric-key', help='Reference the target resource by metric key')
     @click.option('--assembly-id', help='Reference the target Assembly by ID')
     @click.option('--assembly-name', help='Reference the target Assembly by ID')
-    def heal(self, lm_client: TNCOClient, ctx: click.Context, name: str = None, id: str = None, metric_key: str = None, assembly_name: str = None, assembly_id: str = None):
+    def heal(self, tnco_client: TNCOClient, ctx: click.Context, name: str = None, id: str = None, metric_key: str = None, assembly_name: str = None, assembly_id: str = None):
         return self.request_heal(
-            lm_client=lm_client, 
+            tnco_client=tnco_client, 
             ctx=ctx, name=name, 
             id=id, 
             metric_key=metric_key, 

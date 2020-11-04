@@ -17,8 +17,8 @@ class ResourcePackages(TNCOTarget):
                     required=True,
                     type=click.Path(exists=True)
                 )
-    def create(self, lm_client: TNCOClient, ctx: click.Context, file_path: str):
-        api = lm_client.resource_packages
+    def create(self, tnco_client: TNCOClient, ctx: click.Context, file_path: str):
+        api = tnco_client.resource_packages
         resource_name = api.create(file_path)
         return f'Created from package: {resource_name}'
 
@@ -30,16 +30,16 @@ class ResourcePackages(TNCOTarget):
                     required=True,
                     type=click.Path(exists=True)
                 )
-    def update(self, lm_client: TNCOClient, ctx: click.Context, resource_name: str, file_path: str):
-        api = lm_client.resource_packages
+    def update(self, tnco_client: TNCOClient, ctx: click.Context, resource_name: str, file_path: str):
+        api = tnco_client.resource_packages
         api.update(resource_name, file_path)
         return f'Updated package for: {resource_name}'
 
     @LmCmd()
     @click.argument('resource_name', required=True)
     @ignore_missing_option()
-    def delete(self, lm_client: TNCOClient, ctx: click.Context, resource_name: str, ignore_missing: bool = None):
-        api = lm_client.resource_packages
+    def delete(self, tnco_client: TNCOClient, ctx: click.Context, resource_name: str, ignore_missing: bool = None):
+        api = tnco_client.resource_packages
         try:
             result = api.delete(resource_name)
         except TNCOClientHttpError as e:

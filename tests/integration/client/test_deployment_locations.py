@@ -53,6 +53,8 @@ class TestDeploymentLocationsAPI(IntegrationTest):
             ids.append(dl['id'])
         self.assertIn(deployment_location_A['id'], ids)
         self.assertIn(deployment_location_B['id'], ids)
+        self.tester.default_client.deployment_locations.delete(deployment_location_A['id'])
+        self.tester.default_client.deployment_locations.delete(deployment_location_B['id'])
 
 
 

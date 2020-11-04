@@ -1,7 +1,7 @@
 import unittest
 import requests
-from unittest.mock import patch, MagicMock
-from lmctl.client import TNCOClient, TNCOClientError, TNCOClientHttpError
+from unittest.mock import patch, MagicMock, Mock
+from lmctl.client import TNCOClient, TNCOClientError, TNCOClientHttpError, TNCOErrorCapture
 
 class TestTNCOClient(unittest.TestCase):
 
@@ -148,3 +148,89 @@ class TestTNCOClient(unittest.TestCase):
         with self.assertRaises(TNCOClientError) as context:
             client.make_request('GET', 'api/test')
         self.assertEqual(str(context.exception), 'GET request to https://test.example.com/api/test failed: status=400, message=This is the message')
+
+    
+    @patch('lmctl.client.client.SharedInfrastructureKeysAPI')
+    @patch('lmctl.client.client.BehaviourProjectsAPI')
+    @patch('lmctl.client.client.DescriptorsAPI')
+    @patch('lmctl.client.client.DeploymentLocationAPI')
+    def test_ping(self, mock_dl_api, mock_descriptors_api, mock_projects_api, mock_keys_api):
+        mock_dl_api.return_value.all.return_value = []
+        mock_descriptors_api.return_value.all.return_value = []
+        mock_projects_api.return_value.all.return_value = []
+        mock_keys_api.return_value.all.return_value = []
+        client = TNCOClient('https://test.example.com', use_sessions=True)
+        result = client.ping()
+        self.assertTrue(result.passed)
+        self.assertTrue(len(result.tests) == 4, msg='Unexpected number of results')
+        self.assertEqual(result.tests[0].name, 'Descriptors')
+        self.assertTrue(result.tests[0].passed)
+        self.assertIsNone(result.tests[0].error)
+        self.assertEqual(result.tests[1].name, 'Topology')
+        self.assertTrue(result.tests[1].passed)
+        self.assertIsNone(result.tests[1].error)
+        self.assertEqual(result.tests[2].name, 'Behaviour')
+        self.assertTrue(result.tests[2].passed)
+        self.assertIsNone(result.tests[2].error)
+        self.assertEqual(result.tests[3].name, 'Resource Manager')
+        self.assertTrue(result.tests[3].passed)
+        self.assertIsNone(result.tests[3].error)
+    
+    @patch('lmctl.client.client.DescriptorTemplatesAPI')
+    @patch('lmctl.client.client.SharedInfrastructureKeysAPI')
+    @patch('lmctl.client.client.BehaviourProjectsAPI')
+    @patch('lmctl.client.client.DescriptorsAPI')
+    @patch('lmctl.client.client.DeploymentLocationAPI')
+    def test_ping_include_template_engine(self, mock_dl_api, mock_descriptors_api, mock_projects_api, mock_keys_api, mock_templates_api):
+        mock_dl_api.return_value.all.return_value = []
+        mock_descriptors_api.return_value.all.return_value = []
+        mock_projects_api.return_value.all.return_value = []
+        mock_keys_api.return_value.all.return_value = []
+        mock_templates_api.all.return_value = []
+        client = TNCOClient('https://test.example.com', use_sessions=True)
+        result = client.ping(include_template_engine=True)
+        self.assertTrue(result.passed)
+        self.assertEqual(len(result.tests), 5, msg='Unexpected number of results')
+        self.assertEqual(result.tests[0].name, 'Descriptors')
+        self.assertTrue(result.tests[0].passed)
+        self.assertIsNone(result.tests[0].error)
+        self.assertEqual(result.tests[1].name, 'Topology')
+        self.assertTrue(result.tests[1].passed)
+        self.assertIsNone(result.tests[1].error)
+        self.assertEqual(result.tests[2].name, 'Behaviour')
+        self.assertTrue(result.tests[2].passed)
+        self.assertIsNone(result.tests[2].error)
+        self.assertEqual(result.tests[3].name, 'Resource Manager')
+        self.assertTrue(result.tests[3].passed)
+        self.assertIsNone(result.tests[3].error)
+        self.assertEqual(result.tests[4].name, 'Template Engine')
+        self.assertTrue(result.tests[4].passed)
+        self.assertIsNone(result.tests[4].error)
+    
+    @patch('lmctl.client.client.SharedInfrastructureKeysAPI')
+    @patch('lmctl.client.client.BehaviourProjectsAPI')
+    @patch('lmctl.client.client.DescriptorsAPI')
+    @patch('lmctl.client.client.DeploymentLocationAPI')
+    def test_ping_captures_errors(self, mock_dl_api, mock_descriptors_api, mock_projects_api, mock_keys_api):
+        mock_dl_api.return_value.all.return_value = []
+        mock_descriptors_api.return_value.all.return_value = []
+        mock_error = TNCOClientError('Mock error')
+        mock_projects_api.return_value.all.side_effect = mock_error
+        mock_keys_api.return_value.all.return_value = []
+        client = TNCOClient('https://test.example.com', use_sessions=True)
+        result = client.ping()
+        self.assertFalse(result.passed)
+        self.assertTrue(len(result.tests) == 4, msg='Unexpected number of results')
+        self.assertEqual(result.tests[0].name, 'Descriptors')
+        self.assertTrue(result.tests[0].passed)
+        self.assertIsNone(result.tests[0].error)
+        self.assertEqual(result.tests[1].name, 'Topology')
+        self.assertTrue(result.tests[1].passed)
+        self.assertIsNone(result.tests[1].error)
+        self.assertEqual(result.tests[2].name, 'Behaviour')
+        self.assertFalse(result.tests[2].passed)
+        self.assertEqual(result.tests[2].error, mock_error)
+        self.assertEqual(result.tests[3].name, 'Resource Manager')
+        self.assertTrue(result.tests[3].passed)
+        self.assertIsNone(result.tests[3].error)
+        

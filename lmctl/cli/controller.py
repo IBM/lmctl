@@ -29,7 +29,7 @@ class CLIController:
     def get_tnco_client(self, environment_group_name: str, input_pwd: str = None, input_client_secret: str = None) -> 'TNCOClient':
         env_group = self.get_environment_group_named(environment_group_name)
         if not env_group.has_tnco:
-            self.io.print_error(f'Error: LM environment not configured on group: {environment_group_name}')
+            self.io.print_error(f'Error: TNCO (ALM) environment not configured on group: {environment_group_name}')
             exit(1)
         tnco = env_group.tnco
         if tnco.is_secure:

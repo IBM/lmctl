@@ -1,0 +1,21 @@
+{
+    "name": "Test-[[ suffix ]]",
+    "description": "A test scenario",
+    "stages": [
+      {
+        "name": "Sim Activity",
+        "steps": [
+          {
+            "stepDefinitionName": "Utilities::SleepForTime",
+            "properties": {
+              "sleepTime": "10",
+              "timeUnit": "seconds"
+            }
+          }
+        ]
+      }
+    ],
+    "assemblyActors": [],
+    "createdAt": "2020-10-19T10:14:51.946Z",
+    "lastModifiedAt": "2020-10-19T10:23:37.891Z"
+  }

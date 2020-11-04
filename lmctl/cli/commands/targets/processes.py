@@ -24,6 +24,6 @@ class Processes(TNCOTarget):
     @LmGet(output_formats=output_formats, help=f'''Get the status of an {display_name}''')
     @click.argument('ID')
     @click.option('--shallow', is_flag=True, show_default=True, help='Retreive a shallow copy of the process')
-    def get(self, lm_client: TNCOClient, ctx: click.Context, id: str, shallow: bool = False):
-        api = lm_client.processes
+    def get(self, tnco_client: TNCOClient, ctx: click.Context, id: str, shallow: bool = False):
+        api = tnco_client.processes
         return api.get(id, shallow=shallow)

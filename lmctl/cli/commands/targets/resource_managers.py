@@ -34,8 +34,8 @@ class ResourceManagers(TNCOTarget):
                                             \n\nUse NAME argument to get by name\
                                             \n\nOmit NAME argument to get all''')
     @click.argument('name', required=False)
-    def get(self, lm_client: TNCOClient, ctx: click.Context, name: str = None):
-        api = lm_client.resource_managers
+    def get(self, tnco_client: TNCOClient, ctx: click.Context, name: str = None):
+        api = tnco_client.resource_managers
         if name is not None:
             return api.get(name)
         else:
@@ -53,13 +53,13 @@ class ResourceManagers(TNCOTarget):
     @LmCreate()
     @onboarding_report_formats.option()
     @click.option('--print-report', is_flag=True)
-    def create(self, lm_client: TNCOClient, 
+    def create(self, tnco_client: TNCOClient, 
                         ctx: click.Context, 
                         output_format: str, 
                         file_content: Dict = None, 
                         set_values: Dict = None,
                         print_report: bool = False):
-        api = lm_client.resource_managers
+        api = tnco_client.resource_managers
         output_formatter = onboarding_report_formats.resolve_choice(output_format)
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
@@ -89,14 +89,14 @@ class ResourceManagers(TNCOTarget):
     @click.argument('name', required=False)
     @onboarding_report_formats.option()
     @click.option('--print-report', is_flag=True)
-    def update(self, lm_client: TNCOClient, 
+    def update(self, tnco_client: TNCOClient, 
                         ctx: click.Context,
                         output_format: str,
                         file_content: Dict = None, 
                         name: str = None, 
                         set_values: Dict = None,
                         print_report: bool = False):
-        api = lm_client.resource_managers
+        api = tnco_client.resource_managers
         output_formatter = onboarding_report_formats.resolve_choice(output_format)
         if file_content is not None:
             if name is not None:
@@ -127,8 +127,8 @@ class ResourceManagers(TNCOTarget):
 
     @LmDelete()
     @click.argument('name', required=False)
-    def delete(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
-        api = lm_client.resource_managers
+    def delete(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
+        api = tnco_client.resource_managers
         if file_content is not None:
             if name is not None:
                 raise click.BadArgumentUsage(message='Do not use "NAME" argument when using "-f, --file" option', ctx=ctx)

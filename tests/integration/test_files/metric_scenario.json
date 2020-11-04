@@ -1,5 +1,5 @@
 {
-    "name": "Test",
+    "name": "Test-[[ suffix ]]",
     "description": "A test scenario",
     "stages": [
       {
@@ -8,7 +8,7 @@
           {
             "stepDefinitionName": "MetricDefinitions::SpecifyMetricDefinition",
             "properties": {
-              "metricDefinitionName": "test-metric",
+              "metricDefinitionName": "test-metric-[[ suffix ]]",
               "resourceIdField": "resourceId",
               "timestampField": "timestamp",
               "metricTypeField": "metricType",
@@ -24,7 +24,7 @@
               "durationTimeUnit": "seconds",
               "frequencyTimeUnit": "milliseconds",
               "metricFrequency": "500",
-              "metricDefinitionName": "test-metric",
+              "metricDefinitionName": "test-metric-[[ suffix ]]",
               "metricType": "heartbeat",
               "topicName": "alm__metrics",
               "resourceId": "test-resource"
@@ -33,8 +33,8 @@
           {
             "stepDefinitionName": "MetricRecording::StartRecordingMetrics",
             "properties": {
-              "metricName": "test-metric-heartbeat",
-              "metricDefinitionName": "test-metric",
+              "metricName": "test-metric-heartbeat-[[ suffix ]]",
+              "metricDefinitionName": "test-metric-[[ suffix ]]",
               "metricType": "heartbeat",
               "topicName": "alm__metrics",
               "resourceId": "test-resource"
@@ -60,7 +60,7 @@
           {
             "stepDefinitionName": "MetricAssertions::ValidateMetricAlwaysOverThreshold",
             "properties": {
-              "metricName": "test-metric-heartbeat",
+              "metricName": "test-metric-heartbeat-[[ suffix ]]",
               "thresholdValue": "0"
             }
           }

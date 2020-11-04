@@ -26,16 +26,16 @@ class InfrastructureKeys(TNCOTarget):
                                             \n\nOmit NAME argument to get all''')
     @click.argument('name', required=False)
     @click.option('--include-private', is_flag=True, help='Include private key value for each key in the response')
-    def get(self, lm_client: TNCOClient, ctx: click.Context, name: str = None, include_private: bool = False):
-        api = lm_client.shared_inf_keys
+    def get(self, tnco_client: TNCOClient, ctx: click.Context, name: str = None, include_private: bool = False):
+        api = tnco_client.shared_inf_keys
         if name is not None:
             return api.get(name, include_private_key=include_private)
         else:
             return api.all(include_private_key=include_private) 
 
     @LmCreate()
-    def create(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
-        api = lm_client.shared_inf_keys
+    def create(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, set_values: Dict = None):
+        api = tnco_client.shared_inf_keys
         if file_content is not None:
             if set_values is not None and len(set_values) > 0:
                 raise click.BadArgumentUsage(message='Do not use "--set" option when using "-f, --file" option', ctx=ctx)
@@ -47,8 +47,8 @@ class InfrastructureKeys(TNCOTarget):
 
     @LmUpdate()
     @click.argument('name', required=False)
-    def update(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, set_values: Dict = None):
-        api = lm_client.shared_inf_keys
+    def update(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, set_values: Dict = None):
+        api = tnco_client.shared_inf_keys
         if file_content is not None:
             if name is not None:
                 raise click.BadArgumentUsage(message='Do not use "NAME" argument when using "-f, --file" option', ctx=ctx)
@@ -63,8 +63,8 @@ class InfrastructureKeys(TNCOTarget):
 
     @LmDelete()
     @click.argument('name', required=False)
-    def delete(self, lm_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
-        api = lm_client.shared_inf_keys
+    def delete(self, tnco_client: TNCOClient, ctx: click.Context, file_content: Dict = None, name: str = None, ignore_missing: bool = None):
+        api = tnco_client.shared_inf_keys
         if file_content is not None:
             if name is not None:
                 raise click.BadArgumentUsage(message='Do not use "NAME" argument when using "-f, --file" option', ctx=ctx)

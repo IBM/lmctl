@@ -183,7 +183,7 @@ class TestResourceManagers(CLIIntegrationTest):
         self.assertIn('resourceTypes', report)
 
     def test_create_print_report_as_table(self):
-        rm_name = self.tester.exec_prepended_name('rm-cmd-create-table-print-report')
+        rm_name = self.tester.exec_prepended_name('rm-cmd-create-tbl-rprt')
         resource_manager = {
             'name': rm_name,
             'type': 'Brent',
