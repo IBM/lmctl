@@ -16,9 +16,9 @@ You may still be able to manage LMCTL projects in older ALM versions by updating
 ## Command Line
 
 - [Configure Command Line](configure.md)
-- [Using with LM 2.1](use-with-lm-2.1.md)
-- [Lmctl Projects](projects/overview.md)
+- [LMCTL Projects](projects/overview.md)
 - [Command Reference](command-reference/index.md)
+- [Using with ALM 2.1](use-with-lm-2.1.md)
 
 ## Python Client
 

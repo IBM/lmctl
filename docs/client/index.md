@@ -80,7 +80,7 @@ For example:
 descriptor_apis = tnco_client.descriptors
 ```
 
-The majority of the APIs are similar in style and try to support the same core functions: 
+The APIs are similar in style and support the same core functions: 
 
 - all - get all of a particular type of entity
 - get - get a particular entity by ID/name
@@ -88,7 +88,7 @@ The majority of the APIs are similar in style and try to support the same core f
 - update - update an existing entity
 - delete - delete an existing entity
 
-Not all APIs support these functions, you should consult each class in `lmctl.client.api` to discover the functions available on each API.
+> Not all APIs support these functions, you should consult each class in `lmctl.client.api` to discover the functions available on each API.
 
 # Examples
 

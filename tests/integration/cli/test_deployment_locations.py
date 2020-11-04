@@ -154,7 +154,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
             ])
         self.assert_output(create_result, f'Created: {dl_name}')
         ## Get the location to confirm it was created
-        time.sleep(0.5)
+        time.sleep(1)
         api_get_result = self.tester.default_client.deployment_locations.get(dl_name)
         self.assertEqual(api_get_result['name'], dl['name'])
         self.assertEqual(api_get_result['infrastructureType'], dl['infrastructureType'])
@@ -173,7 +173,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
             ])
         self.assert_output(create_result, f'Created: {dl_name}')
         ## Get the location to confirm it was created
-        time.sleep(0.5)
+        time.sleep(1)
         api_get_result = self.tester.default_client.deployment_locations.get(dl_name)
         self.assertEqual(api_get_result['name'], dl_name)
         self.assertEqual(api_get_result['infrastructureType'], 'Other')
@@ -192,7 +192,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
         dl_name = self.test_case_props['dl_A']['name']
         self.assert_output(update_result, f'Updated: {dl_name}')
         ## Get the location to confirm it was updated
-        time.sleep(0.5)
+        time.sleep(1)
         api_get_result = self.tester.default_client.deployment_locations.get(dl_name)
         self.assertEqual(api_get_result['description'], 'Updated description for cmd testing with yaml')
 
@@ -207,7 +207,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
         dl_name = self.test_case_props['dl_A']['name']
         self.assert_output(update_result, f'Updated: {dl_name}')
         ## Get the location to confirm it was updated
-        time.sleep(0.5)
+        time.sleep(1)
         api_get_result = self.tester.default_client.deployment_locations.get(dl_name)
         self.assertEqual(api_get_result['description'], 'Updated description for cmd testing with json')
  
@@ -218,7 +218,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
             ])
         self.assert_output(update_result, f'Updated: {dl_name}')
         ## Get the location to confirm it was updated
-        time.sleep(0.5)
+        time.sleep(1)
         api_get_result = self.tester.default_client.deployment_locations.get(dl_name)
         self.assertEqual(api_get_result['description'], 'Updated descriptor for cmd testing with --set')
 
@@ -260,7 +260,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
             ])
         self.assert_output(delete_result, f'Removed: {dl_name}')
         ## Get the location to confirm it was deleted
-        time.sleep(0.5)
+        time.sleep(1)
         try:
             api_get_result = self.tester.default_client.deployment_locations.get(dl_name)
             self.fail('Deployment location should have been deleted but it can still be found')
@@ -282,7 +282,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
             ])
         self.assert_output(delete_result, f'Removed: {dl_name}')
         ## Get the location to confirm it was deleted
-        time.sleep(0.5)
+        time.sleep(1)
         try:
             api_get_result = self.tester.default_client.deployment_locations.get(dl_name)
             self.fail('Deployment location should have been deleted but it can still be found')
@@ -304,7 +304,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
             ])
         self.assert_output(delete_result, f'Removed: {dl_name}')
         ## Get the location to confirm it was deleted
-        time.sleep(0.5)
+        time.sleep(1)
         try:
             api_get_result = self.tester.default_client.deployment_locations.get(dl_name)
             self.fail('Deployment location should have been deleted but it can still be found')

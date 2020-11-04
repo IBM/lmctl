@@ -6,7 +6,7 @@ config:
         secure: True
         client_id: LmClient
         client_secret: 
-# Credentials used in Auth testing
+# Credentials used in Auth testing (set all 3 to valid credentials)
 auth_testing:
   client_credentials:
     client_id: LmClient
