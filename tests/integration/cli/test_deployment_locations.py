@@ -141,6 +141,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
         self.assertEqual(api_get_result['infrastructureType'], dl['infrastructureType'])
         self.assertEqual(api_get_result['resourceManager'], dl['resourceManager'])
         self.assertEqual(api_get_result['description'], dl['description'])
+        self.tester.default_client.deployment_locations.delete(dl_name)
 
     def test_create_with_json_file(self):
         dl_file = self.tester.render_template_file(self.tester.test_file('dummy_dl.json'), self.tester.tmp_file('dummy_dl.json'), suffix='cmds-create-with-json')
@@ -159,6 +160,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
         self.assertEqual(api_get_result['infrastructureType'], dl['infrastructureType'])
         self.assertEqual(api_get_result['resourceManager'], dl['resourceManager'])
         self.assertEqual(api_get_result['description'], dl['description'])
+        self.tester.default_client.deployment_locations.delete(dl_name)
 
     def test_create_with_set(self):
         dl_name = self.tester.exec_prepended_name('dl-cmds-create-with-set')
@@ -177,6 +179,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
         self.assertEqual(api_get_result['infrastructureType'], 'Other')
         self.assertEqual(api_get_result['resourceManager'], 'brent')
         self.assertEqual(api_get_result['description'], 'Test create with --set')
+        self.tester.default_client.deployment_locations.delete(dl_name)
 
     def test_update_with_yaml_file(self):
         dl_file = self.tester.tmp_file('cmd_update_dl.yaml')
@@ -207,7 +210,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
         time.sleep(0.5)
         api_get_result = self.tester.default_client.deployment_locations.get(dl_name)
         self.assertEqual(api_get_result['description'], 'Updated description for cmd testing with json')
-    
+ 
     def test_update_with_set(self):
         dl_name = self.test_case_props['dl_A']['name']
         update_result = self.cli_runner.invoke(cli, [

@@ -24,12 +24,18 @@ class TNCOClient:
     DELETE = 'delete'
 
     def __init__(self, address: str, auth_type: AuthType = None, kami_address: str = None, use_sessions: bool = False):
-        self.address = address
+        self.address = self._parse_address(address)
         self.auth_type = auth_type
         self.kami_address = kami_address
         self.auth_tracker = AuthTracker() if self.auth_type is not None else None
         self._session = None
         self.use_sessions = use_sessions
+
+    def _parse_address(self, address: str) -> str:
+        if address is not None:
+            while address.endswith('/'):
+                address = address[:-1]
+        return address
 
     def close(self):
         if self._session is not None:

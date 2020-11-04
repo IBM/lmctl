@@ -13,6 +13,10 @@ class TestTNCOClient(unittest.TestCase):
         mock_auth.handle.return_value = {'expiresIn': 100000, 'accessToken': '123'}
         return mock_auth
 
+    def test_address_with_trailing_slash_is_trimmed(self):
+        client = TNCOClient('https://test.example.com/')
+        self.assertEqual(client.address, 'https://test.example.com')
+
     @patch('lmctl.client.client.requests.Session')
     def test_make_request(self, requests_session_builder):
         client = TNCOClient('https://test.example.com', use_sessions=True)
