@@ -66,7 +66,7 @@ class Configuration(Target):
                     content = f.read()
                 
                 if print_path:
-                    io.print(f'path: {config_path}')
+                    io.print(f'Path: {config_path}')
                     io.print('---')
                 io.print(content)
         return _get
@@ -89,6 +89,7 @@ class Configuration(Target):
                     IOController.get().print(f'Moved existing file at "{path}" to "{new_path}"')
                 else:
                     raise click.ClickException(f'Cannot create configuration file at path "{path}" because there is already a file there and "--overwrite" was not set')
+            os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, 'w') as f:
                 f.write(config_template)
             IOController.get().print(f'Created file: {path}')

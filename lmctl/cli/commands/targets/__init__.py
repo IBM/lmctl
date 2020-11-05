@@ -20,7 +20,7 @@ from .intents import Intents
 from .processes import Processes
 from .config import Configuration
 
-targets = [
+target_instances = [
     DeploymentLocations(), 
     ResourceDrivers(), 
     Environments(), 

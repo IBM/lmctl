@@ -23,8 +23,8 @@ cli.add_command(lmctl_commands.key_group)
 cli.add_command(lmctl_commands.lifecycledriver_group) 
 cli.add_command(lmctl_commands.vimdriver_group) 
 
-for action in lmctl_commands.actions:
-    cli.add_command(action(targets=lmctl_commands.targets))
+for action in lmctl_commands.action_types:
+    cli.add_command(action(targets=lmctl_commands.target_instances))
 
 def init_cli():
     cli()

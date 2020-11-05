@@ -12,7 +12,7 @@ from .adopt_action import Adopt
 from .render_action import Render
 from .ping_action import Ping
 
-actions = [
+action_types = [
     Get, 
     Create, 
     Update, 
