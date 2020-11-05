@@ -29,10 +29,14 @@ Verify LMCTL is ready to use:
 lmctl --version
 ```
 
+# Latest release
+
+:newspaper: See what's new in the latest release: [User Guide](docs/what-is-new.md)
+
 # User Guide
 
-:notebook: To get started, read the [User Guide](./docs/index.md)
+:notebook: To get started, read the [User Guide](docs/index.md)
 
 # Development Docs
 
-:clipboard: For documentation related to developing LMCTL please see the [development docs](./developer_docs/index.md)
+:clipboard: For documentation related to developing LMCTL please see the [development docs](developer_docs/index.md)

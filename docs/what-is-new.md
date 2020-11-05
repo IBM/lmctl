@@ -47,7 +47,7 @@ You'll also notice a change in command style, with the action coming before the 
 - Old command style: `lmctl resourcedriver get my-env some-driver-id`
 - New command style: `lmctl get resourcedriver some-driver-id -e my-env`
 
-We hope, by moving the verb to the front of the command, the readability of the command increases. Also, by moving the environment name to an option, it reduces the confusion between this value of the name/ID of the object being interaced with (e.g. which arg is the resourcedriver ID and which is the environment name?)
+We hope, by moving the verb to the front of the command, the readability of the command increases. Also, by moving the environment name to an option, it reduces the confusion between this value and the name/ID of the object being interaced with (e.g. which arg is the resourcedriver ID and which is the environment name?)
 
 > Note: the `lmctl project` and `lmctl pkg` commands have not yet been changed, so they still accept the environment name as an argument
 
