@@ -31,7 +31,7 @@ lmctl --version
 
 # Latest release
 
-:newspaper: See what's new in the latest release: [User Guide](docs/what-is-new.md)
+:newspaper: [See what's new in the latest release](docs/what-is-new.md)
 
 # User Guide
 
