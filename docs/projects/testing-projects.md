@@ -4,7 +4,7 @@ Testing is a vital step in any projects lifecycle, to verify the latest changes 
 
 Currently only a project (or subproject) for an Assembly can be tested.
 
-The `project test` command is used to execute the behavior scenarios included in the `Behaviour/Tests` sub-directory of any Assembly project. This command will:
+The `project test` command is used to execute the behaviour scenarios included in the `Behaviour/Tests` sub-directory of any Assembly project. This command will:
 
 - Gather the name of each scenario included in the `Behaviour/Tests` sub-directory
 - Execute each scenario (one-by-one) in TNCO, displaying the progress in the console
@@ -18,7 +18,7 @@ To test your project, navigate to it's directory then complete the following:
    ```
    lmctl project test dev --armname defaultrm
    ```
-2. Monitor the progress of the tests in the console OR by opening the behavior tab of your service design in the TNCO user interface
+2. Monitor the progress of the tests in the console OR by opening the behaviour tab of your service design in the TNCO user interface
 
 # Next Steps
 

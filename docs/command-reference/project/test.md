@@ -2,7 +2,7 @@
 
 ## Description
 
-Execute the behavior tests of the project
+Execute the behaviour tests of the project
 
 ## Usage
 

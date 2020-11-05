@@ -11,6 +11,6 @@ To deploy a package produced by LMCTL, complete the following:
    ```
    lmctl pkg push example-1.0.tgz dev --armname defaultrm
    ```
-3. Verify any Assembly descriptor and behavior scenarios/configurations are present in your TNCO environment
+3. Verify any Assembly descriptor and behaviour scenarios/configurations are present in your TNCO environment
 4. Verify any Resources are present in Brent/Ansible RM using it's APIs
 5. Verify any Resource descriptors are present in TNCO

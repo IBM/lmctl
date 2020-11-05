@@ -5,7 +5,7 @@ A **project** represents a single Assembly/Resource (NS or xNF) to be developed,
 - Develop: design and implement the service
 - Build: produce a distribution of the service to deploy to an LM environment
 - Push: push the distribution to an LM environment
-- Test: run behavior tests against the service in the LM environment
+- Test: run behaviour tests against the service in the LM environment
 - Publish: publish the distribution to a repository management system
 
 The main benefit of LMCTL is it's ability to organise a collection of artifacts required by an Assembly or Resource, then orchestrate the laborious task of applying changes across TNCO environments for testing.
@@ -52,7 +52,7 @@ myproject/
 
 ## Assembly Projects
 
-An Assembly project is expected to include a descriptor and, optionally, behavior test related artifacts.
+An Assembly project is expected to include a descriptor and, optionally, behaviour test related artifacts.
 
 ```
 myproject/
@@ -69,10 +69,10 @@ The following table details the relevance of each item in the project tree:
 | Item                | Requirement | Description                                                                                             |
 | ------------------- | ----------- | ------------------------------------------------------------------------------------------------------- |
 | Descriptor          | mandatory   | This directory must contain a descriptor file called `assembly.yml`, representing the top level service |
-| Behaviour           | optional    | This optional directory contains the Assembly Configurations and Scenarios for behavior testing         |
-| Behaviour/Tests     | optional    | This optional directory contains the Test Scenarios for behavior testing                                |
-| Behaviour/Templates | optional    | This optional directory contains the Assembly Templates for behavior testing                            |
-| Behaviour/Runtime   | optional    | This optional directory contains the Runtime Scenarios, such as Diagnostic tests, for behavior testing  |
+| Behaviour           | optional    | This optional directory contains the Assembly Configurations and Scenarios for behaviour testing         |
+| Behaviour/Tests     | optional    | This optional directory contains the Test Scenarios for behaviour testing                                |
+| Behaviour/Templates | optional    | This optional directory contains the Assembly Templates for behaviour testing                            |
+| Behaviour/Runtime   | optional    | This optional directory contains the Runtime Scenarios, such as Diagnostic tests, for behaviour testing  |
 
 ## Resource Projects
 

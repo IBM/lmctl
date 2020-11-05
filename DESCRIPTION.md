@@ -4,7 +4,7 @@ In addition it includes an opinionated pattern for managing xNF/Network Service 
 
 ## Quick Install
 
-Assumes you already have Python3.6+ and have decided if LMCTL should be installed in a [virtual environment](https://pypi.org/project/virtualenv/) (recommended) or globallly.
+Assumes you already have Python3.6+ and have decided if LMCTL should be installed in a [virtual environment](https://pypi.org/project/virtualenv/) (recommended) or globally.
 
 Install the latest from Pypi:
 ```
