@@ -1,8 +1,5 @@
 import unittest
-from lmctl.environment.group import EnvironmentGroup
-from lmctl.environment.lmenv import LmEnvironment
-from lmctl.environment.armenv import ArmEnvironment
-from lmctl.environment.common import EnvironmentConfigError, EnvironmentRuntimeError
+from lmctl.environment import EnvironmentGroup, LmEnvironment, ArmEnvironment,EnvironmentConfigError, EnvironmentRuntimeError
 
 class TestEnvironmentGroup(unittest.TestCase):
 
@@ -42,7 +39,7 @@ class TestEnvironmentGroup(unittest.TestCase):
         group = EnvironmentGroup('test', 'test')
         with self.assertRaises(EnvironmentRuntimeError) as context:
             group.lm
-        self.assertEqual(str(context.exception), 'No LM environment has been configured on this group: test')
+        self.assertEqual(str(context.exception), 'No TNCO environment has been configured on this group: test')
 
     def tests_fails_when_arm_not_found(self):
         group = EnvironmentGroup('test', 'test')

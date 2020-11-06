@@ -1,9 +1,9 @@
 # Pushing a Project
 
-The `project push` command is used to push the artifacts of a project to a target Stratoss LM environment. For an Assembly this project will:
+The `project push` command is used to push the artifacts of a project to a target TNCO environment. For an Assembly this project will:
 
 - Deploy the service descriptor to LM
-- Deploy all service behavior related artifacts to LM
+- Deploy all service behaviour related artifacts to LM
 
 For any Resource projects, the action taken depends on the expectations of the Resource Manager:
 
@@ -20,7 +20,7 @@ To build and push your project, navigate to it's directory then:
    ```
    lmctl project push dev
    ```
-2. Verify the descriptor and behavior scenarios/configurations are present in your Stratoss LM environment
+2. Verify the descriptor and behaviour scenarios/configurations are present in your TNCO environment
 
 ## Pushing a Resource Project (or Subprojects)
 
@@ -30,6 +30,11 @@ If your project is for a Resource using the Ansible RM, or includes subprojects 
    ```
    lmctl project push dev --armname defaultrm
    ```
-2. Verify the Assembly descriptor and behavior scenarios/configurations are present in your Stratoss LM environment
+2. Verify the Assembly descriptor and behaviour scenarios/configurations are present in your TNCO environment
 3. Verify the Resource(s) are present in the Brent/Ansible RM using it's APIs
-4. Verify the Resource descriptors are present in Stratoss LM
+4. Verify the Resource descriptors are present in TNCO
+
+# Next Steps
+
+- [Testing projects](testing-projects.md)
+- [Pulling projects](pulling-projects.md)

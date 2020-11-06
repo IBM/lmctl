@@ -1,4 +1,4 @@
-# Using with LM 2.1
+# Using with ALM 2.1
 
 To use this version of LMCTL with LM 2.1 you must replace the `rm` type the `lmproject.yml` files of your existing projects, changing the value of `brent` (or `lm`) to `brent2.1` (`lm2.1`). For example:
 

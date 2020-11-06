@@ -104,11 +104,11 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         self.assert_no_errors(result)
         expected_id = None
         for dl_id, dl in self.lm_sim.deployment_locations.items():
-                expected_id = dl_id
+            expected_id = dl_id
         expected_output = '| id                                   | name   | resourceManager   | infrastructureType   | description   |'
         expected_output += '\n|--------------------------------------+--------+-------------------+----------------------+---------------|'
         expected_output += '\n| {0} | testdl | rm123             |                      |               |'.format(expected_id)
-        self.assert_output(result, expected_output)
+        self.assertTrue(expected_output in result.output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, 'my/config/file')
 
     def test_add_with_pwd(self):
@@ -116,7 +116,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         self.assert_no_errors(result)
         expected_id = None
         for dl_id, dl in self.lm_sim.deployment_locations.items():
-                expected_id = dl_id
+            expected_id = dl_id
         expected_output = '| id                                   | name   | resourceManager   | infrastructureType   | description   |'
         expected_output += '\n|--------------------------------------+--------+-------------------+----------------------+---------------|'
         expected_output += '\n| {0} | testdl | rm123             |                      |               |'.format(expected_id)
@@ -159,7 +159,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         self.mock_create_lm_session.return_value.deployment_location_driver.add_location.side_effect = lm_drivers.LmDriverException('Mocked error')
         result = self.runner.invoke(deployment_cmds.add, ['TestEnv', 'testdl', '--rm', 'rm123'])
         self.assert_has_system_exit(result)
-        expected_output = 'LM error occurred: Mocked error'
+        expected_output = 'TNCO error occurred: Mocked error'
         self.assert_output(result, expected_output)
         
     def test_delete_with_defaults(self):

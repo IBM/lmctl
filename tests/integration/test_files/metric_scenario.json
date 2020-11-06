@@ -1,0 +1,73 @@
+{
+    "name": "Test-[[ suffix ]]",
+    "description": "A test scenario",
+    "stages": [
+      {
+        "name": "Setup",
+        "steps": [
+          {
+            "stepDefinitionName": "MetricDefinitions::SpecifyMetricDefinition",
+            "properties": {
+              "metricDefinitionName": "test-metric-[[ suffix ]]",
+              "resourceIdField": "resourceId",
+              "timestampField": "timestamp",
+              "metricTypeField": "metricType",
+              "valueField": "value"
+            }
+          },
+          {
+            "stepDefinitionName": "MetricProducer::MetricProducingStepConfigurableValues",
+            "properties": {
+              "minValue": "1",
+              "maxValue": "10",
+              "metricDuration": "2",
+              "durationTimeUnit": "seconds",
+              "frequencyTimeUnit": "milliseconds",
+              "metricFrequency": "500",
+              "metricDefinitionName": "test-metric-[[ suffix ]]",
+              "metricType": "heartbeat",
+              "topicName": "alm__metrics",
+              "resourceId": "test-resource"
+            }
+          },
+          {
+            "stepDefinitionName": "MetricRecording::StartRecordingMetrics",
+            "properties": {
+              "metricName": "test-metric-heartbeat-[[ suffix ]]",
+              "metricDefinitionName": "test-metric-[[ suffix ]]",
+              "metricType": "heartbeat",
+              "topicName": "alm__metrics",
+              "resourceId": "test-resource"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Sim Activity",
+        "steps": [
+          {
+            "stepDefinitionName": "Utilities::SleepForTime",
+            "properties": {
+              "sleepTime": "3",
+              "timeUnit": "seconds"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Verify",
+        "steps": [
+          {
+            "stepDefinitionName": "MetricAssertions::ValidateMetricAlwaysOverThreshold",
+            "properties": {
+              "metricName": "test-metric-heartbeat-[[ suffix ]]",
+              "thresholdValue": "0"
+            }
+          }
+        ]
+      }
+    ],
+    "assemblyActors": [],
+    "createdAt": "2020-10-19T10:14:51.946Z",
+    "lastModifiedAt": "2020-10-19T10:23:37.891Z"
+  }

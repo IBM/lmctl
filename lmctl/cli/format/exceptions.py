@@ -1,0 +1,4 @@
+
+
+class BadFormatError(Exception):
+    pass

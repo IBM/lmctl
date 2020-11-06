@@ -2,12 +2,12 @@ import click
 import logging
 import os
 import lmctl.cli.ctlmgmt as ctlmgmt
-import lmctl.cli.clirunners as clirunners
+from lmctl.cli.safety_net import lm_driver_safety_net
 from lmctl.cli.format import determine_format_class, TableFormat
 
 logger = logging.getLogger(__name__)
 
-@click.group(name='key', help='Commands for managing shared infrastructure keys')
+@click.group(name='key', help='DEPRECATED in v3.0: Commands for managing shared infrastructure keys')
 def key():
     logger.debug('Infrastructure Key Management')
 
@@ -46,7 +46,7 @@ def format_ik_list(output_format, ik_list):
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
 def list_keys(environment, config, pwd, output_format):
     ik_driver = get_ik_driver(environment, config, pwd)
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         ik_list = ik_driver.get_infrastructure_keys()
     result = format_ik_list(output_format, ik_list)
     click.echo(result)
@@ -64,7 +64,7 @@ def get_ik_driver(environment_name, config_path, pwd):
 def get(environment, name, config, pwd, output_format):
     """Get infrastructure key"""
     infrastructure_keys = get_ik_driver(environment, config, pwd)
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         infrastructure_key = infrastructure_keys.get_infrastructure_key_by_name(name)
     if infrastructure_key is None:
         click.echo('Error: No infrastructure key with name: {0}'.format(name), err=True)
@@ -98,7 +98,7 @@ def add(environment, name, config, pwd, public_key, private_key, description, ou
         loaded_private = load_key_file(private_key, 'private')
         new_ik['privateKey'] = loaded_private
 
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         new_ik = ik_driver.add_infrastructure_key(new_ik)
     click.echo(format_ik(output_format, new_ik))
 
@@ -124,13 +124,13 @@ def load_key_file(key_file, filetype):
 @click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
 def delete(environment, name, config, pwd):
     ik_driver = get_ik_driver(environment, config, pwd)
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         ik = ik_driver.get_infrastructure_key_by_name(name)
     if ik is None:
         click.echo('Error: No infrastructure key with name: {0}'.format(name), err=True)
         exit(1)
     ik_name = ik['name']
     click.echo('Deleting infrastructure key: {0}...'.format(ik_name))
-    with clirunners.lm_driver_safety():
+    with lm_driver_safety_net():
         ik_driver.delete_infrastructure_key(ik_name)
     click.echo('Deleted infrastructure key: {0}'.format(ik_name))

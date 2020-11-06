@@ -2,6 +2,7 @@ import click
 import sys
 import logging
 import lmctl.cli.ctlmgmt as ctlmgmt
+from lmctl.cli.controller import get_global_controller
 from lmctl.cli.format import determine_format_class, TableFormat
 
 logger = logging.getLogger(__name__)
@@ -11,7 +12,7 @@ logger = logging.getLogger(__name__)
 ######################################################
 
 
-@click.group(help='Commands for inspecting available LM environments')
+@click.group(help='DEPRECATED in v3.0: Commands for inspecting available LM environments')
 def env():
     logger.debug('Environments')
 
@@ -21,10 +22,10 @@ def env():
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
 def list(config, output_format):
     """List available environments"""
-    ctl = ctlmgmt.get_ctl(config)
+    ctl = get_global_controller(override_config_path=config)
     environments = []
-    if ctl.environments is not None:
-        environments = __parse_envs_to_list(ctl.environments)
+    if ctl.config.environments is not None:
+        environments = __parse_envs_to_list(ctl.config.environments)
     formatter_class = determine_format_class(output_format)
     if formatter_class is TableFormat:
         formatter = formatter_class(env_headers, env_row_processor)

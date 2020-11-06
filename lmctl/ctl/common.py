@@ -1,5 +1,0 @@
-
-class ConfigError(Exception):
-    pass
-
-

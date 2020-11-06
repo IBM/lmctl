@@ -121,7 +121,7 @@ class TestVimDriverCommands(command_testing.CommandTestCase):
         self.mock_create_lm_session.return_value.vim_driver_mgmt_driver.add_vim_driver.side_effect = lm_drivers.LmDriverException('Mocked error')
         result = self.runner.invoke(vimdriver_cmds.add, ['TestEnv', '--url', 'http://mockdriver.example.com'])
         self.assert_has_system_exit(result)
-        expected_output = 'LM error occurred: Mocked error'
+        expected_output = 'TNCO error occurred: Mocked error'
         self.assert_output(result, expected_output)
         
     def test_delete_with_defaults(self):
@@ -160,7 +160,7 @@ class TestVimDriverCommands(command_testing.CommandTestCase):
         result = self.runner.invoke(vimdriver_cmds.delete, ['TestEnv', '987'])
         self.assert_has_system_exit(result)
         expected_output = 'Deleting VIM driver: 987...'
-        expected_output += '\nLM error occurred: No VIM driver with id 987'
+        expected_output += '\nTNCO error occurred: No VIM driver with id 987'
         self.assert_output(result, expected_output)
 
     def test_delete_by_type(self):
@@ -180,7 +180,7 @@ class TestVimDriverCommands(command_testing.CommandTestCase):
     def test_delete_by_type_not_found(self):
         result = self.runner.invoke(vimdriver_cmds.delete, ['TestEnv', '--type', 'Openstack'])
         self.assert_has_system_exit(result)
-        expected_output = 'LM error occurred: No VIM driver with infrastructure type Openstack'
+        expected_output = 'TNCO error occurred: No VIM driver with infrastructure type Openstack'
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
     
@@ -228,7 +228,7 @@ class TestVimDriverCommands(command_testing.CommandTestCase):
     def test_get_handles_lm_driver_error(self):
         result = self.runner.invoke(vimdriver_cmds.get, ['TestEnv', '987'])
         self.assert_has_system_exit(result)
-        expected_output = 'LM error occurred: No VIM driver with id 987'
+        expected_output = 'TNCO error occurred: No VIM driver with id 987'
         self.assert_output(result, expected_output)
 
     def test_get_by_type(self):
@@ -247,7 +247,7 @@ class TestVimDriverCommands(command_testing.CommandTestCase):
     def test_get_by_type_not_found(self):
         result = self.runner.invoke(vimdriver_cmds.get, ['TestEnv', '--type', 'Openstack'])
         self.assert_has_system_exit(result)
-        expected_output = 'LM error occurred: No VIM driver with infrastructure type Openstack'
+        expected_output = 'TNCO error occurred: No VIM driver with infrastructure type Openstack'
         self.assert_output(result, expected_output)
         self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
     

@@ -1,0 +1,21 @@
+config:
+  environments:
+    default:
+      tnco: 
+        address:
+        secure: True
+        client_id: LmClient
+        client_secret: 
+# Credentials used in Auth testing (set all 3 to valid credentials)
+auth_testing:
+  client_credentials:
+    client_id: LmClient
+    client_secret: 
+  user_pass:
+    client_id: NimrodClient
+    client_secret: 
+    username: 
+    password: 
+  legacy_user_pass:
+    username: 
+    password: 

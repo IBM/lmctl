@@ -3,6 +3,9 @@ import requests
 import logging
 import time
 from .base import LmDriver
+# Temporarily use new client to control auth in order to support client_credential authentication
+# Eventually this class and all classes in the drivers section will be replaced by the new client
+from lmctl.client import TNCOClientBuilder, TNCOClient, AuthTracker
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +40,7 @@ class LmSecurityCtrl:
     Manages authentication with a target LM environment 
     """
 
-    def __init__(self, login_address, username, password):
+    def __init__(self, login_address, username=None, password=None, client_id=None, client_secret=None, oauth_address=None):
         """
         Constructs a new instance of controller for a target LM environment and target user
 
@@ -45,12 +48,31 @@ class LmSecurityCtrl:
             login_address (str): the base URL of the target LM environment for authentication e.g. http://ui.lm:32080
             username (str): the username to authenticate as
             password (str): the password for the specified username
+            client_id (str): the client_id to authenticate as
+            client_secret (str): the client_secret for the specified client_id
+            oauth_address (str): address for client access
         """
-        self.__driver = LmSecurityDriver(login_address)
         self.__username = username
         self.__password = password
-        self.__login_result = None
-        self.__login_time = None
+        self.__client_id = client_id
+        self.__client_secret = client_secret
+        self.__auth_tracker = AuthTracker()
+        if oauth_address is not None:
+            address = oauth_address
+        else:
+            address = login_address
+        client_builder = TNCOClientBuilder()
+        client_builder.address(address)
+        if self.__username is not None:
+            # Using password auth
+            if self.__client_id is not None:
+                client_builder.user_pass_auth(username=self.__username, password=self.__password, client_id=self.__client_id, client_secret=self.__client_secret)
+            else:
+                # Legacy password auth
+                client_builder.legacy_user_pass_auth(username=self.__username, password=self.__password, legacy_auth_address=login_address)
+        else:
+            client_builder.client_credentials_auth(client_id=self.__client_id, client_secret=self.__client_secret)
+        self.__client = client_builder.build()
 
     def get_access_token(self):
         """
@@ -63,9 +85,9 @@ class LmSecurityCtrl:
         """
         if self.__need_new_token():
             logger.debug('Requesting new access token')
-            self.__login_result = self.__driver.login(self.__username, self.__password)
-            self.__login_time = datetime.datetime.now()
-        return self.__login_result['accessToken']
+            auth_response = self.__client.auth_type.handle(self.__client)
+            self.__auth_tracker.accept_auth_response(auth_response)
+        return self.__auth_tracker.current_access_token
 
     def __need_new_token(self):
         """
@@ -76,24 +98,7 @@ class LmSecurityCtrl:
         Returns:
             bool: True if there is no Access Token for the user or it is believed to be expired based on time of last authentication
         """
-        if not self.__login_result:
-            logger.debug('No current access token, must request one')
-            return True
-        else:
-            logger.debug('Checking if access token has expired')
-            expiration_seconds = self.__login_result['expiresIn']
-            now = datetime.datetime.now()
-            logged_in_time = (now - self.__login_time).total_seconds()
-            logger.debug('Logged in for {0} seconds, token had an expiration time of {1} seconds'.format(logged_in_time, expiration_seconds))
-            if logged_in_time >= expiration_seconds:
-                logger.debug('Token expired, must request a new one')
-                return True
-            # If the token expires within 1 second, wait and get a new one
-            if logged_in_time >= (expiration_seconds-1):
-                logger.debug('Expires in less than 1 second, waiting before requesting a new Token')
-                time.sleep(2)
-                return True
-        return False
+        return self.__auth_tracker.has_access_expired
 
     def add_access_headers(self, headers=None):
         """
