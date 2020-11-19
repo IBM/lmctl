@@ -57,25 +57,25 @@ These commands are deprecated in v3.0
 - [get](./key/get.md)
 - [list](./key/list.md)
 
-## resourcedriver (LM 2.2+ only)
+## resourcedriver (ALM 2.2+ only)
 
-**Note:** use [lifecycledriver](#lifecycledriver) and [vimdriver](#vimdriver) if using a 2.1 version of LM version
+**Note:** use [lifecycledriver](#lifecycledriver) and [vimdriver](#vimdriver) if using a 2.1 version of ALM version
 
 - [add](./resourcedriver/add.md)
 - [delete](./resourcedriver/delete.md)
 - [get](./resourcedriver/get.md)
 
-## lifecycledriver (LM 2.1 only)
+## lifecycledriver (ALM 2.1 only)
 
-**Note:** use [resourcedriver](#resourcedriver) for LM versions 2.2+
+**Note:** use [resourcedriver](#resourcedriver) for ALM versions 2.2+
 
 - [add](./lifecycledriver/add.md)
 - [delete](./lifecycledriver/delete.md)
 - [get](./lifecycledriver/get.md)
 
-## vimdriver (LM 2.1 only)
+## vimdriver (ALM 2.1 only)
 
-**Note:** use [resourcedriver](#resourcedriver) for LM versions 2.2+
+**Note:** use [resourcedriver](#resourcedriver) for ALM versions 2.2+
 
 - [add](./vimdriver/add.md)
 - [delete](./vimdriver/delete.md)
