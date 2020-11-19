@@ -174,16 +174,7 @@ lmctl ping env <name of env>
 
 The tool remains named `lmctl` however, as `LM` is now part of `TNCO`, we've added support for `tnco` in some places.
 
-Firstly, on the command line:
-
-```
-# Both work
-lmctl --help
-
-tnco --help
-```
-
-Secondly, in your LMCTL configuration file, you may use `tnco` instead of `alm`/`lm` in the `environments` section. 
+In your LMCTL configuration file, you may use `tnco` instead of `alm`/`lm` in the `environments` section. 
 
 In the below example, we show 2 environments, which are fundamentally the same, however one uses `tnco` instead of `lm`:
 

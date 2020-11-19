@@ -34,6 +34,5 @@ setup(
     entry_points='''
         [console_scripts]
         lmctl=lmctl.cli.entry:init_cli
-        tnco=lmctl.cli.entry:init_cli
     '''
 )
