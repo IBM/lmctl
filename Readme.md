@@ -2,6 +2,10 @@
 [![Build Status](https://travis-ci.com/IBM/lmctl.svg?branch=master)](https://travis-ci.com/IBM/lmctl)
 [![PyPI version](https://badge.fury.io/py/lmctl.svg)](https://badge.fury.io/py/lmctl)
 
+You are currently viewing the latest development code and documentation. This may be unstable and contain features which may/may not be supported long term. 
+
+If you interested in the latest stable release please refer to: **[v2.6.0](https://github.com/IBM/lmctl/tree/2.6.0)**
+
 # LMCTL 
 
 :computer: LMCTL is a command-line client that provides commands for interacting with IBM Telco Network Cloud Manager (TNCM) Orchestrator (TNCO/ALM) environments. 
