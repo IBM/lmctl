@@ -15,6 +15,7 @@ import lmctl.project.processes.testing as test_exec
 import lmctl.project.handlers.manager as handler_manager
 import lmctl.drivers.lm.base as lm_drivers
 
+
 ########################
 # Exceptions
 ########################
@@ -64,9 +65,12 @@ class PushOptions(ValidateOptions):
 
 class TestOptions(Options):
 
-    def __init__(self):
+    def __init__(self, tests = None):
         super().__init__()
-        self.selected_tests = ['*']
+        if tests is not None:
+            self.selected_tests = tests
+        else:
+            self.selected_tests = ['*']
 
 
 class PkgContentBase():
