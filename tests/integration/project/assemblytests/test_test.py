@@ -220,3 +220,40 @@ class TestTestAssemblyPkgsSubcontent(ProjectSimTestCase):
             if scenario['name'] != 'runtime':
                 expected_calls.append(call(scenario['id']))
         lm_session.behaviour_driver.execute_scenario.assert_has_calls(expected_calls)
+    
+    def test_runs_specified_tests(self):
+        pkg_sim = self.simlab.simulate_pkg_assembly_contains_assembly_with_behaviour_multi_tests() 
+        pkg = Pkg(pkg_sim.path)
+        push_options = PushOptions()
+        test_options = TestOptions(tests=['test', 'test2'])
+        lm_sim = self.simlab.simulate_lm()
+        lm_session = lm_sim.as_mocked_session()
+        env_sessions = EnvironmentSessions(lm_session)
+        result = pkg.push(env_sessions, push_options).test(env_sessions, test_options)
+        self.assertEqual(len(result.suite_report.entries), 0)
+        self.assertEqual(len(result.sub_reports), 1)
+        sub_report = result.sub_reports[0]
+        self.assertEqual(len(sub_report.suite_report.entries), 2)
+        test1_entry = None
+        test2_entry = None
+        test3_entry = None
+        for entry in sub_report.suite_report.entries:
+            if entry.test_name == 'test':
+                test1_entry = entry
+            elif entry.test_name == 'test2':
+                test2_entry = entry
+            elif entry.test_name == 'test3':
+                test3_entry = entry
+        self.assertEqual(test1_entry.test_name, 'test')
+        self.assertEqual(test1_entry.result, TEST_STATUS_PASSED)
+        self.assertIsNone(test1_entry.detail)
+        self.assertEqual(test2_entry.test_name, 'test2')
+        self.assertEqual(test2_entry.result, TEST_STATUS_PASSED)
+        self.assertIsNone(test2_entry.detail)
+        self.assertIsNone(test3_entry)
+        scenarios_on_project = lm_sim.get_scenarios_on_project('assembly::sub_with_behaviour_multi_tests-contains_with_behaviour_multi_tests::1.0')
+        expected_calls = []
+        for scenario in scenarios_on_project:
+            if scenario['name'] != 'runtime' and scenario['name'] != 'test3':
+                expected_calls.append(call(scenario['id']))
+        lm_session.behaviour_driver.execute_scenario.assert_has_calls(expected_calls)
