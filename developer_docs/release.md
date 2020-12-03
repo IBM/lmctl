@@ -23,7 +23,7 @@ Update the `CHANGELOG.md` file with a list of issues fixed by this release (see 
 Run the `build.py` program to perform a release:
 
 ```
-python3 -m pip --release --version <THE VERSION TO BE RELEASED> --post-version <VERSION TO BE USED AFTER THE RELEASE> --pypi-user <USERNAME FOR PYPI> --pypi-pass <PASSWORD FOR PYPI USER>
+python3 build.py --release --version <THE VERSION TO BE RELEASED> --post-version <VERSION TO BE USED AFTER THE RELEASE> --pypi-user <USERNAME FOR PYPI> --pypi-pass <PASSWORD FOR PYPI USER>
 ```
 
 For example:
