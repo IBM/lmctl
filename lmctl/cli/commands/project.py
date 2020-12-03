@@ -52,8 +52,8 @@ def exec_push(controller, pkg, env_sessions):
     return controller.execute(pkg.push, env_sessions, push_options)
 
 
-def exec_test(controller, pkg_content, env_sessions):
-    test_options = pkgs.TestOptions()
+def exec_test(controller, pkg_content, env_sessions, tests):
+    test_options = pkgs.TestOptions(tests)
     test_options.journal_consumer = controller.consumer
     test_report = controller.execute(pkg_content.test, env_sessions, test_options)
     controller.process_test_report(test_report)
@@ -109,13 +109,19 @@ def push(project_path, environment, config, armname, pwd, autocorrect):
     exec_push(controller, build_result.pkg, env_sessions)
     controller.finalise()
 
+def __parse_tests_option(tests):
+    if tests is None:
+        return ['*']
+    else:
+        return [test.strip() for test in tests.split(',')]
+    
 
 @project.command(help='Execute the Behaviour Tests of the Project')
 @click.option('--project', 'project_path', default='./', help='File location of project')
 @click.argument('environment')
 @click.option('--config', default=None, help='configuration file')
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources to must be provided')
-@click.option('--tests', default=None, help='specify individual tests to execute')
+@click.option('--tests', default=None, help='specify comma separated list of individual tests to execute')
 @click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
 @click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
 def test(project_path, environment, config, armname, tests, pwd, autocorrect):
@@ -127,7 +133,7 @@ def test(project_path, environment, config, armname, tests, pwd, autocorrect):
     controller.start('{0} at {1}'.format(project.config.name, project_path))
     build_result = exec_build(controller, project, allow_autocorrect=autocorrect)
     pkg_content = exec_push(controller, build_result.pkg, env_sessions)
-    exec_test(controller, pkg_content, env_sessions)
+    exec_test(controller, pkg_content, env_sessions, __parse_tests_option(tests))
     controller.finalise()
 
 

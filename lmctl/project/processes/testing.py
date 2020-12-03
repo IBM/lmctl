@@ -29,10 +29,7 @@ class TestWorker:
         return project_testing.PkgTestReport(self.pkg_content.meta.name, self.pkg_content.meta.full_name, test_report, child_test_reports)
 
     def __filter_selected_tests(self):
-        if self.pkg_content.meta.is_subpkg:
-            return ['*']
-        else:
-            return self.options.selected_tests
+        return self.options.selected_tests
 
     def __test_content(self):
         self.journal.section('Execute Tests')

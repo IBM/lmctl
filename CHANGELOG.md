@@ -1,5 +1,12 @@
 # Change Log
 
+## [2.6.1](https://github.com/accanto-systems/lmctl/tree/2.6.1) (2020-12-03)
+[Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.6.0...2.6.1)
+
+**Fixed bugs:**
+
+- lmctl project test executing all the behaviors [\#69](https://github.com/accanto-systems/lmctl/issues/69)
+
 ## [2.6.0](https://github.com/accanto-systems/lmctl/tree/2.6.0) (2020-08-28)
 [Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.5.0...2.6.0)
 
