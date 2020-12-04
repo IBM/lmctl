@@ -11,7 +11,7 @@ class LmEnvironment(Environment):
 
     def __init__(self, name, host, port=None, protocol=HTTPS_PROTOCOL, path=None, secure=False, \
                                     username=None, password=None, auth_host=None, auth_port=None, auth_protocol=None, \
-                                         brent_name='brent', kami_port=31289, kami_protocol=HTTP_PROTOCOL):
+                                         brent_name='brent', kami_port=31289, kami_protocol=HTTP_PROTOCOL, kami_address=None):
         name = value_or_default(name, None)
         if not name:
             raise EnvironmentConfigError('LM environment cannot be configured without property: name')
@@ -29,6 +29,7 @@ class LmEnvironment(Environment):
         self.brent_name = value_or_default(brent_name, default='brent')
         self.kami_port = kami_port
         self.kami_protocol = value_or_default(kami_protocol, default=self.protocol).lower()
+        self._kami_address = value_or_default(kami_address, default=None)
         self.secure = value_or_default(secure, default=False)
         self.username = value_or_default(username, default=None)
         self.auth_host = value_or_default(auth_host, default=self.host)
@@ -74,6 +75,8 @@ class LmEnvironment(Environment):
 
     @property
     def kami_address(self):
+        if self._kami_address is not None:
+            return self._kami_address
         base = '{0}://{1}'.format(self.kami_protocol, self.host)
         if self.kami_port:
             base += ':{0}'.format(self.kami_port)
