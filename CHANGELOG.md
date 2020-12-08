@@ -1,11 +1,15 @@
 # Change Log
 
-## [2.6.2](https://github.com/IBM/lmctl/tree/2.6.2) (2020-12-08)
-[Full Changelog](https://github.com/IBM/lmctl/compare/2.6.1...2.6.2)
+## [2.6.3](https://github.com/IBM/lmctl/tree/2.6.2) (2020-12-08)
+[Full Changelog](https://github.com/IBM/lmctl/compare/2.6.1...2.6.3)
 
 **Fixed bugs:**
 
 - Cannot override kami address in 2.6.x [\#72](https://github.com/IBM/lmctl/issues/72)
+
+## [2.6.2](https://github.com/IBM/lmctl/tree/2.6.2) (2020-12-08)
+
+Use 2.6.3
 
 ## [2.6.1](https://github.com/IBM/lmctl/tree/2.6.1) (2020-12-03)
 [Full Changelog](https://github.com/IBM/lmctl/compare/2.6.0...2.6.1)
