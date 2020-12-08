@@ -4,7 +4,7 @@
 
 You are currently viewing the latest development code and documentation. This may be unstable and contain features which may/may not be supported long term. 
 
-If you interested in the latest stable release please refer to: **[v2.6.2](https://github.com/IBM/lmctl/tree/2.6.2)**
+If you interested in the latest stable release please refer to: **[v2.6.3](https://github.com/IBM/lmctl/tree/2.6.3)**
 
 # LMCTL 
 
