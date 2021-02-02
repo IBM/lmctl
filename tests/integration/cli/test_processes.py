@@ -113,3 +113,16 @@ class TestProcesses(CLIIntegrationTest):
         self.assertNotIn('executionPlan', loaded_output)
         self.tester.wait_until(self._build_check_process_success(self.tester), process_id)
         self._delete_and_wait(assembly_name)
+
+    def test_query(self):
+        assembly_name = self.tester.exec_prepended_name('process-cmd-query')
+        process_id, assembly_id = self._create_assembly(assembly_name)
+        result = self.cli_runner.invoke(cli, 
+            ['get', 'process', '-e', 'default', '--assembly-name', assembly_name]
+        )
+        table_format = TableFormat(table=ProcessTable())
+        target_process = self.tester.default_client.processes.get(process_id)
+        expected_output = table_format.convert_element(target_process)
+        self.assert_output(result, expected_output)
+        self.tester.wait_until(self._build_check_process_success(self.tester), process_id)
+        self._delete_and_wait(assembly_name)
