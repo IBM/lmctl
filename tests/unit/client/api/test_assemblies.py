@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 from lmctl.client.api import AssembliesAPI
 from lmctl.client.models import (CreateAssemblyIntent, UpgradeAssemblyIntent, ChangeAssemblyStateIntent, 
                                     DeleteAssemblyIntent, ScaleAssemblyIntent, HealAssemblyIntent,
-                                    AdoptAssemblyIntent)
+                                    AdoptAssemblyIntent, CreateOrUpgradeAssemblyIntent)
 
 class TestAssembliesAPI(unittest.TestCase):
 
@@ -77,6 +77,36 @@ class TestAssembliesAPI(unittest.TestCase):
         self.assertEqual(response, '123')
         self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/intent/createAssembly', json=intent)
     
+    def test_intent_create_or_upgrade(self):
+        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        self.mock_client.make_request.return_value = mock_response
+        intent = CreateOrUpgradeAssemblyIntent(descriptor_name='assembly::Test::1.0', assembly_name='Test', intended_state='Active',
+            tags={
+                'tag1': 'value1',
+                'tag2': 'value2'
+            },
+            properties={
+                'prop1': 'val1',
+                'prop2': 'val2'
+            })
+        response = self.assemblies.intent_create_or_upgrade(intent)
+        self.assertEqual(response, '123')
+        self.mock_client.make_request.assert_called_with(method='POST', 
+                                                            endpoint='api/intent/createOrUpgradeAssembly', 
+                                                            json={
+                                                                'assemblyName': 'Test', 
+                                                                'descriptorName': 'assembly::Test::1.0', 
+                                                                'properties': {
+                                                                    'prop1': 'val1',
+                                                                    'prop2': 'val2'
+                                                                },
+                                                                'tags': {
+                                                                    'tag1': 'value1',
+                                                                    'tag2': 'value2'
+                                                                },
+                                                                'intendedState': 'Active',
+                                                            })
+
     def test_intent_upgrade(self):
         mock_response = MagicMock(headers={'Location': '/api/processes/123'})
         self.mock_client.make_request.return_value = mock_response

@@ -252,7 +252,7 @@ class CreateOrUpgradeAssemblyIntent(Intent):
 class AdoptAssemblyIntent(Intent):
 
     def __init__(self, assembly_name: str = None, descriptor_name: str = None,
-                        properties: Dict = None, clusters: Dict = None):
+            properties: Dict = None, clusters: Dict = None):
         self.assembly_name = assembly_name
         self.descriptor_name = descriptor_name
         self.properties = properties or {}
