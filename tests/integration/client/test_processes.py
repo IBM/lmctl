@@ -9,7 +9,7 @@ class TestProcessesAPI(IntegrationTest):
     def before_test_case(cls, tester):
         cls.test_case_props = {}
         ## Add deployment location
-        cls.test_case_props['deployment_location_name'] = tester.exec_prepended_name('assembly-tests')
+        cls.test_case_props['deployment_location_name'] = tester.exec_prepended_name('process-tests')
         deployment_location_result = tester.default_client.deployment_locations.create({
             'name': cls.test_case_props['deployment_location_name'],
             'infrastructureType': 'Other',
@@ -21,9 +21,8 @@ class TestProcessesAPI(IntegrationTest):
         res_pkg_path = tester.tmp_file('dummy_resource.zip')
         tester.build_resource_package_from(tester.test_file('dummy_resource'), res_pkg_path, suffix='process-tests')
         cls.test_case_props['dummy_res_pkg_id'] = tester.default_client.resource_packages.create(res_pkg_path)
-        ## Add Resource descriptor 
+        ## Get Resource descriptor 
         resource_descriptor = tester.load_descriptor_from(tester.test_file(os.path.join('dummy_resource', 'Definitions', 'lm', 'resource.yaml')), suffix='process-tests')
-        tester.default_client.descriptors.create(resource_descriptor)
         cls.test_case_props['dummy_resource_descriptor_name'] = resource_descriptor['name']
         ## Add Assembly descriptor
         assembly_descriptor = tester.load_descriptor_from(tester.test_file('dummy_assembly.yaml'), suffix='process-tests')

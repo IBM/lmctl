@@ -7,7 +7,9 @@ from lmctl.cli.commands.targets.descriptor_templates import DescriptorTemplatesT
 import yaml
 import json
 import time
+import unittest
 
+@unittest.skip('Templates not GA')
 class TestDescriptorTemplates(CLIIntegrationTest):
 
     @classmethod

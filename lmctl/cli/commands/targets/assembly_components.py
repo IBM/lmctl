@@ -33,7 +33,7 @@ class AssemblyComponentMixin:
         ctl = self._get_controller()
         ctl.io.print(f'Accepted - Process: {result}')
 
-class AssemblyComponents(TNCOTarget):
+class AssemblyComponents(AssemblyComponentMixin, TNCOTarget):
     name = 'assemblycomponent'
     plural = 'assemblycomponents'
     display_name = 'Assembly Component'

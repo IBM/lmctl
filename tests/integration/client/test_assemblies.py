@@ -24,9 +24,8 @@ class TestAssembliesAPI(IntegrationTest):
         res_pkg_path = tester.tmp_file('dummy_resource.zip')
         tester.build_resource_package_from(tester.test_file('dummy_resource'), res_pkg_path, suffix='assembly-tests')
         cls.test_case_props['dummy_res_pkg_id'] = tester.default_client.resource_packages.create(res_pkg_path)
-        ## Add Resource descriptor 
+        ## Get Resource descriptor 
         resource_descriptor = tester.load_descriptor_from(tester.test_file(os.path.join('dummy_resource', 'Definitions', 'lm', 'resource.yaml')), suffix='assembly-tests')
-        tester.default_client.descriptors.create(resource_descriptor)
         cls.test_case_props['dummy_resource_descriptor_name'] = resource_descriptor['name']
         ## Add Assembly descriptor
         assembly_descriptor = tester.load_descriptor_from(tester.test_file('dummy_assembly.yaml'), suffix='assembly-tests')

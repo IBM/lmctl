@@ -7,6 +7,7 @@ from lmctl.client import TestResults, TestResult, TNCOClientError
 from unittest.mock import patch
 import yaml
 import json
+import unittest
 
 class TestEnvironments(CLIIntegrationTest):
 
@@ -101,6 +102,7 @@ class TestEnvironments(CLIIntegrationTest):
         expected_output += '\nTNCO (ALM) tests failed! ❌'
         self.assert_output(result, expected_output)
 
+    @unittest.skip('Templates not GA')
     def test_ping_include_template_engine(self):
         result = self.cli_runner.invoke(cli, 
             ['ping', 'env', 'default', '--include-template-engine']
