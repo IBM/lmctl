@@ -177,10 +177,82 @@ class UpgradeAssemblyIntent(ExistingAssemblyIntent):
             obj['intendedState'] = self.intended_state
         return obj
 
+class CreateOrUpgradeAssemblyIntent(Intent):
+        
+    def __init__(self, assembly_name: str = None, descriptor_name: str = None, 
+                        intended_state: str = None, properties: Dict = None,
+                        tags: Dict = None):
+        self.assembly_name = assembly_name
+        self.descriptor_name = descriptor_name
+        self.intended_state = intended_state
+        self.properties = properties or {}
+        self.tags = tags or {}
+    
+    def set_assembly_name(self, assembly_name: str):
+        self.assembly_name = assembly_name
+        return self
+
+    def set_descriptor_name(self, descriptor_name: str):
+        self.descriptor_name = descriptor_name
+        return self
+
+    def set_intended_state(self, intended_state: str):
+        self.intended_state = intended_state
+        return self
+    
+    def set_properties(self, properties: Dict):
+        self.properties = properties
+        return self
+
+    def set_property(self, name: str, value: str):
+        if self.properties is None:
+            self.properties = {}
+        self.properties[name] = value
+        return self
+
+    def set_tags(self, tags: Dict):
+        self.tags = tags
+        return self
+
+    def set_tag(self, name: str, value: str):
+        if self.tags is None:
+            self.tags = {}
+        self.tags[name] = value
+        return self
+
+    def to_dict(self) -> Dict:
+        obj = {}
+        if self.assembly_name is not None:
+            obj['assemblyName'] = self.assembly_name
+        if self.descriptor_name is not None:
+            obj['descriptorName'] = self.descriptor_name
+        if self.properties is not None:
+            obj['properties'] = self.properties
+        if self.tags is not None:
+            obj['tags'] = self.tags
+        if self.intended_state is not None:
+            obj['intendedState'] = self.intended_state
+        return obj
+
+    def __str__(self):
+        return (
+            f"assembly_name={self.assembly_name}, "
+            f"descriptor_name={self.descriptor_name}, "
+            f"intended_state={self.intended_state}, "
+            f"properties={self.properties}, "
+            f"tags={self.tags}"
+        )
+
+    def __eq__(self, other):
+        return (isinstance(other, CreateOrUpgradeAssemblyIntent) and self.assembly_name==other.assembly_name
+            and self.descriptor_name==other.descriptor_name and self.intended_state==other.intended_state
+            and self.properties==other.properties)
+            
+
 class AdoptAssemblyIntent(Intent):
 
     def __init__(self, assembly_name: str = None, descriptor_name: str = None,
-                        properties: Dict = None, clusters: Dict = None):
+            properties: Dict = None, clusters: Dict = None):
         self.assembly_name = assembly_name
         self.descriptor_name = descriptor_name
         self.properties = properties or {}

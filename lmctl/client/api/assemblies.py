@@ -4,7 +4,7 @@ from lmctl.client.exceptions import TNCOClientError
 from .resource_api_base import ResourceAPIBase, json_response_handler, obj_json_request_builder, location_id_response_handler
 from lmctl.client.models import (CreateAssemblyIntent, UpgradeAssemblyIntent, ChangeAssemblyStateIntent, 
                                     DeleteAssemblyIntent, ScaleAssemblyIntent, HealAssemblyIntent,
-                                    AdoptAssemblyIntent, Intent)
+                                    AdoptAssemblyIntent, CreateOrUpgradeAssemblyIntent, Intent)
 
 class AssembliesAPI(ResourceAPIBase):
     endpoint = 'api/topology/assemblies'
@@ -55,6 +55,9 @@ class AssembliesAPI(ResourceAPIBase):
 
     def intent_upgrade(self, intent_obj: Union[Dict, UpgradeAssemblyIntent]) -> str:
         return self._intent_request_impl('upgradeAssembly', intent_obj)
+
+    def intent_create_or_upgrade(self, intent_obj: Union[Dict, CreateOrUpgradeAssemblyIntent]) -> str:
+        return self._intent_request_impl('createOrUpgradeAssembly', intent_obj)
 
     def intent_delete(self, intent_obj: Union[Dict, DeleteAssemblyIntent]) -> str:
         return self._intent_request_impl('deleteAssembly', intent_obj)
