@@ -192,7 +192,7 @@ class Builder:
                 
     def run_unit_tests(self):
         with self.stage('Run Unit Tests') as s:
-            s.run_cmd('python3', '-m', 'unittest')
+            s.run_cmd('python3', '-m', 'unittest', 'discover', '-s', 'tests.unit')
 
     def build_python_wheel(self):
         with self.stage('Build Wheel') as s:
