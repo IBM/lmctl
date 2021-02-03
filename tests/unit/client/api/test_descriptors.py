@@ -23,6 +23,13 @@ class TestDescriptorsAPI(unittest.TestCase):
         self.assertEqual(response, {'name': 'assembly::Test::1.0'})
         self.mock_client.make_request.assert_called_with(method='GET', endpoint='api/catalog/descriptors/assembly::Test::1.0', headers={'Accept': 'application/yaml,application/json'})
 
+    def test_get_effective(self):
+        mock_response = 'name: assembly::Test::1.0'
+        self.mock_client.make_request.return_value = MagicMock(text=mock_response)
+        response = self.descriptors.get('assembly::Test::1.0', effective=True)
+        self.assertEqual(response, {'name': 'assembly::Test::1.0'})
+        self.mock_client.make_request.assert_called_with(method='GET', endpoint='api/catalog/descriptors/assembly::Test::1.0?effective=True', headers={'Accept': 'application/yaml,application/json'})
+
     def test_create(self):
         obj = {'name': 'assembly::Test::1.0'}
         response = self.descriptors.create(obj)

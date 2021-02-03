@@ -24,11 +24,14 @@ class Descriptors(TNCOTarget):
                                             \n\nUse NAME argument to get one by name\
                                             \n\nOmit NAME argument to get all''')
     @click.argument('name', required=False)
-    def get(self, tnco_client: TNCOClient, ctx: click.Context, name: str = None):
+    @click.option('--effective', is_flag=True, show_default=True, help=f'Get effective version of descriptor, which includes all inherited properties (can only be used when retrieving a single descriptor by name)')
+    def get(self, tnco_client: TNCOClient, ctx: click.Context, name: str = None, effective: bool = False):
         api = tnco_client.descriptors
         if name is not None:
-            return api.get(name)
+            return api.get(name, effective=effective)
         else:
+            if effective:
+                raise click.BadArgumentUsage(message='Do not use "--effective" option when retrieving all descriptors', ctx=ctx)
             return api.all()
         
     @LmCreate()

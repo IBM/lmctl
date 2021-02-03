@@ -1,6 +1,8 @@
 from tests.integration.integration_test_base import IntegrationTest
 import yaml
+import unittest
 
+@unittest.skip('Templates not GA')
 class TestDescriptorTemplatesAPI(IntegrationTest):
 
     def test_all(self):

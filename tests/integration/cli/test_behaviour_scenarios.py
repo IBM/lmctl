@@ -57,9 +57,8 @@ class TestBehaviourScenarios(CLIIntegrationTest):
         res_pkg_path = tester.tmp_file('dummy_resource.zip')
         tester.build_resource_package_from(tester.test_file('dummy_resource'), res_pkg_path, suffix='scenario-cmds')
         cls.test_case_props['res_pkg_id'] = tester.default_client.resource_packages.create(res_pkg_path)
-        # Add Resource descriptor 
+        # Get Resource descriptor 
         resource_descriptor = tester.load_descriptor_from(tester.test_file(os.path.join('dummy_resource', 'Definitions', 'lm', 'resource.yaml')), suffix='scenario-cmds')
-        tester.default_client.descriptors.create(resource_descriptor)
         cls.test_case_props['resource_descriptor_name'] = resource_descriptor['name']
         # Create Assembly
         cls.test_case_props['assembly_name'] = tester.exec_prepended_name('scenario-cmds-A')

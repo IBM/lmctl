@@ -1,7 +1,7 @@
 import yaml
 from typing import List, Dict
 from lmctl.client.exceptions import TNCOClientError
-from .resource_api_base import ResourceAPIBase, ListAPIMeta, ReadAPIMeta, CreateAPIMeta, UpdateAPIMeta
+from .resource_api_base import ResourceAPIBase, ListAPIMeta, ReadAPIMeta, CreateAPIMeta, UpdateAPIMeta, APIArg
 
 def accept_yaml_or_json_header_request_builder(*args, **kwargs):
     return {
@@ -28,10 +28,14 @@ class DescriptorsAPI(ResourceAPIBase):
     endpoint = 'api/catalog/descriptors'
     id_attr = 'name'
     list_meta = ListAPIMeta(request_builder=accept_yaml_or_json_header_request_builder, response_handler=yaml_response_handler)
-    read_meta = ReadAPIMeta(request_builder=accept_yaml_or_json_header_request_builder, response_handler=yaml_response_handler)
     create_meta = CreateAPIMeta(request_builder=obj_yaml_request_builder, response_handler=None)
     update_meta = UpdateAPIMeta(request_builder=obj_yaml_request_builder)
-
-
+    read_meta = ReadAPIMeta(
+        request_builder=accept_yaml_or_json_header_request_builder, 
+        response_handler=yaml_response_handler, 
+        extra_request_params={
+            'effective': APIArg(param_name='effective')
+        }
+    )
 
     

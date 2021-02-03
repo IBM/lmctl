@@ -85,6 +85,34 @@ class TestDescriptors(CLIIntegrationTest):
         expected_output = table_format.convert_element(self.test_case_props['descriptor_A'])
         self.assert_output(result, expected_output)
 
+    def test_get_effective(self):
+        self.tester.default_client.descriptors.create({
+            'name': 'assembly::Parent::1.0', 
+            'properties': {
+                'parent-prop': {'type': 'string'}
+            }
+        })
+        self.tester.default_client.descriptors.create({
+            'name': 'assembly::Child::1.0', 
+            'derived-from': 'assembly::Parent::1.0',
+            'properties': {
+                'child-prop': {'type': 'string'}
+            }
+        })
+        result = self.cli_runner.invoke(cli, [
+            'get', 'descriptor', 'assembly::Child::1.0', '-e', 'default', '-o', 'yaml', '--effective'
+        ])
+        loaded_output = yaml.safe_load(result.output)
+        expected_descriptor = {
+            'name': 'assembly::Child::1.0', 
+            'derived-from': 'assembly::Parent::1.0',
+            'properties': {
+                'child-prop': {'type': 'string'},
+                'parent-prop': {'type': 'string'}
+            }
+        }
+        self.assertEqual(loaded_output, expected_descriptor)
+
     def test_create_with_yaml_file(self):
         descriptor_name = 'assembly::' + self.tester.exec_prepended_name('descriptor-cmd-create-with-yaml') + '::1.0'
         descriptor = {

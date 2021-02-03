@@ -24,9 +24,8 @@ class TestClusters(CLIIntegrationTest):
         res_pkg_path = tester.tmp_file('dummy_resource.zip')
         tester.build_resource_package_from(tester.test_file('dummy_resource'), res_pkg_path, suffix='cluster-cmds')
         cls.test_case_props['res_pkg_id'] = tester.default_client.resource_packages.create(res_pkg_path)
-        ## Add Resource descriptor 
+        ## Get Resource descriptor 
         cls.test_case_props['resource_descriptor'] = tester.load_descriptor_from(tester.test_file(os.path.join('dummy_resource', 'Definitions', 'lm', 'resource.yaml')), suffix='cluster-cmds')
-        tester.default_client.descriptors.create(cls.test_case_props['resource_descriptor'])
         ## Add Assembly descriptor
         cls.test_case_props['assembly_descriptor'] = tester.load_descriptor_from(tester.test_file('dummy_assembly.yaml'), suffix='cluster-cmds')
         tester.default_client.descriptors.create(cls.test_case_props['assembly_descriptor'])

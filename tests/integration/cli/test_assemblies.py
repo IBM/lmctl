@@ -27,9 +27,8 @@ class TestAssemblies(CLIIntegrationTest):
         res_pkg_path = tester.tmp_file('dummy_resource.zip')
         tester.build_resource_package_from(tester.test_file('dummy_resource'), res_pkg_path, suffix='assembly-cmds')
         cls.test_case_props['res_pkg_id'] = tester.default_client.resource_packages.create(res_pkg_path)
-        ## Add Resource descriptor 
+        ## Get Resource descriptor 
         cls.test_case_props['resource_descriptor'] = tester.load_descriptor_from(tester.test_file(os.path.join('dummy_resource', 'Definitions', 'lm', 'resource.yaml')), suffix='assembly-cmds')
-        tester.default_client.descriptors.create(cls.test_case_props['resource_descriptor'])
         ## Add Assembly descriptor
         cls.test_case_props['assembly_descriptor'] = tester.load_descriptor_from(tester.test_file('dummy_assembly.yaml'), suffix='assembly-cmds')
         tester.default_client.descriptors.create(cls.test_case_props['assembly_descriptor'])
@@ -389,9 +388,9 @@ class TestAssemblies(CLIIntegrationTest):
         #Get the Assembly and confirm the update
         get_api_result = self.tester.default_client.assemblies.get_by_name(assembly_name)
         self.assertCountEqual(get_api_result['properties'], [
-            {'name': 'resourceManager', 'value': 'brent'},
-            {'name': 'deploymentLocation', 'value': self.test_case_props['deployment_location']['name']},
-            {'name': 'dummyProp', 'value': 'B'}
+            {'name': 'resourceManager', 'type': 'string', 'value': 'brent'},
+            {'name': 'deploymentLocation', 'type': 'string', 'value': self.test_case_props['deployment_location']['name']},
+            {'name': 'dummyProp', 'type': 'string', 'value': 'B'}
         ])
         delete_process_id =  self.tester.default_client.assemblies.intent_delete(
             DeleteAssemblyIntent(assembly_name=assembly_name)
@@ -423,9 +422,9 @@ class TestAssemblies(CLIIntegrationTest):
         #Get the Assembly and confirm the update
         get_api_result = self.tester.default_client.assemblies.get_by_name(assembly_name)
         self.assertCountEqual(get_api_result['properties'], [
-            {'name': 'resourceManager', 'value': 'brent'},
-            {'name': 'deploymentLocation', 'value': self.test_case_props['deployment_location']['name']},
-            {'name': 'dummyProp', 'value': 'B'}
+            {'name': 'resourceManager', 'type': 'string', 'value': 'brent'},
+            {'name': 'deploymentLocation', 'type': 'string', 'value': self.test_case_props['deployment_location']['name']},
+            {'name': 'dummyProp', 'type': 'string', 'value': 'B'}
         ])
         delete_process_id =  self.tester.default_client.assemblies.intent_delete(
             DeleteAssemblyIntent(assembly_name=assembly_name)
@@ -456,9 +455,9 @@ class TestAssemblies(CLIIntegrationTest):
         #Get the Assembly and confirm the update
         get_api_result = self.tester.default_client.assemblies.get_by_name(assembly_name)
         self.assertCountEqual(get_api_result['properties'], [
-            {'name': 'resourceManager', 'value': 'brent'},
-            {'name': 'deploymentLocation', 'value': self.test_case_props['deployment_location']['name']},
-            {'name': 'dummyProp', 'value': 'B'}
+            {'name': 'resourceManager', 'type': 'string', 'value': 'brent'},
+            {'name': 'deploymentLocation', 'type': 'string', 'value': self.test_case_props['deployment_location']['name']},
+            {'name': 'dummyProp', 'type': 'string', 'value': 'B'}
         ])
         delete_process_id =  self.tester.default_client.assemblies.intent_delete(
             DeleteAssemblyIntent(assembly_name=assembly_name)
