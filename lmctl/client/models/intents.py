@@ -89,7 +89,10 @@ class ChangeAssemblyStateIntent(ExistingAssemblyIntent):
         return obj
 
 class DeleteAssemblyIntent(ExistingAssemblyIntent):
-    pass
+
+    def __eq__(self, other):
+        return (isinstance(other, DeleteAssemblyIntent) and self.assembly_name==other.assembly_name
+            and self.assembly_id==other.assembly_id)
 
 class HealAssemblyIntent(ExistingAssemblyIntent):
 
