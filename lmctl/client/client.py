@@ -6,6 +6,7 @@ from .auth_tracker import AuthTracker
 from urllib.parse import urlparse
 from .error_capture import tnco_error_capture
 from .client_test_result import TestResult, TestResults
+from lmctl.utils.trace_ctx import trace_ctx
 import requests
 import logging
 
@@ -58,14 +59,25 @@ class TNCOClient:
                 self.auth_tracker.accept_auth_response(auth_response)
             headers['Authorization'] = f'Bearer {self.auth_tracker.current_access_token}'
         return headers
+
+    def _build_headers(self, include_auth: bool = True, user_supplied_headers: Dict = None) -> Dict:
+        headers = {}
+        headers.update(trace_ctx.to_http_header_dict())            
+        # Safe to log headers before we add auth
+        logger.debug(f'LM request headers from trace ctx: {headers}')
+        if user_supplied_headers is not None:
+            headers.update(user_supplied_headers)
+        if include_auth:
+            self._add_auth_headers(headers=headers)
+        return headers
     
     def make_request(self, method: str, endpoint: str, include_auth: bool = True, override_address: str = None, **kwargs) -> requests.Response:
         address = override_address or self.address
         url = f'{address}/{endpoint}'
         logger.debug(f'LM request: Method={method}, URL={url}, kwargs={kwargs}')
-        headers = kwargs.pop('headers', {})
-        if include_auth:
-            headers = self._add_auth_headers(headers=headers)
+
+        headers = self._build_headers(include_auth=include_auth, user_supplied_headers=kwargs.pop('headers', {}))
+
         try:
             response = self._curr_session().request(method, url, headers=headers, verify=False, **kwargs)
         except requests.RequestException as e:

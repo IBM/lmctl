@@ -36,7 +36,7 @@ class FileInputs:
         raise click.BadParameter(error_msg, ctx=ctx, param=param)
 
     def option(self, var_name: str = 'file_content', required: bool = False, 
-                        help: str = 'Path to file used as object', options: str = ['-f', '--file']):
+                        help: str = 'Path to file representing the object', options: str = ['-f', '--file']):
         def decorator(f):
             return click.option(*options, var_name, 
                                 help=help,
