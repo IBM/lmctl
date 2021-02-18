@@ -7,7 +7,7 @@ from lmctl.utils.certificates import read_certificate_file
 
 logger = logging.getLogger(__name__)
 
-@click.group(help='Commands for managing VIM drivers (LM 2.1 only)')
+@click.group(help='DEPRECATED in v3.0: Commands for managing VIM drivers (LM 2.1 only)')
 def vimdriver():
     click.echo('WARNING: vimdriver command support should only be used with 2.1 versions of LM')
 

@@ -58,11 +58,11 @@ class Assemblies(TNCOTarget):
 
     @LmCreate(short_help=f'Request an intent to create an {display_name}', 
                     help=f'''\
-                        Request an intent to create an {display_name}. The request can include the following properties:
+                        Request an intent to create an {display_name}. The request can include the following parameters (either with --set or in a file with -f):
                         \n\nassemblyName - A unique name by which this {display_name} will be known externally. This cannot contain spaces, consecutive underscores or start with a numeric character.\
                         \n\ndescriptorName - The descriptor name from which this {display_name} will be created\
                         \n\nintendedState - The final intended state that the {display_name} should be brought into
-                        \n\nproperties - An optional map of name and string value properties that is supplied to the new {display_name}
+                        \n\nproperties - An optional map of name and value pairs supplied to the new {display_name}
                     ''',
                     print_result=False)
     @set_param_option(options=['--prop'], var_name='prop_values', help='Directly set a property passed to the request')

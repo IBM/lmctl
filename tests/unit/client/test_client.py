@@ -55,7 +55,7 @@ class TestTNCOClient(unittest.TestCase):
         client.make_request('GET', 'api/test', headers={'Accept': 'plain/text'})
         mock_session = self._get_requests_session(requests_session_builder)
         mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={'Accept': 'plain/text'}, verify=False)
-
+    
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_with_auth(self, requests_session_builder):
         mock_auth = self._build_mocked_auth_type()
@@ -71,6 +71,25 @@ class TestTNCOClient(unittest.TestCase):
         client.make_request('GET', 'api/test', include_auth=False)
         mock_session = self._get_requests_session(requests_session_builder)
         mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={}, verify=False)
+
+    @patch('lmctl.client.client.requests.Session')
+    def test_make_request_with_trace_ctx(self, requests_session_builder):
+        from lmctl.utils.trace_ctx import trace_ctx
+        with trace_ctx.scope(transaction_id='123456789'):
+            client = TNCOClient('https://test.example.com', use_sessions=True)
+            client.make_request('GET', 'api/test')
+            mock_session = self._get_requests_session(requests_session_builder)
+            mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={'X-TraceCtx-TransactionId': '123456789'}, verify=False)
+
+    @patch('lmctl.client.client.requests.Session')
+    def test_make_request_combines_trace_ctx_and_auth_and_user_supplied_headers(self, requests_session_builder):
+        mock_auth = self._build_mocked_auth_type()
+        from lmctl.utils.trace_ctx import trace_ctx
+        with trace_ctx.scope(transaction_id='123456789'):
+            client = TNCOClient('https://test.example.com', auth_type=mock_auth, use_sessions=True)
+            client.make_request('GET', 'api/test', headers={'Accept': 'plain/text'})
+            mock_session = self._get_requests_session(requests_session_builder)
+            mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={'Accept': 'plain/text', 'Authorization': 'Bearer 123', 'X-TraceCtx-TransactionId': '123456789'}, verify=False)
 
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_raises_error(self, requests_session_builder):
