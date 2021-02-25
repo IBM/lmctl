@@ -53,11 +53,14 @@ class IntegrationTester:
             props_dict = yaml.safe_load(f.read())
         return IntegrationTestProperties.from_dict(**props_dict)
 
+    def get_default_env(self):
+        return self.config.environments.get('default')
+
     def build_default_client(self):
         return self.build_client()
 
     def build_client(self):
-        default_env = self.config.environments.get('default')
+        default_env = self.get_default_env()
         return default_env.lm.build_client()
            
     def exec_prepended_name(self, name: str) -> str:

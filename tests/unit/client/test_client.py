@@ -1,16 +1,30 @@
 import unittest
 import requests
+import jwt
 from unittest.mock import patch, MagicMock, Mock
 from lmctl.client import TNCOClient, TNCOClientError, TNCOClientHttpError, TNCOErrorCapture
+from datetime import datetime, timedelta
 
 class TestTNCOClient(unittest.TestCase):
 
     def _get_requests_session(self, mock_requests):
         return mock_requests.return_value
 
+    def _build_a_token(self, expires_in=30):
+        token_content = {
+            'sub': '1234567890',
+            'name': 'John Doe',
+            'admin': True,
+            'jti': 'c257f98d-f4dd-4fa9-afb4-6329924316f2',
+            'iat': int(datetime.now().strftime('%s')),
+            'exp': int((datetime.now() + timedelta(seconds=expires_in)).strftime('%s'))
+        }
+        return jwt.encode(token_content, 'secret', algorithm='HS256')
+
     def _build_mocked_auth_type(self):
         mock_auth = MagicMock()
-        mock_auth.handle.return_value = {'expiresIn': 100000, 'accessToken': '123'}
+        self.token = self._build_a_token()
+        mock_auth.handle.return_value = {'token': self.token}
         return mock_auth
 
     def test_address_with_trailing_slash_is_trimmed(self):
@@ -62,7 +76,7 @@ class TestTNCOClient(unittest.TestCase):
         client = TNCOClient('https://test.example.com', auth_type=mock_auth, use_sessions=True)
         client.make_request('GET', 'api/test')
         mock_session = self._get_requests_session(requests_session_builder)
-        mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={'Authorization': 'Bearer 123'}, verify=False)
+        mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={'Authorization': f'Bearer {self.token}'}, verify=False)
 
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_with_auth_but_include_auth_false(self, requests_session_builder):
@@ -89,7 +103,7 @@ class TestTNCOClient(unittest.TestCase):
             client = TNCOClient('https://test.example.com', auth_type=mock_auth, use_sessions=True)
             client.make_request('GET', 'api/test', headers={'Accept': 'plain/text'})
             mock_session = self._get_requests_session(requests_session_builder)
-            mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={'Accept': 'plain/text', 'Authorization': 'Bearer 123', 'X-TraceCtx-TransactionId': '123456789'}, verify=False)
+            mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={'Accept': 'plain/text', 'Authorization': f'Bearer {self.token}', 'X-TraceCtx-TransactionId': '123456789'}, verify=False)
 
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_raises_error(self, requests_session_builder):

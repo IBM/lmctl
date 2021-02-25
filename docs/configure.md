@@ -3,12 +3,38 @@
 LMCTL configuration is written as a YAML formatted file and can exist anywhere on the local file system. By default, LMCTL checks for a file at `<home directory>/.lmctl/config.yaml`, however you may configure an alternative location by setting the `LMCONFIG` environment variable to the intended path.
 
 Table of contents:
-- [Initialise configuration file](#initialise-new-configuration-file)
+- [Quickstart](#quickstart)
+- [Creating a configuration file](#creating-a-configuration-file)
 - [Environment Groups](#environment-groups)
   - [TNCO (ALM) Configuration](#tnco-(alm)-configuration)
   - [Ansible RM](#ansible-rm)
 
-## Initialise configuration file
+## Quickstart
+
+Get started with just 4 commands:
+
+```
+lmctl create config
+```
+
+Edit the properties in the generated file
+```
+vi ~/.lmctl/config.yaml 
+```
+
+Confirm the file is found correctly
+```
+lmctl get config
+```
+
+Confirm access
+```
+lmctl ping env default
+```
+
+Read on to gain a greater understanding about the configuration options available.
+
+## Creating a configuration file
 
 To initialise a new configuration file, at the default location, run the following:
 
@@ -43,13 +69,13 @@ On Windows:
 set LMCONFIG=%HomeDrive%%HomePath%\lmctl-config.yaml
 ```
 
-Once the file has been modified, you will be able to view it's content with:
+Confirm the file is found by requesting lmctl to read it's content with:
 
 ```
 lmctl get config
 ```
 
-# Environment Groups
+## Environment Groups
 
 LMCTL can be used to access one or more TNCO (ALM) and/or Resource Manager (RM) instances. To do so, it must be configured with access addresses and credentials.
 
@@ -88,68 +114,122 @@ The TNCO environment in a group must be provided under the key `tnco`, `lm` or `
 
 ```
 environments:
-  example:
-    description: a short example environment
+  minimal-example:
+    description: a short example environment. Replace the values with your own.
     tnco:
-      address: https://app.lm:32443
+       # replace with API address (Ishtar route)
+      address: https://ishtar-route
       secure: true
-      username: jack
-      password:
-  example_with_details:
+      auth_mode: zen
+      # replace with Zen address
+      auth_address: https://zen-route/icp4d-api/v1/authorize 
+      # replace with your username/api_key
+      username: almadmin
+      api_key:
+  full-example:
     description: an example environment
     tnco:
-      ### General 
+      ###############
+      #  General    #
+      ###############
+      
+      ## The full HTTP(s) address used to access the API gateway (Ishtar route) of your TNCO instance
+      address: https://ishtar-route.ocp.example.com
 
-      ## The full HTTP(s) address used to access the API gateway of your TNCO instance
-      address: https://app.lm
+      ## Set to true if TNCO is secure and requires authentication to use the APIs
+      secure: True
 
-      ## Set to true if the environment is secure and requires authentication to use the APIs
-      ## - Optional
-      ## - Default: false
-      secure: true
+      ############################################################
+      #  Zen Authentication                                      #
+      #  Required if "secure" is true and not using Legacy Oauth #
+      ############################################################
+      
+      # Indicate environment is using Zen
+      auth_mode: zen
 
-      ### Authentication
-      ### Required if "secure" is true.
+      ## The full HTTP(s) address and path used to access the Zen authentication APIs E.g. https://<hostname>/icp4d-api/v1/authorize
+      auth_address: https://zen-route.ocp.example.com/icp4d-api/v1/authorize
 
-      # Auth Option 1: TNCO Client credentials
-      # ID of the client credentials to authenticate with
-      client_id: LmClient
-      # Secret for the above client
-      client_secret: enter-your-secret
+      ## The username to authenticate with
+      username: example-user
 
-      # Auth Option 2: TNCO User based access
-      # ID of the client credentials with password scope authentication enabled
+      ## The API key for the above user
+      #api_key: enter-your-api-key
+
+      #####################################################
+      # Legacy Oauth Authentication                       #
+      # Required if "secure" is true and not using Zen    #
+      # The following authentication options              #
+      # are only valid on older TNCO (ALM) environments   #
+      # which do not use Zen SSO                          #
+      #####################################################
+     
+      # Indicate the environment is using oauth
+      #auth_mode: oauth 
+
+      #=========================#
+      # Oauth Option 1:         #
+      # TNCO Client credentials #
+      #=========================#
+
+      ## ID of the client credentials to authenticate with
       #client_id: LmClient
-      # Secret for the above client
+      
+      ## Secret for the above client
       #client_secret: enter-your-secret
-      # The username to authenticate with
+
+      #=========================#
+      # Oauth Option 2:         #
+      # TNCO User based access  #
+      #=========================#
+
+      ## ID of the client credentials with password scope authentication enabled
+      #client_id: LmClient
+
+      ## Secret for the above client
+      #client_secret: enter-your-secret
+
+      ## The username to authenticate with
       #username: jack
-      # The password for the above user
+
+      ## The password for the above user
       #password: enter-your-pass
       
-      # Auth Option 3: TNCO "unofficial" user based access. 
-      # Using username/password without client credentials is not supported by TNCO so could stop functioning in any future release
-      # The username to authenticate with
+      #=================================#
+      # Oauth Option 3:                 #
+      # "unofficial" user based access  #
+      #=================================#
+
+      ## Using username/password without client credentials is not supported by TNCO so could stop functioning in any future release
+      ## The username to authenticate with
       #username: jack
-      # The password for the above user
+      
+      ## The password for the above user
       #password: enter-your-pass
 
-      ### Deprecated properties maintained for backwards compatibility
+      #############################################
+      # Deprecated properties                     #
+      # maintained for backwards compatibility    #
+      #############################################
 
       ## When not using "address", access to LM is determined by combining <protocol>://<host>:<port>/<path>/
       ## The host address of the LM API
       ## - Required
       #host: app.lm
+      
       ## The port of the LM API. Leave empty if LM is accessible through host only
       ## - Optional
       #port: 32443
+      
       ## The path of the LM API. Leave empty if LM is accessible on the root path of the host and port given
       ## - Optional
       #path: /my-lm
+      
       ## Set if the environment is accessed through HTTPs or HTTP
       ## - Optional
       ## - Default: https
       #protocol: https
+      
       ## Access to LM Auth is determined by combining <protocol>://<auth_host>:<auth_port>/ui/ (for pre 2.1 LM environments it will use <protocol>://<auth_host>:<auth_port>/)
       ## The host address of the LM Username Auth API
       ## - Optional
@@ -162,6 +242,8 @@ environments:
 ```
 
 ## Ansible RM
+
+> **LEGACY** the Ansible RM is not the Ansible Lifecycle Driver and is only used in much older environments. You likely don't need this.
 
 Multiple Ansible RM environments may be included in a group under the `arm` key. It is important that the name given to each Ansible RM matches the name used to onboard it to the LM environment in the same group.
 
@@ -199,13 +281,20 @@ environments:
 
 ```
 environments:
-  dev:
+  dev-with-zen:
+    description: a local dev environment
+    tnco:
+      address: https://ishtar-route.ocp.example.com
+      secure: true
+      auth_mode: zen
+      auth_address: https://zen-route.ocp.example.com/icp4d-api/v1/authorize
+      username: almadmin
+  dev-aio:
     description: a local dev environment
     tnco:
       address: https://192.168.100.50:32443
       secure: true
       client_id: LmClient
-      username: jack
     arm:
       defaultRm:
         host: 192.168.100.50

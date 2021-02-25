@@ -35,43 +35,52 @@ class LmSecurityDriver(LmDriver):
         else:
             self._raise_unexpected_status_exception(response, error_prefx='Authentication request')
 
+ZEN_AUTH_MODE = 'zen'
+LEGACY_OAUTH_MODE = 'oauth'
+
 class LmSecurityCtrl:
     """
     Manages authentication with a target LM environment 
     """
 
-    def __init__(self, login_address, username=None, password=None, client_id=None, client_secret=None, oauth_address=None):
+    def __init__(self, auth_address, username=None, password=None, client_id=None, client_secret=None, api_key=None, auth_mode=None):
         """
         Constructs a new instance of controller for a target LM environment and target user
 
         Args:
-            login_address (str): the base URL of the target LM environment for authentication e.g. http://ui.lm:32080
+            auth_address (str): the base URL of the target LM environment for authentication. May be a Zen endpoint if auth_mode is Zen e.g. http://ui.lm:32080
             username (str): the username to authenticate as
             password (str): the password for the specified username
             client_id (str): the client_id to authenticate as
             client_secret (str): the client_secret for the specified client_id
-            oauth_address (str): address for client access
+            api_key (str): API key used for Zen based auth
+            auth_mode (str): Determines if we're using Zen or Oauth
         """
+        self.__auth_address = auth_address
         self.__username = username
         self.__password = password
         self.__client_id = client_id
         self.__client_secret = client_secret
+        self.__api_key = api_key
+        self.__auth_mode = auth_mode
         self.__auth_tracker = AuthTracker()
-        if oauth_address is not None:
-            address = oauth_address
-        else:
-            address = login_address
+        # Using the new client authentication methods in the "legacy" driver so we only need to maintain one impl
+        # Eventually this LmSecurityCtrl will be removed, once we switch all of the "lmctl project" functionality to use the new client
         client_builder = TNCOClientBuilder()
-        client_builder.address(address)
-        if self.__username is not None:
-            # Using password auth
-            if self.__client_id is not None:
-                client_builder.user_pass_auth(username=self.__username, password=self.__password, client_id=self.__client_id, client_secret=self.__client_secret)
-            else:
-                # Legacy password auth
-                client_builder.legacy_user_pass_auth(username=self.__username, password=self.__password, legacy_auth_address=login_address)
+        client_builder.address(self.__auth_address)
+        if self.__auth_mode.lower() == ZEN_AUTH_MODE:
+            client_builder.zen_api_key_auth(username=self.__username, api_key=self.__api_key, zen_auth_address=self.__auth_address)
         else:
-            client_builder.client_credentials_auth(client_id=self.__client_id, client_secret=self.__client_secret)
+            #Oauth
+            if self.__username is not None:
+                # Using password auth
+                if self.__client_id is not None:
+                    client_builder.user_pass_auth(username=self.__username, password=self.__password, client_id=self.__client_id, client_secret=self.__client_secret)
+                else:
+                    # Legacy password auth
+                    client_builder.legacy_user_pass_auth(username=self.__username, password=self.__password, legacy_auth_address=self.__auth_address)
+            else:
+                client_builder.client_credentials_auth(client_id=self.__client_id, client_secret=self.__client_secret)
         self.__client = client_builder.build()
 
     def get_access_token(self):

@@ -7,6 +7,9 @@ from lmctl.client import TNCOClient, TNCOClientBuilder
 KAMI_PORT = '31289'
 DEFAULT_BRENT_NAME = 'brent'
 
+ZEN_AUTH_MODE = 'zen'
+LEGACY_OAUTH_MODE = 'oauth'
+
 class LmEnvironment(Environment):
 
     def __init__(self, name, 
@@ -27,11 +30,14 @@ class LmEnvironment(Environment):
                        brent_name: str = DEFAULT_BRENT_NAME, 
                        kami_address: str = None,
                        kami_port: Union[str,int] = KAMI_PORT, 
-                       kami_protocol: str = 'http'):
+                       kami_protocol: str = 'http',
+                       api_key: str = None,
+                       auth_mode: str = None):
         name = name.strip() if name is not None else None
         if not name:
-            raise EnvironmentConfigError('LM environment cannot be configured without "name" property')
+            raise EnvironmentConfigError('LM environment must be configured with "name" property')
         self.name = name
+
         self._read_addresses(
             address=address,
             host=host, 
@@ -50,19 +56,45 @@ class LmEnvironment(Environment):
             brent_name = DEFAULT_BRENT_NAME
         self.brent_name = brent_name.strip()
         self.secure = secure
-        self._read_security(client_id=client_id, client_secret=client_secret, username=username, password=password)
-
-    def _read_security(self, client_id: str = None,
-                             client_secret: str = None,
-                             username: str = None,
-                             password: str = None):
         self.client_id = client_id
         self.client_secret = client_secret
         self.username = username
         self.password = password
-        if self.secure and not self.client_id and not self.username:
-            raise EnvironmentConfigError('Secure LM environment cannot be configured without "client_id" or "username" property. If the LM environment is not secure then set "secure" to False')
-            
+        self.api_key = api_key
+        self.auth_mode = auth_mode if auth_mode is not None and len(auth_mode.strip()) > 0 else LEGACY_OAUTH_MODE
+        
+        if self.secure:
+            self._validate_security()
+
+    @property
+    def is_using_oauth(self):
+        return self.auth_mode.lower() == LEGACY_OAUTH_MODE.lower()
+
+    @property
+    def is_using_zen_auth(self):
+        return self.auth_mode.lower() == ZEN_AUTH_MODE.lower()
+
+    def _validate_security(self):
+        if self.is_using_oauth:
+            return self._validate_oauth()
+        elif self.is_using_zen_auth:
+            return self._validate_zen()
+        else:
+            raise EnvironmentConfigError(f'LM environment configured with invalid "auth_mode": {self.auth_mode}')
+ 
+    def _validate_oauth(self):
+        if not self.client_id and not self.username:
+            raise EnvironmentConfigError(f'Secure LM environment must be configured with either "client_id" or "username" property when using "auth_mode={LEGACY_OAUTH_MODE}". If the LM environment is not secure then set "secure" to False')
+        # Currently api_key can only be used with Zen, so we perform an extra check to let the user know 
+        if self.api_key is not None:
+            raise EnvironmentConfigError(f'Secure LM environment cannot be configured with "api_key" when using "auth_mode={LEGACY_OAUTH_MODE}". If the LM environment is not secure then set "secure" to False')
+
+    def _validate_zen(self):
+        if not self.username:
+            raise EnvironmentConfigError(f'Secure LM environment must be configured with a "username" property when using "auth_mode={ZEN_AUTH_MODE}". If the LM environment is not secure then set "secure" to False')
+        if not self.__auth_address_provided and not self.__auth_host_provided:
+            raise EnvironmentConfigError(f'Secure LM environment must be configured with Zen authentication address on the "auth_address" property (or "auth_host"/"auth_port"/"auth_protocol") when using "auth_mode={ZEN_AUTH_MODE}". If the LM environment is not secure then set "secure" to False')
+
     def _read_addresses(self, address: str = None, 
                               protocol: str = 'https', 
                               host: str = None, 
@@ -80,15 +112,19 @@ class LmEnvironment(Environment):
         else:
             host = host.strip() if host is not None else None
             if not host:
-                raise EnvironmentConfigError('LM environment cannot be configured without "address" property or "host" property')
+                raise EnvironmentConfigError('LM environment must be configured with either "address" or "host" property ("port" and "protocol" will be used to build up the full address when using "host")')
             self._address = build_address(host, protocol=protocol, port=port, path=path)
         #Auth host
+        self.__auth_address_provided = False
+        self.__auth_host_provided = False
         if auth_address is not None:
             self.auth_address = auth_address
+            self.__auth_address_provided = True #needed for Zen security validation
         else:
             auth_host = auth_host.strip() if auth_host is not None else None
             if auth_host:
                 self.auth_address = build_address(auth_host, protocol=(auth_protocol or protocol), port=auth_port)
+                self.__auth_host_provided = True #needed for Zen security validation
             else:
                 self.auth_address = self._address
         self.auth_address = self.auth_address
@@ -105,22 +141,32 @@ class LmEnvironment(Environment):
             self.kami_address = kami_address
 
     def create_session_config(self):
-        return LmSessionConfig(self, username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret)
+        return LmSessionConfig(self, 
+                                username=self.username, 
+                                password=self.password, 
+                                client_id=self.client_id, 
+                                client_secret=self.client_secret, 
+                                api_key=self.api_key,
+                                auth_mode=self.auth_mode
+                            )
 
     def build_client(self):
         builder = TNCOClientBuilder()
         builder.address(self.address)
         builder.kami_address(self.kami_address)
         if self.secure:
-            if self.username is not None:
-                # Using password auth
-                if self.client_id is not None:
-                    builder.user_pass_auth(username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret)
-                else:
-                    # Legacy password auth
-                    builder.legacy_user_pass_auth(username=self.username, password=self.password, legacy_auth_address=self.auth_address)
+            if self.auth_mode == ZEN_AUTH_MODE:
+                builder.zen_api_key_auth(username=self.username, api_key=self.api_key, zen_auth_address=self.auth_address)
             else:
-                builder.client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret)
+                if self.username is not None:
+                    # Using password auth
+                    if self.client_id is not None:
+                        builder.user_pass_auth(username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret)
+                    else:
+                        # Legacy password auth
+                        builder.legacy_user_pass_auth(username=self.username, password=self.password, legacy_auth_address=self.auth_address)
+                else:
+                    builder.client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret)
         return builder.build()
 
     @property
@@ -137,12 +183,22 @@ class LmEnvironment(Environment):
 
 class LmSessionConfig:
 
-    def __init__(self, env, username=None, password=None, client_id=None, client_secret=None):
+    def __init__(self, env, username=None, password=None, client_id=None, client_secret=None, api_key=None, auth_mode=None):
         self.env = env
         self.username = username
         self.password = password
         self.client_id = client_id
         self.client_secret = client_secret
+        self.api_key = api_key
+        self.auth_mode = auth_mode
+
+    @property
+    def is_using_oauth(self):
+        return self.auth_mode.lower() == LEGACY_OAUTH_MODE.lower()
+
+    @property
+    def is_using_zen_auth(self):
+        return self.auth_mode.lower() == ZEN_AUTH_MODE.lower()
 
     def create(self):
         return LmSession(self)
@@ -157,6 +213,8 @@ class LmSession:
         self.client_secret = session_config.client_secret
         self.username = session_config.username
         self.password = session_config.password
+        self.api_key = session_config.api_key
+        self.auth_mode = session_config.auth_mode
         self.__lm_security_ctrl = None
         self.__descriptor_driver = None
         self.__onboard_rm_driver = None
@@ -173,15 +231,13 @@ class LmSession:
     def __get_lm_security_ctrl(self):
         if self.env.is_secure:
             if not self.__lm_security_ctrl:
-                oauth_address = None
-                if self.client_id is not None:
-                    oauth_address = self.env.address
                 self.__lm_security_ctrl = lm_drivers.LmSecurityCtrl(self.env.auth_address, 
                                                                     username=self.username, 
                                                                     password=self.password,
                                                                     client_id=self.client_id, 
                                                                     client_secret=self.client_secret,
-                                                                    oauth_address=oauth_address
+                                                                    api_key=self.api_key,
+                                                                    auth_mode=self.auth_mode
                                                                 )
             return self.__lm_security_ctrl
         return None
