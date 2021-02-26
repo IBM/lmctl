@@ -1,6 +1,12 @@
 #  Command Reference
 
-We aim to maintain readable and useful help pages which can be access directly from lmctl:
+## Action Based CLI
+
+Read [Action Based CLI](action-based-cli.md) to learn how the action based commands work.
+
+## Command Help Pages
+
+We aim to maintain readable and useful help pages which can be accessed directly from lmctl:
 
 ```
 lmctl --help
@@ -12,13 +18,13 @@ lmctl create assembly --help
 lmctl create descriptor --help 
 ```
 
-We recommend referring to these first. If you find they are unclear or not helpful, please raise a Github issue with your feedback so we can improve them :speech_balloon:
+We recommend referring to these when learning the commands. If you find they are unclear or not helpful, please raise a Github issue with your feedback so we can improve them :speech_balloon:
 
 As a result, we are no longer adding command reference documents to this section. 
 
-Below are a list of command references written previously, which will maintained for the forseeable.
+# Project command reference
 
-## Project command reference
+Below are a list of command references written previously, which will maintained for the forseeable.
 
 ## pkg
 
@@ -35,7 +41,7 @@ Below are a list of command references written previously, which will maintained
 - [test](./project/test.md)
 - [validate](./project/validate.md)
 
-## Deprecated command reference
+# Deprecated command reference
 
 These commands are deprecated in v3.0
 

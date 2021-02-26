@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler, default_file_inputs_handler, default_output_format_handler, set_param_option
 from lmctl.cli.format import Table, Column
-from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd, LmGen
 
 class DescriptorTemplatesTable(Table):
     
@@ -20,6 +20,16 @@ class DescriptorTemplates(TNCOTarget):
     name = 'descriptortemplate'
     plural = 'descriptortemplates'
     display_name = 'Descriptor Template'
+
+    @LmGen()
+    def genfile(self, ctx: click.Context, name: str):
+        return {
+            'name': name,
+            'properties': {
+                'injected_prop': {'type': 'string'}
+            },
+            'template': 'name: assembly::{{ injected_prop }}::1.0',
+        }
 
     @LmCmd(short_help=f'Render a {display_name} and view the output', 
                 help=f'''\

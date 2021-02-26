@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
-from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmGen
 
 class ProjectTable(Table):
     
@@ -18,6 +18,12 @@ class Projects(TNCOTarget):
     name = 'behaviourproject'
     plural = 'behaviourprojects'
     display_name = 'Behaviour Project'
+
+    @LmGen()
+    def genfile(self, ctx: click.Context, name: str):
+        return {
+            'name': f'assembly::{name}::1.0',
+        }
 
     @LmGet(output_formats=output_formats, help=f'''\
                                             Get all {display_name}s or get one by name\

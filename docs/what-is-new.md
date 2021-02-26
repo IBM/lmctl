@@ -71,7 +71,7 @@ The arguments/options for each entity are similar in style but there are differe
 lmctl get descriptor --help
 ```
 
-Read more about commands in the [command reference section of the user guide](command-reference/index.md)
+Read more about commands in the [command reference section of the user guide](command-reference/index.md). More specifically read about the [Action Based CLI](command-reference/action-based-cli.md)
 
 # TNCO Python Client
 

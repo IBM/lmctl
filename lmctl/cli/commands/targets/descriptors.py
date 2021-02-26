@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
-from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmGen
 
 class DescriptorTable(Table):
     
@@ -18,6 +18,23 @@ class Descriptors(TNCOTarget):
     name = 'descriptor'
     plural = 'descriptors'
     display_name = 'Descriptor'
+    
+    @LmGen()
+    def genfile(self, ctx: click.Context, name: str):
+        return {
+            'name': f'assembly::example::1.0',
+            'properties': {
+                'propA': {'type': 'string'}
+            },
+            'composition': {
+                'A': {
+                    'type': 'resource::example::1.0',
+                    'properties': {
+                        'propA': '${propA}'
+                    }
+                }
+            }
+        }
 
     @LmGet(output_formats=output_formats, help=f'''\
                                             Get a summary of all {display_name}s or get the details of one by name\

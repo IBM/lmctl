@@ -3,7 +3,7 @@ from typing import Dict, List
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler, default_output_format_handler
 from lmctl.cli.format import Table, Column, TableFormat
-from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmGen
 
 class ResourceManagerTable(Table):
     
@@ -28,6 +28,14 @@ class ResourceManagers(TNCOTarget):
     name = 'resourcemanager'
     plural = 'resourcemanagers'
     display_name = 'Resource Manager'
+
+    @LmGen()
+    def genfile(self, ctx: click.Context, name: str):
+        return {
+            'name': name,
+            'type': name, 
+            'url': 'https://my-rm.example.com/api/resource-manager'
+        }
 
     @LmGet(output_formats=output_formats, help=f'''\
                                             Get all {display_name}s or get by name\

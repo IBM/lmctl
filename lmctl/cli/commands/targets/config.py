@@ -94,4 +94,3 @@ class Configuration(Target):
                 f.write(config_template)
             IOController.get().print(f'Created file: {path}')
         return _create
-
