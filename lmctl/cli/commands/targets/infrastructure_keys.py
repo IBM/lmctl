@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
-from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmGen
 
 class InfrastructureKeyTable(Table):
     
@@ -19,6 +19,15 @@ class InfrastructureKeys(TNCOTarget):
     name = 'infrastructurekey'
     plural = 'infrastructurekeys'
     display_name = 'Infrastructure Key'
+
+    @LmGen()
+    def genfile(self, ctx: click.Context, name: str):
+        return {
+            'name': name,
+            'description': 'An infrastructure key', 
+            'privateKey': 'the-private-part',
+            'publicKey': 'the-public-part'
+        }
 
     @LmGet(output_formats=output_formats, help=f'''\
                                             Get all {display_name}s or get by name\

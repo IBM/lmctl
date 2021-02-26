@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
-from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmGen
 
 class AssemblyConfigurationTable(Table):
     
@@ -20,6 +20,18 @@ class AssemblyConfigurations(TNCOTarget):
     name = 'assemblyconfig'
     plural = 'assemblyconfigs'
     display_name = 'Assembly Configuration'
+
+    @LmGen()
+    def genfile(self, ctx: click.Context, name: str):
+        return {
+            'name': name,
+            'projectId': 'assembly::example::1.0',
+            'description': 'Example Assembly Configuration. projectId determines the descriptor project this config will be added to',
+            'descriptorName': 'assembly::example::1.0',
+            'properties': {
+                'propA': 'exampleValue'
+            }
+        }
 
     @LmGet(output_formats=output_formats, help=f'''\
                                             Get {display_name} by ID or all in a Behaviour Project\

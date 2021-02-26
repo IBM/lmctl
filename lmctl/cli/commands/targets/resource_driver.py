@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
-from .tnco_target import TNCOTarget, LmGet, LmCreate, LmDelete
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmDelete, LmGen
 from lmctl.utils.certificates import read_certificate_file
 
 class ResourceDriverTable(Table):
@@ -20,6 +20,14 @@ class ResourceDrivers(TNCOTarget):
     name = 'resourcedriver'
     plural = 'resourcedrivers'
     display_name = 'Resource Driver'
+
+    @LmGen()
+    def genfile(self, ctx: click.Context, name: str):
+        return {
+            'type': name,
+            'baseUri': 'https://ansible-lifecycle-driver:8293', 
+            'certifcate': '<insert certificate as multi-line string here or use "--certifcate" option to provide file path to the target command>'
+        }
 
     @LmGet(output_formats=output_formats, help=f'''\
                                             Get {display_name} by ID or type\

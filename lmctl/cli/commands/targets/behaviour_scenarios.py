@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler, set_param_option, default_file_inputs_handler
 from lmctl.cli.format import Table, Column
-from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmGen, LmCmd
 
 class ScenarioTable(Table):
     
@@ -21,6 +21,28 @@ class Scenarios(TNCOTarget):
     name = 'scenario'
     plural = 'scenarios'
     display_name = 'Scenario'
+
+    @LmGen()
+    def genfile(self, ctx: click.Context, name: str):
+        return {
+            'name': name,
+            'projectId': 'assembly::example::1.0',
+            'description': 'An example scenario',
+            'stages': [
+                {
+                    'name': 'Default Stage',
+                    'steps': [
+                        {
+                            'stepDefinitionName': 'Utilities::SleepForTime',
+                            'properties': {
+                                'sleepTime': '10'
+                            }
+                        }
+                    ]
+                }
+            ],
+            'assemblyActors': []
+        }
 
     @LmCmd(help=f'''\
                     Execute a Behaviour Scenario (by ID)

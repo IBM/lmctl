@@ -3,7 +3,7 @@ from typing import Dict
 from lmctl.client import TNCOClient, TNCOClientHttpError, TNCOClientError
 from lmctl.cli.arguments import common_output_format_handler, default_file_inputs_handler, set_param_option
 from lmctl.cli.format import Table, Column
-from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmCmd
+from .tnco_target import TNCOTarget, LmGet, LmCreate, LmUpdate, LmDelete, LmGen, LmCmd
 
 class AssemblyTable(Table):
     
@@ -21,6 +21,17 @@ class Assemblies(TNCOTarget):
     name = 'assembly'
     plural = 'assemblies'
     display_name = 'Assembly'
+
+    @LmGen()
+    def genfile(self, ctx: click.Context, name: str):
+        return {
+            'name': name,
+            'descriptorName': 'assembly::example::1.0',
+            'intendedState': 'Active',
+            'properties': {
+                'examplePropA': 'exampleValue'
+            }
+        }
 
     @LmGet(output_formats=output_formats, help=f'''\
                                             Get an {display_name} by ID or name. Alternatively, get a list of most recent or by partial name match\

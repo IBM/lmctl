@@ -11,6 +11,7 @@ from .heal_action import Heal
 from .adopt_action import Adopt
 from .render_action import Render
 from .ping_action import Ping
+from .gen_file_action import GenerateFile
 
 action_types = [
     Get, 
@@ -24,5 +25,6 @@ action_types = [
     Heal, 
     Adopt, 
     Render, 
-    Ping
+    Ping,
+    GenerateFile
 ]
