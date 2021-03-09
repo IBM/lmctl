@@ -96,7 +96,7 @@ def build(project_path, autocorrect):
 @click.argument('environment')
 @click.option('--config', default=None, help='configuration file')
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources must be provided')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', '--api-key', default=None, help='TNCO (ALM) password/api_key used for authenticating. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
 def push(project_path, environment, config, armname, pwd, autocorrect):
     """Push an Assembly/Resource project"""
@@ -122,7 +122,7 @@ def __parse_tests_option(tests):
 @click.option('--config', default=None, help='configuration file')
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources to must be provided')
 @click.option('--tests', default=None, help='specify comma separated list of individual tests to execute')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', '--api-key', default=None, help='TNCO (ALM) password/api_key used for authenticating. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
 def test(project_path, environment, config, armname, tests, pwd, autocorrect):
     """Builds, pushes and runs the tests of an Assembly/Resource project on a target LM (and ARM) environment"""
@@ -141,7 +141,7 @@ def test(project_path, environment, config, armname, tests, pwd, autocorrect):
 @click.option('--project', 'project_path', default='./', help='File location of project')
 @click.argument('environment')
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config, without a password)')
+@click.option('--pwd', '--api-key', default=None, help='TNCO (ALM) password/api_key used for authenticating. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 def pull(project_path, environment, config, pwd):
     """Pulls the content of a Assembly/Resource from a target LM environment, overidding local content"""
     logger.debug('Pulling project at: {0}'.format(project_path))

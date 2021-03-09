@@ -55,3 +55,14 @@ class AuthenticationAPI(APIBase):
             else:
                 raise
         return auth_response
+
+    def request_zen_api_key_access(self, username: str, api_key: str, zen_auth_address: str = None) -> Dict:
+        body = {
+            'username': username,
+            'api_key': api_key
+        }
+        auth_response = self.base_client.make_request_for_json(method='POST', 
+                                                                override_address=zen_auth_address, 
+                                                                include_auth=False, 
+                                                                json=body)
+        return auth_response

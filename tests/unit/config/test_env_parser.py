@@ -433,7 +433,7 @@ class TestEnvironmentGroupsParser(unittest.TestCase):
         }
         with self.assertRaises(ConfigError) as context:
             EnvironmentGroupsParser.from_dict(invalid_config)
-        self.assertEqual(str(context.exception), 'Secure LM environment cannot be configured without "client_id" or "username" property. If the LM environment is not secure then set "secure" to False')
+        self.assertEqual(str(context.exception), 'Secure LM environment must be configured with either "client_id" or "username" property when using "auth_mode=oauth". If the LM environment is not secure then set "secure" to False')
 
     def test_parse_invalid_arm(self):
         invalid_config = {

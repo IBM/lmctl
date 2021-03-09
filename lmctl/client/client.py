@@ -71,9 +71,10 @@ class TNCOClient:
             self._add_auth_headers(headers=headers)
         return headers
     
-    def make_request(self, method: str, endpoint: str, include_auth: bool = True, override_address: str = None, **kwargs) -> requests.Response:
-        address = override_address or self.address
-        url = f'{address}/{endpoint}'
+    def make_request(self, method: str, endpoint: str = None, include_auth: bool = True, override_address: str = None, **kwargs) -> requests.Response:
+        url = override_address or self.address
+        if endpoint is not None:
+            url = f'{url}/{endpoint}'
         logger.debug(f'LM request: Method={method}, URL={url}, kwargs={kwargs}')
 
         headers = self._build_headers(include_auth=include_auth, user_supplied_headers=kwargs.pop('headers', {}))
@@ -89,7 +90,7 @@ class TNCOClient:
             raise TNCOClientHttpError(f'{method} request to {url} failed', e) from e
         return response
 
-    def make_request_for_json(self, method: str, endpoint: str, include_auth: bool = True, override_address: str = None, **kwargs) -> Dict:
+    def make_request_for_json(self, method: str, endpoint: str = None, include_auth: bool = True, override_address: str = None, **kwargs) -> Dict:
         response = self.make_request(method, endpoint, include_auth=include_auth, override_address=override_address, **kwargs)
         try:
             return response.json()

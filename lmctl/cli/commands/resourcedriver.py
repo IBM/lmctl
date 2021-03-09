@@ -7,7 +7,7 @@ from lmctl.utils.certificates import read_certificate_file
 
 logger = logging.getLogger(__name__)
 
-@click.group(help='DEPRECATED in v3.0: Commands for managing Resource drivers (LM 2.2+ only)')
+@click.group(help='deprecated in v3.0: Commands for managing Resource drivers (LM 2.2+ only)')
 def resourcedriver():
     logger.debug('resourcedriver')
 
@@ -27,7 +27,7 @@ def format_resource_driver(output_format, resource_driver):
 @resourcedriver.command(help='Add a resource driver to LM')
 @click.argument('environment')
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', '--api-key', default=None, help='TNCO (ALM) password/api_key used for authenticating. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('--type', 'driver_type', default='Ansible', help='Driver type of the driver to add')
 @click.option('--url', help='url of resource driver to add')
 @click.option('--certificate', help='filename of a file containing the public certificate of the resource driver')
@@ -56,7 +56,7 @@ def add(environment, config, pwd, driver_type, url, certificate, output_format):
 @click.argument('environment')
 @click.argument('driver-id', required=False)
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', '--api-key', default=None, help='TNCO (ALM) password/api_key used for authenticating. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('--type', 'driver_type', help='Driver type used to identify the resource driver to remove. Use this instead of the driver-id argument')
 def delete(environment, driver_id, config, pwd, driver_type):
     """Remove a resource driver by ID or type"""
@@ -78,7 +78,7 @@ def delete(environment, driver_id, config, pwd, driver_type):
 @click.argument('environment')
 @click.argument('driver-id', required=False)
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', '--api-key', default=None, help='TNCO (ALM) password/api_key used for authenticating. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('--type', 'driver_type', help='Driver type used to identify the resource driver to get. Use this instead of the driver-id argument')
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
 def get(environment, driver_id, config, pwd, driver_type, output_format):

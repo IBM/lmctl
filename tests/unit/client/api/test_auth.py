@@ -81,3 +81,27 @@ class TestAuthenticationAPI(unittest.TestCase):
                 }
             )
         ])
+
+    def test_request_zen_api_key_access(self):
+        self.mock_client.make_request_for_json.return_value = {'token': '123'}
+        response = self.authentication.request_zen_api_key_access('joe', 'secretkey', zen_auth_address='https://zen:80')
+        self.assertEqual(response, {'token': '123'})
+        self.mock_client.make_request_for_json.assert_called_with(method='POST', 
+                                                                    include_auth=False, 
+                                                                    override_address='https://zen:80',
+                                                                    json={
+                                                                        'username': 'joe', 
+                                                                        'api_key': 'secretkey'
+                                                                    })
+        # Without zen_auth_address
+        response = self.authentication.request_zen_api_key_access('joe', 'secretkey')
+        self.assertEqual(response, {'token': '123'})
+        self.mock_client.make_request_for_json.assert_called_with(method='POST', 
+                                                                    include_auth=False, 
+                                                                    override_address=None,
+                                                                    json={
+                                                                        'username': 'joe', 
+                                                                        'api_key': 'secretkey'
+                                                                    })
+
+                                                            

@@ -7,6 +7,7 @@ Contents:
 - :muscle: [Expanded Command Capabilities](#expanded-command-capabilities)
 - :snake: [TNCO Python Client](#tnco-python-client)
 - :wrench: [TNCO Environment Improvements](#tnco-environment-address-improvements)
+- :closed_lock_with_key: [Zen Authentication](#zen-authentication)
 - :closed_lock_with_key: [Client Credential Authentication](#client-credential-authentication)
 - :point_right: [Ping TNCO environment to check configuration](#ping-tnco-environment-to-check-configuration)
 - :smirk: [New Brand Support](#new-brand-support)
@@ -122,7 +123,31 @@ environments:
       username: jack
 ```
 
+# Zen Authentication
+
+The latest version of TNCO (v2.1 of ICP4NA) has been updated to use the Zen framework to handle authentication, in a move towards single sign on.
+
+When using LMCTL with a Zen supported version of TNCO, you will need to add the `auth_mode` property, with a value of `zen`. You must also supply the Zen authorization API for your environment on the `auth_address`. 
+
+Zen authentication requires a `username` and `api_key`. You may include the API key as plain text in your configuration file or pass it on the command line with the `--api-key` option or allow LMCTL to prompt you for it on each command.
+
+```yaml
+environments:
+  example-with-zen:
+    lm:
+      address: https://isthar-route.ocp.example.com
+      secure: True
+      auth_mode: zen
+      auth_address: https://zen-route.ocp.example.com/icp4d-api/v1/authorize
+      username: almadmin
+      # Omit api_key if you wish to pass this value with the "--api-key" option on the command line 
+      # or to have LMCTL prompt you for this value on each command
+      api_key: some-key 
+```
+
 # Client Credential Authentication
+
+> Note: this feature is for older versions of TNCO which do not use the Zen framework
 
 Before v3.0 you could only authenticate with a secure TNCO environment using client credential-less username/password. In short, this means authenticating with just a username/password. Although allowed, this is not a supported TNCO authentication method so could disappear at any time. 
 
@@ -148,6 +173,8 @@ environments:
       address: https://my-tnco-env
       secure: True
       # Legit username/password access (update values with valid credentials for your environment)
+      # Omit client_secret if you wish to pass this value with the "--client-secret" option on the command line 
+      # or to have LMCTL prompt you for this value on each command
       client_id: NimrodClient
       client_secret: some-secret
       username: jack
