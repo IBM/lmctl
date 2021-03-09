@@ -5,7 +5,7 @@ LMCTL configuration is written as a YAML formatted file and can exist anywhere o
 Table of contents:
 - [Initialise configuration file](#initialise-new-configuration-file)
 - [Environment Groups](#environment-groups)
-  - [TNCO (ALM) Configuration](#tnco-(alm)-configuration)
+  - [TNCO (ALM) Configuration](#tnco-alm-configuration)
   - [Ansible RM](#ansible-rm)
 
 ## Initialise configuration file
