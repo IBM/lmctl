@@ -28,7 +28,7 @@ setup(
         'ruamel.yaml>=0.16,<1.0',
         'oyaml>=0.8,<1.0',
         'tabulate>=0.8,<1.0',
-        'Jinja2==2.11.2',
+        'Jinja2==2.11.3',
         'PyYAML>=5.3.0,<6.0'
     ],
     entry_points='''
