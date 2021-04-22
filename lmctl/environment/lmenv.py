@@ -167,6 +167,7 @@ class LmSession:
         self.__lifecycle_driver_mgmt_driver = None
         self.__resource_driver_mgmt_driver = None
         self.__resource_pkg_driver = None
+        self.__pkg_mgmt_driver = None
         self.__infrastructure_keys_driver = None
         self.__descriptor_template_driver = None
 
@@ -258,6 +259,18 @@ class LmSession:
         if not self.__resource_pkg_driver:
             self.__resource_pkg_driver = lm_drivers.LmResourcePkgDriver(self.env.api_address, self.__get_lm_security_ctrl())
         return self.__resource_pkg_driver
+
+    @property
+    def pkg_mgmt_driver(self):
+        """
+        Obtain a PackageMgmtDriver configured for use against this LM environment
+
+        Returns:
+            PackageMgmtDriver: a configured PackageMgmtDriver for this LM environment
+        """
+        if not self.__pkg_mgmt_driver:
+            self.__pkg_mgmt_driver = lm_drivers.PackageMgmtDriver(self.env.api_address, self.__get_lm_security_ctrl())
+        return self.__pkg_mgmt_driver        
 
     @property
     def resource_driver_mgmt_driver(self):

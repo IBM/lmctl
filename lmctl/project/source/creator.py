@@ -37,6 +37,18 @@ class CreateResourceProjectRequest(CreateProjectRequest):
         super().__init__()
         self.resource_manager = None
 
+class CreateEtsiNsProjectRequest(CreateProjectRequest):
+
+    def __init__(self):
+        super().__init__()
+        self.params = {'packaging':'csar'}
+
+class CreateEtsiVnfProjectRequest(CreateProjectRequest):
+
+    def __init__(self):
+        super().__init__()
+        self.params = {'packaging':'csar'}        
+
 class SubprojectRequest(CreateProjectBaseRequest):
 
     def __init__(self):
@@ -119,6 +131,10 @@ class ProjectCreator:
             resource_manager = self.request.resource_manager
         elif isinstance(self.request, CreateTypeProjectRequest):
             project_type = types.TYPE_PROJECT_TYPE
+        elif isinstance(self.request, CreateEtsiNsProjectRequest):
+            project_type = types.ETSI_NS_PROJECT_TYPE
+        elif isinstance(self.request, CreateEtsiVnfProjectRequest):
+            project_type = types.ETSI_VNF_PROJECT_TYPE           
         packaging = handlers_api.TGZ_PACKAGING
         if 'packaging' in self.request.params:
             packaging = self.request.params['packaging']
@@ -162,7 +178,7 @@ class ProjectCreator:
             raise CreateError(str(e)) from e
 
     def __create_sources_for(self, journal, path, source_config, name_chain):
-        journal.event('Creating sources for {0}'.format(source_config.name))
+        journal.event('Creating sources for {0}'.format(source_config))
         tree = project_sources.ProjectBaseTree(path)
         source_creator = handlers_manager.source_creator_for(source_config)()
         param_key = self.__param_key_from_name_chain(name_chain)

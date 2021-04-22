@@ -171,7 +171,7 @@ def list(project_path, element):
 @click.argument('location', default='./')
 @click.option('--name', help='Name of the Assembly/Resource managed in the project, by default the target directory name is used')
 @click.option('--version', default='1.0', help='Version of the Assembly managed in the project')
-@click.option('--type', 'project_type', default='Assembly', help='Type of service managed in the Project. Options: Assembly, NS (same as Assembly), VNF (same as Assembly), Resource, Type')
+@click.option('--type', 'project_type', default='Assembly', help='Type of service managed in the Project. Options: Assembly, NS (same as Assembly), VNF (same as Assembly), Resource, Type, ETSI_NS, ETSI_VNF')
 @click.option('--rm', default='lm', help='Resource projects only - type of Resource Manager this Resource supports')
 @click.option('--contains', nargs=2, type=click.Tuple([str, str]), multiple=True, help='Subprojects to initiate under this project. Must specify 2 values separated by spaces: type name. For a Resource subproject, you may set the rm by including it it in the type value using the format \'type::rm\' e.g. Resource::ansiblerm. If no rm is set then the value of the --rm option will be used instead')
 @click.option('--servicetype', help='(Deprecated: use --type instead) type of Service managed in the Project (NS or VNF)')
@@ -191,7 +191,9 @@ def create(location, name, version, project_type, rm, contains, servicetype, vnf
     if isinstance(project_request, creator.CreateResourceProjectRequest):
         project_request.resource_manager = rm
     params_by_project = __sort_params(contains, params)
-    project_request.params = params_by_project[ROOT_PROJECT_PARAMS_REFERENCE]
+    print('----- Project Params: {0}'.format(params_by_project))
+    project_request.params.update(params_by_project[ROOT_PROJECT_PARAMS_REFERENCE])
+    print('----- Request Params: {0}'.format(project_request.params))
     project_request.subproject_requests = __process_subprojects(contains, vnfcs, rm, params_by_project)
     create_options = creator.CreateOptions()
     create_options.journal_consumer = lifecycle_cli.ConsoleProjectJournalConsumer(lifecycle_cli.printer)
@@ -271,9 +273,15 @@ def __build_request_for_type(project_type):
         return creator.CreateResourceProjectRequest()
     elif project_types.is_type_project_type(project_type):
         return creator.CreateTypeProjectRequest()
+    elif project_types.is_etsi_vnf_type(project_type):
+        return creator.CreateEtsiVnfProjectRequest()
+    elif project_types.is_etsi_ns_type(project_type):
+        return creator.CreateEtsiNsProjectRequest()           
     else:
         lifecycle_cli.printer.print_text('Error: --type option must be one of: {0}'.format([project_types.ASSEMBLY_PROJECT_TYPE,
-                                                                                            project_types.NS_PROJECT_TYPE, project_types.VNF_PROJECT_TYPE, project_types.RESOURCE_PROJECT_TYPE]))
+                                                                                            project_types.NS_PROJECT_TYPE, project_types.VNF_PROJECT_TYPE, 
+                                                                                            project_types.RESOURCE_PROJECT_TYPE, project_types.ETSI_NS_PROJECT_TYPE, 
+                                                                                            project_types.ETSI_VNF_PROJECT_TYPE]))
         exit(1)
 
 
@@ -286,7 +294,7 @@ def __build_subproject_request_for_type(project_type):
         return creator.TypeSubprojectRequest()
     else:
         lifecycle_cli.printer.print_text('Error: --subproject option must include a type of: {0}'.format([project_types.ASSEMBLY_PROJECT_TYPE,
-                                                                                                          project_types.NS_PROJECT_TYPE, project_types.VNF_PROJECT_TYPE, project_config.RESOURCE_PROJECT_TYPE]))
+                                                                                                          project_types.NS_PROJECT_TYPE, project_types.VNF_PROJECT_TYPE, project_types.RESOURCE_PROJECT_TYPE]))
         exit(1)
 
 

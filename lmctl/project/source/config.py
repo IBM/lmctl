@@ -77,8 +77,8 @@ class ProjectConfigBase(ProjectConfig):
         self._name = name
         if not project_type:
             raise ProjectConfigError('project_type must be defined')
-        if not types.is_assembly_type(project_type) and not types.is_resource_type(project_type) and not types.is_type_project_type(project_type):
-            raise ProjectConfigError('Project type must be one of: {0}'.format([types.ASSEMBLY_PROJECT_TYPE, types.RESOURCE_PROJECT_TYPE, types.TYPE_PROJECT_TYPE]))
+        if not types.is_assembly_type(project_type) and not types.is_resource_type(project_type) and not types.is_type_project_type(project_type) and not types.is_etsi_vnf_type(project_type) and not types.is_etsi_ns_type(project_type):
+            raise ProjectConfigError('Project type must be one of: {0}'.format([types.ASSEMBLY_PROJECT_TYPE, types.RESOURCE_PROJECT_TYPE, types.TYPE_PROJECT_TYPE, types.ETSI_NS_PROJECT_TYPE, types.ETSI_VNF_PROJECT_TYPE]))
         self._project_type = project_type
         if not subproject_entries:
             subproject_entries = []
