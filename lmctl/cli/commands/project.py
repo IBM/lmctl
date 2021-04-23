@@ -190,10 +190,10 @@ def create(location, name, version, project_type, rm, contains, servicetype, vnf
     project_request.target_location = location
     if isinstance(project_request, creator.CreateResourceProjectRequest):
         project_request.resource_manager = rm
+    elif isinstance(project_request, creator.CreateEtsiVnfProjectRequest):
+        project_request.resource_manager = rm
     params_by_project = __sort_params(contains, params)
-    print('----- Project Params: {0}'.format(params_by_project))
     project_request.params.update(params_by_project[ROOT_PROJECT_PARAMS_REFERENCE])
-    print('----- Request Params: {0}'.format(project_request.params))
     project_request.subproject_requests = __process_subprojects(contains, vnfcs, rm, params_by_project)
     create_options = creator.CreateOptions()
     create_options.journal_consumer = lifecycle_cli.ConsoleProjectJournalConsumer(lifecycle_cli.printer)

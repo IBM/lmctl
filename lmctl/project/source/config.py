@@ -68,6 +68,11 @@ class ProjectConfig:
     def is_type_project(self):
         return types.is_type_project_type(self.project_type)
 
+    def is_etsi_vnf_project(self):
+        return types.is_etsi_vnf_type(self.project_type)
+
+    def is_etsi_ns_project(self):
+        return types.is_etsi_ns_type(self.project_type)
 
 class ProjectConfigBase(ProjectConfig):
 
@@ -84,11 +89,12 @@ class ProjectConfigBase(ProjectConfig):
             subproject_entries = []
         self._subproject_entries = subproject_entries
         if not resource_manager:
-            if project_type == types.RESOURCE_PROJECT_TYPE:
+            if project_type in [types.RESOURCE_PROJECT_TYPE, types.ETSI_VNF_PROJECT_TYPE]:
                 raise ProjectConfigError('resource_manager must be defined when type is {0}'.format(types.RESOURCE_PROJECT_TYPE))
         else:
             if resource_manager not in types.SUPPORTED_RM_TYPES:
                 raise ProjectConfigError('resource_manager type not supported, must be one of: {0}'.format(types.SUPPORTED_RM_TYPES_GROUPED))
+        print('resource_manager={0}'.format(resource_manager))        
         self._resource_manager = resource_manager
 
     @property

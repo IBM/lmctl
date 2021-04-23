@@ -47,7 +47,8 @@ class CreateEtsiVnfProjectRequest(CreateProjectRequest):
 
     def __init__(self):
         super().__init__()
-        self.params = {'packaging':'csar'}        
+        self.params = {'packaging':'csar'}
+        self.resource_manager = None
 
 class SubprojectRequest(CreateProjectBaseRequest):
 
@@ -135,6 +136,7 @@ class ProjectCreator:
             project_type = types.ETSI_NS_PROJECT_TYPE
         elif isinstance(self.request, CreateEtsiVnfProjectRequest):
             project_type = types.ETSI_VNF_PROJECT_TYPE           
+            resource_manager = self.request.resource_manager
         packaging = handlers_api.TGZ_PACKAGING
         if 'packaging' in self.request.params:
             packaging = self.request.params['packaging']
