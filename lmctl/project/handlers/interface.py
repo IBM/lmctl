@@ -2,12 +2,17 @@ import abc
 import os
 import shutil
 from lmctl.project.source.config import RootProjectConfig
+import lmctl.project.types as project_types
+from datetime import datetime, timezone
 
 PACKAGING_PARAM = 'packaging'
 TGZ_PACKAGING = 'tgz'
 CSAR_PACKAGING = 'csar'
 TOSCA_METADATA = 'TOSCA-Metadata'
 TOSCA_META_FILE = 'TOSCA.meta'
+LICENSE_FILE = 'Files/Licenses/License.txt'
+CHANGELOG_FILE = 'Files/Changelog.txt'
+MF_FILE='MRF.mf'
 
 ############################
 # Source Creator Exceptions
@@ -117,6 +122,8 @@ class SourceCreator(abc.ABC):
         self._validate_expected_params(journal, source_request)
         self._do_create_common_source(journal, source_request)
         self._do_create_source(journal, source_request)
+        if(self.__is_etsi_project(source_request.source_config.project_type)):
+            self._do_create_etsi_source(journal, source_request)
 
     @abc.abstractmethod
     def _do_create_source(self, journal, source_request):
@@ -133,8 +140,38 @@ class SourceCreator(abc.ABC):
                 meta_content += '\nCSAR-Version: 1.1'
                 meta_content += '\nCreated-by: Author Here'
                 meta_content += '\nEntry-Definitions: Definitions'
+                if(self.__is_etsi_project(source_request.source_config.project_type)):
+                    meta_content += '\nETSI-Entry-Manifest: MRF.mf'
+                    meta_content += '\nETSI-Entry-Licenses: '+LICENSE_FILE
+                    meta_content += '\nETSI-Entry-Change-Log: '+CHANGELOG_FILE
+                    if source_request.source_config.project_type == project_types.ETSI_NS_PROJECT_TYPE:
+                        meta_content += '\nDefinitions/assembly.yaml'
+                    elif source_request.source_config.project_type == project_types.ETSI_VNF_PROJECT_TYPE:
+                        meta_content += '\nDefinitions/resource.yaml'                    
+                    file_ops.append(CreateFileOp(LICENSE_FILE, content='', on_existing=EXISTING_IGNORE))
+                    file_ops.append(CreateFileOp(CHANGELOG_FILE, content='', on_existing=EXISTING_IGNORE))
                 file_ops.append(CreateFileOp(os.path.join(TOSCA_METADATA, TOSCA_META_FILE), meta_content, EXISTING_IGNORE))
         self._execute_file_ops(file_ops, source_request.target_path, journal)
+
+    
+    def _do_create_etsi_source(self, journal, source_request):
+        file_ops = []
+        d = datetime.now()
+        manifest_content = 'metadata:\n'
+        manifest_content += 'vnfd_id: TBC\n'
+        manifest_content += 'vnf_provider_id: IBM\n'
+        manifest_content += 'vnf_product_name: TNC-O\n'
+        manifest_content += 'vnf_release_date_time: '+d.isoformat()+'\n'
+        manifest_content += 'vnf_software_version: 3.0\n'
+        manifest_content += 'vnf_package_version: 3.0\n'
+        manifest_content += 'compatible_specification_versions: 3.1.1\n'
+        file_ops.append(CreateFileOp(MF_FILE, manifest_content, on_existing=EXISTING_IGNORE))
+        self._execute_file_ops(file_ops, source_request.target_path, journal)
+
+    def __is_etsi_project(self, project_type):
+        if project_type is None:
+            return False
+        return project_type in [project_types.ETSI_NS_PROJECT_TYPE, project_types.ETSI_VNF_PROJECT_TYPE]
 
 class ResourceSourceCreatorDelegate(abc.ABC):
 
