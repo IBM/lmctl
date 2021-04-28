@@ -145,9 +145,9 @@ class SourceCreator(abc.ABC):
                     meta_content += '\nETSI-Entry-Licenses: '+LICENSE_FILE
                     meta_content += '\nETSI-Entry-Change-Log: '+CHANGELOG_FILE
                     if source_request.source_config.project_type == project_types.ETSI_NS_PROJECT_TYPE:
-                        meta_content += '\nDefinitions/assembly.yaml'
+                        meta_content += '\nTNCO-Descriptor: Descriptor/assembly.yml'
                     elif source_request.source_config.project_type == project_types.ETSI_VNF_PROJECT_TYPE:
-                        meta_content += '\nDefinitions/resource.yaml'                    
+                        meta_content += '\nTNCO-Descriptor: Definitions/resource.yml'                    
                     file_ops.append(CreateFileOp(LICENSE_FILE, content='', on_existing=EXISTING_IGNORE))
                     file_ops.append(CreateFileOp(CHANGELOG_FILE, content='', on_existing=EXISTING_IGNORE))
                 file_ops.append(CreateFileOp(os.path.join(TOSCA_METADATA, TOSCA_META_FILE), meta_content, EXISTING_IGNORE))
@@ -162,8 +162,9 @@ class SourceCreator(abc.ABC):
         manifest_content += 'vnf_provider_id: IBM\n'
         manifest_content += 'vnf_product_name: TNC-O\n'
         manifest_content += 'vnf_release_date_time: '+d.isoformat()+'\n'
-        manifest_content += 'vnf_software_version: 3.0\n'
-        manifest_content += 'vnf_package_version: 3.0\n'
+        manifest_content += 'vnf_software_version: 1.0\n'
+        manifest_content += 'vnf_package_version: 1.0\n'
+        manifest_content += 'vnfm_info: etsivnfm:v3.3.1\n'
         manifest_content += 'compatible_specification_versions: 3.1.1\n'
         file_ops.append(CreateFileOp(MF_FILE, manifest_content, on_existing=EXISTING_IGNORE))
         self._execute_file_ops(file_ops, source_request.target_path, journal)

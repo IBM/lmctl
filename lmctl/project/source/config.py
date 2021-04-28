@@ -90,11 +90,10 @@ class ProjectConfigBase(ProjectConfig):
         self._subproject_entries = subproject_entries
         if not resource_manager:
             if project_type in [types.RESOURCE_PROJECT_TYPE, types.ETSI_VNF_PROJECT_TYPE]:
-                raise ProjectConfigError('resource_manager must be defined when type is {0}'.format(types.RESOURCE_PROJECT_TYPE))
+                raise ProjectConfigError('resource_manager must be defined when type is {0}'.format(project_type))
         else:
             if resource_manager not in types.SUPPORTED_RM_TYPES:
                 raise ProjectConfigError('resource_manager type not supported, must be one of: {0}'.format(types.SUPPORTED_RM_TYPES_GROUPED))
-        print('resource_manager={0}'.format(resource_manager))        
         self._resource_manager = resource_manager
 
     @property
@@ -138,7 +137,7 @@ class ProjectConfigBase(ProjectConfig):
             'name': self.name,
             'type': self.project_type
         }
-        if self.is_resource_project():
+        if self.is_resource_project() or self.is_etsi_vnf_project():
             data['resource-manager'] = self.resource_manager
         if len(self.subproject_entries) > 0:
             data['contains'] = []
@@ -246,7 +245,7 @@ class ProjectConfigParserWorker:
         self.project_version = self.__read_project_version(self.config_dict)
         resource_manager = None
         subprojects = self.__read_subprojects(self.config_dict)
-        if types.is_resource_type(self.project_type):
+        if types.is_resource_type(self.project_type) or types.is_etsi_vnf_type(self.project_type):
             resource_manager = self.__read_resource_manager(self.config_dict)
         return RootProjectConfig(self.schema, self.project_name, self.project_version, self.project_type, resource_manager, subprojects, packaging=self.packaging)
 

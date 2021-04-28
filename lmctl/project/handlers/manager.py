@@ -21,6 +21,10 @@ def source_handler_for(source_config):
         return assembly_handlers.source_handler
     elif source_config.is_type_project():
         return type_handlers.source_handler
+    elif source_config.is_etsi_ns_project():
+        return etsi_ns_handlers.source_handler        
+    elif source_config.is_etsi_vnf_project():        
+        return etsi_vnf_handlers.source_handler        
     else:
         return resource_handlers.source_handler
 
