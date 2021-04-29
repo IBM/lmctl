@@ -14,7 +14,7 @@ Ensure there is a milestone created for the release at: [https://github.com/acca
 
 Also ensure all issues going into this release are assigned to this milestone.
 
-## Update CHANGLOG
+## Update CHANGELOG
 
 Update the `CHANGELOG.md` file with a list of issues fixed by this release (see other items in this file to get an idea of the desired format).
 
