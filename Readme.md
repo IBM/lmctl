@@ -4,7 +4,7 @@
 
 # LMCTL 
 
-:computer: LMCTL is a command-line client that provides commands for interacting with IBM Telco Network Cloud Manager (TNCM) Orchestrator (TNCO/ALM) environments. 
+:computer: LMCTL is a command-line client that provides commands for interacting with IBM Cloud Pak for Network Automation (CP4NA) orchestrator (previously TNCO/ALM) environments. 
 
 In addition it includes an opinionated pattern for managing xNF/Network Service designs during the CICD lifecycle, as file based projects, to produce packages suitable for production release.
 
