@@ -12,6 +12,7 @@ TOSCA_METADATA = 'TOSCA-Metadata'
 TOSCA_META_FILE = 'TOSCA.meta'
 LICENSE_FILE = 'Files/Licenses/License.txt'
 CHANGELOG_FILE = 'Files/Changelog.txt'
+DEFINITIONS_FILE = 'Definitions/MRF.yaml'
 MF_FILE='MRF.mf'
 
 ############################
@@ -141,15 +142,17 @@ class SourceCreator(abc.ABC):
                 meta_content += '\nCreated-by: Author Here'
                 meta_content += '\nEntry-Definitions: Definitions'
                 if(self.__is_etsi_project(source_request.source_config.project_type)):
+                    meta_content += '/MRF.yaml'
                     meta_content += '\nETSI-Entry-Manifest: MRF.mf'
                     meta_content += '\nETSI-Entry-Licenses: '+LICENSE_FILE
                     meta_content += '\nETSI-Entry-Change-Log: '+CHANGELOG_FILE
                     if source_request.source_config.project_type == project_types.ETSI_NS_PROJECT_TYPE:
-                        meta_content += '\nTNCO-Descriptor: Descriptor/assembly.yml'
+                        meta_content += '\nTNCO-Descriptor: Definitions/assembly.yml'
                     elif source_request.source_config.project_type == project_types.ETSI_VNF_PROJECT_TYPE:
                         meta_content += '\nTNCO-Descriptor: Definitions/resource.yml'                    
-                    file_ops.append(CreateFileOp(LICENSE_FILE, content='', on_existing=EXISTING_IGNORE))
-                    file_ops.append(CreateFileOp(CHANGELOG_FILE, content='', on_existing=EXISTING_IGNORE))
+                    file_ops.append(CreateFileOp(LICENSE_FILE, content='# License', on_existing=EXISTING_IGNORE))
+                    file_ops.append(CreateFileOp(CHANGELOG_FILE, content='# Changelog', on_existing=EXISTING_IGNORE))
+                    file_ops.append(CreateFileOp(DEFINITIONS_FILE, content='tosca_definitions_version: tosca_simple_yaml_1_2', on_existing=EXISTING_IGNORE))                    
                 file_ops.append(CreateFileOp(os.path.join(TOSCA_METADATA, TOSCA_META_FILE), meta_content, EXISTING_IGNORE))
         self._execute_file_ops(file_ops, source_request.target_path, journal)
 

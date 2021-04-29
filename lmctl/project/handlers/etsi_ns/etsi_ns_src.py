@@ -4,6 +4,32 @@ import lmctl.utils.descriptors as descriptors
 import lmctl.files as files
 from .etsi_ns_content import EtsiNsPkgContentTree
 
+class EtsiNsSourceTree(assembly_api.AssemblySourceTree):
+    def __init__(self, root_path=None):
+        super().__init__(root_path)
+
+    MANIFEST_FILE = 'MRF.mf'
+    FILES_DIRECTORY = 'Files'
+    DEFINITIONS_DIR = 'Definitions'
+    
+    @property
+    def manifest_file_path(self):
+        mf_path = self.resolve_relative_path(EtsiNsSourceTree.MANIFEST_FILE)
+        if os.path.exists(mf_path):
+            return mf_path
+
+    @property
+    def files_dir_path(self):
+        files_path = self.resolve_relative_path(EtsiNsSourceTree.FILES_DIRECTORY)
+        if os.path.exists(files_path):
+            return files_path
+
+    @property
+    def definitions_dir_path(self):
+        definitions_dir = self.resolve_relative_path(EtsiNsSourceTree.DEFINITIONS_DIR)
+        if os.path.exists(definitions_dir):
+            return definitions_dir
+
 class EtsiNsSourceHandler(assembly_api.AssemblySourceHandler):
     def __init__(self, root_path, source_config):        
         super().__init__(root_path, source_config)
@@ -21,6 +47,12 @@ class EtsiNsSourceHandler(assembly_api.AssemblySourceHandler):
         files_dir = self.tree.files_dir_path
         journal.stage('Staging Files Directory for {0} at {1}'.format(self.source_config.name, files_dir))
         source_stager.stage_tree(files_dir, staging_tree.files_dir_path)
+        # add Definitions dir content
+        definitions_dir = self.tree.definitions_dir_path
+        source_stager.stage_tree(definitions_dir, staging_tree.definitions_dir_path)
+        # add assembly descriptor to Definitions dir
+        descriptor_path = self.tree.descriptor_file_path
+        source_stager.copy_staged_file(descriptor_path, staging_tree.definitions_dir_path)
 
 
     def build_staged_source_handler(self, staging_path):
@@ -32,25 +64,6 @@ class EtsiNsSourceCreator(assembly_api.AssemblySourceCreator):
 
     def _do_create_source(self, journal, source_request):
         super()._do_create_source(journal, source_request)
-
-class EtsiNsSourceTree(assembly_api.AssemblySourceTree):
-    def __init__(self, root_path=None):
-        super().__init__(root_path)
-
-    MANIFEST_FILE = 'MRF.mf'
-    FILES_DIRECTORY = 'Files'
-    
-    @property
-    def manifest_file_path(self):
-        mf_path = self.resolve_relative_path(EtsiNsSourceTree.MANIFEST_FILE)
-        if os.path.exists(mf_path):
-            return mf_path
-
-    @property
-    def files_dir_path(self):
-        files_path = self.resolve_relative_path(EtsiNsSourceTree.FILES_DIRECTORY)
-        if os.path.exists(files_path):
-            return files_path
 
 class EtsiStagedSourceHandler(assembly_api.AssemblyStagedSourceHandler):
     def __init__(self, root_path, source_config):
@@ -65,3 +78,4 @@ class EtsiStagedSourceHandler(assembly_api.AssemblyStagedSourceHandler):
         journal.event('Compiling additional ETSI files for: {0}'.format(self.source_config.full_name))
         source_compiler.compile_tree(self.tree.files_dir_path, compile_tree.files_dir_path)
         source_compiler.compile_file(self.tree.manifest_file_path, compile_tree.manifest_file_path)
+        source_compiler.compile_tree(self.tree.definitions_dir_path, compile_tree.definitions_dir_path)
