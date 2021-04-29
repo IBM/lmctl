@@ -1,5 +1,36 @@
 # Change Log
 
+## [3.0.0](https://github.com/IBM/lmctl/tree/3.0.0) (2021-04-29)
+[Full Changelog](https://github.com/IBM/lmctl/compare/2.6.3...3.0.0)
+
+**Implemented Enhancements:**
+
+- Default LMCONFIG location [\#62](https://github.com/IBM/lmctl/issues/62)
+- Reduce number of fields required to configure TNCO address [\#64](https://github.com/IBM/lmctl/issues/64)
+- Expanded command capability [\#63](https://github.com/IBM/lmctl/issues/63)
+- Complete client library for LM [\#56](https://github.com/IBM/lmctl/issues/56)
+- Support use of client credentials [\#55](https://github.com/IBM/lmctl/issues/55)
+- Add command to display details of a given environment [\#12](https://github.com/IBM/lmctl/issues/12)
+- Support inclusion of tracing context headers in client [\#78](https://github.com/IBM/lmctl/issues/78)
+- Support retrieving effective Descriptor [\#75](https://github.com/IBM/lmctl/issues/75)
+- Add client API to retrieve all processes of an Assembly [\#74](https://github.com/IBM/lmctl/issues/74)
+- Add Support for new Intents [\#73](https://github.com/IBM/lmctl/issues/73)
+
+**Documentation:**
+
+- Pypi description has incorrect links [\#34](https://github.com/IBM/lmctl/issues/34)
+
+**Testing:**
+
+- Integration test framework [\#65](https://github.com/IBM/lmctl/issues/65)
+
+## [2.6.3](https://github.com/IBM/lmctl/tree/2.6.3) (2020-12-08)
+[Full Changelog](https://github.com/IBM/lmctl/compare/2.6.1...2.6.3)
+
+**Fixed bugs:**
+
+- Cannot override kami address in 2.6.x [\#72](https://github.com/IBM/lmctl/issues/72)
+
 ## [2.6.1](https://github.com/accanto-systems/lmctl/tree/2.6.1) (2020-12-03)
 [Full Changelog](https://github.com/accanto-systems/lmctl/compare/2.6.0...2.6.1)
 
