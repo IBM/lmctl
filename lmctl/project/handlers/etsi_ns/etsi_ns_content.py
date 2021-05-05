@@ -27,6 +27,10 @@ class EtsiNsPkgContentTree(assembly_api.AssemblyPkgContentTree):
         if os.path.exists(definitions_dir):
             return definitions_dir
 
+    @property
+    def test_config_dir_path(self):
+        return self.resolve_relative_path(assembly_api.AssemblyPkgContentTree.BEHAVIOUR_TESTS_DIR_NAME)            
+
 class EtsiNsContentHandler(assembly_api.AssemblyContentHandler):
     def __init__(self, root_path, meta):
         super().__init__(root_path, meta)
