@@ -53,13 +53,20 @@ class PkgMeta:
         return False
 
     def is_resource_content(self):
-        return types.is_resource_type(self.content_type)
+        return types.is_resource_type(self.content_type) or types.is_etsi_vnf_type(self.content_type)
 
     def is_assembly_content(self):
         return types.is_assembly_type(self.content_type)
 
     def is_type_content(self):
         return types.is_type_project_type(self.content_type)
+    
+    def is_etsi_vnf_content(self):
+        return types.is_etsi_vnf_type(self.content_type)
+    
+    def is_etsi_ns_content(self):
+        return types.is_etsi_ns_type(self.content_type)        
+
 
 class PkgMetaBase(PkgMeta):
 
@@ -303,7 +310,7 @@ class PkgMetaParserWorker:
         self.content_version = self.__read_content_version(self.meta_dict)
         resource_manager = None
         subcontent = self.__read_subcontents(self.meta_dict)
-        if self.content_type in [types.RESOURCE_PROJECT_TYPE]:
+        if self.content_type in [types.RESOURCE_PROJECT_TYPE, types.ETSI_VNF_PROJECT_TYPE]:
             resource_manager = self.__read_resource_manager(self.meta_dict)
         return RootPkgMeta(self.schema, self.content_name, self.content_version, self.content_type, resource_manager, subcontent)
 
@@ -323,7 +330,7 @@ class PkgMetaParserWorker:
         if 'type' not in meta_dict:
             return types.ASSEMBLY_PROJECT_TYPE
         content_type = meta_dict['type']
-        expected_types = [types.ASSEMBLY_PROJECT_TYPE, types.RESOURCE_PROJECT_TYPE, types.NS_PROJECT_TYPE, types.VNF_PROJECT_TYPE, types.TYPE_PROJECT_TYPE]
+        expected_types = [types.ASSEMBLY_PROJECT_TYPE, types.RESOURCE_PROJECT_TYPE, types.NS_PROJECT_TYPE, types.VNF_PROJECT_TYPE, types.TYPE_PROJECT_TYPE, types.ETSI_VNF_PROJECT_TYPE]
         if content_type not in expected_types:
             raise PkgMetaParsingException('Pkg type must be one of: {0}'.format(expected_types))
         return content_type

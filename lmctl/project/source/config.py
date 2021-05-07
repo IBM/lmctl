@@ -91,11 +91,11 @@ class ProjectConfigBase(ProjectConfig):
         if not resource_manager:
             if project_type in [types.RESOURCE_PROJECT_TYPE, types.ETSI_VNF_PROJECT_TYPE]:
                 raise ProjectConfigError('resource_manager must be defined when type is {0}'.format(project_type))
-        if types.is_etsi_vnf_type(project_type) and resource_manager not in types.BRENT_RM_TYPES:
-            raise ProjectConfigError('resource_manager type not supported, FOR ETSI_VNF projects resource_manager must be one of: {0}'.format(types.BRENT_RM_TYPES))
         else:
             if resource_manager not in types.SUPPORTED_RM_TYPES:
                 raise ProjectConfigError('resource_manager type not supported, must be one of: {0}'.format(types.SUPPORTED_RM_TYPES_GROUPED))
+        if types.is_etsi_vnf_type(project_type) and resource_manager not in types.BRENT_RM_TYPES:
+            raise ProjectConfigError('resource_manager type not supported, FOR ETSI_VNF projects resource_manager must be one of: {0}'.format(types.BRENT_RM_TYPES))
         self._resource_manager = resource_manager
 
     @property
