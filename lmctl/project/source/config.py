@@ -115,7 +115,7 @@ class ProjectConfigBase(ProjectConfig):
     @property
     def descriptor_name(self):
         descriptor_type = descriptor_utils.ASSEMBLY_DESCRIPTOR_TYPE
-        if self.is_resource_project():
+        if self.is_resource_project() or self.is_etsi_vnf_project:
             descriptor_type = descriptor_utils.RESOURCE_DESCRIPTOR_TYPE
         elif self.is_type_project():
             descriptor_type = descriptor_utils.TYPE_DESCRIPTOR_TYPE

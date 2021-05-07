@@ -149,7 +149,7 @@ class SourceCreator(abc.ABC):
                     if source_request.source_config.project_type == project_types.ETSI_NS_PROJECT_TYPE:
                         meta_content += '\nTNCO-Descriptor: Definitions/assembly.yml'
                     elif source_request.source_config.project_type == project_types.ETSI_VNF_PROJECT_TYPE:
-                        meta_content += '\nTNCO-Descriptor: Definitions/resource.yml'                    
+                        meta_content += '\nTNCO-Descriptor: Definitions/lm/resource.yaml'                    
                     file_ops.append(CreateFileOp(LICENSE_FILE, content='# License', on_existing=EXISTING_IGNORE))
                     file_ops.append(CreateFileOp(CHANGELOG_FILE, content='# Changelog', on_existing=EXISTING_IGNORE))
                     file_ops.append(CreateFileOp(DEFINITIONS_FILE, content='tosca_definitions_version: tosca_simple_yaml_1_2', on_existing=EXISTING_IGNORE))                    
