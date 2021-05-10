@@ -38,6 +38,10 @@ class EtsiVnfPkgContentTree(brent_api.BrentPkgContentTree):
     def gen_resource_package_file_path(self, resource_name):
         return self.resolve_relative_path('Files/{0}.zip'.format(resource_name))
 
+    def gen_full_csar_package_file_path(self, resource_name, resource_version):
+        if os.path.exists(self.relative_path('_lmctl/build/{0}-{1}.csar'.format(resource_name, resource_version))):
+            return self.relative_path('_lmctl/build/{0}-{1}.csar'.format(resource_name, resource_version))
+
 class EtsiVnfContentHandler(resource_api.ResourceContentHandler):
     def __init__(self, root_path, meta):          
         super().__init__(root_path, meta)
@@ -99,23 +103,11 @@ class EtsiVnfContentHandler(resource_api.ResourceContentHandler):
                 res_pkg.write(full_path, arcname=os.path.join(included_item['alias'], full_path[rootlen:]))
 
     def push_content(self, journal, env_sessions):
-        descriptor_name, descriptor_version = self.__clear_existing_descriptor(journal, env_sessions)
-        self.__push_res_pkg(journal, env_sessions, descriptor_name)
-
-    def __clear_existing_descriptor(self, journal, env_sessions):
-        lm_session = env_sessions.lm
         descriptor_path = self.tree.root_descriptor_file_path
         descriptor = descriptor_utils.DescriptorParser().read_from_file(descriptor_path)
-        descriptor_name = descriptor.get_name()
-        descriptor_version = descriptor.get_version()
-        journal.event('Removing descriptor {0} from LM ({1})'.format(descriptor_name, lm_session.env.address))
-        descriptor_driver = lm_session.descriptor_driver
-        try:
-            descriptor_driver.delete_descriptor(descriptor_name)
-            env_sessions.mark_lm_updated()
-        except lm_drivers.NotFoundException:
-            journal.event('Descriptor {0} not found'.format(descriptor_name))
-        return descriptor_name, descriptor_version
+        descriptor_name = descriptor.get_name()        
+        self.__push_res_pkg(journal, env_sessions, descriptor_name)
+
 
     def __push_res_pkg(self, journal, env_sessions, descriptor_name):
         lm_session = env_sessions.lm
@@ -125,7 +117,7 @@ class EtsiVnfContentHandler(resource_api.ResourceContentHandler):
             pkg_driver.delete_package(descriptor_name)
         except lm_drivers.NotFoundException:
             journal.event('No package named {0} found'.format(descriptor_name))
-        res_pkg_path = self.tree.gen_resource_package_file_path(self.meta.full_name)
+        res_pkg_path = self.tree.gen_full_csar_package_file_path(self.meta.full_name, self.meta.version)
         journal.event('Pushing {0} (version: {1}) Resource package to Brent: {2} ({3})'.format(self.meta.full_name, self.meta.version, lm_session.env.name, lm_session.env.address))
         pkg_driver.onboard_package(descriptor_name, res_pkg_path)
         env_sessions.mark_brent_updated()

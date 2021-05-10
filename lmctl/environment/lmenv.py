@@ -263,13 +263,13 @@ class LmSession:
     @property
     def pkg_mgmt_driver(self):
         """
-        Obtain a PackageMgmtDriver configured for use against this LM environment
+        Obtain a EtsiPackageMgmtDriver configured for use against this LM environment
 
         Returns:
-            PackageMgmtDriver: a configured PackageMgmtDriver for this LM environment
+            EtsiPackageMgmtDriver: a configured EtsiPackageMgmtDriver for this LM environment
         """
         if not self.__pkg_mgmt_driver:
-            self.__pkg_mgmt_driver = lm_drivers.PackageMgmtDriver(self.env.api_address, self.__get_lm_security_ctrl())
+            self.__pkg_mgmt_driver = lm_drivers.EtsiPackageMgmtDriver(self.env.api_address, self.__get_lm_security_ctrl())
         return self.__pkg_mgmt_driver        
 
     @property

@@ -5,7 +5,7 @@ from .base import LmDriver, NotFoundException
 
 logger = logging.getLogger(__name__)
 
-class PackageMgmtDriver(LmDriver):
+class EtsiPackageMgmtDriver(LmDriver):
     """
     Client for managing packages
     """
@@ -28,14 +28,12 @@ class PackageMgmtDriver(LmDriver):
         headers['Content-Type'] = content_type
         return headers
 
-
     def onboard_package(self, package_id, resource_pkg_path):
         self.__create_package(package_id)
         url = self.__packages_api_package_content(package_id)
         headers = self.__configure_headers('application/zip')
         with open(resource_pkg_path, 'rb') as resource_pkg:
-            files = {'file': resource_pkg}
-            response = requests.put(url, headers=headers, files=files, verify=False)
+            response = requests.put(url, headers=headers, data=resource_pkg, verify=False)
             if response.status_code == 202:
                 return True
             else:
@@ -50,17 +48,7 @@ class PackageMgmtDriver(LmDriver):
         if response.status_code == 201:
             return response.json()
         else:
-            self._raise_unexpected_status_exception(response)
-
-    def upload_package_content(self, package_id, resource_pkg_path):
-        url = self.__packages_api_content(package_id)
-        headers = self.__configure_headers('application/zip')
-        with open(resource_pkg_path, 'rb') as resource_pkg:            
-            response = requests.put(url, headers=headers, data=resource_pkg, verify=False)
-            if response.status_code == 202:
-                return True
-            else:
-                self._raise_unexpected_status_exception(response)        
+            self._raise_unexpected_status_exception(response)  
 
     def delete_package(self, package_id):
         self.__disable_package(package_id)    
@@ -74,7 +62,6 @@ class PackageMgmtDriver(LmDriver):
         else:
             self._raise_unexpected_status_exception(response)
 
-
     def __disable_package(self, package_id):
         url = self.__packages_api_by_id_api(package_id)
         headers = self.__configure_headers()
@@ -87,7 +74,6 @@ class PackageMgmtDriver(LmDriver):
         else:
             self._raise_unexpected_status_exception(response)
 
-
     def get_package_details(self, package_id):
         url = self.__packages_api_by_id_api(package_id)
         headers = self.__configure_headers()
@@ -98,6 +84,3 @@ class PackageMgmtDriver(LmDriver):
             raise NotFoundException('No package with id {0}'.format(package_id))
         else:
             self._raise_unexpected_status_exception(response)
-
-    #def get_package_details(self, package_id):
-
