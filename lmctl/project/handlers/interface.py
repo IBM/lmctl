@@ -123,8 +123,11 @@ class SourceCreator(abc.ABC):
         self._validate_expected_params(journal, source_request)
         self._do_create_common_source(journal, source_request)
         self._do_create_source(journal, source_request)
-        if(self.__is_etsi_project(source_request.source_config.project_type)):
-            self._do_create_etsi_source(journal, source_request)
+        if(self.__is_etsi_vnf_project(source_request.source_config.project_type)):
+            self._do_create_etsi_vnf_manifest(journal, source_request)
+        if(self.__is_etsi_ns_project(source_request.source_config.project_type)):
+            self._do_create_etsi_ns_manifest(journal, source_request)
+
 
     @abc.abstractmethod
     def _do_create_source(self, journal, source_request):
@@ -157,7 +160,7 @@ class SourceCreator(abc.ABC):
         self._execute_file_ops(file_ops, source_request.target_path, journal)
 
     
-    def _do_create_etsi_source(self, journal, source_request):
+    def _do_create_etsi_vnf_manifest(self, journal, source_request):
         file_ops = []
         d = datetime.now()
         manifest_content = 'metadata:\n'
@@ -172,10 +175,33 @@ class SourceCreator(abc.ABC):
         file_ops.append(CreateFileOp(MF_FILE, manifest_content, on_existing=EXISTING_IGNORE))
         self._execute_file_ops(file_ops, source_request.target_path, journal)
 
+    def _do_create_etsi_ns_manifest(self, journal, source_request):
+        file_ops = []
+        d = datetime.now()        
+        manifest_content = 'metadata:\n'
+        manifest_content += 'nsd_designer: IBM\n'
+        manifest_content += 'nsd_invariant_id: TBC\n'
+        manifest_content += 'nsd_name: TBC\n'
+        manifest_content += 'nsd_release_date_time: '+d.isoformat()+'\n'
+        manifest_content += 'nsd_file_structure_version: 1.0\n'
+        manifest_content += 'compatible_specification_versions: 3.1.1\n'
+        file_ops.append(CreateFileOp(MF_FILE, manifest_content, on_existing=EXISTING_IGNORE))
+        self._execute_file_ops(file_ops, source_request.target_path, journal)
+
     def __is_etsi_project(self, project_type):
         if project_type is None:
             return False
         return project_type in [project_types.ETSI_NS_PROJECT_TYPE, project_types.ETSI_VNF_PROJECT_TYPE]
+
+    def __is_etsi_ns_project(self, project_type):
+        if project_type is None:
+            return False
+        return project_type in [project_types.ETSI_NS_PROJECT_TYPE]
+
+    def __is_etsi_vnf_project(self, project_type):
+        if project_type is None:
+            return False
+        return project_type in [project_types.ETSI_VNF_PROJECT_TYPE]
 
 class ResourceSourceCreatorDelegate(abc.ABC):
 

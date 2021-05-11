@@ -330,7 +330,7 @@ class PkgMetaParserWorker:
         if 'type' not in meta_dict:
             return types.ASSEMBLY_PROJECT_TYPE
         content_type = meta_dict['type']
-        expected_types = [types.ASSEMBLY_PROJECT_TYPE, types.RESOURCE_PROJECT_TYPE, types.NS_PROJECT_TYPE, types.VNF_PROJECT_TYPE, types.TYPE_PROJECT_TYPE, types.ETSI_VNF_PROJECT_TYPE]
+        expected_types = [types.ASSEMBLY_PROJECT_TYPE, types.RESOURCE_PROJECT_TYPE, types.NS_PROJECT_TYPE, types.VNF_PROJECT_TYPE, types.TYPE_PROJECT_TYPE, types.ETSI_VNF_PROJECT_TYPE, types.ETSI_NS_PROJECT_TYPE]
         if content_type not in expected_types:
             raise PkgMetaParsingException('Pkg type must be one of: {0}'.format(expected_types))
         return content_type

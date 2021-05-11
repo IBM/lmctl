@@ -35,6 +35,8 @@ def content_handler_for(content_meta):
         return type_handlers.content_handler
     elif content_meta.is_etsi_vnf_content():
         return etsi_vnf_handlers.content_handler
+    elif content_meta.is_etsi_ns_content():
+        return etsi_ns_handlers.content_handler        
     else:
         return resource_handlers.content_handler
 

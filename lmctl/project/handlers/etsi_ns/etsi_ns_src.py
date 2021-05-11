@@ -71,12 +71,8 @@ class EtsiNsSourceHandler(assembly_api.AssemblySourceHandler):
 
     def stage_sources(self, journal, source_stager):
         staging_tree = EtsiNsSourceTree()
-
         # add assembly descriptor to Definitions dir
-        descriptor_path = self.tree.descriptor_file_path
-        journal.stage('Staging assembly descriptor for {0} at {1}'.format(self.source_config.name, descriptor_path))
         project_descriptor_name = self.__stage_descriptor(journal, source_stager, staging_tree)
-
         # tests
         self.__stage_service_behaviour(journal, source_stager, staging_tree, project_descriptor_name)
         # etsi stock files (changelog, License etc.)
