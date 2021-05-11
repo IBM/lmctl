@@ -1,108 +1,102 @@
-from typing import Union
-from .common import Environment, EnvironmentConfigError, EnvironmentRuntimeError, build_address
-from urllib.parse import urlparse
 import lmctl.drivers.lm as lm_drivers
+from typing import Union, Optional
+from .common import build_address
+from urllib.parse import urlparse
 from lmctl.client import TNCOClient, TNCOClientBuilder
+from pydantic.dataclasses import dataclass
+from pydantic import constr, root_validator
 
-KAMI_PORT = '31289'
+
+DEFAULT_KAMI_PORT = '31289'
+DEFAULT_KAMI_PROTOCOL = 'http'
 DEFAULT_BRENT_NAME = 'brent'
+DEFAULT_PROTOCOL = 'https'
+DEFAULT_SECURE = False
 
-class LmEnvironment(Environment):
+@dataclass
+class TNCOEnvironment:
+    name: constr(strip_whitespace=True, min_length=1)
+    address: constr(strip_whitespace=True, min_length=1) = None
+    secure: bool = DEFAULT_SECURE
 
-    def __init__(self, name, 
-                       host: str = None, 
-                       port: Union[str,int] = None,
-                       protocol: str = 'https', 
-                       path: str = None, 
-                       address: str = None,
-                       secure: bool = False,
-                       client_id: str = None,
-                       client_secret: str = None,
-                       username: str = None, 
-                       password: str= None, 
-                       auth_address: str = None,
-                       auth_host: str = None, 
-                       auth_port: str = None, 
-                       auth_protocol: str = None, 
-                       brent_name: str = DEFAULT_BRENT_NAME, 
-                       kami_address: str = None,
-                       kami_port: Union[str,int] = KAMI_PORT, 
-                       kami_protocol: str = 'http'):
-        name = name.strip() if name is not None else None
-        if not name:
-            raise EnvironmentConfigError('LM environment cannot be configured without "name" property')
-        self.name = name
-        self._read_addresses(
-            address=address,
-            host=host, 
-            port=port,
-            protocol=protocol,
-            path=path,
-            auth_address=auth_address,
-            auth_host=auth_host,
-            auth_port=auth_port,
-            auth_protocol=auth_protocol, 
-            kami_address=kami_address,
-            kami_port=kami_port, 
-            kami_protocol=kami_protocol
-        )
-        if brent_name is None or len(brent_name.strip()) == 0:
-            brent_name = DEFAULT_BRENT_NAME
-        self.brent_name = brent_name.strip()
-        self.secure = secure
-        self._read_security(client_id=client_id, client_secret=client_secret, username=username, password=password)
+    client_id: Optional[str] = None
+    client_secret: Optional[str] = None
+    username: Optional[str] = None 
+    password: Optional[str] = None
 
-    def _read_security(self, client_id: str = None,
-                             client_secret: str = None,
-                             username: str = None,
-                             password: str = None):
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.username = username
-        self.password = password
-        if self.secure and not self.client_id and not self.username:
-            raise EnvironmentConfigError('Secure LM environment cannot be configured without "client_id" or "username" property. If the LM environment is not secure then set "secure" to False')
-            
-    def _read_addresses(self, address: str = None, 
-                              protocol: str = 'https', 
-                              host: str = None, 
-                              port: Union[str, int] = None, 
-                              path: str = None, 
-                              auth_address: str = None,
-                              auth_host: str = None,
-                              auth_port: str = None,
-                              auth_protocol: str = None, 
-                              kami_address: str = None,
-                              kami_port: Union[str,int] = KAMI_PORT, 
-                              kami_protocol: str = 'http'):
-        if address is not None:
-            self._address = address
-        else:
+    host: Optional[str] = None
+    port: Optional[Union[str,int]] = None
+    protocol: Optional[str] = DEFAULT_PROTOCOL
+    path: Optional[str] = None
+
+    auth_address: Optional[str] = None
+    auth_host: Optional[str] = None
+    auth_port: Optional[str] = None 
+    auth_protocol: Optional[str] = DEFAULT_PROTOCOL 
+
+    brent_name: Optional[str] = DEFAULT_BRENT_NAME
+    kami_address: Optional[str] = None
+    kami_port: Optional[Union[str,int]] = DEFAULT_KAMI_PORT 
+    kami_protocol: Optional[str] = DEFAULT_KAMI_PROTOCOL
+
+    @root_validator(pre=True)
+    @classmethod
+    def normalize_addresses(cls, values):
+        address = values.get('address', None)
+        if address is None:
+            host = values.get('host', None)
             host = host.strip() if host is not None else None
             if not host:
-                raise EnvironmentConfigError('LM environment cannot be configured without "address" property or "host" property')
-            self._address = build_address(host, protocol=protocol, port=port, path=path)
-        #Auth host
-        if auth_address is not None:
-            self.auth_address = auth_address
-        else:
+                raise ValueError('TNCO environment cannot be configured without "address" property or "host" property')
+            protocol = values.get('protocol', DEFAULT_PROTOCOL)
+            port = values.get('port', None)
+            path = values.get('path', None)
+            address = build_address(host, protocol=protocol, port=port, path=path)
+            values['address'] = address
+
+        # Auth host
+        auth_address = values.get('auth_address', None)
+        if auth_address is None:
+            auth_host = values.get('auth_host', None)
             auth_host = auth_host.strip() if auth_host is not None else None
-            if auth_host:
-                self.auth_address = build_address(auth_host, protocol=(auth_protocol or protocol), port=auth_port)
+            if not auth_host:
+                values['auth_address'] = address
             else:
-                self.auth_address = self._address
-        self.auth_address = self.auth_address
-        #Kami Address
+                auth_protocol = values.get('auth_protocol', values.get('protocol', DEFAULT_PROTOCOL))
+                auth_port = values.get('auth_port', None)
+                auth_path = values.get('auth_path', None)
+                auth_address = build_address(auth_host, protocol=auth_protocol, port=auth_port)
+                values['auth_address'] = auth_address
+
+        # Kami Address
+        kami_address = values.get('kami_address', None)
+        kami_port = values.get('kami_port', DEFAULT_KAMI_PORT)
+        kami_protocol = values.get('kami_protocol', DEFAULT_KAMI_PROTOCOL)
         if kami_address is None:
-            parsed_url = urlparse(self._address)
+            parsed_url = urlparse(address)
             if parsed_url.port:
                 new_netloc = parsed_url.netloc.replace(f':{parsed_url.port}', f':{kami_port}')
             else:
                 new_netloc = f'{parsed_url.netloc}:{kami_port}'
             parsed_url = parsed_url._replace(scheme=kami_protocol, netloc=new_netloc, path='')
-            self.kami_address = parsed_url.geturl()
-        else:
-            self.kami_address = kami_address
+            kami_address = parsed_url.geturl()
+            values['kami_address'] = kami_address
+
+        return values
+
+    @root_validator(pre=True)
+    @classmethod
+    def check_security(cls, values):
+        client_id = values.get('client_id', None)
+        client_secret = values.get('client_secret', None)
+        username = values.get('username', None)
+        password = values.get('password', None)
+        secure = values.get('secure', DEFAULT_SECURE)
+        if secure is True and client_id is None and username is None:
+            raise ValueError('Secure TNCO environment cannot be configured without "client_id" or "username" property. If the TNCO environment is not secure then set "secure" to False')
+
+        return values
+
 
     def create_session_config(self):
         return LmSessionConfig(self, username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret)
@@ -124,16 +118,8 @@ class LmEnvironment(Environment):
         return builder.build()
 
     @property
-    def is_secure(self):
-        return self.secure
-
-    @property
-    def address(self):
-        return self._address
-
-    @property
     def api_address(self):
-        return self._address
+        return self.address
 
 class LmSessionConfig:
 
@@ -151,7 +137,7 @@ class LmSession:
 
     def __init__(self, session_config):
         if not session_config:
-            raise EnvironmentConfigError('config not provided to session')
+            raise ValueError('config not provided to session')
         self.env = session_config.env
         self.client_id = session_config.client_id
         self.client_secret = session_config.client_secret
@@ -171,7 +157,7 @@ class LmSession:
         self.__descriptor_template_driver = None
 
     def __get_lm_security_ctrl(self):
-        if self.env.is_secure:
+        if self.env.secure:
             if not self.__lm_security_ctrl:
                 oauth_address = None
                 if self.client_id is not None:
@@ -318,3 +304,5 @@ class LmSession:
         if not self.__descriptor_template_driver:
             self.__descriptor_template_driver = lm_drivers.LmDescriptorTemplatesDriver(self.env.kami_address)
         return self.__descriptor_template_driver
+
+LmEnvironment = TNCOEnvironment

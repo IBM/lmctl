@@ -40,7 +40,7 @@ def __parse_envs_to_list(environments):
     for group_name, group in environments.items():
         env = {'name': group_name, 'description': group.description}
         if group.has_lm:
-            env['lm'] = group.lm.address
+            env['lm'] = group.tnco.address
         else:
             env['lm'] = 'N/A'
         arms = group.arms

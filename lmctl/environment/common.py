@@ -1,36 +1,4 @@
-import abc
 from typing import Union
-
-class Environment(abc.ABC):
-
-    @abc.abstractproperty
-    def address(self):
-        pass
-    
-    @abc.abstractmethod
-    def create_session_config(self):
-        pass
-
-class EnvironmentRuntimeError(Exception):
-    pass
-
-class EnvironmentConfigError(Exception):
-    pass
-
-def value_or_default(value, default=None, allow_empty=False):
-    if value is None:
-        return default
-    if type(value) is str:
-        if not allow_empty:
-            if len(value.strip()) == 0:
-                return default
-    return value
-
-def get_value_or_default(config_dict, key, default=None, **kwargs):
-    if key not in config_dict:
-        return default
-    value = config_dict[key]
-    return value_or_default(value, default, **kwargs)
 
 def build_address(host: str, 
                   protocol: str = 'https',

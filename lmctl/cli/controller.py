@@ -2,7 +2,7 @@ import click
 import logging
 from lmctl.cli.io import IOController
 from lmctl.config import get_global_config, Config, ConfigError
-from lmctl.environment import EnvironmentGroup, EnvironmentRuntimeError
+from lmctl.environment import EnvironmentGroup
 from .safety_net import safety_net, tnco_client_safety_net
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ class CLIController:
             self.io.print_error(f'Error: TNCO (ALM) environment not configured on group: {environment_group_name}')
             exit(1)
         tnco = env_group.tnco
-        if tnco.is_secure:
+        if tnco.secure:
             if tnco.client_id is not None:
                 if tnco.client_secret is None:
                     if input_client_secret is not None and len(input_client_secret.strip()) > 0:
@@ -50,8 +50,10 @@ class CLIController:
 
     def create_arm_session(self, environment_group_name: str, arm_name: str):
         env_group = self.get_environment_group_named(environment_group_name)
-        with self.safety_net(EnvironmentRuntimeError):
-            arm_env = env_group.arm_named(arm_name)
+        arm_env = env_group.arms.get(arm_name, None)
+        if arm_env is None:
+            self.io.print_error(f'No ARM named \'{arm_name}\' on group: {environment_group_name}')
+            exit(1)
         arm_session_config = arm_env.create_session_config()
         return arm_session_config.create()
 

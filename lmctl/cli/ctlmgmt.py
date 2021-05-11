@@ -39,9 +39,9 @@ def create_lm_session(environment_group_name, lm_pwd=None, config_path=None, lm_
     env_group = get_environment_group(environment_group_name, config_path)
     if not env_group.has_lm:
         output.printer.error('Error: LM environment not configured on group: {0}'.format(environment_group_name))
-    lm = env_group.lm
+    lm = env_group.tnco
     lm_session_config = lm.create_session_config()
-    if lm.is_secure:
+    if lm.secure:
         if lm_session_config.username is not None:
             if lm_pwd is not None and len(lm_pwd.strip()) > 0:
                 lm_session_config.password = lm_pwd

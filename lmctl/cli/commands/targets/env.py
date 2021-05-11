@@ -28,7 +28,7 @@ class EnvironmentTable(Table):
     columns = [
         Column('name', header='Name'),
         Column('description', header='Description'),
-        Column('lm', header='TNCO/ALM', accessor=lambda x: x.lm.address if x.lm else None),
+        Column('tnco', header='TNCO/ALM', accessor=lambda x: x.tnco.address if x.tnco else None),
         Column('arm', header='Ansible RM', accessor=build_arms_string)
     ]
 
