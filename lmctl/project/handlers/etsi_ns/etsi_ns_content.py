@@ -78,10 +78,10 @@ class EtsiNsContentHandler(assembly_api.AssemblyContentHandler):
         pkg_driver = lm_session.pkg_mgmt_driver
         journal.event('Removing any existing ETSI_NS assembly package named {0} (version: {1}) from TNC-O: {2} ({3})'.format(descriptor_name, self.meta.version, lm_session.env.name, lm_session.env.address))
         try:
-            pkg_driver.delete_package(descriptor_name)
+            pkg_driver.delete_nsd_package(descriptor_name)
         except lm_drivers.NotFoundException:
             journal.event('No package named {0} found'.format(descriptor_name))
         res_pkg_path = self.tree.gen_full_csar_package_file_path(self.meta.full_name, self.meta.version)
         journal.event('Pushing {0} (version: {1}) Resource package to TNC-O: {2} ({3})'.format(self.meta.full_name, self.meta.version, lm_session.env.name, lm_session.env.address))
-        pkg_driver.onboard_package(descriptor_name, res_pkg_path)
+        pkg_driver.onboard_nsd_package(descriptor_name, res_pkg_path)
         env_sessions.mark_brent_updated()
