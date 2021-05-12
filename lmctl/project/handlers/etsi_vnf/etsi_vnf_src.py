@@ -54,6 +54,9 @@ class EtsiVnfSourceHandler(brent_api.BrentSourceHandlerDelegate):
     def build_staged_source_handler(self, staging_path):
         return EtsiVnfStagedSourceHandler(staging_path, self.source_config)
 
+    def pull_sources(self, journal, backup_tool, env_sessions, references):
+        journal.event('Nothing to pull')
+        return
 
 class EtsiVnfSourceCreator(resource_api.ResourceSourceCreator):
     def __init__(self):

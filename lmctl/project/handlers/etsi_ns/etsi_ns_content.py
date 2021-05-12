@@ -57,7 +57,6 @@ class EtsiNsContentHandler(assembly_api.AssemblyContentHandler):
     def __validate_descriptor(self, journal, errors, warnings):
         journal.stage('Validating ETSI_NS assembly descriptor for {0}'.format(self.meta.name))
         descriptor_path = self.tree.descriptor_definitions_file_path
-        print(descriptor_path)
         if not os.path.exists(descriptor_path):
             msg = 'No descriptor found at: {0}'.format(descriptor_path)
             journal.error_event(msg)
@@ -69,7 +68,6 @@ class EtsiNsContentHandler(assembly_api.AssemblyContentHandler):
         descriptor_path = self.tree.descriptor_definitions_file_path
         descriptor, descriptor_yml_str = descriptors.DescriptorParser().read_from_file_with_raw(descriptor_path)
         descriptor_name = descriptor.get_name()
-        print(descriptor_name)
         self.__push_res_pkg(journal, env_sessions, descriptor_name)
 
 

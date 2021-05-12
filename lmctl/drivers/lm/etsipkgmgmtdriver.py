@@ -125,7 +125,6 @@ class EtsiPackageMgmtDriver(LmDriver):
         data='{"nsdOperationalState": "DISABLED"}'
         response = requests.patch(url, data, headers=headers, verify=False)
         if response.status_code == 200:
-            print(response.json())
             return True
         elif response.status_code == 404:
             raise NotFoundException('No package with id {0}'.format(package_id))
