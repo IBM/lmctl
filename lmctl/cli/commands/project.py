@@ -93,7 +93,7 @@ def build(project_path, autocorrect):
 
 @project.command(help='Push Project package to a LM environment')
 @click.option('--project', 'project_path', default='./', help='File location of project')
-@click.argument('environment')
+@click.argument('environment', required=False, default=None)
 @click.option('--config', default=None, help='configuration file')
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources must be provided')
 @click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
@@ -118,7 +118,7 @@ def __parse_tests_option(tests):
 
 @project.command(help='Execute the Behaviour Tests of the Project')
 @click.option('--project', 'project_path', default='./', help='File location of project')
-@click.argument('environment')
+@click.argument('environment', required=False, default=None)
 @click.option('--config', default=None, help='configuration file')
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources to must be provided')
 @click.option('--tests', default=None, help='specify comma separated list of individual tests to execute')
@@ -139,7 +139,7 @@ def test(project_path, environment, config, armname, tests, pwd, autocorrect):
 
 @project.command(help='Pull contents of the Project sources from a LM environment')
 @click.option('--project', 'project_path', default='./', help='File location of project')
-@click.argument('environment')
+@click.argument('environment', required=False, default=None)
 @click.option('--config', default=None, help='configuration file')
 @click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config, without a password)')
 def pull(project_path, environment, config, pwd):

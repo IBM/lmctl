@@ -19,15 +19,29 @@ class CLIController:
     def tnco_client_safety_net(self):
         return tnco_client_safety_net(io_controller=self.io)
 
-    def get_environment_group_named(self, environment_group_name: str) -> EnvironmentGroup:
+    def get_environment_group(self, environment_group_name: str = None) -> EnvironmentGroup:
         env_group = self.config.environments.get(environment_group_name, None)
         if env_group is None:
-            self.io.print_error(f'No environment group with name: {environment_group_name}')
+            env_group = self.get_active_environment()
+        if env_group is None:
+            self.io.print_error(f'Error: Environment name not provided and there is no "active_environment" group set in config. ' +
+                                    'Check command --help for ways to provide"-e/--environment" or environment argument. ' + 
+                                    'Alternatively, add "active_environment" to lmctl config with the name of the environment (from the same config) you would like to use as the default')
             exit(1)
         return env_group
 
-    def get_tnco_client(self, environment_group_name: str, input_pwd: str = None, input_client_secret: str = None) -> 'TNCOClient':
-        env_group = self.get_environment_group_named(environment_group_name)
+    def get_active_environment(self) -> EnvironmentGroup:
+        if self.config.active_environment is not None:
+            env_group = self.config.environments.get(self.config.active_environment, None)
+            if env_group is None:
+                self.io.print_error(f'Error: "active_environment" group set to "{self.config.active_environment}" but there is no environment with that name found in config')
+                exit(1)
+            else:
+                return env_group
+        return None
+ 
+    def get_tnco_client(self, environment_group_name: str = None, input_pwd: str = None, input_client_secret: str = None) -> 'TNCOClient':
+        env_group = self.get_environment_group(environment_group_name)
         if not env_group.has_tnco:
             self.io.print_error(f'Error: TNCO (ALM) environment not configured on group: {environment_group_name}')
             exit(1)
@@ -48,8 +62,8 @@ class CLIController:
                     tnco.password = prompt_pwd
         return tnco.build_client()
 
-    def create_arm_session(self, environment_group_name: str, arm_name: str):
-        env_group = self.get_environment_group_named(environment_group_name)
+    def create_arm_session(self, arm_name: str, environment_group_name: str = None):
+        env_group = self.get_environment_group(environment_group_name)
         arm_env = env_group.arms.get(arm_name, None)
         if arm_env is None:
             self.io.print_error(f'No ARM named \'{arm_name}\' on group: {environment_group_name}')

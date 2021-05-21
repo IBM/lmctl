@@ -19,7 +19,7 @@ def get_ctl(config_path=None):
         logger.exception(str(e))
         exit(1)
 
-def get_environment_group(environment_group_name, config_path=None):
+def get_environment_group(environment_group_name: str = None, config_path=None):
     warnings.warn('get_environment_group is deprecated, use get_global_controller from lmctl.cli.controller then use get_environment_group_named', DeprecationWarning)
     try:
         ctl = get_ctl(config_path)
@@ -27,14 +27,27 @@ def get_environment_group(environment_group_name, config_path=None):
         output.printer.error('Error: Failed to load configuration - {0}'.format(str(e)))
         logger.exception(str(e))
         exit(1)
-    try:
-        return ctl.environment_group_named(environment_group_name)
-    except ctl_config.ConfigError as e:
-        output.printer.error('Error: {0}'.format(str(e)))
-        logger.exception(str(e))
+    env_group = ctl.config.environments.get(environment_group_name, None)
+    if env_group is None:
+        env_group = get_active_environment(ctl)
+    if env_group is None:
+        output.printer.error(f'Error: Environment name not provided and there is no "active_environment" group set in config. ' +
+                                'Check command --help for ways to provide"-e/--environment" or environment argument. ' + 
+                                'Alternatively, add "active_environment" to lmctl config with the name of the environment (from the same config) you would like to use as the default')
         exit(1)
+    return env_group
 
-def create_lm_session(environment_group_name, lm_pwd=None, config_path=None, lm_client_secret=None):
+def get_active_environment(ctl):
+    if ctl.config.active_environment is not None:
+        env_group = ctl.config.environments.get(ctl.config.active_environment, None)
+        if env_group is None:
+            self.io.print_error(f'Error: "active_environment" group set to "{ctl.config.active_environment}" but there is no environment with that name found in config')
+            exit(1)
+        else:
+            return env_group
+    return None
+
+def create_lm_session(environment_group_name = None, lm_pwd=None, config_path=None, lm_client_secret=None):
     warnings.warn('create_lm_session is deprecated as the LmSession class is deprecated, replaced with a new TNCOClient. Use get_global_controller from lmctl.cli.controller then use build_client', DeprecationWarning)
     env_group = get_environment_group(environment_group_name, config_path)
     if not env_group.has_lm:
@@ -54,7 +67,7 @@ def create_lm_session(environment_group_name, lm_pwd=None, config_path=None, lm_
                 lm_session_config.client_secret = prompt_pwd
     return lm_session_config.create()
 
-def create_arm_session(environment_group_name, arm_name, config_path=None):
+def create_arm_session(arm_name, environment_group_name=None, config_path=None):
     warnings.warn('create_arm_session is deprecated. Use get_global_controller from lmctl.cli.controller then use create_arm_session', DeprecationWarning)
     env_group = get_environment_group(environment_group_name, config_path)
     try:

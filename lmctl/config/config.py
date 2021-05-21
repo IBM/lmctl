@@ -6,6 +6,7 @@ from dataclasses import asdict
 
 @dataclass
 class Config:
+    active_environment: str = Field(default=None)
     environments: Dict[str, EnvironmentGroup] = Field(default_factory=dict)
 
     @property
