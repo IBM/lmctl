@@ -22,7 +22,8 @@ class EnvironmentGroupPreParser:
         tnco_conf_dict = tnco_conf or lm_conf or alm_conf
         if tnco_conf_dict is not None:
             tnco_conf_dict = self.__parse_tnco_env(tnco_conf_dict)
-        group_config_dict['tnco'] = tnco_conf_dict or {}
+        if tnco_conf_dict is not None:
+            group_config_dict['tnco'] = tnco_conf_dict
        
         arm_configs_dict = group_config_dict.pop('arm', None)
         arms_configs_dict = group_config_dict.pop('arms', None)
@@ -30,7 +31,8 @@ class EnvironmentGroupPreParser:
             arms_configs_dict = self.__parse_arm_envs(arms_configs_dict)
         elif arm_configs_dict is not None:
             arms_configs_dict = self.__parse_arm_envs(arm_configs_dict)
-        group_config_dict['arms'] = arms_configs_dict or {}
+        if arms_configs_dict is not None:
+            group_config_dict['arms'] = arms_configs_dict
 
         return group_config_dict
        
