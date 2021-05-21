@@ -7,8 +7,8 @@ from pydantic import constr, Field
 @dataclass
 class EnvironmentGroup:
     name: constr(strip_whitespace=True, min_length=1)
-    description: Optional[str] = None
-    tnco: Optional[TNCOEnvironment] = None
+    description: Optional[str] = Field(default=None)
+    tnco: Optional[TNCOEnvironment] = Field(default=None)
     arms: Optional[Dict[str, ArmEnvironment]] = Field(default_factory=dict)
 
     @property
