@@ -1,6 +1,6 @@
 from typing import Dict
-from .descriptors import DescriptorsAPI, obj_yaml_request_builder, yaml_response_handler, accept_yaml_or_json_header_request_builder
-from .resource_api_base import ResourceAPIBase, ListAPIMeta, ReadAPIMeta, CreateAPIMeta, UpdateAPIMeta, DeleteAPIMeta
+from lmctl.client.client_request import TNCOClientRequest
+from .descriptors import DescriptorsAPI
 
 class DescriptorTemplatesAPI(DescriptorsAPI):
     endpoint = 'api/catalog/descriptorTemplates'
@@ -16,27 +16,23 @@ class DescriptorTemplatesAPI(DescriptorsAPI):
         if render_request is None:
             render_request = {}
         endpoint = self._render_endpoint(template_name)
-        request = obj_yaml_request_builder(render_request)
-        request['headers']['Accept'] = 'application/yaml'
-        request['method'] = 'POST'
-        request['endpoint'] = endpoint
+        request = TNCOClientRequest(method='POST', endpoint=endpoint)\
+                        .add_yaml_body(render_request)\
+                        .add_headers({'Accept': 'application/yaml'})
         if self.override_address is not None:
-            request['override_address'] = self.override_address
-        response = self.base_client.make_request(**request)
-        return yaml_response_handler(response)
+            request.override_address = self.override_address
+        return self._exec_request_and_parse_yaml(request)
 
     def render_raw(self, template_name: str, render_request: Dict) -> str:
         if render_request is None:
             render_request = {}
         endpoint = self._render_raw_endpoint(template_name)
-        request = obj_yaml_request_builder(render_request)
-        request['headers']['Accept'] = 'text/plain'
-        request['method'] = 'POST'
-        request['endpoint'] = endpoint
+        request = TNCOClientRequest(method='POST', endpoint=endpoint)\
+                        .add_yaml_body(render_request)\
+                        .add_headers({'Accept': 'text/plain'})
         if self.override_address is not None:
-            request['override_address'] = self.override_address
-        response = self.base_client.make_request(**request)
-        return response.text
+            request.override_address = self.override_address
+        return self._exec_request_and_parse_plaintext(request)
 
     def _render_endpoint(self, template_name: str) -> str:
         return f'{self.endpoint}/{template_name}/render'

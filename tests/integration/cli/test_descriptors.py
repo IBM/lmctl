@@ -87,25 +87,25 @@ class TestDescriptors(CLIIntegrationTest):
 
     def test_get_effective(self):
         self.tester.default_client.descriptors.create({
-            'name': f'assembly::{self.execution_id}-Parent::1.0', 
+            'name': f'assembly::{self.tester.execution_id}-Parent::1.0', 
             'properties': {
                 'parent-prop': {'type': 'string'}
             }
         })
         self.tester.default_client.descriptors.create({
-            'name': f'assembly::{self.execution_id}-Child::1.0', 
-            'derived-from': f'assembly::{self.execution_id}-Parent::1.0',
+            'name': f'assembly::{self.tester.execution_id}-Child::1.0', 
+            'derived-from': f'assembly::{self.tester.execution_id}-Parent::1.0',
             'properties': {
                 'child-prop': {'type': 'string'}
             }
         })
         result = self.cli_runner.invoke(cli, [
-            'get', 'descriptor', f'assembly::{self.execution_id}-Child::1.0', '-e', 'default', '-o', 'yaml', '--effective'
+            'get', 'descriptor', f'assembly::{self.tester.execution_id}-Child::1.0', '-e', 'default', '-o', 'yaml', '--effective'
         ])
         loaded_output = yaml.safe_load(result.output)
         expected_descriptor = {
-            'name': f'assembly::{self.execution_id}-Child::1.0', 
-            'derived-from': f'assembly::{self.execution_id}-Parent::1.0',
+            'name': f'assembly::{self.tester.execution_id}-Child::1.0', 
+            'derived-from': f'assembly::{self.tester.execution_id}-Parent::1.0',
             'properties': {
                 'child-prop': {'type': 'string'},
                 'parent-prop': {'type': 'string'}

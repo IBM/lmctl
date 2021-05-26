@@ -1,18 +1,15 @@
-from .resource_api_base import ResourceAPIBase, ReadAPIMeta, APIArg, json_response_handler
-from typing import List
+from typing import List, Dict
+from .tnco_api_base import TNCOAPI
+from lmctl.client.client_request import TNCOClientRequest
 
-class ProcessesAPI(ResourceAPIBase):
+class ProcessesAPI(TNCOAPI):
     endpoint = 'api/processes'
 
-    enable_create_api = False
-    enable_update_api = False
-    enable_delete_api = False
-    enable_list_api = False
-
-    read_meta = ReadAPIMeta(extra_request_params={
-        'shallow': APIArg()
-    })
+    def get(self, id: str, shallow: bool = None) -> Dict:
+        query_params = {}
+        if shallow is not None:
+            query_params['shallow'] = shallow
+        return self._get(id_value=id, query_params=query_params)
 
     def query(self, **query_params) -> List:
-        response = self.base_client.make_request(method='GET', endpoint=self.endpoint, params=query_params)
-        return json_response_handler(response)
+        return self._get_json(self.endpoint, query_params=query_params)

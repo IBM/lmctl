@@ -1,15 +1,20 @@
-from typing import List
-from .resource_api_base import ResourceAPIBase, json_response_handler
+from typing import List, Dict
+from .tnco_api_base import TNCOAPI
 
-class BehaviourAssemblyConfigurationsAPI(ResourceAPIBase):
+class BehaviourAssemblyConfigurationsAPI(TNCOAPI):
     endpoint = 'api/behaviour/assemblyConfigurations'
 
-    enabled_list_api = False
+    def get(self, id: str) -> Dict:
+        return self._get(id_value=id)
 
-    def _by_project_endpoint(self, project_id: str) -> str:
-        return f'{self.endpoint}?projectId={project_id}'
+    def create(self, assembly_configuration: Dict):
+        return self._create(obj=assembly_configuration)
+
+    def update(self, assembly_configuration: Dict):
+        self._update(obj=assembly_configuration)
+
+    def delete(self, id: str):
+        self._delete(id_value=id)
 
     def all_in_project(self, project_id: str) -> List:
-        endpoint = self._by_project_endpoint(project_id)
-        response = self.base_client.make_request(method='GET', endpoint=endpoint)
-        return json_response_handler(response)
+        return self._get_json(self.endpoint, query_params={'projectId': project_id})

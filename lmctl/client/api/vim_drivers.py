@@ -1,15 +1,19 @@
 from typing import Dict
-from .resource_api_base import ResourceAPIBase, json_response_handler
-
-class VIMDriversAPI(ResourceAPIBase):
+from .tnco_api_base import TNCOAPI
+class VIMDriversAPI(TNCOAPI):
     endpoint = 'api/resource-manager/vim-drivers'
 
-    enable_list_api = False
+    def get(self, driver_id: str) -> Dict:
+        return self._get(id_value=driver_id)
 
-    def _by_type_endpoint(self, driver_type: str) -> str:
-        return f'{self.endpoint}?type={driver_type}'
+    def create(self, driver: Dict):
+        return self._create(obj=driver)
+
+    def update(self, driver: Dict):
+        self._update(obj=driver)
+
+    def delete(self, driver_id: str):
+        self._delete(id_value=driver_id)
 
     def get_by_type(self, driver_type: str) -> Dict:
-        endpoint = self._by_type_endpoint(driver_type)
-        response = self.base_client.make_request(method='GET', endpoint=endpoint)
-        return json_response_handler(response)
+        return self._get_json(self.endpoint, query_params={'type': driver_type})
