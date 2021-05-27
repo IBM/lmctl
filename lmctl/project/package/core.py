@@ -232,14 +232,33 @@ class Pkg:
     def __init_journal(self, journal_consumer=None):
         return project_journal.ProjectJournal(journal_consumer)
 
+    def __is_etsi_pkg(self, pkg_meta):
+        #TODO
+        # Use this to determine if the pkg is ETSI or not
+        return False
+
     def push(self, env_sessions, options):
         journal = self.__init_journal(options.journal_consumer)
         journal.section('Processing Package')
         journal.event('Processing {0}'.format(self.path))
+
         push_workspace = self.__create_push_workspace()
         files.clean_directory(push_workspace)
         pkg_content = self.open(push_workspace)
-        pkg_content.push(env_sessions, options)
+
+        #TODO
+        if self.__is_etsi_pkg(pkg_content.meta):
+            print("IMPL ETSI PUSH")
+            # Create a new process in `lmctl.project.processes` called etsi_push with class called `EtsiPushProcess`
+            # This `EtsiPushProcess` should accept this Pkg instance and the parsed Pkg Meta
+            # E.g.
+            #   def __init__(self, pkg, pkg_meta, options, journal, env_sessions):
+            #
+            # Implement an `execute` method on that process class
+            # The `execute` method should have the code needed to push the package to the ETSI API without needing "handlers" e.g. move code from handlers to this process
+            # Keep your existing content handlers but change the push method to raise a NotImplementedError
+        else:
+            pkg_content.push(env_sessions, options)
         return pkg_content
 
     def __create_push_workspace(self):
