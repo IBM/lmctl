@@ -13,9 +13,9 @@ class EtsiNsSourceTree(assembly_api.AssemblySourceTree):
     MANIFEST_FILE = 'MRF.mf'
     FILES_DIRECTORY = 'Files'
     DEFINITIONS_DIR = 'Definitions'
-    TEST_CONFIG_DIRECTORY = 'Files/Tests/Configurations'
-    TEST_RUNTIME_DIRECTORY = 'Files/Tests/Runtime Scenarios'
-    TEST_SCENARIOS_DIRECTORY = 'Files/Tests/Test Scenarios'
+    TEST_CONFIG_DIRECTORY = os.path.join('Files', 'Tests', 'Configurations')
+    TEST_RUNTIME_DIRECTORY = os.path.join('Files', 'Tests', 'Runtime Scenarios')
+    TEST_SCENARIOS_DIRECTORY = os.path.join('Files', 'Tests', 'Test Scenarios')
 
     @property
     def manifest_file_path(self):
