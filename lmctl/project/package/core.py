@@ -233,9 +233,7 @@ class Pkg:
         return project_journal.ProjectJournal(journal_consumer)
 
     def __is_etsi_pkg(self, pkg_meta):
-        #TODO
-        # Use this to determine if the pkg is ETSI or not
-        return False
+        return pkg_meta.is_etsi_content()
 
     def push(self, env_sessions, options):
         journal = self.__init_journal(options.journal_consumer)

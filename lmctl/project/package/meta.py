@@ -67,6 +67,8 @@ class PkgMeta:
     def is_etsi_ns_content(self):
         return types.is_etsi_ns_type(self.content_type)        
 
+    def is_etsi_content(self):
+        return types.is_etsi_ns_type(self.content_type) or types.is_etsi_vnf_type(self.content_type)
 
 class PkgMetaBase(PkgMeta):
 
