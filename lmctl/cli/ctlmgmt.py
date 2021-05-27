@@ -41,7 +41,7 @@ def get_active_environment(ctl):
     if ctl.config.active_environment is not None:
         env_group = ctl.config.environments.get(ctl.config.active_environment, None)
         if env_group is None:
-            self.io.print_error(f'Error: "active_environment" group set to "{ctl.config.active_environment}" but there is no environment with that name found in config')
+            output.printer.error(f'Error: "active_environment" group set to "{ctl.config.active_environment}" but there is no environment with that name found in config')
             exit(1)
         else:
             return env_group
