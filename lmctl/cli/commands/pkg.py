@@ -22,7 +22,7 @@ PUSH_HEADER = 'Push'
 @click.argument('environment', required=False, default=None)
 @click.option('--config', default=None, help='configuration file')
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources to must be provided')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', '--api-key', default=None, help='TNCO (ALM) password/api_key used for authenticating. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
 def push(package, environment, config, armname, pwd, autocorrect):
     """Pushes an existing Assembly/Resource package to a target LM (and ARM) environment"""

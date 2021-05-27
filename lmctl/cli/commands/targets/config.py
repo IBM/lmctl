@@ -10,38 +10,82 @@ config_template = '''\
 environments:
   default:
     tnco:
-      ### General 
+      ###############
+      #  General    #
+      ###############
       
-      # The full HTTP(s) address used to access the API gateway of your TNCO instance
-      address: https://example.com
+      ## The full HTTP(s) address used to access the API gateway (Ishtar route) of your TNCO instance
+      address: https://ishtar-route.ocp.example.com
 
-      # Set to true if TNCO is secure and requires authentication to use the APIs
+      ## Set to true if TNCO is secure and requires authentication to use the APIs
       secure: True
 
-      ### Authentication
-      ### Required if "secure" is true.
+      ############################################################
+      #  Zen Authentication                                      #
+      #  Required if "secure" is true and not using Legacy Oauth #
+      ############################################################
+      
+      # Indicate environment is using Zen
+      auth_mode: zen
 
-      # Auth Option 1: TNCO Client credentials
-      # ID of the client credentials to authenticate with
-      client_id: LmClient
-      # Secret for the above client
-      client_secret: enter-your-secret
+      ## The full HTTP(s) address and path used to access the Zen authentication APIs E.g. https://<hostname>/icp4d-api/v1/authorize
+      auth_address: https://zen-route.ocp.example.com/icp4d-api/v1/authorize
 
-      # Auth Option 2: TNCO User based access
-      # ID of the client credentials with password scope authentication enabled
+      ## The username to authenticate with
+      username: example-user
+
+      ## The API key for the above user
+      #api_key: enter-your-api-key
+
+      #####################################################
+      # Legacy Oauth Authentication                       #
+      # Required if "secure" is true and not using Zen    #
+      # The following authentication options              #
+      # are only valid on older TNCO (ALM) environments   #
+      # which do not use Zen SSO                          #
+      #####################################################
+     
+      # Indicate the environment is using oauth
+      #auth_mode: oauth 
+
+      #=========================#
+      # Oauth Option 1:         #
+      # TNCO Client credentials #
+      #=========================#
+
+      ## ID of the client credentials to authenticate with
       #client_id: LmClient
-      # Secret for the above client
+      
+      ## Secret for the above client
       #client_secret: enter-your-secret
-      # The username to authenticate with
+
+      #=========================#
+      # Oauth Option 2:         #
+      # TNCO User based access  #
+      #=========================#
+
+      ## ID of the client credentials with password scope authentication enabled
+      #client_id: LmClient
+
+      ## Secret for the above client
+      #client_secret: enter-your-secret
+
+      ## The username to authenticate with
       #username: jack
-      # The password for the above user
+
+      ## The password for the above user
       #password: enter-your-pass
       
-      # Auth Option 3: TNCO "unofficial" user based access. 
-      # Using username/password without client credentials is not supported by TNCO so could stop functioning in any future release
-      # The username to authenticate with
+      #=================================#
+      # Oauth Option 3:                 #
+      # "unofficial" user based access  #
+      #=================================#
+
+      ## Using username/password without client credentials is not supported by TNCO so could stop functioning in any future release
+      ## The username to authenticate with
       #username: jack
-      # The password for the above user
+      
+      ## The password for the above user
       #password: enter-your-pass
 '''
 

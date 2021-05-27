@@ -55,16 +55,24 @@ def create_lm_session(environment_group_name = None, lm_pwd=None, config_path=No
     lm = env_group.tnco
     lm_session_config = lm.create_session_config()
     if lm.secure:
-        if lm_session_config.username is not None:
-            if lm_pwd is not None and len(lm_pwd.strip()) > 0:
-                lm_session_config.password = lm_pwd
-            elif lm_session_config.password is None:
-                prompt_pwd = click.prompt('Please enter password for LM user {0}'.format(lm_session_config.username), hide_input=True, default='')
-                lm_session_config.password = prompt_pwd
-        if lm_session_config.client_id is not None:
-            if lm_session_config.client_secret is None:
-                prompt_pwd = click.prompt('Please enter secret for LM client {0}'.format(lm_session_config.client_id), hide_input=True, default='')
-                lm_session_config.client_secret = prompt_pwd
+        if lm_session_config.is_using_zen_auth:
+            if lm_session_config.username is not None:
+                if lm_pwd is not None and len(lm_pwd.strip()) > 0:
+                    lm_session_config.api_key = lm_pwd
+                elif lm_session_config.api_key is None:
+                    prompt_pwd = click.prompt(f'Please enter API key for LM user {lm_session_config.username}', hide_input=True, default='')
+                    lm_session_config.api_key = prompt_pwd
+        else:
+            if lm_session_config.username is not None:
+                if lm_pwd is not None and len(lm_pwd.strip()) > 0:
+                    lm_session_config.password = lm_pwd
+                elif lm_session_config.password is None:
+                    prompt_pwd = click.prompt('Please enter password for LM user {0}'.format(lm_session_config.username), hide_input=True, default='')
+                    lm_session_config.password = prompt_pwd
+            if lm_session_config.client_id is not None:
+                if lm_session_config.client_secret is None:
+                    prompt_pwd = click.prompt('Please enter secret for LM client {0}'.format(lm_session_config.client_id), hide_input=True, default='')
+                    lm_session_config.client_secret = prompt_pwd
     return lm_session_config.create()
 
 def create_arm_session(arm_name, environment_group_name=None, config_path=None):

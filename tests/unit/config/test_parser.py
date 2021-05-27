@@ -599,7 +599,7 @@ class TestConfigParser(unittest.TestCase):
         }
         with self.assertRaises(ConfigError) as context:
             ConfigParser().from_dict(invalid_config)
-        self.assertEqual(str(context.exception), 'Config error: 1 validation error for ParsingModel[Config]\n__root__ -> environments -> test -> tnco -> __root__\n  Secure TNCO environment cannot be configured without "client_id" or "username" property. If the TNCO environment is not secure then set "secure" to False (type=value_error)')
+        self.assertEqual(str(context.exception), 'Config error: 1 validation error for ParsingModel[Config]\n__root__ -> environments -> test -> tnco -> __root__\n  Secure TNCO environment must be configured with either "client_id" or "username" property when using "auth_mode=oauth". If the TNCO environment is not secure then set "secure" to False (type=value_error)')
 
     def test_parse_invalid_arm(self):
         invalid_config = {
