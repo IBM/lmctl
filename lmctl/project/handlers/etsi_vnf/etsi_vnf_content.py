@@ -16,7 +16,8 @@ class EtsiVnfPkgContentTree(brent_api.BrentPkgContentTree):
     MANIFEST_FILE = 'MRF.mf'
     FILES_DIRECTORY = 'Files'
     DEFINITIONS_DIR = 'Definitions'
-    
+    LM_DIRECTORY = 'lm'
+
     @property
     def manifest_file_path(self):
         mf_path = self.resolve_relative_path(EtsiVnfPkgContentTree.MANIFEST_FILE)
@@ -30,6 +31,12 @@ class EtsiVnfPkgContentTree(brent_api.BrentPkgContentTree):
             return files_path
 
     @property
+    def definitions_descriptor_file_path(self):
+        descriptor_file = self.resolve_relative_path(EtsiVnfPkgContentTree.DEFINITIONS_DIR, EtsiVnfPkgContentTree.LM_DIRECTORY, EtsiVnfPkgContentTree.RESOURCE_YAML_FILE)  
+        if os.path.exists(descriptor_file):
+            return descriptor_file
+
+    @property
     def definitions_dir_path(self):
         definitions_dir = self.resolve_relative_path(EtsiVnfPkgContentTree.DEFINITIONS_DIR)
         if os.path.exists(definitions_dir):
@@ -37,11 +44,7 @@ class EtsiVnfPkgContentTree(brent_api.BrentPkgContentTree):
 
     def gen_resource_package_file_path(self, resource_name):
         return self.resolve_relative_path('Files/{0}.zip'.format(resource_name))
-
-    def gen_full_csar_package_file_path(self, resource_name, resource_version):
-        if os.path.exists(self.relative_path('_lmctl/build/{0}-{1}.csar'.format(resource_name, resource_version))):
-            return self.relative_path('_lmctl/build/{0}-{1}.csar'.format(resource_name, resource_version))
-
+        
 class EtsiVnfContentHandler(resource_api.ResourceContentHandler):
     def __init__(self, root_path, meta):          
         super().__init__(root_path, meta)
@@ -103,21 +106,4 @@ class EtsiVnfContentHandler(resource_api.ResourceContentHandler):
                 res_pkg.write(full_path, arcname=os.path.join(included_item['alias'], full_path[rootlen:]))
 
     def push_content(self, journal, env_sessions):
-        descriptor_path = self.tree.root_descriptor_file_path
-        descriptor = descriptor_utils.DescriptorParser().read_from_file(descriptor_path)
-        descriptor_name = descriptor.get_name()        
-        self.__push_res_pkg(journal, env_sessions, descriptor_name)
-
-
-    def __push_res_pkg(self, journal, env_sessions, descriptor_name):
-        lm_session = env_sessions.lm
-        pkg_driver = lm_session.pkg_mgmt_driver
-        journal.event('Removing any existing Resource package named {0} (version: {1}) from Brent: {2} ({3})'.format(descriptor_name, self.meta.version, lm_session.env.name, lm_session.env.address))
-        try:
-            pkg_driver.delete_package(descriptor_name)
-        except lm_drivers.NotFoundException:
-            journal.event('No package named {0} found'.format(descriptor_name))
-        res_pkg_path = self.tree.gen_full_csar_package_file_path(self.meta.full_name, self.meta.version)
-        journal.event('Pushing {0} (version: {1}) Resource package to Brent: {2} ({3})'.format(self.meta.full_name, self.meta.version, lm_session.env.name, lm_session.env.address))
-        pkg_driver.onboard_package(descriptor_name, res_pkg_path)
-        env_sessions.mark_brent_updated()
+        raise NotImplementedError('This method (push_content) is not implemented')
