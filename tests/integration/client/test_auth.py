@@ -3,7 +3,7 @@ from tests.integration.integration_test_base import IntegrationTest
 class TestAuthenticationAPI(IntegrationTest):
 
     def test_request_client_access(self):
-        if not self.tester.config.get_default_env().is_using_oauth:
+        if not self.tester.get_default_env().tnco.is_using_oauth:
             self.skipTest('auth_mode != oauth')
             return
         client_id = self.tester.test_properties.auth_testing.client_credentials.client_id
@@ -13,7 +13,7 @@ class TestAuthenticationAPI(IntegrationTest):
         self.assertIn('expires_in', auth_response)
     
     def test_request_user_access(self):
-        if not self.tester.config.get_default_env().is_using_oauth:
+        if not self.tester.get_default_env().tnco.is_using_oauth:
             self.skipTest('auth_mode != oauth')
             return
         client_id = self.tester.test_properties.auth_testing.user_pass.client_id
@@ -25,7 +25,7 @@ class TestAuthenticationAPI(IntegrationTest):
         self.assertIn('expires_in', auth_response)
     
     def test_legacy_login(self):
-        if not self.tester.config.get_default_env().is_using_oauth:
+        if not self.tester.get_default_env().tnco.is_using_oauth:
             self.skipTest('auth_mode != oauth')
             return
         username = self.tester.test_properties.auth_testing.legacy_user_pass.username
@@ -35,7 +35,7 @@ class TestAuthenticationAPI(IntegrationTest):
         self.assertIn('expiresIn', auth_response)
     
     def test_zen_api_key_auth(self):
-        if not self.tester.config.get_default_env().is_using_zen_auth:
+        if not self.tester.get_default_env().tnco.is_using_zen_auth:
             self.skipTest('auth_mode != zen')
             return
         username = self.tester.test_properties.auth_testing.zen_api_key.username
