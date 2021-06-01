@@ -68,6 +68,11 @@ class ProjectConfig:
     def is_type_project(self):
         return types.is_type_project_type(self.project_type)
 
+    def is_etsi_vnf_project(self):
+        return types.is_etsi_vnf_type(self.project_type)
+
+    def is_etsi_ns_project(self):
+        return types.is_etsi_ns_type(self.project_type)
 
 class ProjectConfigBase(ProjectConfig):
 
@@ -77,18 +82,20 @@ class ProjectConfigBase(ProjectConfig):
         self._name = name
         if not project_type:
             raise ProjectConfigError('project_type must be defined')
-        if not types.is_assembly_type(project_type) and not types.is_resource_type(project_type) and not types.is_type_project_type(project_type):
-            raise ProjectConfigError('Project type must be one of: {0}'.format([types.ASSEMBLY_PROJECT_TYPE, types.RESOURCE_PROJECT_TYPE, types.TYPE_PROJECT_TYPE]))
+        if not types.is_assembly_type(project_type) and not types.is_resource_type(project_type) and not types.is_type_project_type(project_type) and not types.is_etsi_vnf_type(project_type) and not types.is_etsi_ns_type(project_type):
+            raise ProjectConfigError('Project type must be one of: {0}'.format([types.ASSEMBLY_PROJECT_TYPE, types.RESOURCE_PROJECT_TYPE, types.TYPE_PROJECT_TYPE, types.ETSI_NS_PROJECT_TYPE, types.ETSI_VNF_PROJECT_TYPE]))
         self._project_type = project_type
         if not subproject_entries:
             subproject_entries = []
         self._subproject_entries = subproject_entries
         if not resource_manager:
-            if project_type == types.RESOURCE_PROJECT_TYPE:
-                raise ProjectConfigError('resource_manager must be defined when type is {0}'.format(types.RESOURCE_PROJECT_TYPE))
+            if project_type in [types.RESOURCE_PROJECT_TYPE, types.ETSI_VNF_PROJECT_TYPE]:
+                raise ProjectConfigError('resource_manager must be defined when type is {0}'.format(project_type))
         else:
             if resource_manager not in types.SUPPORTED_RM_TYPES:
                 raise ProjectConfigError('resource_manager type not supported, must be one of: {0}'.format(types.SUPPORTED_RM_TYPES_GROUPED))
+        if types.is_etsi_vnf_type(project_type) and resource_manager not in types.BRENT_RM_TYPES:
+            raise ProjectConfigError('resource_manager type not supported, FOR ETSI_VNF projects resource_manager must be one of: {0}'.format(types.BRENT_RM_TYPES))
         self._resource_manager = resource_manager
 
     @property
@@ -110,7 +117,7 @@ class ProjectConfigBase(ProjectConfig):
     @property
     def descriptor_name(self):
         descriptor_type = descriptor_utils.ASSEMBLY_DESCRIPTOR_TYPE
-        if self.is_resource_project():
+        if self.is_resource_project() or self.is_etsi_vnf_project():
             descriptor_type = descriptor_utils.RESOURCE_DESCRIPTOR_TYPE
         elif self.is_type_project():
             descriptor_type = descriptor_utils.TYPE_DESCRIPTOR_TYPE
@@ -132,7 +139,7 @@ class ProjectConfigBase(ProjectConfig):
             'name': self.name,
             'type': self.project_type
         }
-        if self.is_resource_project():
+        if self.is_resource_project() or self.is_etsi_vnf_project():
             data['resource-manager'] = self.resource_manager
         if len(self.subproject_entries) > 0:
             data['contains'] = []
@@ -240,7 +247,7 @@ class ProjectConfigParserWorker:
         self.project_version = self.__read_project_version(self.config_dict)
         resource_manager = None
         subprojects = self.__read_subprojects(self.config_dict)
-        if types.is_resource_type(self.project_type):
+        if types.is_resource_type(self.project_type) or types.is_etsi_vnf_type(self.project_type):
             resource_manager = self.__read_resource_manager(self.config_dict)
         return RootProjectConfig(self.schema, self.project_name, self.project_version, self.project_type, resource_manager, subprojects, packaging=self.packaging)
 

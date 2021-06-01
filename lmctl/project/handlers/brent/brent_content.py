@@ -10,6 +10,8 @@ from .brent_autocorrect import BrentCorrectableValidation
 
 class BrentPkgContentTree(files.Tree):
 
+    RESOURCE_YAML_FILE = 'resource.yaml'
+
     def __init__(self, root_path=None):
         super().__init__(root_path)
 
@@ -18,7 +20,7 @@ class BrentPkgContentTree(files.Tree):
 
     @property
     def root_descriptor_file_path(self):
-        return self.resolve_relative_path('resource.yaml')
+        return self.resolve_relative_path(BrentPkgContentTree.RESOURCE_YAML_FILE)
 
 
 class BrentResourcePackageContentTree(files.Tree):
