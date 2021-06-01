@@ -1,5 +1,7 @@
 ASSEMBLY_PROJECT_TYPE = 'Assembly'
 RESOURCE_PROJECT_TYPE = 'Resource'
+ETSI_VNF_PROJECT_TYPE = 'ETSI_VNF'
+ETSI_NS_PROJECT_TYPE = 'ETSI_NS'
 TYPE_PROJECT_TYPE = 'Type'
 NS_PROJECT_TYPE = 'NS'
 VNF_PROJECT_TYPE = 'VNF'
@@ -33,3 +35,13 @@ def is_type_project_type(project_type):
     if project_type is None:
         return False
     return project_type.lower() in [TYPE_PROJECT_TYPE.lower()]
+
+def is_etsi_vnf_type(project_type):
+    if project_type is None:
+        return False
+    return project_type.lower() in [ETSI_VNF_PROJECT_TYPE.lower()]
+
+def is_etsi_ns_type(project_type):
+    if project_type is None:
+        return False
+    return project_type.lower() in [ETSI_NS_PROJECT_TYPE.lower()]

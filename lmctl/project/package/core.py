@@ -10,6 +10,7 @@ import lmctl.journal as journal
 import lmctl.project.journal as project_journal
 import lmctl.project.package.meta as pkg_metas
 import lmctl.project.processes.push as push_exec
+import lmctl.project.processes.etsi_push as etsi_push_exec
 import lmctl.project.processes.pkg_validation as pkg_validation_exec
 import lmctl.project.processes.testing as test_exec
 import lmctl.project.handlers.manager as handler_manager
@@ -232,14 +233,22 @@ class Pkg:
     def __init_journal(self, journal_consumer=None):
         return project_journal.ProjectJournal(journal_consumer)
 
+    def __is_etsi_pkg(self, pkg_meta):
+        return pkg_meta.is_etsi_content()
+
     def push(self, env_sessions, options):
         journal = self.__init_journal(options.journal_consumer)
         journal.section('Processing Package')
         journal.event('Processing {0}'.format(self.path))
+
         push_workspace = self.__create_push_workspace()
         files.clean_directory(push_workspace)
         pkg_content = self.open(push_workspace)
-        pkg_content.push(env_sessions, options)
+
+        if self.__is_etsi_pkg(pkg_content.meta):
+            etsi_push_exec.EtsiPushProcess(self, pkg_content.meta, journal, env_sessions, push_workspace).execute()
+        else:
+            pkg_content.push(env_sessions, options)
         return pkg_content
 
     def __create_push_workspace(self):

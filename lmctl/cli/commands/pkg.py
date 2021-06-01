@@ -27,14 +27,14 @@ PUSH_HEADER = 'Push'
 def push(package, environment, config, armname, pwd, autocorrect):
     """Pushes an existing Assembly/Resource package to a target LM (and ARM) environment"""
     logger.debug('Pushing package at: {0}'.format(package))
-    pkg = lifecycle_cli.open_pkg(package)
+    pkg, pkg_content = lifecycle_cli.get_pkg_and_open(package)
     try:
-        env_sessions = lifecycle_cli.build_sessions_for_pkg(pkg.meta, environment, pwd, armname, config)
+        env_sessions = lifecycle_cli.build_sessions_for_pkg(pkg_content.meta, environment, pwd, armname, config)
         controller = lifecycle_cli.ExecutionController(PUSH_HEADER)
         controller.start(package)
         exec_push(controller, pkg, env_sessions, allow_autocorrect=autocorrect)
     finally:
-        cleanup_pkg(pkg)
+        cleanup_pkg(pkg_content)
     controller.finalise()
 
 
@@ -44,13 +44,13 @@ def push(package, environment, config, armname, pwd, autocorrect):
 @click.option('-f', '--format', 'output_format', default='yaml', help='format of output [yaml, json]')
 def inspect(package, config, output_format):
     logger.debug('Inspecting package at: {0}'.format(package))
-    pkg = lifecycle_cli.open_pkg(package)
+    pkg_content = lifecycle_cli.open_pkg(package)
     try:
-        inspection_report = pkg.inspect()
+        inspection_report = pkg_content.inspect()
         result = format_inspection_report(output_format, inspection_report)
         click.echo(result)
     finally:
-        cleanup_pkg(pkg)
+        cleanup_pkg(pkg_content)
     
 def cleanup_pkg(pkg):
     if os.path.exists(pkg.tree.root_path):
