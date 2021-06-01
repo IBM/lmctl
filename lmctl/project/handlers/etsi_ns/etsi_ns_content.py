@@ -3,7 +3,6 @@ import lmctl.project.handlers.assembly as assembly_api
 from lmctl.project.validation import ValidationResult, ValidationViolation
 import lmctl.utils.descriptors as descriptors
 import lmctl.drivers.lm.base as lm_drivers
-import lmctl.project.processes.etsi_push as etsi_push_exec
 
 
 class EtsiNsPkgContentTree(assembly_api.AssemblyPkgContentTree):
