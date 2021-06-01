@@ -60,6 +60,15 @@ def open_project(project_path):
         logger.exception(str(e))
         exit(1)
 
+def get_pkg_and_open(pkg_path):
+    try:
+        pkg = pkgs.Pkg(pkg_path)
+        return pkg, pkg.open()
+    except pkgs.InvalidPackageError as e:
+        printer.print_text('Error: {0}'.format(str(e)))
+        logger.exception(str(e))
+        exit(1)
+
 def open_pkg(pkg_path):
     try:
         return pkgs.Pkg(pkg_path).open()
