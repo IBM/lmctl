@@ -5,7 +5,7 @@ import time
 from .base import LmDriver
 # Temporarily use new client to control auth in order to support client_credential authentication
 # Eventually this class and all classes in the drivers section will be replaced by the new client
-from lmctl.client import TNCOClientBuilder, TNCOClient, AuthTracker, ZEN_AUTH_MODE, LEGACY_OAUTH_MODE
+from lmctl.client import TNCOClientBuilder, TNCOClient, AuthTracker, ZEN_AUTH_MODE, TOKEN_AUTH_MODE, LEGACY_OAUTH_MODE
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class LmSecurityCtrl:
     Manages authentication with a target LM environment 
     """
 
-    def __init__(self, auth_address, username=None, password=None, client_id=None, client_secret=None, api_key=None, auth_mode=None):
+    def __init__(self, auth_address, username=None, password=None, client_id=None, client_secret=None, token=None, api_key=None, auth_mode=None):
         """
         Constructs a new instance of controller for a target LM environment and target user
 
@@ -51,6 +51,7 @@ class LmSecurityCtrl:
             client_id (str): the client_id to authenticate as
             client_secret (str): the client_secret for the specified client_id
             api_key (str): API key used for Zen based auth
+            token (str): Token used for authentication
             auth_mode (str): Determines if we're using Zen or Oauth
         """
         self.__auth_address = auth_address
@@ -59,6 +60,7 @@ class LmSecurityCtrl:
         self.__client_id = client_id
         self.__client_secret = client_secret
         self.__api_key = api_key
+        self.__token = token
         self.__auth_mode = auth_mode
         self.__auth_tracker = AuthTracker()
         # Using the new client authentication methods in the "legacy" driver so we only need to maintain one impl
@@ -67,6 +69,8 @@ class LmSecurityCtrl:
         client_builder.address(self.__auth_address)
         if self.__auth_mode.lower() == ZEN_AUTH_MODE:
             client_builder.zen_api_key_auth(username=self.__username, api_key=self.__api_key, zen_auth_address=self.__auth_address)
+        elif self.__auth_mode.lower() == TOKEN_AUTH_MODE:
+            client_builder.token_auth(token=self.__token)
         else:
             #Oauth
             if self.__username is not None:

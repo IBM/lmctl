@@ -1,6 +1,7 @@
 from .client_credentials_auth import ClientCredentialsAuth
 from .pass_auth import UserPassAuth, LegacyUserPassAuth
 from .zen_auth import ZenAPIKeyAuth
+from .token_auth import JwtTokenAuth
 from .client import TNCOClient
 from .auth_type import AuthType
 
@@ -37,6 +38,10 @@ class TNCOClientBuilder:
         
     def zen_api_key_auth(self, username: str, api_key: str, zen_auth_address: str = None) -> 'TNCOClientBuilder':
         self._auth = ZenAPIKeyAuth(username=username, api_key=api_key, zen_auth_address=zen_auth_address)
+        return self
+
+    def token_auth(self, token: str) -> 'TNCOClientBuilder':
+        self._auth = JwtTokenAuth(token=token)
         return self
 
     def client_credentials_auth(self, client_id: str, client_secret: str) -> 'TNCOClientBuilder':

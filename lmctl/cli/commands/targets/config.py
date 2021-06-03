@@ -20,10 +20,10 @@ environments:
       ## Set to true if TNCO is secure and requires authentication to use the APIs
       secure: True
 
-      ############################################################
-      #  Zen Authentication                                      #
-      #  Required if "secure" is true and not using Legacy Oauth #
-      ############################################################
+      #####################################################################
+      #  Zen Authentication                                               #
+      #  Required if "secure" is true and not using Legacy Oauth or Token #
+      #####################################################################
       
       # Indicate environment is using Zen
       auth_mode: zen
@@ -38,12 +38,21 @@ environments:
       #api_key: enter-your-api-key
 
       #####################################################
-      # Legacy Oauth Authentication                       #
-      # Required if "secure" is true and not using Zen    #
-      # The following authentication options              #
-      # are only valid on older TNCO (ALM) environments   #
-      # which do not use Zen SSO                          #
+      # Token Authentication                              #
       #####################################################
+     
+      # Indicate the environment is using token based auth
+      #auth_mode: token 
+
+      #token: enter-your-token
+
+      ##############################################################
+      # Legacy Oauth Authentication                                #
+      # Required if "secure" is true and not using Zen or Token    #
+      # The following authentication options                       #
+      # are only valid on older TNCO (ALM) environments            #
+      # which do not use Zen SSO                                   #
+      ##############################################################
      
       # Indicate the environment is using oauth
       #auth_mode: oauth 
@@ -87,7 +96,9 @@ environments:
       
       ## The password for the above user
       #password: enter-your-pass
+
 '''
+
 
 class Configuration(Target):
     name = 'config'

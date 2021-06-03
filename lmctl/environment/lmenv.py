@@ -2,7 +2,7 @@ import lmctl.drivers.lm as lm_drivers
 from typing import Union, Optional
 from .common import build_address
 from urllib.parse import urlparse
-from lmctl.client import TNCOClient, TNCOClientBuilder, ZEN_AUTH_MODE, LEGACY_OAUTH_MODE
+from lmctl.client import TNCOClient, TNCOClientBuilder, TOKEN_AUTH_MODE, ZEN_AUTH_MODE, LEGACY_OAUTH_MODE
 from pydantic.dataclasses import dataclass
 from pydantic import constr, root_validator
 
@@ -24,6 +24,7 @@ class TNCOEnvironment:
     username: Optional[str] = None 
     password: Optional[str] = None
     api_key: Optional[str] = None
+    token: Optional[str] = None
     auth_mode: Optional[str] = LEGACY_OAUTH_MODE
 
     host: Optional[str] = None
@@ -56,6 +57,8 @@ class TNCOEnvironment:
                 values = cls._validate_oauth(values)
             elif auth_mode.lower() == ZEN_AUTH_MODE:
                 values = cls._validate_zen(values)
+            elif auth_mode.lower() == TOKEN_AUTH_MODE:
+                pass
             else:
                 raise ValueError(f'TNCO environment configured with invalid "auth_mode": {auth_mode}')
 
@@ -139,6 +142,7 @@ class TNCOEnvironment:
                                 client_id=self.client_id, 
                                 client_secret=self.client_secret, 
                                 api_key=self.api_key,
+                                token=self.token,
                                 auth_mode=self.auth_mode
                             )
     def build_client(self):
@@ -148,6 +152,8 @@ class TNCOEnvironment:
         if self.secure:
             if self.auth_mode == ZEN_AUTH_MODE:
                 builder.zen_api_key_auth(username=self.username, api_key=self.api_key, zen_auth_address=self.auth_address)
+            elif self.auth_mode == TOKEN_AUTH_MODE:
+                builder.token_auth(token=self.token)
             else:
                 if self.username is not None:
                     # Using password auth
@@ -171,16 +177,21 @@ class TNCOEnvironment:
     @property
     def is_using_zen_auth(self):
         return self.auth_mode.lower() == ZEN_AUTH_MODE.lower()
+    
+    @property
+    def is_using_token_auth(self):
+        return self.auth_mode.lower() == TOKEN_AUTH_MODE.lower()
 
 class LmSessionConfig:
 
-    def __init__(self, env, username=None, password=None, client_id=None, client_secret=None, api_key=None, auth_mode=None):
+    def __init__(self, env, username=None, password=None, client_id=None, client_secret=None, token=None, api_key=None, auth_mode=None):
         self.env = env
         self.username = username
         self.password = password
         self.client_id = client_id
         self.client_secret = client_secret
         self.api_key = api_key
+        self.token = token
         self.auth_mode = auth_mode
 
     @property
@@ -190,6 +201,10 @@ class LmSessionConfig:
     @property
     def is_using_zen_auth(self):
         return self.auth_mode.lower() == ZEN_AUTH_MODE.lower()
+    
+    @property
+    def is_using_token_auth(self):
+        return self.auth_mode.lower() == TOKEN_AUTH_MODE.lower()
 
     def create(self):
         return LmSession(self)
@@ -205,6 +220,7 @@ class LmSession:
         self.username = session_config.username
         self.password = session_config.password
         self.api_key = session_config.api_key
+        self.token = session_config.token
         self.auth_mode = session_config.auth_mode
         self.__lm_security_ctrl = None
         self.__descriptor_driver = None
@@ -229,6 +245,7 @@ class LmSession:
                                                                     client_id=self.client_id, 
                                                                     client_secret=self.client_secret,
                                                                     api_key=self.api_key,
+                                                                    token=self.token,
                                                                     auth_mode=self.auth_mode
                                                                 )
             return self.__lm_security_ctrl

@@ -47,7 +47,7 @@ def get_active_environment(ctl):
             return env_group
     return None
 
-def create_lm_session(environment_group_name = None, lm_pwd=None, config_path=None, lm_client_secret=None):
+def create_lm_session(environment_group_name = None, lm_pwd=None, config_path=None, lm_client_secret=None, lm_token=None):
     warnings.warn('create_lm_session is deprecated as the LmSession class is deprecated, replaced with a new TNCOClient. Use get_global_controller from lmctl.cli.controller then use build_client', DeprecationWarning)
     env_group = get_environment_group(environment_group_name, config_path)
     if not env_group.has_lm:
@@ -62,6 +62,12 @@ def create_lm_session(environment_group_name = None, lm_pwd=None, config_path=No
                 elif lm_session_config.api_key is None:
                     prompt_pwd = click.prompt(f'Please enter API key for LM user {lm_session_config.username}', hide_input=True, default='')
                     lm_session_config.api_key = prompt_pwd
+        elif lm_session_config.is_using_token_auth:
+            if lm_token is not None and len(lm_token.strip()) > 0:
+                lm_session_config.token = lm_token
+            elif lm_session_config.token is None:
+                prompt_token = click.prompt(f'Please enter token for LM', hide_input=True, default='')
+                lm_session_config.token = prompt_token
         else:
             if lm_session_config.username is not None:
                 if lm_pwd is not None and len(lm_pwd.strip()) > 0:

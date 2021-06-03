@@ -42,3 +42,14 @@ class TestAuthenticationAPI(IntegrationTest):
         api_key = self.tester.test_properties.auth_testing.zen_api_key.password
         auth_response = self.tester.default_client.auth.request_zen_api_key_access(username, api_key)
         self.assertIn('token', auth_response)
+
+    def test_token(self):
+        # No skip - token auth is possible with both oauth and zen
+         
+        client = self.tester.build_client()
+        # Switch to Token Auth
+        client.auth_type = self.tester.test_properties.auth_testing.token_auth
+
+        # Exec request to confirm auth
+        response = client.descriptors.all()
+        self.assertIsInstance(response, list)
