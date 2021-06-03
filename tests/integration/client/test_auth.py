@@ -24,3 +24,12 @@ class TestAuthenticationAPI(IntegrationTest):
         auth_response = self.tester.default_client.auth.legacy_login(username, password)
         self.assertIn('accessToken', auth_response)
         self.assertIn('expiresIn', auth_response)
+    
+    def test_token(self):
+        client = self.tester.build_client()
+        # Switch to Token Auth
+        client.auth_type = self.tester.test_properties.auth_testing.token_auth
+
+        # Exec request to confirm auth
+        response = client.descriptors.all()
+        self.assertIsInstance(response, list)
