@@ -40,26 +40,33 @@ class CLIController:
                 return env_group
         return None
  
-    def get_tnco_client(self, environment_group_name: str = None, input_pwd: str = None, input_client_secret: str = None) -> 'TNCOClient':
+    def get_tnco_client(self, environment_group_name: str = None, input_pwd: str = None, input_client_secret: str = None, input_token: str = None) -> 'TNCOClient':
         env_group = self.get_environment_group(environment_group_name)
         if not env_group.has_tnco:
             self.io.print_error(f'Error: TNCO (ALM) environment not configured on group: {environment_group_name}')
             exit(1)
         tnco = env_group.tnco
         if tnco.secure:
-            if tnco.client_id is not None:
-                if tnco.client_secret is None:
-                    if input_client_secret is not None and len(input_client_secret.strip()) > 0:
-                        tnco.client_secret = input_client_secret
-                    elif tnco.client_secret is None:
-                        prompt_secret = self.io.prompt(f'Please enter secret for TNCO (ALM) client {tnco.client_id}', hide_input=True, default='')
-                        tnco.client_secret = prompt_secret
-            if tnco.username is not None:
-                if input_pwd is not None and len(input_pwd.strip()) > 0:
-                    tnco.password = input_pwd
-                elif tnco.password is None:
-                    prompt_pwd = self.io.prompt(f'Please enter password for TNCO (ALM) user {tnco.username}', hide_input=True, default='')
-                    tnco.password = prompt_pwd
+            if tnco.is_using_token_auth:
+                if input_token is not None and len(input_token.strip()) > 0:
+                    tnco.token = input_token
+                elif tnco.token is None:
+                    prompt_token = self.io.prompt(f'Please enter token for TNCO (ALM)', hide_input=True, default='')
+                    tnco.token = prompt_token
+            else:
+                if tnco.client_id is not None:
+                    if tnco.client_secret is None:
+                        if input_client_secret is not None and len(input_client_secret.strip()) > 0:
+                            tnco.client_secret = input_client_secret
+                        elif tnco.client_secret is None:
+                            prompt_secret = self.io.prompt(f'Please enter secret for TNCO (ALM) client {tnco.client_id}', hide_input=True, default='')
+                            tnco.client_secret = prompt_secret
+                if tnco.username is not None:
+                    if input_pwd is not None and len(input_pwd.strip()) > 0:
+                        tnco.password = input_pwd
+                    elif tnco.password is None:
+                        prompt_pwd = self.io.prompt(f'Please enter password for TNCO (ALM) user {tnco.username}', hide_input=True, default='')
+                        tnco.password = prompt_pwd
         return tnco.build_client()
 
     def create_arm_session(self, arm_name: str, environment_group_name: str = None):

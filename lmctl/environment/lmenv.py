@@ -2,7 +2,7 @@ import lmctl.drivers.lm as lm_drivers
 from typing import Union, Optional
 from .common import build_address
 from urllib.parse import urlparse
-from lmctl.client import TNCOClient, TNCOClientBuilder
+from lmctl.client import TNCOClient, TNCOClientBuilder, TOKEN_AUTH_MODE, LEGACY_OAUTH_MODE
 from pydantic.dataclasses import dataclass
 from pydantic import constr, root_validator
 
@@ -23,6 +23,8 @@ class TNCOEnvironment:
     client_secret: Optional[str] = None
     username: Optional[str] = None 
     password: Optional[str] = None
+    token: Optional[str] = None
+    auth_mode: Optional[str] = LEGACY_OAUTH_MODE
 
     host: Optional[str] = None
     port: Optional[Union[str,int]] = None
@@ -38,6 +40,36 @@ class TNCOEnvironment:
     kami_address: Optional[str] = None
     kami_port: Optional[Union[str,int]] = DEFAULT_KAMI_PORT 
     kami_protocol: Optional[str] = DEFAULT_KAMI_PROTOCOL
+
+    @root_validator(pre=True)
+    @classmethod
+    def check_security(cls, values):
+        secure = values.get('secure', DEFAULT_SECURE)
+        if secure is True:
+
+            auth_mode = values.get('auth_mode', None)
+            if auth_mode is None:
+                auth_mode = LEGACY_OAUTH_MODE
+                values['auth_mode'] = auth_mode
+
+            if auth_mode.lower() == LEGACY_OAUTH_MODE:
+                values = cls._validate_oauth(values)
+            elif auth_mode.lower() == TOKEN_AUTH_MODE:
+                pass
+            else:
+                raise ValueError(f'TNCO environment configured with invalid "auth_mode": {auth_mode}')
+
+        return values
+
+    @classmethod
+    def _validate_oauth(cls, values):
+        client_id = values.get('client_id', None)
+        client_secret = values.get('client_secret', None)
+        username = values.get('username', None)
+        password = values.get('password', None)
+        if not client_id and not username:
+            raise ValueError(f'Secure TNCO environment must be configured with either "client_id" or "username" property when using "auth_mode={LEGACY_OAUTH_MODE}". If the TNCO environment is not secure then set "secure" to False')
+        return values
 
     @root_validator(pre=True)
     @classmethod
@@ -84,51 +116,65 @@ class TNCOEnvironment:
 
         return values
 
-    @root_validator(pre=True)
-    @classmethod
-    def check_security(cls, values):
-        client_id = values.get('client_id', None)
-        client_secret = values.get('client_secret', None)
-        username = values.get('username', None)
-        password = values.get('password', None)
-        secure = values.get('secure', DEFAULT_SECURE)
-        if secure is True and client_id is None and username is None:
-            raise ValueError('Secure TNCO environment cannot be configured without "client_id" or "username" property. If the TNCO environment is not secure then set "secure" to False')
-
-        return values
-
-
     def create_session_config(self):
-        return LmSessionConfig(self, username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret)
-
+        return LmSessionConfig(self, 
+                                username=self.username, 
+                                password=self.password, 
+                                client_id=self.client_id, 
+                                client_secret=self.client_secret, 
+                                token=self.token,
+                                auth_mode=self.auth_mode
+                            )
     def build_client(self):
         builder = TNCOClientBuilder()
         builder.address(self.address)
         builder.kami_address(self.kami_address)
         if self.secure:
-            if self.username is not None:
-                # Using password auth
-                if self.client_id is not None:
-                    builder.user_pass_auth(username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret)
-                else:
-                    # Legacy password auth
-                    builder.legacy_user_pass_auth(username=self.username, password=self.password, legacy_auth_address=self.auth_address)
+            if self.auth_mode == TOKEN_AUTH_MODE:
+                builder.token_auth(token=self.token)
             else:
-                builder.client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret)
+                if self.username is not None:
+                    # Using password auth
+                    if self.client_id is not None:
+                        builder.user_pass_auth(username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret)
+                    else:
+                        # Legacy password auth
+                        builder.legacy_user_pass_auth(username=self.username, password=self.password, legacy_auth_address=self.auth_address)
+                else:
+                    builder.client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret)
         return builder.build()
 
     @property
     def api_address(self):
         return self.address
 
+    @property
+    def is_using_oauth(self):
+        return self.auth_mode.lower() == LEGACY_OAUTH_MODE.lower()
+
+    @property
+    def is_using_token_auth(self):
+        return self.auth_mode.lower() == TOKEN_AUTH_MODE.lower()
+
+
 class LmSessionConfig:
 
-    def __init__(self, env, username=None, password=None, client_id=None, client_secret=None):
+    def __init__(self, env, username=None, password=None, client_id=None, client_secret=None, token=None, auth_mode=None):
         self.env = env
         self.username = username
         self.password = password
         self.client_id = client_id
         self.client_secret = client_secret
+        self.token = token
+        self.auth_mode = auth_mode
+
+    @property
+    def is_using_oauth(self):
+        return self.auth_mode.lower() == LEGACY_OAUTH_MODE.lower()
+
+    @property
+    def is_using_token_auth(self):
+        return self.auth_mode.lower() == TOKEN_AUTH_MODE.lower()
 
     def create(self):
         return LmSession(self)
@@ -143,6 +189,8 @@ class LmSession:
         self.client_secret = session_config.client_secret
         self.username = session_config.username
         self.password = session_config.password
+        self.token = session_config.token
+        self.auth_mode = session_config.auth_mode
         self.__lm_security_ctrl = None
         self.__descriptor_driver = None
         self.__onboard_rm_driver = None
@@ -160,15 +208,13 @@ class LmSession:
     def __get_lm_security_ctrl(self):
         if self.env.secure:
             if not self.__lm_security_ctrl:
-                oauth_address = None
-                if self.client_id is not None:
-                    oauth_address = self.env.address
                 self.__lm_security_ctrl = lm_drivers.LmSecurityCtrl(self.env.auth_address, 
                                                                     username=self.username, 
                                                                     password=self.password,
                                                                     client_id=self.client_id, 
                                                                     client_secret=self.client_secret,
-                                                                    oauth_address=oauth_address
+                                                                    token=self.token,
+                                                                    auth_mode=self.auth_mode
                                                                 )
             return self.__lm_security_ctrl
         return None

@@ -10,7 +10,7 @@ class ValidationConfig:
 @dataclass(config=ValidationConfig)
 class TNCOClientRequest:
     method: str
-    endpoint: str
+    endpoint: str = None
     headers: Dict[str, Any] = field(default_factory=dict)
     query_params: Dict[str, Any] = field(default_factory=dict)
     body: Any = None

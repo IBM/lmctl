@@ -68,9 +68,10 @@ class TNCOClient:
         return headers
 
     def make_request(self, request: TNCOClientRequest) -> requests.Response:
-        address = request.override_address if request.override_address else self.address
-        url = f'{address}/{request.endpoint}'
-
+        url = request.override_address if request.override_address else self.address
+        if request.endpoint is not None:
+            url = f'{url}/{request.endpoint}'
+        
         request_kwargs = {}
         if request.query_params is not None and len(request.query_params) > 0:
             request_kwargs['params'] = request.query_params
