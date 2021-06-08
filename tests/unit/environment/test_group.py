@@ -1,48 +1,27 @@
 import unittest
-from lmctl.environment import EnvironmentGroup, LmEnvironment, ArmEnvironment,EnvironmentConfigError, EnvironmentRuntimeError
+from pydantic import ValidationError
+from lmctl.environment import EnvironmentGroup, TNCOEnvironment, ArmEnvironment
 
 class TestEnvironmentGroup(unittest.TestCase):
 
     def test_init_without_name_fails(self):
-        with self.assertRaises(EnvironmentConfigError) as context:
+        with self.assertRaises(ValidationError) as context:
             EnvironmentGroup(None, None)
-        self.assertEqual(str(context.exception), 'name must be defined')
-        with self.assertRaises(EnvironmentConfigError) as context:
+        self.assertEqual(str(context.exception), '1 validation error for EnvironmentGroup\nname\n  none is not an allowed value (type=type_error.none.not_allowed)')
+        with self.assertRaises(ValidationError) as context:
             EnvironmentGroup(' ', None)
-        self.assertEqual(str(context.exception), 'name must be defined')
+        self.assertEqual(str(context.exception), '1 validation error for EnvironmentGroup\nname\n  ensure this value has at least 1 characters (type=value_error.any_str.min_length; limit_value=1)')
         
-    def test_init_with_invalid_lm_config_type_fails(self):
-        with self.assertRaises(EnvironmentConfigError) as context:
-            EnvironmentGroup('test', None, 'lm')
-        self.assertEqual(str(context.exception), 'lm_env provided must be of type LmEnvironment')
+    def test_init_with_invalid_tnco_config_type_fails(self):
+        with self.assertRaises(ValidationError) as context:
+            EnvironmentGroup('test', None, 'tnco')
+        self.assertEqual(str(context.exception), '1 validation error for EnvironmentGroup\ntnco\n  instance of TNCOEnvironment, tuple or dict expected (type=type_error.dataclass; class_name=TNCOEnvironment)')
 
     def test_init_with_invalid_arm_config_type_fails(self):
-        with self.assertRaises(EnvironmentConfigError) as context:
-            EnvironmentGroup('test', None, None, [])
-        self.assertEqual(str(context.exception), 'arm_envs must be name/value pairs')
-        with self.assertRaises(EnvironmentConfigError) as context:
+        with self.assertRaises(ValidationError) as context:
+            EnvironmentGroup('test', None, None, 'arms')
+        self.assertEqual(str(context.exception), '1 validation error for EnvironmentGroup\narms\n  value is not a valid dict (type=type_error.dict)')
+        with self.assertRaises(ValidationError) as context:
             EnvironmentGroup('test', None, None, {'arm': 'test'})
-        self.assertEqual(str(context.exception), 'Items in arm_envs dict must be of type ArmEnvironment')
+        self.assertEqual(str(context.exception), '1 validation error for EnvironmentGroup\narms -> arm\n  instance of ArmEnvironment, tuple or dict expected (type=type_error.dataclass; class_name=ArmEnvironment)')
 
-    def test_attributes(self):
-        name = 'test'
-        description = 'test description'
-        lm = LmEnvironment('test', 'host')
-        arms =   {'test': ArmEnvironment('test', 'host')}
-        config = EnvironmentGroup(name, description, lm, arms)
-        self.assertEqual(config.name, name)
-        self.assertEqual(config.description, description)
-        self.assertEqual(config.lm, lm)
-        self.assertEqual(config.arms, arms)
-
-    def test_fails_when_lm_not_found(self):
-        group = EnvironmentGroup('test', 'test')
-        with self.assertRaises(EnvironmentRuntimeError) as context:
-            group.lm
-        self.assertEqual(str(context.exception), 'No TNCO environment has been configured on this group: test')
-
-    def tests_fails_when_arm_not_found(self):
-        group = EnvironmentGroup('test', 'test')
-        with self.assertRaises(EnvironmentRuntimeError) as context:
-            group.arm_named('test')
-        self.assertEqual(str(context.exception), 'No ARM named \'test\' on this group: test')

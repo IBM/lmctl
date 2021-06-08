@@ -21,7 +21,7 @@ PASSED_WITH_WARNINGS = 'PASSED (with warnings)'
 def build_sessions_for_project(project_config, environment_name, lm_pwd=None, arm_name=None, config_path=None):
     lm_session = ctlmgmt.create_lm_session(environment_name, lm_pwd, config_path)
     if __has_arm_projects(project_config) and arm_name is not None:
-        arm_session = ctlmgmt.create_arm_session(environment_name, arm_name, config_path)
+        arm_session = ctlmgmt.create_arm_session(arm_name, environment_name, config_path)
     else:
         arm_session = None
     return EnvironmentSessions(lm_session, arm_session)
@@ -38,7 +38,7 @@ def __has_arm_projects(config):
 def build_sessions_for_pkg(pkg_meta, environment_name, lm_pwd=None, arm_name=None, config_path=None):
     lm_session = ctlmgmt.create_lm_session(environment_name, lm_pwd, config_path)
     if __has_arm_content(pkg_meta) and arm_name is not None:
-        arm_session = ctlmgmt.create_arm_session(environment_name, arm_name, config_path)
+        arm_session = ctlmgmt.create_arm_session(arm_name, environment_name, config_path)
     else:
         arm_session = None
     return EnvironmentSessions(lm_session, arm_session)

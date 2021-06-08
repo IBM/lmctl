@@ -1,30 +1,38 @@
-from .common import Environment, EnvironmentConfigError, build_address
+from .common import build_address
 from typing import Union
 import lmctl.drivers.arm as arm_drivers
+from pydantic.dataclasses import dataclass
+from pydantic import constr, root_validator
 
-class ArmEnvironment(Environment):
+DEFAULT_PROTOCOL = 'https'
 
-    def __init__(self, name: str, address: str = None, host: str = None, port: Union[str,int] = None, protocol: str = 'https', onboarding_addr: str = None):
-        name = name.strip() if name is not None else None
-        if not name:
-            raise EnvironmentConfigError('AnsibleRM environment cannot be configured without property: name')
-        self.name = name
-        if address is not None:
-            self._address = address
-        else:
+@dataclass
+class ArmEnvironment:
+    name: constr(strip_whitespace=True, min_length=1)
+    address: str = None
+    host: str = None
+    port: Union[str,int] = None
+    protocol: str = DEFAULT_PROTOCOL
+    onboarding_addr: str = None
+
+    @root_validator(pre=True)
+    @classmethod
+    def normalize_addresses(cls, values):
+        address = values.get('address', None)
+        if address is None:
+            host = values.get('host', None)
             host = host.strip() if host is not None else None
             if not host:
-                raise EnvironmentConfigError('AnsibleRM environment cannot be configured without "address" property or "host" property')
-            self._address = build_address(host, protocol=protocol, port=port)
-        self.onboarding_addr = onboarding_addr.strip() if onboarding_addr is not None and len(onboarding_addr.strip())>0 else None
-
-    @property
-    def address(self):
-        return self._address
+                raise ValueError('AnsibleRM environment cannot be configured without "address" property or "host" property')
+            protocol = values.get('protocol', DEFAULT_PROTOCOL)
+            port = values.get('port', None)
+            address = build_address(host, protocol=protocol, port=port)
+            values['address'] = address
+        return values
 
     @property
     def api_address(self):
-        return self._address
+        return self.address
 
     def create_session_config(self):
         return ArmSessionConfig(self)
@@ -41,7 +49,7 @@ class ArmSession:
 
     def __init__(self, session_config):
         if not session_config:
-            raise EnvironmentConfigError('config not provided to session')
+            raise ValueError('config not provided to session')
         self.env = session_config.env
         self.__arm_driver = None
 
