@@ -1,3 +1,6 @@
+> Check out [Getting Started](getting-started.md)
+
+
 # Pre-requisites
 
 Before installing LMCTL, you will need a ready-to-use Python environment.
@@ -57,24 +60,6 @@ To deactivate the virtual environment at anytime just execute:
 ```
 deactivate
 ```
-
-# Uninstall existing LMCTL
-
-Before continuing it is important that you ensure your global system and/or virtual environment do not already have LMCTL installed.
-
-Check this by running:
-
-```
-lmctl --help
-```
-
-If you have an existing installation, uninstall it with:
-
-```
-python3 -m pip uninstall lmctl
-```
-
-Ensure you execute this on your virtual environment if LMCTL has been installed there, otherwise execute this on your machine's global python system by deactivating the virtual environment first.
 
 # Install LMCTL
 

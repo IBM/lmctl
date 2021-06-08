@@ -6,7 +6,6 @@ from lmctl.client import TNCOClient, TNCOClientBuilder, TOKEN_AUTH_MODE, ZEN_AUT
 from pydantic.dataclasses import dataclass
 from pydantic import constr, root_validator
 
-
 DEFAULT_KAMI_PORT = '31289'
 DEFAULT_KAMI_PROTOCOL = 'http'
 DEFAULT_BRENT_NAME = 'brent'

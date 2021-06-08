@@ -1,7 +1,7 @@
 import click
 import logging
 from lmctl.cli.io import IOController
-from lmctl.config import get_global_config, Config, ConfigError
+from lmctl.config import get_global_config_with_path, Config, ConfigError
 from lmctl.environment import EnvironmentGroup
 from .safety_net import safety_net, tnco_client_safety_net
 
@@ -9,18 +9,22 @@ logger = logging.getLogger(__name__)
 
 class CLIController:
     
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, config_path: str):
         self.config = config
+        self.config_path = config_path
         self.io = IOController.get()
 
     def safety_net(self, *catchable_exceptions):
         return safety_net(*catchable_exceptions, io_controller=self.io)
 
-    def tnco_client_safety_net(self):
-        return tnco_client_safety_net(io_controller=self.io)
+    def tnco_client_safety_net(self, *extra_exceptions):
+        return tnco_client_safety_net(*extra_exceptions, io_controller=self.io)
 
     def get_environment_group(self, environment_group_name: str = None) -> EnvironmentGroup:
         env_group = self.config.environments.get(environment_group_name, None)
+        if environment_group_name is not None:
+            self.io.print_error(f'Error: No environment named: {environment_group_name}')
+            exit(1)
         if env_group is None:
             env_group = self.get_active_environment()
         if env_group is None:
@@ -91,9 +95,14 @@ def get_global_controller(override_config_path: str = None) -> CLIController:
     global global_controller
     if global_controller is None:
         try:
-            global_controller = CLIController(get_global_config(override_config_path=override_config_path))
+            config, config_path = get_global_config_with_path(override_config_path=override_config_path)
+            global_controller = CLIController(config, config_path)
         except ConfigError as e:
             IOController().print_error(f'Error: Failed to load configuration - {e}')
             logger.exception(str(e))
             exit(1)
     return global_controller
+
+def clear_global_controller():
+    global global_controller
+    global_controller = None
