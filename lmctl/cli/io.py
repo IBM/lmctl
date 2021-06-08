@@ -14,6 +14,9 @@ class IOController:
     def prompt(self, *args, **kwargs):
         return click.prompt(*args, **kwargs)
 
+    def confirm_prompt(self, *args, **kwargs):
+        return click.confirm(*args, **kwargs)
+
     def print_error(self, text):
         self.__print(text, err=True)
 

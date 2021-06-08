@@ -21,6 +21,16 @@ class TestAuthenticationAPI(IntegrationTest):
     def test_legacy_login(self):
         username = self.tester.test_properties.auth_testing.legacy_user_pass.username
         password = self.tester.test_properties.auth_testing.legacy_user_pass.password
-        auth_response = self.tester.default_client.auth.legacy_login(username, password)
+        auth_address = self.tester.test_properties.auth_testing.legacy_user_pass.legacy_auth_address
+        auth_response = self.tester.default_client.auth.legacy_login(username, password, legacy_auth_address=auth_address)
         self.assertIn('accessToken', auth_response)
         self.assertIn('expiresIn', auth_response)
+    
+    def test_token(self):
+        client = self.tester.build_client()
+        # Switch to Token Auth
+        client.auth_type = self.tester.test_properties.auth_testing.token_auth
+
+        # Exec request to confirm auth
+        response = client.descriptors.all()
+        self.assertIsInstance(response, list)

@@ -3,12 +3,17 @@
 :tada:
 
 Contents:
-- :file_folder: [Default LMCTL config file location](#default-lmctl-config-file-location)
-- :muscle: [Expanded Command Capabilities](#expanded-command-capabilities)
-- :snake: [CP4NA Python Client](#cp4na-python-client)
-- :wrench: [CP4NA Environment Improvements](#cp4na-environment-address-improvements)
-- :closed_lock_with_key: [Client Credential Authentication](#client-credential-authentication)
-- :point_right: [Ping CP4NA environment to check configuration](#ping-cp4na-environment-to-check-configuration)
+- New in 3.0.X
+  - :file_folder: [Default LMCTL config file location](#default-lmctl-config-file-location)
+  - :muscle: [Expanded Command Capabilities](#expanded-command-capabilities)
+  - :snake: [CP4NA Python Client](#cp4na-python-client)
+  - :wrench: [CP4NA Environment Improvements](#cp4na-environment-address-improvements)
+  - :closed_lock_with_key: [Client Credential Authentication](#client-credential-authentication)
+  - :point_right: [Ping CP4NA environment to check configuration](#ping-cp4na-environment-to-check-configuration)
+- New in 3.1.x
+  - :closed_lock_with_key: [Login Command](#login-command)
+  - :closed_lock_with_key: [Token Authentication](#token-authentication)
+  - :file_folder: [Default Active Environment](#active-environment)
 
 # Default LMCTL config file location
 
@@ -140,6 +145,7 @@ environments:
       secure: True
       username: jack
       password: some-pass
+      auth_address: https://my-cp4na-ui
 
   # Valid Username/Password authentication
   valid-username-pass-env:
@@ -167,4 +173,70 @@ Check you've configured your environment(s) correctly by testing the connection:
 
 ```
 lmctl ping env <name of env>
+```
+
+# Login Command
+
+The new `lmctl login` command makes it easier to add environments to your config file without modifying YAML files.
+
+```
+lmctl login https://my-cp4na-env --auth-address https://my-cp4na-ui --username almadmin --password my-password
+```
+
+By default, this command will authenticate, obtain a short-lived access token, then save this environment with the token in the configuration file (rather than your credentials). This means you'll have to `login` again when the token expires. If you'd rather avoid this headache, you can save the credentials in the config file with `--save-creds`. 
+
+```
+lmctl login https://my-cp4na-env --auth-address https://my-cp4na-ui --username almadmin --password my-password --save-creds
+```
+
+Read more about the login command in the [getting started guide](getting-started.md) and/or [login command reference](command-reference/login.md).
+
+# Token Authentication
+
+On it's own, this feature is fairly unimpressive, but it can be useful in combination with the `lmctl login` command. You may now authenticate with an existing access token, instead of persisting credentials in the LMCTL config file:
+
+```
+environments:
+  dev:
+    tnco:
+      address: https://my-cp4na-env
+      secure: True
+      token: <a-jwt-token>
+```
+
+# Active Environment
+
+Most commands require the name of an environment from the configuration file, e.g.:
+
+```
+lmctl get descriptors -e my-env
+```
+
+This becomes very repetitive, especially when frequently using the same environment. 
+
+In LMCTL 3.1, you may now set an `active_environment` in the configuration file. The active environment is used on any command where the relevant environment argument or option was not supplied. 
+
+```
+active_environment: dev
+environments:
+  my-env:
+    tnco:
+       ...
+  joes-env:
+    tnco:
+       ...
+```
+
+With the above config, the previous command can be shortened to:
+
+```
+lmctl get descriptors 
+```
+
+> We may still specify the environment when we need to use an alternative `lmctl get descriptors -e joes-env`
+
+The `active_environment` value can also be toggled from the command line, with the `use` command:
+
+```
+lmctl use env joes-env
 ```

@@ -81,12 +81,12 @@ class TestConfigTarget(CommandTestCase):
             content = f.read()
         self.assertEqual(content, 'Original content')
 
-    @patch('lmctl.cli.commands.targets.config.ConfigFinder')
+    @patch('lmctl.cli.commands.targets.config.standard_config_finder')
     def test_create_at_default_directory(self, mock_finder):
         default_dir = os.path.join(self.tmp_dir, 'defaultdir')
         os.makedirs(default_dir)
         default_path = os.path.join(default_dir, 'config.yaml')
-        mock_finder.return_value.get_default_config_path.return_value = default_path
+        mock_finder.return_value.find.return_value = default_path
         result = self.runner.invoke(cli, ['create', 'config'])
         self.assertTrue(os.path.exists(default_path), msg='Config file not created')
         config = ConfigParser().from_file(default_path)
