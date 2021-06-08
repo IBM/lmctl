@@ -22,7 +22,7 @@ lmctl project create [OPTIONS] [LOCATION]
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------ |
 | `--name`                  | name of the service managed in the project                                                                                                                                                                                                                                                                          | (target directory name) | --name myexample                                             |
 | `--version`               | version of the service managed in the project                                                                                                                                                                                                                                                                       | 1.0                     | --version 2.1                                                |
-| `--type`, `--servicetype` | type of service managed in this project (Assembly or Resource)                                                                                                                                                                                                                                                      | Assembly                | --type Resource                                              |
+| `--type`, `--servicetype` | type of service managed in this project (Assembly, Resource, ETSI_VNF or ETSI_NS)                                                                                               | Assembly                | --type Resource                                              |
 | `--rm`                    | Resource projects only - the type of Resource Manager this Resource supports                                                                                                                                                                                                                                        | lm                      | --rm ansiblerm, --rm lm (brent)                              |
 | `--contains`, `--vnfc`    | Subprojects to initiate under this project. Must specify 2 values separated by spaces: type name. For a Resource subproject, you may set the rm by including it it in the type value using the format \'type::rm\' e.g. Resource::ansiblerm. If no rm is set then the value of the --rm option will be used instead |                         | --contains Assembly subA --contains Resource::ansiblerm subB |
 | `--param` | Parameters to be passed to the creation of each Project. The values allowed here should take the form "param_name param_value". The parameters allowed for each Project depend on the `--type` and `--rm` chosen (see [params](#params)) | --param lifecycle ansible --param inf openstack |
@@ -76,6 +76,17 @@ lmctl project create --type Resource --param driver sol003
 Resource with Openstack driver for Create/Delete (will be included in the generated descriptor) but Sol003 driver for all others (only Install, Configure and Uninstall are included in the generated descriptor):
 ```
 lmctl project create --type Resource --param driver sol003 --param inf openstack
+```
+
+
+ETSI_VNF with Openstack driver for Create/Delete (will be included in the generated descriptor) but Ansible driver for all others (only Install is included in the generated descriptor):
+```
+lmctl project create --type ETSI_VNF
+```
+
+ETSI_VNF Resource with Sol003 driver for all transitions (only Install, Configure and Uninstall are included in the generated descriptor):
+```
+lmctl project create --type ETSI_VNF --param driver sol003
 ```
 
 ### Params for Brent/LM 2.1
