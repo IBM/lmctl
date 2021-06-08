@@ -1,4 +1,7 @@
 import tests.unit.cli.commands.command_testing as command_testing
+import tempfile
+import os 
+import shutil
 from unittest.mock import patch
 from lmctl.cli.controller import clear_global_controller
 from lmctl.cli.commands.login import login
@@ -7,8 +10,27 @@ from lmctl.environment import EnvironmentGroup
 
 class TestLoginCommands(command_testing.CommandTestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.tmp_dir = tempfile.mkdtemp(prefix='lmctl-test')
+        cls.config_path = os.path.join(cls.tmp_dir, 'lmctl-config.yaml')
+        with open(cls.config_path, 'w') as f:
+            f.write('')
+        cls.orig_lm_config = os.environ.get('LMCONFIG')
+        os.environ['LMCONFIG'] = cls.config_path
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        if os.path.exists(cls.tmp_dir):
+            shutil.rmtree(cls.tmp_dir)
+        if cls.orig_lm_config is not None:
+            os.environ['LMCONFIG'] = cls.orig_lm_config
+
     def setUp(self):
         super().setUp()
+        
         self.tnco_env_client_patcher = patch('lmctl.environment.lmenv.TNCOClientBuilder')
         self.mock_tnco_client_builder_class = self.tnco_env_client_patcher.start()
         self.addCleanup(self.tnco_env_client_patcher.stop)
@@ -24,12 +46,15 @@ class TestLoginCommands(command_testing.CommandTestCase):
             'environments': {}
         }
 
-        self.default_config_path = ConfigFinder().get_default_config_path()
-
         self.global_config_patcher = patch('lmctl.cli.controller.get_global_config_with_path')
         self.mock_get_global_config = self.global_config_patcher.start()
         self.addCleanup(self.global_config_patcher.stop)
-        self.mock_get_global_config.return_value = (Config(), self.default_config_path)
+        self.mock_get_global_config.return_value = (Config(), self.config_path)
+
+    def tearDown(self):
+        if os.path.exists(self.config_path):
+            with open(self.config_path, 'w') as f:
+                f.write('')
 
 
     def test_login_without_args_prompts_for_client_and_user(self):
@@ -50,7 +75,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     }
                 }
             }
-        }, self.default_config_path)
+        }, self.config_path)
     
     def test_login_without_args_prompts_for_client_and_user_save_creds(self):
         result = self.runner.invoke(login, ['http://mock.example.com', '--save-creds'], input='TestClient\nTestSecret\nTestUser\nTestPass')
@@ -72,7 +97,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     }
                 }
             }
-        }, self.default_config_path)
+        }, self.config_path)
 
     def test_login_without_args_prompts_for_client_and_user_then_print_token(self):
         result = self.runner.invoke(login, ['http://mock.example.com', '--print'], input='TestClient\nTestSecret\nTestUser\nTestPass')
@@ -101,7 +126,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     }
                 }
             }
-        }, self.default_config_path)
+        }, self.config_path)
     
     def test_login_with_client_id_prompts_for_secret_save_creds(self):
         result = self.runner.invoke(login, ['http://mock.example.com', '--client', 'TestClient', '--save-creds'], input='TestSecret')
@@ -121,7 +146,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     }
                 }
             }
-        }, self.default_config_path)
+        }, self.config_path)
     
     def test_login_with_client_id_prompts_for_secret_then_print_token(self):
         result = self.runner.invoke(login, ['http://mock.example.com', '--client', 'TestClient', '--print'], input='TestSecret')
@@ -151,7 +176,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     }
                 }
             }
-        }, self.default_config_path)
+        }, self.config_path)
 
     def test_login_with_client_id_and_secret_save_creds(self):
         result = self.runner.invoke(login, ['http://mock.example.com', '--client', 'TestClient', '--client-secret', 'TestSecret', '--save-creds'])
@@ -171,7 +196,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     }
                 }
             }
-        }, self.default_config_path)
+        }, self.config_path)
 
     def test_login_with_client_id_and_secret_then_print_token(self):
         result = self.runner.invoke(login, ['http://mock.example.com', '--client', 'TestClient', '--client-secret', 'TestSecret', '--print'])
@@ -200,7 +225,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     }
                 }
             }
-        }, self.default_config_path)
+        }, self.config_path)
     
     def test_login_with_username_prompts_for_pwd_save_creds(self):
         result = self.runner.invoke(login, ['http://mock.example.com', '--auth-address', 'http://auth.example.com', '--username', 'TestUser', '--save-creds'], input='TestPass')
@@ -221,7 +246,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     }
                 }
             }
-        }, self.default_config_path)
+        }, self.config_path)
     
     def test_login_with_username_prompts_for_pwd_then_print_token(self):
         result = self.runner.invoke(login, ['http://mock.example.com', '--auth-address', 'http://auth.example.com', '--username', 'TestUser', '--print'], input='TestPass')
@@ -251,7 +276,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     }
                 }
             }
-        }, self.default_config_path)
+        }, self.config_path)
     
     def test_login_with_username_prompts_for_pwd_save_creds(self):
         result = self.runner.invoke(login, ['http://mock.example.com', '--auth-address', 'http://auth.example.com', '--username', 'TestUser', '--pwd', 'TestPass', '--save-creds'], input='TestPass')
@@ -272,7 +297,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     }
                 }
             }
-        }, self.default_config_path)
+        }, self.config_path)
     
     def test_login_with_username_prompts_for_pwd_then_print_token(self):
         result = self.runner.invoke(login, ['http://mock.example.com', '--auth-address', 'http://auth.example.com', '--username', 'TestUser', '--pwd', 'TestPass', '--print'], input='TestPass')
@@ -315,7 +340,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     }
                 }
             }
-        }, self.default_config_path)
+        }, self.config_path)
     
     def test_login_with_token_save_creds(self):
         result = self.runner.invoke(login, ['http://mock.example.com', '--token', '123', '--save-creds'])
@@ -335,7 +360,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     }
                 }
             }
-        }, self.default_config_path)
+        }, self.config_path)
     
     def test_login_with_token_then_print_token(self):
         result = self.runner.invoke(login, ['http://mock.example.com', '--token', '123', '--print'])
@@ -362,7 +387,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     }
                 }
             }
-        }, self.default_config_path)
+        }, self.config_path)
 
     def test_login_with_name_already_exists_prompts_override_confirmation(self):
         self.mock_config_parser.from_file_as_dict.return_value = {
@@ -386,7 +411,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     }
                 }
             }
-        }, self.default_config_path)
+        }, self.config_path)
 
     def test_login_with_name_already_exists_prompts_override_confirmation_abort_on_no(self):
         clear_global_controller()
@@ -395,7 +420,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                 'testenv': {}
             }
         }
-        self.mock_get_global_config.return_value = (Config(environments={'testenv': EnvironmentGroup('testenv')}), self.default_config_path)
+        self.mock_get_global_config.return_value = (Config(environments={'testenv': EnvironmentGroup('testenv')}), self.config_path)
 
         result = self.runner.invoke(login, ['http://mock.example.com', '--token', '123', '--name', 'testenv'], input='n')
         self.assert_has_system_exit(result)

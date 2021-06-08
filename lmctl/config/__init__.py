@@ -16,6 +16,9 @@ CONFIG_ENV_VAR = 'LMCONFIG'
 global_config = None
 global_config_path = None
 
+def standard_config_finder():
+    return ConfigFinder(potential_env_var=CONFIG_ENV_VAR)
+
 def get_config(override_config_path: str = None) -> Tuple[Config, str]:
     logger.debug('Loading LMCTL config')
     if override_config_path is not None:
@@ -23,7 +26,7 @@ def get_config(override_config_path: str = None) -> Tuple[Config, str]:
             raise ConfigError(f'Provided config path does not exist: {override_config_path}')
         config_path = override_config_path
     else:
-        config_path = ConfigFinder(potential_env_var=CONFIG_ENV_VAR).find()
+        config_path = standard_config_finder().find()
     return ConfigParser().from_file(config_path), config_path
 
 def get_global_config(override_config_path: str = None) -> Config:
@@ -52,6 +55,6 @@ def get_ctl(config_path: str= None) -> Ctl:
             if not os.path.exists(config_path):
                 raise ConfigError(f'Provided config path does not exist: {config_path}')
         else:
-            config_path = ConfigFinder(CONFIG_ENV_VAR).find()
+            config_path = standard_config_finder().find()
         global_ctl = Ctl(ConfigParser().from_file(config_path))
     return global_ctl

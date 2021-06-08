@@ -1,7 +1,7 @@
 import click
 import os
 from lmctl.client import TNCOClientBuilder, ClientCredentialsAuth, UserPassAuth, LegacyUserPassAuth, JwtTokenAuth, TOKEN_AUTH_MODE, LEGACY_OAUTH_MODE
-from lmctl.config import ConfigParser, ConfigFinder
+from lmctl.config import ConfigParser, ConfigFinder, standard_config_finder
 from lmctl.environment import TNCOEnvironment
 from lmctl.cli.controller import get_global_controller, CLIController
 
@@ -22,7 +22,7 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
             token: str = None, name: str = None, auth_address: str = None, save_creds: bool = False, yes_to_prompts: bool = False, print_token: bool = False):
     
     # Support missing config file by pre-creating one
-    path = ConfigFinder().get_default_config_path()
+    path = standard_config_finder().find()
     if not os.path.exists(path):
         with open(path, 'w') as f:
             f.write('environments: {}')
