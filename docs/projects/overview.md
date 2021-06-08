@@ -126,6 +126,90 @@ Any Resource included in a project intended for the Ansible RM is expected to ha
 | lifecycle  | mandatory   | must contain valid ansible playbooks for each supported lifecycle: Install.yml, Start.yml, Configure.yml, Stop.yml, Uninstall.yml                  |
 | Meta-Inf   | mandatory   | must contain a mainifest.MF file with details of the Resource                                                                                      |
 
+
+## ETSI Project Types
+LMCTL supports development of projects whos structure complies with the ETSI SOL CSAR packaging specifications. When built, ETSI_VNF projects are structured in compliance with ETSI SOL004 package structure and ETSI_NS projects are compliant with the ETSI SOL007 specification. ETSI projects will contain the same files discussed in the [TOSCA Additions](#tosca-additions) topic but also included additional files and content to make it compliant with the relevent SOL CSAR packaging specification.
+
+In addition to any mandatory key entries, the generated `TOSCA-Metadata/TOSCA.meta` file will contain an entry called `TNCO-Descriptor` which points to the project definition file and allows TNC-O to onboard the Resource or Assembly when the project package is pushed to TNC-O.
+
+ETSI projects do not support nested projects within a Contains directory.
+### ETSI_VNF Projects
+An ETSI_VNF project is structured in a similar way to a standard Brent Resource project. Only the Brent resource manager is supported for ETSI_VNF projects. It is expected to include a resource descriptor and Lifecycle content as described in the [Brent](#brent) topic. Additionally, it also contains TOSCA additions in line with the SOL004 specifications.
+
+The following files and directories are automatically generated with the command `lmctl project create --type ETSI_VNF` and will contain basic content that can be extended as required. The Lifecycle directory is structured the same as a [Brent](#brent) Resource project:
+
+```
+myproject/
+    MRF.mf
+    Definitions/
+      MRF.yaml        
+      lm/
+        resource.yml
+    Files/
+      Changelog.txt
+    Files/Licenses/
+      License.txt
+    TOSCA-Metadata/
+      TOSCA.meta
+    Lifecycle/
+        ...
+```
+
+The following table details the relevance of each item in the ETSI_VNF project tree:
+
+| Item                | Requirement | Description                                                                                             |
+| ------------------- | ----------- | ------------------------------------------------------------------------------------------------------- |
+| TOSCA-Metadata/TOSCA.meta | mandatory   | This is the main TOSCA file providing entry information for processing a CSAR file, also contains `TNCO-Descriptor` referring to the `Definitions/lm/resource.yaml` descriptor file so TNC-O can onboard to Brent |
+| MRF.mf | mandatory   | This is the NSD archive manifest file and will contain mandatory list of key names as per SOL004 |
+| Definitions         | mandatory   | This directory must exist and should contain a definitions file (`MRF.yaml`) as defined in the TOSCA-Metadata/TOSCA.meta file's `Entry-Definitions` entry |
+| Definitions/lm                               | mandatory   | contains the `resource.yaml` Resource descriptor required by TNC-O and Brent |
+| Lifecycle                                    | mandatory   | contains lifecycle scripts as with [Brent](#brent) Resource |
+| Files/Changelog.txt        | mandatory   | This file is a requirement of SOL004 and is referenced in the TOSCA-Metadata/TOSCA.meta file's `ETSI-Entry-Change-Log` entry |
+| Files/Licenses/License.txt        | optional   | This file can be included if required if referenced in the TOSCA-Metadata/TOSCA.meta file's `ETSI-Entry-Licenses` entry |
+
+
+When an ETSI_VNF project is built and pushed to TNC-O it is packaged as a SOL004 compliant CSAR archive and pushed to the TNC-0 SOL005 VNF Package Management API.
+### ETSI_NS Projects
+
+An ETSI_NS project is structured in a similar way to standard Assembly projects, in that it is expected to include a descriptor and, optionally, behaviour test related artifacts. However it also contains several TOSCA additions in line with the SOL007 specification.  
+The following files and directories are automatically generated with the command `lmctl project create --type ETSI_NS` and will contain basic content that can be extended if required:
+
+```
+myproject/
+    MRF.mf
+    Descriptor/
+      assembly.yml
+    Definitions/
+      MRF.yaml    
+    Files/
+      Changelog.txt
+    Files/Licenses/
+      License.txt
+    TOSCA-Metadata/
+      TOSCA.meta
+    Behaviour/
+        Tests/
+        Templates/
+        Runtime/            
+```
+
+The following table details the relevance of each item in the ETSI_NS project tree:
+
+| Item                | Requirement | Description                                                                                             |
+| ------------------- | ----------- | ------------------------------------------------------------------------------------------------------- |
+| Descriptor          | mandatory   | This directory must contain a descriptor file called `assembly.yml`, representing the top level service |
+| TOSCA-Metadata/TOSCA.meta | mandatory   | This is the main TOSCA file providing entry information for processing a CSAR file, also contains `TNCO-Descriptor` referring to the `assembly.yml` so TNC-O can onboard the assembly |
+| MRF.mf | mandatory   | This is the NSD archive manifest file and will contain mandatory list of key names as per SOL007 |
+| Definitions         | mandatory   | This directory must exist and should contain a definitions file (`MRF.yaml`) as defined in the TOSCA-Metadata/TOSCA.meta file's `Entry-Definitions` entry |
+| Files/Changelog.txt        | mandatory   | This file is a requirement of SOL007 and is referenced in the TOSCA-Metadata/TOSCA.meta file's `ETSI-Entry-Change-Log` entry |
+| Files/Licenses/License.txt        | optional   | This file can be included if required if referenced in the TOSCA-Metadata/TOSCA.meta file's `ETSI-Entry-Licenses` entry |
+| Behaviour           | optional    | This optional directory contains the Assembly Configurations and Scenarios for behaviour testing         |
+| Behaviour/Tests     | optional    | This optional directory contains the Test Scenarios for behaviour testing                                |
+| Behaviour/Templates | optional    | This optional directory contains the Assembly Templates for behaviour testing                            |
+| Behaviour/Runtime   | optional    | This optional directory contains the Runtime Scenarios, such as Diagnostic tests, for behaviour testing  |
+
+When an ETSI_NS project is built and pushed to TNC-O it is packaged as a SOL007 compliant CSAR archive and pushed to the TNC-0 SOL005 NSD Management API.
+
 # Project File
 
 A project directory must contain a `lmproject.yml` file, which details the meta-data required by LMCTL. At minimum, this file must provide a name for the project, used in console output and the names for packages/descriptors produced by LMCTL.
