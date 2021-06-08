@@ -40,7 +40,7 @@ class TestAuthenticationAPI(IntegrationTest):
             self.skipTest('auth_mode != zen')
             return
         username = self.tester.test_properties.auth_testing.zen_api_key.username
-        api_key = self.tester.test_properties.auth_testing.zen_api_key.password
+        api_key = self.tester.test_properties.auth_testing.zen_api_key.api_key
         auth_response = self.tester.default_client.auth.request_zen_api_key_access(username, api_key)
         self.assertIn('token', auth_response)
 

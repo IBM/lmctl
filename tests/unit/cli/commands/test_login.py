@@ -65,6 +65,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     'tnco': {
                         'address': 'http://mock.example.com',
                         'secure': True,
+                        'auth_mode': 'oauth',
                         'client_id': 'TestClient',
                         'client_secret': 'TestSecret',
                         'username': 'TestUser',
@@ -116,6 +117,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                     'tnco': {
                         'address': 'http://mock.example.com',
                         'secure': True,
+                        'auth_mode': 'oauth',
                         'client_id': 'TestClient',
                         'client_secret': 'TestSecret'
                     }
@@ -253,7 +255,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
             }
         }, self.default_config_path)
     
-    def test_login_with_username_prompts_for_pwd_save_creds(self):
+    def test_login_with_username_and_pwd_save_creds(self):
         result = self.runner.invoke(login, ['http://mock.example.com', '--auth-address', 'http://auth.example.com', '--username', 'TestUser', '--pwd', 'TestPass', '--save-creds'], input='TestPass')
         self.assert_no_errors(result)
         self.mock_tnco_client_builder.address.assert_called_once_with('http://mock.example.com')
@@ -274,8 +276,8 @@ class TestLoginCommands(command_testing.CommandTestCase):
             }
         }, self.default_config_path)
     
-    def test_login_with_username_prompts_for_pwd_then_print_token(self):
-        result = self.runner.invoke(login, ['http://mock.example.com', '--auth-address', 'http://auth.example.com', '--username', 'TestUser', '--pwd', 'TestPass', '--print'], input='TestPass')
+    def test_login_with_username_and_pwd_then_print_token(self):
+        result = self.runner.invoke(login, ['http://mock.example.com', '--auth-address', 'http://auth.example.com', '--username', 'TestUser', '--pwd', 'TestPass', '--print'])
         self.assert_no_errors(result)
         self.mock_tnco_client_builder.address.assert_called_once_with('http://mock.example.com')
         self.mock_tnco_client_builder.legacy_user_pass_auth.assert_called_once_with(username='TestUser', password='TestPass', legacy_auth_address='http://auth.example.com')
@@ -290,7 +292,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
         expected_output = 'Usage: login [OPTIONS] ADDRESS'
         expected_output += '\nTry \'login --help\' for help.'
         expected_output += '\n'
-        expected_output += '\nError: Must specify "--auth-address" option when attempting to authenticate with username/password but without client/client-secret'
+        expected_output += '\nError: Must specify "--auth-address" option when attempting to authenticate with username/password/api_key but without client/client-secret'
         self.assert_output(result, expected_output)
 
         self.mock_tnco_client_builder.address.assert_not_called()
@@ -400,3 +402,109 @@ class TestLoginCommands(command_testing.CommandTestCase):
         result = self.runner.invoke(login, ['http://mock.example.com', '--token', '123', '--name', 'testenv'], input='n')
         self.assert_has_system_exit(result)
         self.mock_config_parser.write_config_from_dict.assert_not_called()
+
+    def test_login_with_zen_username_prompts_for_api_key(self):
+        result = self.runner.invoke(login, ['http://mock.example.com', '--auth-address', 'http://auth.example.com', '--zen', '--username', 'TestUser'], input='TestApiKey')
+        self.assert_no_errors(result)
+        self.mock_tnco_client_builder.address.assert_called_once_with('http://mock.example.com')
+        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='http://auth.example.com')
+
+        self.mock_config_parser.write_config_from_dict({
+            'active_environment': 'default',
+            'environments': {
+                'default': {
+                    'tnco': {
+                        'address': 'http://mock.example.com',
+                        'secure': True,
+                        'token': '123',
+                        'auth_mode': 'token'
+                    }
+                }
+            }
+        }, self.default_config_path)
+
+    def test_login_with_zen_username_prompts_for_api_key_save_creds(self):
+        result = self.runner.invoke(login, ['http://mock.example.com', '--auth-address', 'http://auth.example.com', '--zen', '--username', 'TestUser', '--save-creds'], input='TestApiKey')
+        self.assert_no_errors(result)
+        self.mock_tnco_client_builder.address.assert_called_once_with('http://mock.example.com')
+        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='http://auth.example.com')
+
+        self.mock_config_parser.write_config_from_dict({
+            'active_environment': 'default',
+            'environments': {
+                'default': {
+                    'tnco': {
+                        'address': 'http://mock.example.com',
+                        'secure': True,
+                        'username': 'TestUser',
+                        'api_key': 'TestApiKey',
+                        'auth_mode': 'zen',
+                        'auth_address': 'http://auth.example.com'
+                    }
+                }
+            }
+        }, self.default_config_path)
+    
+    def test_login_with_zen_username_prompts_for_api_key_then_print_token(self):
+        result = self.runner.invoke(login, ['http://mock.example.com', '--auth-address', 'http://auth.example.com', '--zen', '--username', 'TestUser', '--print'], input='TestApiKey')
+        self.assert_no_errors(result)
+        self.mock_tnco_client_builder.address.assert_called_once_with('http://mock.example.com')
+        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='http://auth.example.com')
+
+        # Output will include prompt inputs so grab last line
+        self.assertEqual(result.output.splitlines()[-1], '123')
+        self.mock_config_parser.write_config_from_dict.assert_not_called()
+
+    def test_login_with_zen_username_and_api_key(self):
+        result = self.runner.invoke(login, ['http://mock.example.com', '--auth-address', 'http://auth.example.com', '--zen', '--username', 'TestUser', '--api-key', 'TestApiKey'])
+        self.assert_no_errors(result)
+        self.mock_tnco_client_builder.address.assert_called_once_with('http://mock.example.com')
+        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='http://auth.example.com')
+
+        self.mock_config_parser.write_config_from_dict({
+            'active_environment': 'default',
+            'environments': {
+                'default': {
+                    'tnco': {
+                        'address': 'http://mock.example.com',
+                        'secure': True,
+                        'token': '123',
+                        'auth_mode': 'token'
+                    }
+                }
+            }
+        }, self.default_config_path)
+
+    def test_login_with_zen_username_and_api_key_save_creds(self):
+        result = self.runner.invoke(login, ['http://mock.example.com', '--auth-address', 'http://auth.example.com', '--zen', '--username', 'TestUser', '--api-key', 'TestApiKey', '--save-creds'])
+        self.assert_no_errors(result)
+        self.mock_tnco_client_builder.address.assert_called_once_with('http://mock.example.com')
+        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='http://auth.example.com')
+
+        self.mock_config_parser.write_config_from_dict({
+            'active_environment': 'default',
+            'environments': {
+                'default': {
+                    'tnco': {
+                        'address': 'http://mock.example.com',
+                        'secure': True,
+                        'username': 'TestUser',
+                        'api_key': 'TestApiKey',
+                        'auth_mode': 'zen',
+                        'auth_address': 'http://auth.example.com'
+                    }
+                }
+            }
+        }, self.default_config_path)
+    
+    def test_login_with_zen_username_prompts_and_api_key_then_print_token(self):
+        result = self.runner.invoke(login, ['http://mock.example.com', '--auth-address', 'http://auth.example.com', '--zen', '--username', 'TestUser', '--api-key', 'TestApiKey', '--print'])
+        self.assert_no_errors(result)
+        self.mock_tnco_client_builder.address.assert_called_once_with('http://mock.example.com')
+        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='http://auth.example.com')
+
+        # Output will include prompt inputs so grab last line
+        self.assertEqual(result.output.splitlines()[-1], '123')
+        self.mock_config_parser.write_config_from_dict.assert_not_called()
+    
+    
