@@ -27,13 +27,18 @@ def get_config(override_config_path: str = None) -> Tuple[Config, str]:
     return ConfigParser().from_file(config_path), config_path
 
 def get_global_config(override_config_path: str = None) -> Config:
+    global_config, global_config_path = get_global_config_with_path(override_config_path)
+    return global_config
+
+def get_global_config_with_path(override_config_path: str = None) -> Config:
     global global_config
     global global_config_path
     if override_config_path is not None and global_config_path is not None:
         raise ConfigError(f'Attempting to re-load global config using a different path: original={global_config_path}, new={override_config_path}')
     if global_config is None:
         global_config, global_config_path = get_config(override_config_path=override_config_path)
-    return global_config
+    return global_config, global_config_path
+
 
 ### Deprecated
 global_ctl = None

@@ -29,6 +29,13 @@ Verify LMCTL is ready to use:
 lmctl --version
 ```
 
+Login to an environment:
+```
+lmctl login alm-ishtar.example.com --auth-address alm-nimrod.example.com --username almadmin --save-creds
+```
+
+> Learn more about `lmctl login` in the [getting started guide](docs/getting-started.md)
+
 # Latest release
 
 :newspaper: [See what's new in the latest release](docs/what-is-new.md)

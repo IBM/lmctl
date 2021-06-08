@@ -11,16 +11,16 @@ You may still be able to manage LMCTL projects in older ALM versions by updating
 # Table of Contents
 
 - [What's New?](what-is-new.md)
-- [Install](install.md)
+- [Getting Started](getting-started.md)
 
 ## Command Line
 
 - [Configure Command Line](configure.md)
 - [LMCTL Projects](projects/overview.md)
 - [Command Reference](command-reference/index.md)
-- [Using with ALM 2.1](use-with-lm-2.1.md)
+- [Using with ALM 2.1 ](use-with-lm-2.1.md) (this is not the same CP4NA 2.1)
 
 ## Python Client
 
-- [TNCO Python Client](client/index.md)
+- [CP4NA Python Client](client/index.md)
 - [Client Usage Examples](client/examples.md)

@@ -51,11 +51,18 @@ class TNCOClient:
         else:
             return requests
 
-    def _add_auth_headers(self, headers: Dict) -> Dict:
+    def get_access_token(self) -> str:
         if self.auth_tracker is not None:
             if self.auth_tracker.has_access_expired:
                 auth_response = self.auth_type.handle(self)
                 self.auth_tracker.accept_auth_response(auth_response)
+            return self.auth_tracker.current_access_token
+        else:
+            return None
+
+    def _add_auth_headers(self, headers: Dict) -> Dict:
+        if self.auth_tracker is not None:
+            access_token = self.get_access_token()
             headers['Authorization'] = f'Bearer {self.auth_tracker.current_access_token}'
         return headers
 

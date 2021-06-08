@@ -10,7 +10,7 @@ import jinja2 as jinja
 from typing import Callable, Dict
 from .names import generate_name
 from .integration_test_properties import IntegrationTestProperties
-from lmctl.config import get_global_config
+from lmctl.config import get_global_config, get_config
 
 logger = logging.getLogger(__name__)
 
@@ -37,12 +37,15 @@ class IntegrationTester:
     def close(self):
         if os.path.exists(self.tmp_dir):
             shutil.rmtree(self.tmp_dir)
+
+    def read_latest_copy_of_config(self):
+        return get_config(override_config_path=self.config_path)[0]
     
     def _create_config_file(self):
-        config_path = os.path.join(self.tmp_dir, 'lmctl-config.yaml')
-        with open(config_path, 'w') as f:
+        self.config_path = os.path.join(self.tmp_dir, 'lmctl-config.yaml')
+        with open(self.config_path, 'w') as f:
             f.write(yaml.safe_dump(self.test_properties.config))
-        os.environ['LMCONFIG'] = config_path
+        os.environ['LMCONFIG'] = self.config_path
 
     def _read_properties(self):
         props_location = os.getenv('LMCTL_TEST_PROPS')
