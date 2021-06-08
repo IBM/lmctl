@@ -14,7 +14,7 @@ from lmctl.config import get_global_config
 
 logger = logging.getLogger(__name__)
 
-default_props_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_properties.yaml')
+default_props_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'local_test_properties.yaml')
 
 jinja_env = jinja.Environment(loader=jinja.BaseLoader, variable_start_string='[[', variable_end_string=']]')
 
@@ -46,7 +46,7 @@ class IntegrationTester:
 
     def _read_properties(self):
         props_location = os.getenv('LMCTL_TEST_PROPS')
-        if props_location is None or len(props_location) == 0:
+        if props_location is None:
             props_location = default_props_path
         logger.info(f'Loading test properties from: {props_location}')
         with open(props_location, 'r') as f:

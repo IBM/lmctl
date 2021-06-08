@@ -1,9 +1,11 @@
 import unittest
 import base64
+import json
 from unittest.mock import MagicMock, call
 from lmctl.client.api import AuthenticationAPI
 from lmctl.client.exceptions import TNCOClientHttpError
 from requests.auth import HTTPBasicAuth
+from lmctl.client.client_request import TNCOClientRequest
 
 class TestAuthenticationAPI(unittest.TestCase):
 
@@ -17,11 +19,14 @@ class TestAuthenticationAPI(unittest.TestCase):
         self.assertEqual(response, {'access_token': '123', 'expires_in': 60})
         client_encoded = base64.b64encode('LmClient:secret'.encode('utf-8'))
         auth = HTTPBasicAuth('LmClient', 'secret')
-        self.mock_client.make_request_for_json.assert_called_with(method='POST', 
-                                                                    endpoint='oauth/token',
-                                                                    auth=auth, 
-                                                                    include_auth=False, 
-                                                                    data={'grant_type': 'client_credentials'})
+        self.mock_client.make_request_for_json.assert_called_with(TNCOClientRequest(
+            method='POST',
+            endpoint='oauth/token',
+            additional_auth_handler=auth, 
+            inject_current_auth=False, 
+            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            body={'grant_type': 'client_credentials'}
+        ))
 
     def test_request_user_access(self):
         self.mock_client.make_request_for_json.return_value = {'access_token': '123', 'expires_in': 60}
@@ -29,32 +34,31 @@ class TestAuthenticationAPI(unittest.TestCase):
         self.assertEqual(response, {'access_token': '123', 'expires_in': 60})
         client_encoded = base64.b64encode('LmClient:secret'.encode('utf-8'))
         auth = HTTPBasicAuth('LmClient', 'secret')
-        self.mock_client.make_request_for_json.assert_called_with(method='POST', 
-                                                                    endpoint='oauth/token',
-                                                                    auth=auth, 
-                                                                    include_auth=False, 
-                                                                    data={
-                                                                        'grant_type': 'password',
-                                                                        'username': 'joe', 
-                                                                        'password': 'secretpass'
-                                                                    })
+        self.mock_client.make_request_for_json.assert_called_with(TNCOClientRequest(
+            method='POST',
+            endpoint='oauth/token',
+            additional_auth_handler=auth, 
+            inject_current_auth=False, 
+            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            body={'username': 'joe', 'password': 'secretpass', 'grant_type': 'password'}
+        ))
 
     def test_legacy_login(self):
         self.mock_client.make_request_for_json.return_value = {'accessToken': '123', 'expiresIn': 60}
         response = self.authentication.legacy_login('joe', 'secretpass')
         self.assertEqual(response, {'accessToken': '123', 'expiresIn': 60})
-        self.mock_client.make_request_for_json.assert_called_with(method='POST', 
-                                                                    endpoint='ui/api/login',
-                                                                    include_auth=False, 
-                                                                    override_address=None,
-                                                                    json={
-                                                                        'username': 'joe', 
-                                                                        'password': 'secretpass'
-                                                                    })
+        self.mock_client.make_request_for_json.assert_called_with(TNCOClientRequest(
+            method='POST',
+            endpoint='ui/api/login',
+            override_address=None,
+            inject_current_auth=False, 
+            headers={'Content-Type': 'application/json'}, 
+            body=json.dumps({'username': 'joe', 'password': 'secretpass'})
+        ))
 
     def test_legacy_login_older_environments(self):
-        def request_mock(endpoint, *args, **kwargs):
-            if endpoint == 'ui/api/login':
+        def request_mock(request):
+            if request.endpoint == 'ui/api/login':
                 raise TNCOClientHttpError('Mock error', cause=MagicMock(response=MagicMock(status_code=404, headers={}, body=b'')))
             else:
                 return {'accessToken': '123', 'expiresIn': 60}
@@ -62,22 +66,24 @@ class TestAuthenticationAPI(unittest.TestCase):
         response = self.authentication.legacy_login('joe', 'secretpass')
         self.assertEqual(response, {'accessToken': '123', 'expiresIn': 60})
         self.mock_client.make_request_for_json.assert_has_calls([
-            call(method='POST', 
-                endpoint='ui/api/login',
-                include_auth=False, 
-                override_address=None,
-                json={
-                    'username': 'joe', 
-                    'password': 'secretpass'
-                }
+            call(
+                TNCOClientRequest(
+                    method='POST',
+                    endpoint='ui/api/login',
+                    override_address=None,
+                    inject_current_auth=False, 
+                    headers={'Content-Type': 'application/json'}, 
+                    body=json.dumps({'username': 'joe', 'password': 'secretpass'})
+                )
             ),
-            call(method='POST', 
-                endpoint='api/login',
-                include_auth=False, 
-                override_address=None,
-                json={
-                    'username': 'joe', 
-                    'password': 'secretpass'
-                }
+            call(
+                TNCOClientRequest(
+                    method='POST',
+                    endpoint='api/login',
+                    override_address=None,
+                    inject_current_auth=False,
+                    headers={'Content-Type': 'application/json'}, 
+                    body=json.dumps({'username': 'joe', 'password': 'secretpass'})
+                )
             )
         ])

@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock, mock_open
 from lmctl.client.api import ResourcePackagesAPI
+from lmctl.client.client_request import TNCOClientRequest
 
 class TestResourcePackagesAPI(unittest.TestCase):
 
@@ -15,17 +16,17 @@ class TestResourcePackagesAPI(unittest.TestCase):
         response = self.resource_packages.create('/some/test/file')
         self.assertEqual(response, '123')
         mock_file.assert_called_with('/some/test/file', 'rb')
-        self.mock_client.make_request.assert_called_with(method='POST', endpoint='api/resource-manager/resource-packages', files={'file': mock_file.return_value})
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/resource-manager/resource-packages', files={'file': mock_file.return_value}))
     
     @patch("builtins.open", new_callable=mock_open, read_data="data")
     def test_update(self, mock_file):
         response = self.resource_packages.update('Test', '/some/test/file')
         self.assertIsNone(response)
         mock_file.assert_called_with('/some/test/file', 'rb')
-        self.mock_client.make_request.assert_called_with(method='PUT', endpoint='api/resource-manager/resource-packages/Test', files={'file': mock_file.return_value})
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='PUT', endpoint='api/resource-manager/resource-packages/Test', files={'file': mock_file.return_value}))
    
     def test_delete(self):
         response = self.resource_packages.delete('Test')
         self.assertIsNone(response)
-        self.mock_client.make_request.assert_called_with(method='DELETE', endpoint='api/resource-manager/resource-packages/Test')
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='DELETE', endpoint='api/resource-manager/resource-packages/Test'))
     

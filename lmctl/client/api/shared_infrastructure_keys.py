@@ -1,14 +1,27 @@
-from typing import List, Dict
-from .resource_api_base import ResourceAPIBase, ReadAPIMeta, APIArg, ListAPIMeta
-
-class SharedInfrastructureKeysAPI(ResourceAPIBase):
+from typing import Dict, List
+from .tnco_api_base import TNCOAPI
+class SharedInfrastructureKeysAPI(TNCOAPI):
     endpoint = 'api/resource-manager/infrastructure-keys/shared'
     id_attr = 'name'
 
-    read_meta = ReadAPIMeta(extra_request_params={
-        'include_private_key': APIArg(param_name='includePrivateKey')
-    })
+    def all(self, include_private_key: bool = None) -> List:
+        query_params = None
+        if include_private_key is not None:
+            query_params={'includePrivateKey': include_private_key}
+        return self._all(query_params=query_params)
 
-    list_meta = ListAPIMeta(extra_request_params={
-        'include_private_key': APIArg(param_name='includePrivateKey')
-    })
+    def get(self, id: str, include_private_key: bool = None) -> Dict:
+        query_params = None
+        if include_private_key is not None:
+            query_params={'includePrivateKey': include_private_key}
+        return self._get(id_value=id, query_params=query_params)
+
+    def create(self, resource_manager: Dict):
+        return self._create(obj=resource_manager)
+
+    def update(self, resource_manager: Dict):
+        self._update(obj=resource_manager)
+
+    def delete(self, id: str):
+        self._delete(id_value=id)
+

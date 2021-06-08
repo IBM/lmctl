@@ -1,7 +1,9 @@
 import unittest
 import requests
+import json
 from unittest.mock import patch, MagicMock, Mock
-from lmctl.client import TNCOClient, TNCOClientError, TNCOClientHttpError, TNCOErrorCapture
+from lmctl.client import TNCOClient, TNCOClientError, TNCOClientHttpError, TNCOErrorCapture, TNCOClientRequest
+
 
 class TestTNCOClient(unittest.TestCase):
 
@@ -20,17 +22,17 @@ class TestTNCOClient(unittest.TestCase):
     @patch('lmctl.client.client.requests.Session')
     def test_make_request(self, requests_session_builder):
         client = TNCOClient('https://test.example.com', use_sessions=True)
-        response = client.make_request('GET', 'api/test')
+        response = client.make_request(TNCOClientRequest(method='GET', endpoint='api/test'))
         mock_session = self._get_requests_session(requests_session_builder)
-        mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={}, verify=False)
+        mock_session.request.assert_called_with(method='GET', url='https://test.example.com/api/test', headers={}, verify=False)
         self.assertEqual(response, mock_session.request.return_value)
 
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_for_json(self, requests_session_builder):
         client = TNCOClient('https://test.example.com', use_sessions=True)
-        response = client.make_request_for_json('GET', 'api/test')
+        response = client.make_request_for_json(TNCOClientRequest(method='GET', endpoint='api/test'))
         mock_session = self._get_requests_session(requests_session_builder)
-        mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={}, verify=False)
+        mock_session.request.assert_called_with(method='GET', url='https://test.example.com/api/test', headers={}, verify=False)
         self.assertEqual(response, mock_session.request.return_value.json.return_value)
 
     @patch('lmctl.client.client.requests.Session')
@@ -39,47 +41,47 @@ class TestTNCOClient(unittest.TestCase):
         mock_session.request.return_value.json.side_effect = ValueError('Mock error')
         client = TNCOClient('https://test.example.com', use_sessions=True)
         with self.assertRaises(TNCOClientError) as context:
-            client.make_request_for_json('GET', 'api/test')
+            client.make_request_for_json(TNCOClientRequest(method='GET', endpoint='api/test'))
         self.assertEqual(str(context.exception), 'Failed to parse response to JSON: Mock error')
 
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_with_body(self, requests_session_builder):
         client = TNCOClient('https://test.example.com', use_sessions=True)
-        client.make_request('POST', 'api/test', body={'id': 'test'})
+        client.make_request(TNCOClientRequest(method='POST', endpoint='api/test', body=json.dumps({'id': 'test'})))
         mock_session = self._get_requests_session(requests_session_builder)
-        mock_session.request.assert_called_with('POST', 'https://test.example.com/api/test', headers={}, body={'id': 'test'}, verify=False)
+        mock_session.request.assert_called_with(method='POST', url='https://test.example.com/api/test', data=json.dumps({'id': 'test'}), headers={}, verify=False)
 
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_with_headers(self, requests_session_builder):
         client = TNCOClient('https://test.example.com', use_sessions=True)
-        client.make_request('GET', 'api/test', headers={'Accept': 'plain/text'})
+        client.make_request(TNCOClientRequest(method='GET', endpoint='api/test', headers={'Accept': 'plain/text'}))
         mock_session = self._get_requests_session(requests_session_builder)
-        mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={'Accept': 'plain/text'}, verify=False)
+        mock_session.request.assert_called_with(method='GET', url='https://test.example.com/api/test', headers={'Accept': 'plain/text'}, verify=False)
     
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_with_auth(self, requests_session_builder):
         mock_auth = self._build_mocked_auth_type()
         client = TNCOClient('https://test.example.com', auth_type=mock_auth, use_sessions=True)
-        client.make_request('GET', 'api/test')
+        client.make_request(TNCOClientRequest(method='GET', endpoint='api/test'))
         mock_session = self._get_requests_session(requests_session_builder)
-        mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={'Authorization': 'Bearer 123'}, verify=False)
+        mock_session.request.assert_called_with(method='GET', url='https://test.example.com/api/test', headers={'Authorization': 'Bearer 123'}, verify=False)
 
     @patch('lmctl.client.client.requests.Session')
-    def test_make_request_with_auth_but_include_auth_false(self, requests_session_builder):
+    def test_make_request_with_auth_but_inject_current_auth_false(self, requests_session_builder):
         mock_auth = self._build_mocked_auth_type()
         client = TNCOClient('https://test.example.com', auth_type=mock_auth, use_sessions=True)
-        client.make_request('GET', 'api/test', include_auth=False)
+        client.make_request(TNCOClientRequest(method='GET', endpoint='api/test', inject_current_auth=False))
         mock_session = self._get_requests_session(requests_session_builder)
-        mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={}, verify=False)
+        mock_session.request.assert_called_with(method='GET', url='https://test.example.com/api/test', headers={}, verify=False)
 
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_with_trace_ctx(self, requests_session_builder):
         from lmctl.utils.trace_ctx import trace_ctx
         with trace_ctx.scope(transaction_id='123456789'):
             client = TNCOClient('https://test.example.com', use_sessions=True)
-            client.make_request('GET', 'api/test')
+            client.make_request(TNCOClientRequest(method='GET', endpoint='api/test'))
             mock_session = self._get_requests_session(requests_session_builder)
-            mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={'X-TraceCtx-TransactionId': '123456789'}, verify=False)
+            mock_session.request.assert_called_with(method='GET', url='https://test.example.com/api/test', headers={'X-TraceCtx-TransactionId': '123456789'}, verify=False)
 
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_combines_trace_ctx_and_auth_and_user_supplied_headers(self, requests_session_builder):
@@ -87,9 +89,9 @@ class TestTNCOClient(unittest.TestCase):
         from lmctl.utils.trace_ctx import trace_ctx
         with trace_ctx.scope(transaction_id='123456789'):
             client = TNCOClient('https://test.example.com', auth_type=mock_auth, use_sessions=True)
-            client.make_request('GET', 'api/test', headers={'Accept': 'plain/text'})
+            client.make_request(TNCOClientRequest(method='GET', endpoint='api/test', headers={'Accept': 'plain/text'}))
             mock_session = self._get_requests_session(requests_session_builder)
-            mock_session.request.assert_called_with('GET', 'https://test.example.com/api/test', headers={'Accept': 'plain/text', 'Authorization': 'Bearer 123', 'X-TraceCtx-TransactionId': '123456789'}, verify=False)
+            mock_session.request.assert_called_with(method='GET', url='https://test.example.com/api/test', headers={'Accept': 'plain/text', 'Authorization': 'Bearer 123', 'X-TraceCtx-TransactionId': '123456789'}, verify=False)
 
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_raises_error(self, requests_session_builder):
@@ -97,7 +99,7 @@ class TestTNCOClient(unittest.TestCase):
         mock_session.request.side_effect = requests.RequestException('Mock error')
         client = TNCOClient('https://test.example.com', use_sessions=True)
         with self.assertRaises(TNCOClientError) as context:
-            client.make_request('GET', 'api/test')
+            client.make_request(TNCOClientRequest(method='GET', endpoint='api/test'))
         self.assertEqual(str(context.exception), 'Mock error')
 
     @patch('lmctl.client.client.requests.Session')
@@ -106,7 +108,7 @@ class TestTNCOClient(unittest.TestCase):
         mock_session.request.return_value.raise_for_status.side_effect = requests.HTTPError('Mock http error', response=MagicMock(status_code=400))
         client = TNCOClient('https://test.example.com', use_sessions=True)
         with self.assertRaises(TNCOClientError) as context:
-            client.make_request('GET', 'api/test')
+            client.make_request(TNCOClientRequest(method='GET', endpoint='api/test'))
         self.assertEqual(str(context.exception), 'GET request to https://test.example.com/api/test failed: status=400, message=Mock http error')
 
     @patch('lmctl.client.client.requests.Session')
@@ -117,7 +119,7 @@ class TestTNCOClient(unittest.TestCase):
         mock_session.request.return_value.raise_for_status.side_effect = requests.HTTPError('Mock http error', response=mock_response)
         client = TNCOClient('https://test.example.com', use_sessions=True)
         with self.assertRaises(TNCOClientError) as context:
-            client.make_request('GET', 'api/test')
+            client.make_request(TNCOClientRequest(method='GET', endpoint='api/test'))
         self.assertEqual(str(context.exception), 'GET request to https://test.example.com/api/test failed: status=400, message=Mock http error')
 
     @patch('lmctl.client.client.requests.Session')
@@ -128,7 +130,7 @@ class TestTNCOClient(unittest.TestCase):
         mock_session.request.return_value.raise_for_status.side_effect = requests.HTTPError('Mock http error', response=mock_response)
         client = TNCOClient('https://test.example.com', use_sessions=True)
         with self.assertRaises(TNCOClientError) as context:
-            client.make_request('GET', 'api/test')
+            client.make_request(TNCOClientRequest(method='GET', endpoint='api/test'))
         self.assertEqual(str(context.exception), 'GET request to https://test.example.com/api/test failed: status=400, message=This is the localized message')
 
     @patch('lmctl.client.client.requests.Session')
@@ -139,7 +141,7 @@ class TestTNCOClient(unittest.TestCase):
         mock_session.request.return_value.raise_for_status.side_effect = requests.HTTPError('Mock http error', response=mock_response)
         client = TNCOClient('https://test.example.com', use_sessions=True)
         with self.assertRaises(TNCOClientError) as context:
-            client.make_request('GET', 'api/test')
+            client.make_request(TNCOClientRequest(method='GET', endpoint='api/test'))
         self.assertEqual(str(context.exception), 'GET request to https://test.example.com/api/test failed: status=400, message=This is the message')
     
     @patch('lmctl.client.client.requests.Session')
@@ -149,7 +151,7 @@ class TestTNCOClient(unittest.TestCase):
         mock_session.request.return_value.raise_for_status.side_effect = requests.HTTPError('Mock http error', response=mock_response)
         client = TNCOClient('https://test.example.com', use_sessions=True)
         with self.assertRaises(TNCOClientError) as context:
-            client.make_request('GET', 'api/test')
+            client.make_request(TNCOClientRequest(method='GET', endpoint='api/test'))
         self.assertEqual(str(context.exception), 'GET request to https://test.example.com/api/test failed: status=400, message=Mock http error')
 
     @patch('lmctl.client.client.requests.Session')
@@ -159,7 +161,7 @@ class TestTNCOClient(unittest.TestCase):
         mock_session.request.return_value.raise_for_status.side_effect = requests.HTTPError('Mock http error', response=mock_response)
         client = TNCOClient('https://test.example.com', use_sessions=True)
         with self.assertRaises(TNCOClientError) as context:
-            client.make_request('GET', 'api/test')
+            client.make_request(TNCOClientRequest(method='GET', endpoint='api/test'))
         self.assertEqual(str(context.exception), 'GET request to https://test.example.com/api/test failed: status=400, message=This is the localized message')
 
     @patch('lmctl.client.client.requests.Session')
@@ -169,7 +171,7 @@ class TestTNCOClient(unittest.TestCase):
         mock_session.request.return_value.raise_for_status.side_effect = requests.HTTPError('Mock http error', response=mock_response)
         client = TNCOClient('https://test.example.com', use_sessions=True)
         with self.assertRaises(TNCOClientError) as context:
-            client.make_request('GET', 'api/test')
+            client.make_request(TNCOClientRequest(method='GET', endpoint='api/test'))
         self.assertEqual(str(context.exception), 'GET request to https://test.example.com/api/test failed: status=400, message=This is the message')
 
     

@@ -1,11 +1,12 @@
 from .api import *
 from typing import Dict
+from urllib.parse import urlparse, urlencode
 from .exceptions import TNCOClientError, TNCOClientHttpError
 from .auth_type import AuthType
 from .auth_tracker import AuthTracker
-from urllib.parse import urlparse
 from .error_capture import tnco_error_capture
 from .client_test_result import TestResult, TestResults
+from .client_request import TNCOClientRequest
 from lmctl.utils.trace_ctx import trace_ctx
 import requests
 import logging
@@ -50,9 +51,7 @@ class TNCOClient:
         else:
             return requests
 
-    def _add_auth_headers(self, headers: Dict=None) -> Dict:
-        if headers is None:
-            headers = {}
+    def _add_auth_headers(self, headers: Dict) -> Dict:
         if self.auth_tracker is not None:
             if self.auth_tracker.has_access_expired:
                 auth_response = self.auth_type.handle(self)
@@ -60,37 +59,51 @@ class TNCOClient:
             headers['Authorization'] = f'Bearer {self.auth_tracker.current_access_token}'
         return headers
 
-    def _build_headers(self, include_auth: bool = True, user_supplied_headers: Dict = None) -> Dict:
-        headers = {}
-        headers.update(trace_ctx.to_http_header_dict())            
-        # Safe to log headers before we add auth
-        logger.debug(f'LM request headers from trace ctx: {headers}')
-        if user_supplied_headers is not None:
-            headers.update(user_supplied_headers)
-        if include_auth:
+    def _supplement_headers(self, headers: Dict, inject_current_auth: bool = True) -> Dict:
+        trace_ctx_headers = trace_ctx.to_http_header_dict()
+        logger.debug(f'LM request headers from trace ctx: {trace_ctx_headers}')
+        headers.update(trace_ctx_headers)       
+        if inject_current_auth:
             self._add_auth_headers(headers=headers)
         return headers
-    
-    def make_request(self, method: str, endpoint: str, include_auth: bool = True, override_address: str = None, **kwargs) -> requests.Response:
-        address = override_address or self.address
-        url = f'{address}/{endpoint}'
-        logger.debug(f'LM request: Method={method}, URL={url}, kwargs={kwargs}')
 
-        headers = self._build_headers(include_auth=include_auth, user_supplied_headers=kwargs.pop('headers', {}))
+    def make_request(self, request: TNCOClientRequest) -> requests.Response:
+        address = request.override_address if request.override_address else self.address
+        url = f'{address}/{request.endpoint}'
+
+        request_kwargs = {}
+        if request.query_params is not None and len(request.query_params) > 0:
+            request_kwargs['params'] = request.query_params
+
+        if request.body is not None:
+            request_kwargs['data'] = request.body
+        if request.files is not None and len(request.files) > 0:
+            request_kwargs['files'] = request.files
+
+        request_kwargs['headers'] = {}
+        if request.headers is not None:
+            request_kwargs['headers'].update(request.headers)
+
+        # Log before adding sensitive data
+        logger.debug(f'LM request: Method={request.method}, URL={url}, Request Kwargs={request_kwargs}')
+
+        if request.additional_auth_handler is not None:
+            request_kwargs['auth'] = request.additional_auth_handler        
+        self._supplement_headers(headers=request_kwargs['headers'], inject_current_auth=request.inject_current_auth) 
 
         try:
-            response = self._curr_session().request(method, url, headers=headers, verify=False, **kwargs)
+            response = self._curr_session().request(method=request.method, url=url, verify=False, **request_kwargs)
         except requests.RequestException as e:
             raise TNCOClientError(str(e)) from e
-        logger.debug(f'LM request has returned: Method={method}, URL={url}, Response={response}')
+        logger.debug(f'LM request has returned: Method={request.method}, URL={url}, Response={response}')
         try:
             response.raise_for_status()
         except requests.HTTPError as e:
-            raise TNCOClientHttpError(f'{method} request to {url} failed', e) from e
+            raise TNCOClientHttpError(f'{request.method} request to {url} failed', e) from e
         return response
 
-    def make_request_for_json(self, method: str, endpoint: str, include_auth: bool = True, override_address: str = None, **kwargs) -> Dict:
-        response = self.make_request(method, endpoint, include_auth=include_auth, override_address=override_address, **kwargs)
+    def make_request_for_json(self, request: TNCOClientRequest) -> Dict:
+        response = self.make_request(request)
         try:
             return response.json()
         except ValueError as e:
