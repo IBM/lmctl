@@ -1,0 +1,18 @@
+environments:
+  test:
+    tnco:
+      address: https://127.0.0.1:1111
+      secure: True
+      username: jack
+      password: secret
+      auth_address: http://auth:4643
+      kami_address: https://127.0.0.1:34567
+    arm:
+      default:
+        address: http://default:8765
+  test2:
+    arm:
+      first:
+        address: first
+      second: 
+        address: second

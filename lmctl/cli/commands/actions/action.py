@@ -1,5 +1,6 @@
 import click
 from typing import List, Dict
+from lmctl.cli.cmd_tags import actions_tag
 
 class Action(click.MultiCommand):
 
@@ -16,6 +17,7 @@ class Action(click.MultiCommand):
         else:
             group_attrs_to_pass = {}
         self.targets = targets
+        actions_tag(self)
         super().__init__(name=self.name, **group_attrs_to_pass)
 
     def _can_act_on(self, target):

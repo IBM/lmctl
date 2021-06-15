@@ -2,8 +2,10 @@ from typing import Dict, Any
 from lmctl.environment.group import EnvironmentGroup
 from pydantic.dataclasses import dataclass
 from pydantic import Field
-from dataclasses import asdict
+from lmctl.utils.dcutils.dc_capture import recordattrs
+from lmctl.utils.dcutils.dc_to_dict import asdict
 
+@recordattrs
 @dataclass
 class Config:
     environments: Dict[str, EnvironmentGroup] = Field(default_factory=dict)

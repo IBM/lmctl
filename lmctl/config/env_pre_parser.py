@@ -47,8 +47,6 @@ class EnvironmentGroupPreParser:
                 tnco_conf_dict['protocol'] = 'http'
         tnco_conf_dict.pop('ip_address', None)
         tnco_conf_dict.pop('secure_port', None)
-        if 'name' not in tnco_conf_dict:
-            tnco_conf_dict['name'] = 'tnco'
         return tnco_conf_dict
 
     def __parse_arm_envs(self, arm_configs_dict):
@@ -68,5 +66,4 @@ class EnvironmentGroupPreParser:
                 arm_config_dict['protocol'] = 'http'
         arm_config_dict.pop('ip_address', None)
         arm_config_dict.pop('secure_port', None)
-        arm_config_dict['name'] = name
         return arm_config_dict

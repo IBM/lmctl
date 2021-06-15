@@ -7,6 +7,7 @@ import lmctl.project.source.core as project_sources
 import lmctl.project.source.creator as creator
 import lmctl.project.types as project_types
 import lmctl.files as files
+from lmctl.cli.cmd_tags import project_tag
 
 
 logger = logging.getLogger(__name__)
@@ -14,7 +15,9 @@ logger = logging.getLogger(__name__)
 ######################################################
 # Manage projects across environments
 ######################################################
-@click.group(help='Commands for managing an Assembly/Resource Project')
+
+@project_tag
+@click.group(short_help='Manage Assembly/Resource/NS/VNF Projects', help='Commands for managing Assembly/Resource/NS/VNF Projects')
 def project():
     logger.debug('Project Management')
 

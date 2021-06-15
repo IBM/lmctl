@@ -4,10 +4,12 @@ import os
 import lmctl.cli.ctlmgmt as ctlmgmt
 from lmctl.cli.safety_net import lm_driver_safety_net
 from lmctl.cli.format import determine_format_class, TableFormat
+from lmctl.cli.cmd_tags import deprecated_tag
 
 logger = logging.getLogger(__name__)
 
-@click.group(name='key', help='DEPRECATED in v3.0: Commands for managing shared infrastructure keys')
+@deprecated_tag
+@click.group(name='key', short_help='Use "lmctl create/get/update/delete infrastructurekey"', help='deprecated in v3.0: Commands for managing shared infrastructure keys')
 def key():
     logger.debug('Infrastructure Key Management')
 

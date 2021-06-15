@@ -22,10 +22,10 @@ class CLIController:
 
     def get_environment_group(self, environment_group_name: str = None) -> EnvironmentGroup:
         env_group = self.config.environments.get(environment_group_name, None)
-        if environment_group_name is not None:
-            self.io.print_error(f'Error: No environment named: {environment_group_name}')
-            exit(1)
         if env_group is None:
+            if environment_group_name is not None:
+                self.io.print_error(f'Error: No environment named: {environment_group_name}')
+                exit(1)
             env_group = self.get_active_environment()
         if env_group is None:
             self.io.print_error(f'Error: Environment name not provided and there is no "active_environment" group set in config. ' +

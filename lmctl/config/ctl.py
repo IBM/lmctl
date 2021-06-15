@@ -1,8 +1,6 @@
 import logging
 import warnings
 from .exceptions import ConfigError
-from .finder import ConfigFinder
-from .parser import ConfigParser
 
 logger = logging.getLogger(__name__)
    
