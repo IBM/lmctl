@@ -1,0 +1,21 @@
+environments:
+  test:
+    tnco:
+      host: test
+      port: 32455
+      protocol: http
+      secure: True
+      username: user
+      password: secret 
+      auth_host: auth
+      auth_port: 32456
+      auth_protocol: http
+    arm:
+      default:
+        address: http://default:8765
+  test2:
+    arm:
+      first:
+        address: first
+      second: 
+        address: second

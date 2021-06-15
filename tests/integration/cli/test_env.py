@@ -83,6 +83,7 @@ class TestEnvironments(CLIIntegrationTest):
     def test_ping_with_failure(self, mock_descriptors_api):
         mock_error = TNCOClientError('Mock error')
         mock_descriptors_api.return_value.all.side_effect = mock_error
+        ctl = get_global_controller()
         result = self.cli_runner.invoke(cli, 
             ['ping', 'env', 'default']
         )

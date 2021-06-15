@@ -6,7 +6,7 @@ from lmctl.cli.format import Table, Column, TableFormat
 from lmctl.cli.arguments import common_output_format_handler, tnco_client_secret_option, tnco_pwd_option
 from lmctl.cli.safety_net import safety_net
 from lmctl.environment import EnvironmentGroup
-from lmctl.config import ConfigParser, ConfigError, get_config
+from lmctl.config import ConfigError, get_config_with_path, write_config
 
 def build_arms_string(env_group: EnvironmentGroup):
     arms = env_group.arms
@@ -54,10 +54,7 @@ class Environments(Target):
             table_selected = isinstance(output_formatter, TableFormat)
             if name is None and active is False:
                 # Get all
-                if table_selected:
-                    result = list(ctl.config.environments.values())
-                else:
-                    result = ctl.config.raw_environments
+                result = list(ctl.config.environments.values())
             else:
                 if active is True:
                     if name is not None:
@@ -65,14 +62,10 @@ class Environments(Target):
                     if ctl.config.active_environment is None:
                         raise click.BadArgumentUsage('Cannot use "--active" option when no active environment is set in config', ctx=ctx)
                     name = ctl.config.active_environment
-                if table_selected:
-                    env = ctl.config.environments.get(name, None)
-                else:
-                    env = ctl.config.raw_environments.get(name, None)
-                if env is None:
+                result = ctl.config.environments.get(name, None)
+                if result is None:
                     ctl.io.print_error(f'No environment named "{name}" could be found in current config file')
                     exit(1)
-                result = env
             if isinstance(result, list):
                 ctl.io.print(output_formatter.convert_list(result))
             else:
@@ -114,16 +107,15 @@ class Environments(Target):
         @click.pass_context
         def _use(ctx: click.Context, environment_name: str):
             with safety_net(ConfigError):
-                loaded_config, config_path = get_config()
+                loaded_config, config_path = get_config_with_path()
             io = IOController.get()
             if environment_name not in loaded_config.environments:
                 valid_env_names = [k for k in loaded_config.environments.keys()]
                 io.print_error(f'No environment named "{environment_name}" found in config. Valid names: {valid_env_names}')
                 exit(1)
-            # Read as raw dict to prevent null/defaults being written
-            parser = ConfigParser()
-            config_dict = parser.from_file_as_dict(config_path)
-            config_dict['active_environment'] = environment_name
+
+            # Update
             io.print(f'Updating config at: {config_path}')
-            parser.write_config_from_dict(config_dict, config_path)
+            loaded_config.active_environment = environment_name
+            write_config(loaded_config, override_config_path=config_path)
         return _use

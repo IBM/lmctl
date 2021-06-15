@@ -5,11 +5,12 @@ import os
 import lmctl.cli.lifecycle as lifecycle_cli
 import lmctl.project.package.core as pkgs
 from lmctl.cli.format import determine_format_class
+from lmctl.cli.cmd_tags import project_tag
 
 logger = logging.getLogger(__name__)
 
-
-@click.group(help='Commands for managing a package built from an Assembly/Resource Project')
+@project_tag
+@click.group(short_help='Onboard a package built from a Project', help='Onboard a package previously built from a Project, distributed as a ".tgz" or ".csar" file')
 def pkg():
     logger.debug('Package Management')
 

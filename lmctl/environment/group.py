@@ -3,7 +3,9 @@ from .lmenv import TNCOEnvironment
 from .armenv import ArmEnvironment
 from pydantic.dataclasses import dataclass
 from pydantic import constr, Field
+from lmctl.utils.dcutils.dc_capture import recordattrs
 
+@recordattrs
 @dataclass
 class EnvironmentGroup:
     name: constr(strip_whitespace=True, min_length=1)

@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 from lmctl.client import TNCOClient, TNCOClientBuilder, TOKEN_AUTH_MODE, LEGACY_OAUTH_MODE
 from pydantic.dataclasses import dataclass
 from pydantic import constr, root_validator
+from lmctl.utils.dcutils.dc_capture import recordattrs
 
 DEFAULT_KAMI_PORT = '31289'
 DEFAULT_KAMI_PROTOCOL = 'http'
@@ -12,10 +13,11 @@ DEFAULT_BRENT_NAME = 'brent'
 DEFAULT_PROTOCOL = 'https'
 DEFAULT_SECURE = False
 
+@recordattrs
 @dataclass
 class TNCOEnvironment:
-    name: constr(strip_whitespace=True, min_length=1)
     address: constr(strip_whitespace=True, min_length=1) = None
+    name: str = None
     secure: bool = DEFAULT_SECURE
 
     client_id: Optional[str] = None

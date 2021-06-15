@@ -27,17 +27,14 @@ class CLIIntegrationTest(IntegrationTest):
         else:
             etype, value, tb = result.exc_info
             exception_string = ''.join(traceback.format_exception(etype, value, tb, None))
-            self.fail('Unexpected exception thrown: \n---\n' + exception_string)
+            self.fail(f'Unexpected exception thrown: \n---\n{exception_string}\n---{result.output}')  
 
     def assert_no_errors(self, result):
         if result.exit_code != 0:
-            print('\nERROR OUTPUT:')
-            print(result.output)
-            print('---')
             if result.exc_info:
                 etype, value, tb = result.exc_info
                 exception_string = ''.join(traceback.format_exception(etype, value, tb, None))
-                self.fail('Unexpected exception thrown: \n---\n' + exception_string)  
+                self.fail(f'Unexpected exception thrown: \n---\n{exception_string}\n---{result.output}')  
             else:
                 self.assertEqual(result.exit_code, 0)
     

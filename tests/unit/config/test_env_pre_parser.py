@@ -26,7 +26,6 @@ class TestEnvironmentGroupPreParser(unittest.TestCase):
         test_env = parsed_config.get('test')
         self.assertNotIn('lm', test_env)
         self.assertEqual(test_env['tnco'], {
-            'name': 'tnco',
             'address': 'localhost'
         })
 
@@ -42,7 +41,6 @@ class TestEnvironmentGroupPreParser(unittest.TestCase):
         test_env = parsed_config.get('test')
         self.assertNotIn('lm', test_env)
         self.assertEqual(test_env['tnco'], {
-            'name': 'tnco',
             'address': 'localhost'
         })
 
@@ -99,7 +97,6 @@ class TestEnvironmentGroupPreParser(unittest.TestCase):
         test_group_config = groups_config['test']
         lm_config = test_group_config['tnco']
         self.assertEqual(lm_config, {
-            'name': 'tnco',
             'host': 'test',
             'protocol': 'http',
             'username': 'user',
@@ -122,7 +119,6 @@ class TestEnvironmentGroupPreParser(unittest.TestCase):
         self.assertNotIn('arm', test_env)
         self.assertEqual(test_env['arms'], {
             'default': {
-                'name': 'default',
                 'address': 'localhost'
             }
         })
@@ -147,7 +143,6 @@ class TestEnvironmentGroupPreParser(unittest.TestCase):
         self.assertIn('default', arms_config)
         default_arm_config = arms_config['default']
         self.assertEqual(default_arm_config, {
-            'name': 'default',
             'host': 'test',
             'protocol': 'http'
         })

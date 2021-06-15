@@ -5,6 +5,8 @@ from .finder import ConfigFinder, CtlConfigFinder
 from .parser import ConfigParser
 from .rewriter import ConfigRewriter
 from .ctl import Ctl
+from .constants import CONFIG_ENV_VAR
+from .io import ConfigIO
 from typing import Tuple
 import warnings
 import os
@@ -16,18 +18,19 @@ CONFIG_ENV_VAR = 'LMCONFIG'
 global_config = None
 global_config_path = None
 
-def standard_config_finder():
-    return ConfigFinder(potential_env_var=CONFIG_ENV_VAR)
 
-def get_config(override_config_path: str = None) -> Tuple[Config, str]:
+def find_config_location(ignore_not_found: bool = False) -> str:
+    return ConfigFinder().find(ignore_not_found=ignore_not_found)
+
+def get_config(override_config_path: str = None) -> Config:
     logger.debug('Loading LMCTL config')
-    if override_config_path is not None:
-        if not os.path.exists(override_config_path):
-            raise ConfigError(f'Provided config path does not exist: {override_config_path}')
-        config_path = override_config_path
-    else:
-        config_path = standard_config_finder().find()
-    return ConfigParser().from_file(config_path), config_path
+    config, _ = get_config_with_path(override_config_path=override_config_path)
+    return config
+
+def get_config_with_path(override_config_path: str = None) -> Tuple[Config, str]:
+    logger.debug('Loading LMCTL config')
+    config, config_file_path = ConfigIO().read_discovered_file(override_path=override_config_path)
+    return config, config_file_path
 
 def get_global_config(override_config_path: str = None) -> Config:
     global_config, global_config_path = get_global_config_with_path(override_config_path)
@@ -36,25 +39,23 @@ def get_global_config(override_config_path: str = None) -> Config:
 def get_global_config_with_path(override_config_path: str = None) -> Config:
     global global_config
     global global_config_path
-    if override_config_path is not None and global_config_path is not None:
+    if override_config_path is not None and global_config_path is not None and override_config_path != global_config_path:
         raise ConfigError(f'Attempting to re-load global config using a different path: original={global_config_path}, new={override_config_path}')
     if global_config is None:
-        global_config, global_config_path = get_config(override_config_path=override_config_path)
+        global_config, global_config_path = get_config_with_path(override_config_path=override_config_path)
     return global_config, global_config_path
 
+def write_config(config: Config, override_config_path: str = None) -> str:
+    return ConfigIO().write_discovered_file(config, override_path=override_config_path, backup_existing=True)
 
 ### Deprecated
 global_ctl = None
 
-def get_ctl(config_path: str= None) -> Ctl:
+def get_ctl(config_path: str = None) -> Ctl:
     warnings.warn('get_ctl is deprecated, use get_config instead', DeprecationWarning)
     logger.debug('Getting Ctl object')
     global global_ctl
     if global_ctl is None:
-        if config_path is not None:
-            if not os.path.exists(config_path):
-                raise ConfigError(f'Provided config path does not exist: {config_path}')
-        else:
-            config_path = standard_config_finder().find()
-        global_ctl = Ctl(ConfigParser().from_file(config_path))
+        config = get_config(override_config_path=config_path)
+        global_ctl = Ctl(config)
     return global_ctl

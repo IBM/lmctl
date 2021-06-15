@@ -5,14 +5,17 @@ import urllib3
 import lmctl.cli.commands as lmctl_commands
 import lmctl.utils.logging as lmctl_logging
 from .safety_net import safety_net
+from .cmd_tags import TagFormattedGroup
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 logging.captureWarnings(True)
 
 
-@click.group(help='TNCO (ALM) command line tools')
+@click.group(cls=TagFormattedGroup, help='CP4NA orchestration command line tools')
 @click.version_option()
 def cli():
     pass
+
 
 lmctl_logging.setup_logging()
 

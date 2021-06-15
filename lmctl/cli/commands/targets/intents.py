@@ -11,7 +11,7 @@ class Intents(TNCOTarget):
     display_name = 'Intent'
 
     @LmGen()
-    @click.option('--type', 'intent_type', required=False, default='createAssembly', show_default=True, help='The type of intent to generate')
+    @click.option('--type', 'intent_type', required=False, default='createAssembly', show_default=True, help='The type of intent to generate. Known options: createAssembly, upgradeAssembly, adoptAssembly, changeAssemblyState, healAssembly, scaleOutAssembly, scaleInAssembly')
     def genfile(self, ctx: click.Context, name: str, intent_type: str):
         intent = {
             'type': intent_type,

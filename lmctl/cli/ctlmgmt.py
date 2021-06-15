@@ -29,6 +29,9 @@ def get_environment_group(environment_group_name: str = None, config_path=None):
         exit(1)
     env_group = ctl.config.environments.get(environment_group_name, None)
     if env_group is None:
+        if environment_group_name is not None:
+            output.printer.error(f'Error: No environment named: {environment_group_name}')
+            exit(1)
         env_group = get_active_environment(ctl)
     if env_group is None:
         output.printer.error(f'Error: Environment name not provided and there is no "active_environment" group set in config. ' +

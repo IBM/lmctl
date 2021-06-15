@@ -149,7 +149,6 @@ class TestConfigParser(unittest.TestCase):
         self.assertIsNotNone(test_group_config.tnco)
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
-        self.assertEqual(lm_config.name, 'tnco')
         self.assertEqual(lm_config.address, 'http://test:32455')
         self.assertEqual(lm_config.secure, True)
         self.assertEqual(lm_config.username, 'user')
@@ -181,7 +180,6 @@ class TestConfigParser(unittest.TestCase):
         self.assertIsNotNone(test_group_config.tnco)
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
-        self.assertEqual(lm_config.name, 'tnco')
         self.assertEqual(lm_config.address, 'http://test:32455')
         self.assertEqual(lm_config.secure, True)
         self.assertEqual(lm_config.username, 'user')
@@ -251,7 +249,7 @@ class TestConfigParser(unittest.TestCase):
         self.assertIsNotNone(test_group_config.tnco)
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
-        self.assertEqual(lm_config.name, 'tnco')
+        
         self.assertEqual(lm_config.address, 'http://test:32455')
         self.assertEqual(lm_config.secure, True)
         self.assertEqual(lm_config.username, 'user')
@@ -283,7 +281,7 @@ class TestConfigParser(unittest.TestCase):
         self.assertIsNotNone(test_group_config.tnco)
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
-        self.assertEqual(lm_config.name, 'tnco')
+        
         self.assertEqual(lm_config.address, 'http://test:32455')
         self.assertEqual(lm_config.secure, True)
         self.assertEqual(lm_config.username, 'user')
@@ -309,7 +307,7 @@ class TestConfigParser(unittest.TestCase):
         self.assertIsNotNone(test_group_config.tnco)
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
-        self.assertEqual(lm_config.name, 'tnco')
+        
         self.assertEqual(lm_config.address, 'http://test:32455')
         self.assertEqual(lm_config.kami_address, 'https://test:12345')
         
@@ -331,7 +329,7 @@ class TestConfigParser(unittest.TestCase):
         self.assertIsNotNone(test_group_config.tnco)
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
-        self.assertEqual(lm_config.name, 'tnco')
+        
         self.assertEqual(lm_config.address, 'http://test:32455')
         self.assertEqual(lm_config.kami_address, 'http://kami:12345')
         
@@ -352,7 +350,7 @@ class TestConfigParser(unittest.TestCase):
         self.assertIsNotNone(test_group_config.tnco)
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
-        self.assertEqual(lm_config.name, 'tnco')
+        
         self.assertEqual(lm_config.address, 'https://test')
         self.assertEqual(lm_config.secure, False)
         self.assertEqual(lm_config.username, None)
@@ -378,7 +376,7 @@ class TestConfigParser(unittest.TestCase):
         self.assertIsNotNone(test_group_config.tnco)
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
-        self.assertEqual(lm_config.name, 'tnco')
+        
         self.assertEqual(lm_config.address, 'https://test')
         self.assertEqual(lm_config.secure, True)
         self.assertEqual(lm_config.username, 'user')
@@ -405,7 +403,7 @@ class TestConfigParser(unittest.TestCase):
         self.assertIsNotNone(test_group_config.tnco)
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
-        self.assertEqual(lm_config.name, 'tnco')
+        
         self.assertEqual(lm_config.address, 'http://test')
         self.assertEqual(lm_config.secure, False)
         self.assertEqual(lm_config.username, 'user')
@@ -436,12 +434,10 @@ class TestConfigParser(unittest.TestCase):
         self.assertIn('first', arms_config)
         first_arm_config = arms_config['first']
         self.assertIsInstance(first_arm_config, ArmEnvironment)
-        self.assertEqual(first_arm_config.name, 'first')
         self.assertEqual(first_arm_config.address, 'http://test:1111')
         self.assertIn('second', arms_config)
         second_arm_config = arms_config['second']
         self.assertIsInstance(second_arm_config, ArmEnvironment)
-        self.assertEqual(second_arm_config.name, 'second')
         self.assertEqual(second_arm_config.address, 'https://test:2222')
        
     def test_parse_arm_as_parts(self):
@@ -474,13 +470,11 @@ class TestConfigParser(unittest.TestCase):
         self.assertIn('first', arms_config)
         first_arm_config = arms_config['first']
         self.assertIsInstance(first_arm_config, ArmEnvironment)
-        self.assertEqual(first_arm_config.name, 'first')
         self.assertEqual(first_arm_config.address, 'http://test:1')
         self.assertEqual(first_arm_config.onboarding_addr, 'http://onboard')
         self.assertIn('second', arms_config)
         second_arm_config = arms_config['second']
         self.assertIsInstance(second_arm_config, ArmEnvironment)
-        self.assertEqual(second_arm_config.name, 'second')
         self.assertEqual(second_arm_config.address, 'https://test2:2')
         self.assertEqual(second_arm_config.onboarding_addr, 'http://onboard2')
        
@@ -505,7 +499,6 @@ class TestConfigParser(unittest.TestCase):
         self.assertIn('default', arms_config)
         default_arm_config = arms_config['default']
         self.assertIsInstance(default_arm_config, ArmEnvironment)
-        self.assertEqual(default_arm_config.name, 'default')
         self.assertEqual(default_arm_config.address, 'https://test')
         self.assertEqual(default_arm_config.onboarding_addr, None)
     
@@ -531,7 +524,6 @@ class TestConfigParser(unittest.TestCase):
         self.assertIn('default', arms_config)
         default_arm_config = arms_config['default']
         self.assertIsInstance(default_arm_config, ArmEnvironment)
-        self.assertEqual(default_arm_config.name, 'default')
         self.assertEqual(default_arm_config.address, 'http://test')
         self.assertEqual(default_arm_config.onboarding_addr, None)
      
