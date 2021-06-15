@@ -9,3 +9,4 @@ from .vimdriver import vimdriver as vimdriver_group
 from .actions import action_types
 from .targets import target_instances
 from .login import login as login_cmd
+from .logdir import logdir as logdir_cmd
