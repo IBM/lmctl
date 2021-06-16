@@ -16,16 +16,20 @@ class TestEnvironments(CLIIntegrationTest):
             ['get', 'env', '-o', 'yaml']
         )
         loaded_output = yaml.safe_load(result.output)
-        self.assertIn('default', loaded_output)
-        self.assertIn('tnco', loaded_output['default'])
+        self.assertIn('items', loaded_output)
+        self.assertEqual(len(loaded_output['items']), 1)
+        self.assertEqual(loaded_output['items'][0]['name'], 'default')
+        self.assertIn('tnco', loaded_output['items'][0])
         
     def test_get_all_as_json(self):
         result = self.cli_runner.invoke(cli, 
             ['get', 'env', '-o', 'json']
         )
         loaded_output = json.loads(result.output)
-        self.assertIn('default', loaded_output)
-        self.assertIn('lm', loaded_output['default'])
+        self.assertIn('items', loaded_output)
+        self.assertEqual(len(loaded_output['items']), 1)
+        self.assertEqual(loaded_output['items'][0]['name'], 'default')
+        self.assertIn('tnco', loaded_output['items'][0])
     
     def test_get_all_as_table(self):
         result = self.cli_runner.invoke(cli, 
@@ -43,7 +47,7 @@ class TestEnvironments(CLIIntegrationTest):
         loaded_output = yaml.safe_load(result.output)
         self.assertIn('tnco', loaded_output)
         
-    def test_get_all_as_json(self):
+    def test_get_by_name_as_json(self):
         result = self.cli_runner.invoke(cli, 
             ['get', 'env', 'default', '-o', 'json']
         )

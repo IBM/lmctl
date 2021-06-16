@@ -3,17 +3,20 @@
 :tada:
 
 Contents:
-- New in 3.0.X
+- New in 3.0.0
   - :file_folder: [Default LMCTL config file location](#default-lmctl-config-file-location)
   - :muscle: [Expanded Command Capabilities](#expanded-command-capabilities)
   - :snake: [CP4NA Python Client](#cp4na-python-client)
   - :wrench: [CP4NA Environment Improvements](#cp4na-environment-address-improvements)
   - :closed_lock_with_key: [Client Credential Authentication](#client-credential-authentication)
   - :point_right: [Ping CP4NA environment to check configuration](#ping-cp4na-environment-to-check-configuration)
-- New in 3.1.x
+- New in 3.1.0
   - :closed_lock_with_key: [Login Command](#login-command)
   - :closed_lock_with_key: [Token Authentication](#token-authentication)
   - :file_folder: [Default Active Environment](#active-environment)
+  - :clipboard: [Log Directory](#log-directory)
+
+# 3.0.0
 
 # Default LMCTL config file location
 
@@ -175,6 +178,8 @@ Check you've configured your environment(s) correctly by testing the connection:
 lmctl ping env <name of env>
 ```
 
+# 3.1.0
+
 # Login Command
 
 The new `lmctl login` command makes it easier to add environments to your config file without modifying YAML files.
@@ -239,4 +244,16 @@ The `active_environment` value can also be toggled from the command line, with t
 
 ```
 lmctl use env joes-env
+```
+
+# Log Directory
+
+Previously, lmctl created/appened to a `lmctl.log` file in the current directory. This meant there would be a new log file in each directory you used lmctl from, which can be a pain, particularly when dealing with lmctl projects.
+
+In v3.1.0+, LMCTL will now create all logs files at `<Home directory>/.lmctl/logs`. 
+
+You can ask lmctl for the exact path on your machine using the new `logdir` command:
+
+```
+lmctl logdir
 ```

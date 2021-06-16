@@ -15,7 +15,7 @@ class YamlFormat(OutputFormat):
                 converted_element_list.append(asdict(e))
             else:
                 converted_element_list.append(e)
-        data = {'items': element_list}
+        data = {'items': converted_element_list}
         try:
             return yaml.dump(data, sort_keys=False)
         except yaml.YAMLError as e:
