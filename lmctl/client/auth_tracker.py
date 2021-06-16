@@ -24,7 +24,7 @@ class AuthTracker:
         if self.current_access_token is None:
             logger.debug('No current access token, must request one')
             return True
-        logger.debug('Checking if LM access token has expired')
+        logger.debug('Checking if CP4NA orchestration access token has expired')
         now = datetime.now()
         logger.debug(f'Authenticated at {self.time_of_auth.isoformat()}, the time is {now.isoformat()}, token has an expiration timestamp of {self._time_of_expiry.isoformat()}')
         if now >= self._time_of_expiry:

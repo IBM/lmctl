@@ -9,9 +9,9 @@ from lmctl.cli.cmd_tags import deprecated_tag
 logger = logging.getLogger(__name__)
 
 @deprecated_tag
-@click.group(short_help='Use "lmctl create/get/delete resourcedriver"', help='deprecated in v3.0: Commands for managing VIM drivers (LM 2.1 only)')
+@click.group(short_help='Use "lmctl create/get/delete resourcedriver"', help='deprecated in v3.0: Commands for managing VIM drivers (CP4NA orchestration 2.1 only)')
 def vimdriver():
-    click.echo('WARNING: vimdriver command support should only be used with 2.1 versions of LM')
+    click.echo('WARNING: vimdriver command support should only be used with 2.1 versions of CP4NA orchestration')
 
 def get_vim_driver_mgmt_driver(environment_name, config_path, pwd):
     lm_session = ctlmgmt.create_lm_session(environment_name, pwd, config_path)
@@ -26,10 +26,10 @@ def format_vim_driver(output_format, vim_driver):
     result = formatter.convert_element(vim_driver)
     return result
 
-@vimdriver.command(help='Add a VIM driver to LM')
+@vimdriver.command(help='Add a VIM driver to CP4NA orchestration')
 @click.argument('environment')
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
 @click.option('--type', 'inf_type', default='Openstack', help='Infrastructure type of the VIM driver to add')
 @click.option('--url', help='url of VIM driver to add')
 @click.option('--certificate', help='filename of a file containing the public certificate of the VIM driver')
@@ -54,11 +54,11 @@ def add(environment, config, pwd, inf_type, url, certificate, output_format):
     click.echo(format_vim_driver(output_format, vim_driver))
 
 
-@vimdriver.command(help='Remove a VIM driver from LM by ID (or by infrastructure type)')
+@vimdriver.command(help='Remove a VIM driver from CP4NA orchestration by ID (or by infrastructure type)')
 @click.argument('environment')
 @click.argument('driver-id', required=False)
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
 @click.option('--type', 'inf_type', help='Infrastructure type used to identify the VIM driver to remove. Use this instead of the driver-id argument')
 def delete(environment, driver_id, config, pwd, inf_type):
     """Remove a VIM driver by ID or type"""
@@ -80,7 +80,7 @@ def delete(environment, driver_id, config, pwd, inf_type):
 @click.argument('environment')
 @click.argument('driver-id', required=False)
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
 @click.option('--type', 'inf_type', help='Infrastructure type used to identify the VIM driver to get. Use this instead of the driver-id argument')
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
 def get(environment, driver_id, config, pwd, inf_type, output_format):

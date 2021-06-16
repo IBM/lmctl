@@ -68,7 +68,7 @@ class TNCOClient:
 
     def _supplement_headers(self, headers: Dict, inject_current_auth: bool = True) -> Dict:
         trace_ctx_headers = trace_ctx.to_http_header_dict()
-        logger.debug(f'LM request headers from trace ctx: {trace_ctx_headers}')
+        logger.debug(f'CP4NA orchestration request headers from trace ctx: {trace_ctx_headers}')
         headers.update(trace_ctx_headers)       
         if inject_current_auth:
             self._add_auth_headers(headers=headers)
@@ -93,7 +93,7 @@ class TNCOClient:
             request_kwargs['headers'].update(request.headers)
 
         # Log before adding sensitive data
-        logger.debug(f'LM request: Method={request.method}, URL={url}, Request Kwargs={request_kwargs}')
+        logger.debug(f'CP4NA orchestration request: Method={request.method}, URL={url}, Request Kwargs={request_kwargs}')
 
         if request.additional_auth_handler is not None:
             request_kwargs['auth'] = request.additional_auth_handler        
@@ -103,7 +103,7 @@ class TNCOClient:
             response = self._curr_session().request(method=request.method, url=url, verify=False, **request_kwargs)
         except requests.RequestException as e:
             raise TNCOClientError(str(e)) from e
-        logger.debug(f'LM request has returned: Method={request.method}, URL={url}, Response={response}')
+        logger.debug(f'CP4NA orchestration request has returned: Method={request.method}, URL={url}, Response={response}')
         try:
             response.raise_for_status()
         except requests.HTTPError as e:

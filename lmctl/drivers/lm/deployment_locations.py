@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class LmDeploymentLocationDriver(LmDriver):
     """
-    Client for LM Deployment Location APIs
+    Client for CP4NA orchestration Deployment Location APIs
     """
 
     def __init__(self, lm_base, lm_security_ctrl=None):
