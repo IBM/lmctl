@@ -63,16 +63,16 @@ class TestTracingContext(unittest.TestCase):
     def test_to_http_header_dict(self):
         trace_ctx = TracingContext()
         trace_ctx.set_transaction_id('123')
-        trace_ctx.set('ProcessId', '456')
+        trace_ctx.set('processid', '456')
         self.assertEqual(trace_ctx.to_http_header_dict(), {
-            'X-Tracectx-TransactionId': '123',
-            'X-Tracectx-ProcessId': '456'
+            'x-tracectx-transactionid': '123',
+            'x-tracectx-processid': '456'
         })
 
     def test_to_log_dict(self):
         trace_ctx = TracingContext()
         trace_ctx.set_transaction_id('123')
-        trace_ctx.set('ProcessId', '456')
+        trace_ctx.set('processid', '456')
         self.assertEqual(trace_ctx.to_log_dict(), {
             'tracectx.transactionid': '123',
             'tracectx.processid': '456'

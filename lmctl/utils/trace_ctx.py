@@ -1,7 +1,7 @@
 import threading
 
-TRACE_CTX_HEADER_PREFIX = 'X-Tracectx-'
-TRANSACTION_ID_KEY = 'TransactionId'
+TRACE_CTX_HEADER_PREFIX = 'x-tracectx-'
+TRANSACTION_ID_KEY = 'transactionid'
 TRANSACTION_ID_HEADER = f'{TRACE_CTX_HEADER_PREFIX}{TRANSACTION_ID_KEY}'
 
 TRACE_CTX_LOG_PREFIX = 'tracectx.'
