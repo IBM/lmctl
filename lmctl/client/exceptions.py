@@ -40,3 +40,6 @@ class TNCOClientHttpError(TNCOClientError):
             except yaml.YAMLError as e:
                 pass
         return body
+
+class SitePlannerClientError(Exception):
+    pass

@@ -26,6 +26,7 @@ class IntegrationTester:
         self._create_config_file()
         self.config = get_global_config()
         self.default_client = self.build_default_client()
+        self.default_sp_client = self.build_default_sp_client()
         self.execution_id = generate_name()
         self.test_id = 0
         print(f'Generated execution name: {self.execution_id}')
@@ -61,10 +62,25 @@ class IntegrationTester:
 
     def build_client(self):
         default_env = self.config.environments.get('default')
-        return default_env.lm.build_client()
-           
+        return default_env.tnco.build_client()
+    
+    def build_default_sp_client(self):
+        default_env = self.config.environments.get('default')
+        return default_env.site_planner.build_client()
+
     def exec_prepended_name(self, name: str) -> str:
         return f'{self.execution_id}-{name}'
+
+    def short_exec_prepended_name(self, name: str, limit: int = 30) -> str:
+        result = self.exec_prepended_name(name)
+        if len(result) > limit:
+            vowels = set('AEIOU')
+            new_result = ''.join([letter for letter in result if letter.upper() not in vowels])
+            if len(new_result) > limit:
+                raise ValueError(f'Could not shorten {result} to less than {limit} characters')
+            return new_result
+        else:
+            return result
 
     def wait_until(self, condition: Callable, *condition_args, timeout: float = 60, interval: float = 0.1):
         start = time.time()

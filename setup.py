@@ -32,7 +32,8 @@ setup(
         'PyYAML>=5.3.0,<6.0',
         'pydantic==1.8.1',
         'dataclasses>=0.6; python_version < "3.7"',
-        'pyjwt>=1.5.3,<2.0'
+        'pyjwt>=1.5.3,<2.0',
+        'pynetbox'
     ],
     entry_points='''
         [console_scripts]
