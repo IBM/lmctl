@@ -1,10 +1,10 @@
 import threading
 
-TRACE_CTX_HEADER_PREFIX = 'X-TraceCtx-'
+TRACE_CTX_HEADER_PREFIX = 'X-Tracectx-'
 TRANSACTION_ID_KEY = 'TransactionId'
 TRANSACTION_ID_HEADER = f'{TRACE_CTX_HEADER_PREFIX}{TRANSACTION_ID_KEY}'
 
-TRACE_CTX_LOG_PREFIX = 'traceCtx.'
+TRACE_CTX_LOG_PREFIX = 'tracectx.'
 
 class ScopedContext:
 
