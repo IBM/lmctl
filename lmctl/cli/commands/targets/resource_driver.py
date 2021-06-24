@@ -4,7 +4,7 @@ from lmctl.client import TNCOClient, TNCOClientHttpError
 from lmctl.cli.arguments import common_output_format_handler
 from lmctl.cli.format import Table, Column
 from .tnco_target import TNCOTarget, LmGet, LmCreate, LmDelete, LmGen
-from lmctl.utils.certificates import read_certificate_file
+from lmctl.utils.certificates import read_certificate_file, fix_newlines_in_cert
 
 class ResourceDriverTable(Table):
     
@@ -63,6 +63,8 @@ class ResourceDrivers(TNCOTarget):
                 ctl = self._get_controller()
                 ctl.io.print_error(f'Error: reading certificate: {str(e)}')
                 exit(1)
+        elif 'certificate' in resource_driver:
+            resource_driver['certificate'] = fix_newlines_in_cert(resource_driver['certificate'])
         result = api.create(resource_driver)
         return result.get('id')
 
