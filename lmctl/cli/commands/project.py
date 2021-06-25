@@ -94,12 +94,12 @@ def build(project_path, autocorrect):
     controller.finalise()
 
 
-@project.command(help='Push Project package to a LM environment')
+@project.command(help='Push Project package to a CP4NA orchestration environment')
 @click.option('--project', 'project_path', default='./', help='File location of project')
 @click.argument('environment', required=False, default=None)
 @click.option('--config', default=None, help='configuration file')
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources must be provided')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA is secure and a username has been included in the environment config)')
 @click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
 def push(project_path, environment, config, armname, pwd, autocorrect):
     """Push an Assembly/Resource project"""
@@ -125,10 +125,10 @@ def __parse_tests_option(tests):
 @click.option('--config', default=None, help='configuration file')
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources to must be provided')
 @click.option('--tests', default=None, help='specify comma separated list of individual tests to execute')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
 @click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
 def test(project_path, environment, config, armname, tests, pwd, autocorrect):
-    """Builds, pushes and runs the tests of an Assembly/Resource project on a target LM (and ARM) environment"""
+    """Builds, pushes and runs the tests of an Assembly/Resource project on a target CP4NA orchestration (and ARM) environment"""
     logger.debug('Testing project at: {0}'.format(project_path))
     project = lifecycle_cli.open_project(project_path)
     env_sessions = lifecycle_cli.build_sessions_for_project(project.config, environment, pwd, armname, config)
@@ -140,13 +140,13 @@ def test(project_path, environment, config, armname, tests, pwd, autocorrect):
     controller.finalise()
 
 
-@project.command(help='Pull contents of the Project sources from a LM environment')
+@project.command(help='Pull contents of the Project sources from a CP4NA orchestration environment')
 @click.option('--project', 'project_path', default='./', help='File location of project')
 @click.argument('environment', required=False, default=None)
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config, without a password)')
+@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config, without a password)')
 def pull(project_path, environment, config, pwd):
-    """Pulls the content of a Assembly/Resource from a target LM environment, overidding local content"""
+    """Pulls the content of a Assembly/Resource from a target CP4NA orchestration environment, overidding local content"""
     logger.debug('Pulling project at: {0}'.format(project_path))
     project = lifecycle_cli.open_project(project_path)
     env_sessions = lifecycle_cli.build_sessions_for_project(project.config, environment, pwd, None, config)

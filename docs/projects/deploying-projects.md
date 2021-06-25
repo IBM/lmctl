@@ -2,13 +2,13 @@
 
 The `project push` command is used to push the artifacts of a project to a target TNCO environment. For an Assembly this project will:
 
-- Deploy the service descriptor to LM
-- Deploy all service behaviour related artifacts to LM
+- Deploy the service descriptor to CP4NA orchestration
+- Deploy all service behaviour related artifacts to CP4NA orchestration
 
 For any Resource projects, the action taken depends on the expectations of the Resource Manager:
 
-- Brent: a resource package with the necessary artifacts is pushed to Brent and the descriptor for the Resource will be updated in LM by re-onboarding Brent
-- Ansible RM: a CSAR with the necessary artifacts will be pushed to the RM, and the descriptor for the Resource will be updated in LM by re-onboarding the RM
+- Brent: a resource package with the necessary artifacts is pushed to Brent and the descriptor for the Resource will be updated in CP4NA orchestration by re-onboarding Brent
+- Ansible RM: a CSAR with the necessary artifacts will be pushed to the RM, and the descriptor for the Resource will be updated in CP4NA orchestration by re-onboarding the RM
 
 In all cases the new versions of each artifact will overwrite any existing version present in the environment.
 

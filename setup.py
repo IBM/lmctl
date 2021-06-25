@@ -11,7 +11,7 @@ setup(
     name='lmctl',
     version=_pkg_info['version'],
     author='IBM',
-    description='IBM TNCO (ALM) command line tool',
+    description='IBM CP4NA orchestration command line tool',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/IBM/lmctl',

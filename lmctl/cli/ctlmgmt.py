@@ -54,7 +54,7 @@ def create_lm_session(environment_group_name = None, lm_pwd=None, config_path=No
     warnings.warn('create_lm_session is deprecated as the LmSession class is deprecated, replaced with a new TNCOClient. Use get_global_controller from lmctl.cli.controller then use build_client', DeprecationWarning)
     env_group = get_environment_group(environment_group_name, config_path)
     if not env_group.has_lm:
-        output.printer.error('Error: LM environment not configured on group: {0}'.format(environment_group_name))
+        output.printer.error('Error: CP4NA orchestration environment not configured on group: {0}'.format(environment_group_name))
     lm = env_group.tnco
     lm_session_config = lm.create_session_config()
     if lm.secure:
@@ -62,18 +62,18 @@ def create_lm_session(environment_group_name = None, lm_pwd=None, config_path=No
             if lm_token is not None and len(lm_token.strip()) > 0:
                 lm_session_config.token = lm_token
             elif lm_session_config.token is None:
-                prompt_token = click.prompt(f'Please enter token for LM', hide_input=True, default='')
+                prompt_token = click.prompt(f'Please enter token for CP4NA orchestration', hide_input=True, default='')
                 lm_session_config.token = prompt_token
         else:
             if lm_session_config.username is not None:
                 if lm_pwd is not None and len(lm_pwd.strip()) > 0:
                     lm_session_config.password = lm_pwd
                 elif lm_session_config.password is None:
-                    prompt_pwd = click.prompt('Please enter password for LM user {0}'.format(lm_session_config.username), hide_input=True, default='')
+                    prompt_pwd = click.prompt('Please enter password for CP4NA orchestration user {0}'.format(lm_session_config.username), hide_input=True, default='')
                     lm_session_config.password = prompt_pwd
             if lm_session_config.client_id is not None:
                 if lm_session_config.client_secret is None:
-                    prompt_pwd = click.prompt('Please enter secret for LM client {0}'.format(lm_session_config.client_id), hide_input=True, default='')
+                    prompt_pwd = click.prompt('Please enter secret for CP4NA orchestration client {0}'.format(lm_session_config.client_id), hide_input=True, default='')
                     lm_session_config.client_secret = prompt_pwd
     return lm_session_config.create()
 

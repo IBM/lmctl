@@ -13,7 +13,7 @@ class EnvironmentSessions:
     @property
     def lm(self):
         if not self.__lm:
-            raise EnvironmentSelectionError('No LM environment provided')
+            raise EnvironmentSelectionError('No CP4NA orchestration environment provided')
         return self.__lm
 
     @property

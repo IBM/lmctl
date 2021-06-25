@@ -77,10 +77,10 @@ class TestEnvironments(CLIIntegrationTest):
         ])
         table_format = TableFormat(table=PingTable())
         address = ctl.config.environments.get('default').tnco.address
-        expected_output = f'Pinging TNCO (ALM): {address}'
+        expected_output = f'Pinging CP4NA orchestration: {address}'
         expected_output += '\n'
         expected_output += table_format.convert_list(expected_results.tests)
-        expected_output += '\nTNCO (ALM) tests passed! ✅'
+        expected_output += '\nCP4NA orchestration tests passed! ✅'
         self.assert_output(result, expected_output)
     
     @patch('lmctl.client.client.DescriptorsAPI')
@@ -101,10 +101,10 @@ class TestEnvironments(CLIIntegrationTest):
         ])
         table_format = TableFormat(table=PingTable())
         address = ctl.config.environments.get('default').tnco.address
-        expected_output = f'Pinging TNCO (ALM): {address}'
+        expected_output = f'Pinging CP4NA orchestration: {address}'
         expected_output += '\n'
         expected_output += table_format.convert_list(expected_results.tests)
-        expected_output += '\nTNCO (ALM) tests failed! ❌'
+        expected_output += '\nCP4NA orchestration tests failed! ❌'
         self.assert_output(result, expected_output)
 
     @unittest.skip('Templates not GA')
@@ -123,8 +123,8 @@ class TestEnvironments(CLIIntegrationTest):
         ])
         table_format = TableFormat(table=PingTable())
         address = ctl.config.environments.get('default').tnco.address
-        expected_output = f'Pinging TNCO (ALM): {address}'
+        expected_output = f'Pinging CP4NA orchestration: {address}'
         expected_output += '\n'
         expected_output += table_format.convert_list(expected_results.tests)
-        expected_output += '\nTNCO (ALM) tests passed! ✅'
+        expected_output += '\nCP4NA tests passed! ✅'
         self.assert_output(result, expected_output)

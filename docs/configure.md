@@ -5,7 +5,7 @@ LMCTL configuration is written as a YAML formatted file and can exist anywhere o
 Table of contents:
 - [Initialise configuration file](#initialise-new-configuration-file)
 - [Environment Groups](#environment-groups)
-  - [TNCO (ALM) Configuration](#tnco-alm-configuration)
+  - [CP4NA orchestration Configuration](#cp4na-orchestration-configuration)
   - [Ansible RM](#ansible-rm)
 
 ## Initialise configuration file
@@ -53,7 +53,7 @@ lmctl get config
 
 # Environment Groups
 
-LMCTL can be used to access one or more TNCO (ALM) and/or Resource Manager (RM) instances. To do so, it must be configured with access addresses and credentials.
+LMCTL can be used to access one or more CP4NA orchestration and/or Resource Manager (RM) instances. To do so, it must be configured with access addresses and credentials.
 
 As any single TNCO environment may have many related RMs, the individual instances are described together in an environment group.
 
@@ -111,7 +111,7 @@ The `active_environment` value can be changed anytime from the command line with
 lmctl use env prod
 ```
 
-## TNCO (ALM) Configuration
+## CP4NA orchestration Configuration
 
 The TNCO environment in a group must be provided under the key `tnco`, `lm` or `alm` with the following properties:
 
@@ -198,7 +198,7 @@ environments:
 
 > Deprecated
 
-Multiple Ansible RM environments may be included in a group under the `arm` key. It is important that the name given to each Ansible RM matches the name used to onboard it to the LM environment in the same group.
+Multiple Ansible RM environments may be included in a group under the `arm` key. It is important that the name given to each Ansible RM matches the name used to onboard it to the CP4NA orchestration environment in the same group.
 
 Ansible RM environments have the following properties:
 

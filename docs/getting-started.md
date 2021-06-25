@@ -76,25 +76,25 @@ Access the `help` section of LMCTL with:
 lmctl --help
 ```
 
-# LMCTL Login
+# Login to Cloud Pak for Network Automation
 
-LMCTL requires credentials to access your TNCO environment. 
+LMCTL requires credentials to access the orchestration component of your Cloud Pak for Network Automation (CP4NA) environment. 
 
-The most efficient method of configuring LMCTL is to use the `lmctl login` with the API gateway (Ishtar) address for your environment. On most OCP installations, the API gateway address can be retrieved with:
+The most efficient method of configuring LMCTL is to use the `lmctl login` with the API gateway (Ishtar Route) address for your environment. On most OCP installations, this can be retrieved with:
 
 ```
 API_GATEWAY=$(oc get route alm-ishtar -o jsonpath='{.spec.host}')
 ```
 
-The credentials may be provided in different combinations but the most convenient methods are described below. Check out the [login command documentation](command-reference/login.md) to view more detailed information on all combinations.
+The credentials for this environment may be provided in different combinations but the most convenient methods are described below. Check out the [login command documentation](command-reference/login.md) to view more detailed information on each combination.
 
-First, try login with the same username and password you use to access the TNCO user interface (UI). You will need to provide the UI address (Nimrod) for your environment, on most OCP installations, the UI address can be retrieved with:
+First, try logging in with the same username and password you use to access the CP4NA orchestration user interface (UI). You will need to provide the UI address (Nimrod Route) for your environment. On most OCP installations, this can be retrieved with:
 
 ```
 UI_ADDRESS=$(oc get route alm-nimrod -o jsonpath='{.spec.host}')
 ```
 
-Run `lmctl login`, changing the `--username` and `--password` values to the correct credentials for your environment:
+Run `lmctl login`, changing the `--username` and `--password` values to valid credentials for your environment:
 
 ```
 lmctl login $API_GATEWAY --auth-address $UI_ADDRESS --username almadmin --password password
@@ -119,25 +119,10 @@ Updating config at: /home/myuser/.lmctl/config.yaml
 You can test access is ready using `ping`:
 
 ```
-lmctl env ping
+lmctl ping env
 ```
 
-If the output of this command ends with `TNCO (ALM) tests passed! ✅` then you're almost ready to go. 
-
-Before you go, it's worth considering the following:
-
-**Save Credentials**
-
-The token was saved in the config file, rather than the username/password. Tokens are often short lived, meaning you will have to re-run `login` when it expires.
-Alternatively, you may choose to save the credentials in the config file (plain text), by adding `--save-creds` to the login command. This allows LMCTL to re-authenticate on your behalf:
-
-```
-lmctl login $API_GATEWAY --auth-address $UI_ADDRESS --username almadmin --password password --save-creds
-```
-
-Check the difference in the configuration by running `lmctl get config` before and after this command. 
-
-**Multiple Environments**
+If the output of this command ends with `CP4NA orchestration tests passed! ✅` then you're almost ready to go. 
 
 You may login in to more than one environment at any one time. Just run `login` again but include the `--name` option, otherwise the environment will be saved with the same default value as the first. 
 
@@ -171,5 +156,12 @@ lmctl use env dev
 # Ping active env (will use "dev")
 lmctl ping env
 ```
+
+> **Saving Credentials:** on login success, the resulting access token is saved in the config file, rather than the username/password. Tokens are often short lived, meaning you will have to re-run `login` when it expires.
+> Alternatively, you may choose to save the credentials in the config file (plain text), by adding `--save-creds` to the login command. This allows LMCTL to re-authenticate on your behalf:
+> ```
+> lmctl login $API_GATEWAY --auth-address $UI_ADDRESS --username almadmin --password password --save-creds
+> ```
+> Check the difference in the configuration by running `lmctl get config` before and after this command. 
 
 You can read more about the configuration options available with LMCTL in the [configure](configure.md) section of this documentation.

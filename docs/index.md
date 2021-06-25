@@ -22,5 +22,5 @@ You may still be able to manage LMCTL projects in older ALM versions by updating
 
 ## Python Client
 
-- [CP4NA Python Client](client/index.md)
+- [CP4NA orchestration Python Client](client/index.md)
 - [Client Usage Examples](client/examples.md)

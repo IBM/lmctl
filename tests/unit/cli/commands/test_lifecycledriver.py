@@ -9,7 +9,7 @@ class TestLifecycleDriverCommands(command_testing.CommandTestCase):
 
     def setUp(self):
         super().setUp()
-        # Created simulated LM session when requested
+        # Created simulated CP4NA orchestration session when requested
         self.lm_sim = LmSimulator().start()
         create_lm_session_patcher = patch('lmctl.cli.ctlmgmt.create_lm_session')
         self.mock_create_lm_session = create_lm_session_patcher.start()

@@ -3,7 +3,7 @@ from .base import LmDriver, NotFoundException
 
 class LmResourcePkgDriver(LmDriver):
     """
-    Client for LM Resource Pkg APIs
+    Client for CP4NA orchestration Resource Pkg APIs
     """
 
     def __init__(self, lm_base, lm_security_ctrl=None):

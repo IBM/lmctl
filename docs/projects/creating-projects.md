@@ -57,7 +57,7 @@ To include subprojects, specify the name of each with the `--contains` option. F
 lmctl project create --name example --version 1.0 --type Assembly --contains Assembly subassembly --contains Resource::brent subresource
 ```
 
-# Creating a Project from existing sources in TNCO (ALM)
+# Creating a Project from existing sources in CP4NA orchestration
 
 If you have already designed a service in TNCO you can base a project around it and pull the existing content using LMCTL. (Note: currently it is not possible to pull the contents of Resources from Ansible RM or Brent):
 
@@ -69,7 +69,7 @@ If you have already designed a service in TNCO you can base a project around it 
    lmctl project pull dev
    ```
 
-3. Verify the `Descriptor/assembly.yml` file has been populated with the design of your service and the `Behaviour` directory has been populated with any Assembly Configurations and/or Scenarios you have in Stratoss LM
+3. Verify the `Descriptor/assembly.yml` file has been populated with the design of your service and the `Behaviour` directory has been populated with any Assembly Configurations and/or Scenarios you have in CP4NA orchestration.
 
 The pull command will also pull the contents of any subprojects that are also of the Assembly type.
 

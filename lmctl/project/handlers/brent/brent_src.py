@@ -482,7 +482,7 @@ class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
 
     def __validate_definitions_lm(self, journal, errors, warnings):
         lm_def_path = self.tree.lm_definitions_path
-        if self.__find_or_error(journal, errors, warnings, lm_def_path, 'LM definitions directory'):
+        if self.__find_or_error(journal, errors, warnings, lm_def_path, 'CP4NA orchestration definitions directory'):
             descriptor_file_path = self.tree.descriptor_file_path
             self.__find_or_error(journal, errors, warnings, descriptor_file_path, 'Resource descriptor')
 

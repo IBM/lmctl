@@ -63,19 +63,19 @@ class TestTracingContext(unittest.TestCase):
     def test_to_http_header_dict(self):
         trace_ctx = TracingContext()
         trace_ctx.set_transaction_id('123')
-        trace_ctx.set('ProcessId', '456')
+        trace_ctx.set('processid', '456')
         self.assertEqual(trace_ctx.to_http_header_dict(), {
-            'X-TraceCtx-TransactionId': '123',
-            'X-TraceCtx-ProcessId': '456'
+            'x-tracectx-transactionid': '123',
+            'x-tracectx-processid': '456'
         })
 
     def test_to_log_dict(self):
         trace_ctx = TracingContext()
         trace_ctx.set_transaction_id('123')
-        trace_ctx.set('ProcessId', '456')
+        trace_ctx.set('processid', '456')
         self.assertEqual(trace_ctx.to_log_dict(), {
-            'traceCtx.transactionid': '123',
-            'traceCtx.processid': '456'
+            'tracectx.transactionid': '123',
+            'tracectx.processid': '456'
         })
 
     def test_scope(self):
@@ -120,10 +120,10 @@ class TestTracingContext(unittest.TestCase):
             self.assertEqual(trace_ctx.get('dash-item'), 'testing a dash item')
             self.assertEqual(trace_ctx.get('static'), 'this value never changes')
 
-        with trace_ctx.scope(TransactionId='789'):
+        with trace_ctx.scope(transactionid='789'):
             self.assertEqual(trace_ctx.get_transaction_id(), '789')
 
-        with trace_ctx.scope(transaction_id='789', ctx_values={'TransactionId': '456'}):
+        with trace_ctx.scope(transaction_id='789', ctx_values={'transactionid': '456'}):
             self.assertEqual(trace_ctx.get_transaction_id(), '789') # transaction_id arg > ctx_values
     
         self.assertEqual(trace_ctx.get_transaction_id(), '123')
