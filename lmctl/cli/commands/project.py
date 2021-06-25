@@ -7,6 +7,7 @@ import lmctl.project.source.core as project_sources
 import lmctl.project.source.creator as creator
 import lmctl.project.types as project_types
 import lmctl.files as files
+from lmctl.cli.cmd_tags import project_tag
 
 
 logger = logging.getLogger(__name__)
@@ -14,7 +15,9 @@ logger = logging.getLogger(__name__)
 ######################################################
 # Manage projects across environments
 ######################################################
-@click.group(help='Commands for managing an Assembly/Resource Project')
+
+@project_tag
+@click.group(short_help='Manage Assembly/Resource/NS/VNF Projects', help='Commands for managing Assembly/Resource/NS/VNF Projects')
 def project():
     logger.debug('Project Management')
 
@@ -91,12 +94,12 @@ def build(project_path, autocorrect):
     controller.finalise()
 
 
-@project.command(help='Push Project package to a LM environment')
+@project.command(help='Push Project package to a CP4NA orchestration environment')
 @click.option('--project', 'project_path', default='./', help='File location of project')
-@click.argument('environment')
+@click.argument('environment', required=False, default=None)
 @click.option('--config', default=None, help='configuration file')
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources must be provided')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA is secure and a username has been included in the environment config)')
 @click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
 def push(project_path, environment, config, armname, pwd, autocorrect):
     """Push an Assembly/Resource project"""
@@ -118,14 +121,14 @@ def __parse_tests_option(tests):
 
 @project.command(help='Execute the Behaviour Tests of the Project')
 @click.option('--project', 'project_path', default='./', help='File location of project')
-@click.argument('environment')
+@click.argument('environment', required=False, default=None)
 @click.option('--config', default=None, help='configuration file')
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources to must be provided')
 @click.option('--tests', default=None, help='specify comma separated list of individual tests to execute')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
 @click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
 def test(project_path, environment, config, armname, tests, pwd, autocorrect):
-    """Builds, pushes and runs the tests of an Assembly/Resource project on a target LM (and ARM) environment"""
+    """Builds, pushes and runs the tests of an Assembly/Resource project on a target CP4NA orchestration (and ARM) environment"""
     logger.debug('Testing project at: {0}'.format(project_path))
     project = lifecycle_cli.open_project(project_path)
     env_sessions = lifecycle_cli.build_sessions_for_project(project.config, environment, pwd, armname, config)
@@ -137,13 +140,13 @@ def test(project_path, environment, config, armname, tests, pwd, autocorrect):
     controller.finalise()
 
 
-@project.command(help='Pull contents of the Project sources from a LM environment')
+@project.command(help='Pull contents of the Project sources from a CP4NA orchestration environment')
 @click.option('--project', 'project_path', default='./', help='File location of project')
-@click.argument('environment')
+@click.argument('environment', required=False, default=None)
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config, without a password)')
+@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config, without a password)')
 def pull(project_path, environment, config, pwd):
-    """Pulls the content of a Assembly/Resource from a target LM environment, overidding local content"""
+    """Pulls the content of a Assembly/Resource from a target CP4NA orchestration environment, overidding local content"""
     logger.debug('Pulling project at: {0}'.format(project_path))
     project = lifecycle_cli.open_project(project_path)
     env_sessions = lifecycle_cli.build_sessions_for_project(project.config, environment, pwd, None, config)
@@ -171,7 +174,7 @@ def list(project_path, element):
 @click.argument('location', default='./')
 @click.option('--name', help='Name of the Assembly/Resource managed in the project, by default the target directory name is used')
 @click.option('--version', default='1.0', help='Version of the Assembly managed in the project')
-@click.option('--type', 'project_type', default='Assembly', help='Type of service managed in the Project. Options: Assembly, NS (same as Assembly), VNF (same as Assembly), Resource, Type')
+@click.option('--type', 'project_type', default='Assembly', help='Type of service managed in the Project. Options: Assembly, NS (same as Assembly), VNF (same as Assembly), Resource, Type, ETSI_NS, ETSI_VNF')
 @click.option('--rm', default='lm', help='Resource projects only - type of Resource Manager this Resource supports')
 @click.option('--contains', nargs=2, type=click.Tuple([str, str]), multiple=True, help='Subprojects to initiate under this project. Must specify 2 values separated by spaces: type name. For a Resource subproject, you may set the rm by including it it in the type value using the format \'type::rm\' e.g. Resource::ansiblerm. If no rm is set then the value of the --rm option will be used instead')
 @click.option('--servicetype', help='(Deprecated: use --type instead) type of Service managed in the Project (NS or VNF)')
@@ -190,8 +193,10 @@ def create(location, name, version, project_type, rm, contains, servicetype, vnf
     project_request.target_location = location
     if isinstance(project_request, creator.CreateResourceProjectRequest):
         project_request.resource_manager = rm
+    elif isinstance(project_request, creator.CreateEtsiVnfProjectRequest):
+        project_request.resource_manager = rm
     params_by_project = __sort_params(contains, params)
-    project_request.params = params_by_project[ROOT_PROJECT_PARAMS_REFERENCE]
+    project_request.params.update(params_by_project[ROOT_PROJECT_PARAMS_REFERENCE])
     project_request.subproject_requests = __process_subprojects(contains, vnfcs, rm, params_by_project)
     create_options = creator.CreateOptions()
     create_options.journal_consumer = lifecycle_cli.ConsoleProjectJournalConsumer(lifecycle_cli.printer)
@@ -271,9 +276,15 @@ def __build_request_for_type(project_type):
         return creator.CreateResourceProjectRequest()
     elif project_types.is_type_project_type(project_type):
         return creator.CreateTypeProjectRequest()
+    elif project_types.is_etsi_vnf_type(project_type):
+        return creator.CreateEtsiVnfProjectRequest()
+    elif project_types.is_etsi_ns_type(project_type):
+        return creator.CreateEtsiNsProjectRequest()           
     else:
         lifecycle_cli.printer.print_text('Error: --type option must be one of: {0}'.format([project_types.ASSEMBLY_PROJECT_TYPE,
-                                                                                            project_types.NS_PROJECT_TYPE, project_types.VNF_PROJECT_TYPE, project_types.RESOURCE_PROJECT_TYPE]))
+                                                                                            project_types.NS_PROJECT_TYPE, project_types.VNF_PROJECT_TYPE, 
+                                                                                            project_types.RESOURCE_PROJECT_TYPE, project_types.ETSI_NS_PROJECT_TYPE, 
+                                                                                            project_types.ETSI_VNF_PROJECT_TYPE]))
         exit(1)
 
 
@@ -286,7 +297,7 @@ def __build_subproject_request_for_type(project_type):
         return creator.TypeSubprojectRequest()
     else:
         lifecycle_cli.printer.print_text('Error: --subproject option must include a type of: {0}'.format([project_types.ASSEMBLY_PROJECT_TYPE,
-                                                                                                          project_types.NS_PROJECT_TYPE, project_types.VNF_PROJECT_TYPE, project_config.RESOURCE_PROJECT_TYPE]))
+                                                                                                          project_types.NS_PROJECT_TYPE, project_types.VNF_PROJECT_TYPE, project_types.RESOURCE_PROJECT_TYPE]))
         exit(1)
 
 

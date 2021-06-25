@@ -12,6 +12,7 @@ from .adopt_action import Adopt
 from .render_action import Render
 from .ping_action import Ping
 from .gen_file_action import GenerateFile
+from .use_action import Use
 
 action_types = [
     Get, 
@@ -26,5 +27,6 @@ action_types = [
     Adopt, 
     Render, 
     Ping,
-    GenerateFile
+    GenerateFile, 
+    Use
 ]

@@ -16,16 +16,20 @@ class TestEnvironments(CLIIntegrationTest):
             ['get', 'env', '-o', 'yaml']
         )
         loaded_output = yaml.safe_load(result.output)
-        self.assertIn('default', loaded_output)
-        self.assertIn('tnco', loaded_output['default'])
+        self.assertIn('items', loaded_output)
+        self.assertEqual(len(loaded_output['items']), 1)
+        self.assertEqual(loaded_output['items'][0]['name'], 'default')
+        self.assertIn('tnco', loaded_output['items'][0])
         
     def test_get_all_as_json(self):
         result = self.cli_runner.invoke(cli, 
             ['get', 'env', '-o', 'json']
         )
         loaded_output = json.loads(result.output)
-        self.assertIn('default', loaded_output)
-        self.assertIn('lm', loaded_output['default'])
+        self.assertIn('items', loaded_output)
+        self.assertEqual(len(loaded_output['items']), 1)
+        self.assertEqual(loaded_output['items'][0]['name'], 'default')
+        self.assertIn('tnco', loaded_output['items'][0])
     
     def test_get_all_as_table(self):
         result = self.cli_runner.invoke(cli, 
@@ -43,7 +47,7 @@ class TestEnvironments(CLIIntegrationTest):
         loaded_output = yaml.safe_load(result.output)
         self.assertIn('tnco', loaded_output)
         
-    def test_get_all_as_json(self):
+    def test_get_by_name_as_json(self):
         result = self.cli_runner.invoke(cli, 
             ['get', 'env', 'default', '-o', 'json']
         )
@@ -73,16 +77,17 @@ class TestEnvironments(CLIIntegrationTest):
         ])
         table_format = TableFormat(table=PingTable())
         address = ctl.config.environments.get('default').tnco.address
-        expected_output = f'Pinging TNCO (ALM): {address}'
+        expected_output = f'Pinging CP4NA orchestration: {address}'
         expected_output += '\n'
         expected_output += table_format.convert_list(expected_results.tests)
-        expected_output += '\nTNCO (ALM) tests passed! ✅'
+        expected_output += '\nCP4NA orchestration tests passed! ✅'
         self.assert_output(result, expected_output)
     
     @patch('lmctl.client.client.DescriptorsAPI')
     def test_ping_with_failure(self, mock_descriptors_api):
         mock_error = TNCOClientError('Mock error')
         mock_descriptors_api.return_value.all.side_effect = mock_error
+        ctl = get_global_controller()
         result = self.cli_runner.invoke(cli, 
             ['ping', 'env', 'default']
         )
@@ -96,10 +101,10 @@ class TestEnvironments(CLIIntegrationTest):
         ])
         table_format = TableFormat(table=PingTable())
         address = ctl.config.environments.get('default').tnco.address
-        expected_output = f'Pinging TNCO (ALM): {address}'
+        expected_output = f'Pinging CP4NA orchestration: {address}'
         expected_output += '\n'
         expected_output += table_format.convert_list(expected_results.tests)
-        expected_output += '\nTNCO (ALM) tests failed! ❌'
+        expected_output += '\nCP4NA orchestration tests failed! ❌'
         self.assert_output(result, expected_output)
 
     @unittest.skip('Templates not GA')
@@ -118,8 +123,8 @@ class TestEnvironments(CLIIntegrationTest):
         ])
         table_format = TableFormat(table=PingTable())
         address = ctl.config.environments.get('default').tnco.address
-        expected_output = f'Pinging TNCO (ALM): {address}'
+        expected_output = f'Pinging CP4NA orchestration: {address}'
         expected_output += '\n'
         expected_output += table_format.convert_list(expected_results.tests)
-        expected_output += '\nTNCO (ALM) tests passed! ✅'
+        expected_output += '\nCP4NA tests passed! ✅'
         self.assert_output(result, expected_output)

@@ -80,7 +80,7 @@ class BrentContentHandlerDelegate(handlers_api.ResourceContentHandlerDelegate):
         descriptor = descriptor_utils.DescriptorParser().read_from_file(descriptor_path)
         descriptor_name = descriptor.get_name()
         descriptor_version = descriptor.get_version()
-        journal.event('Removing descriptor {0} from LM ({1})'.format(descriptor_name, lm_session.env.address))
+        journal.event('Removing descriptor {0} from CP4NA orchestration ({1})'.format(descriptor_name, lm_session.env.address))
         descriptor_driver = lm_session.descriptor_driver
         try:
             descriptor_driver.delete_descriptor(descriptor_name)

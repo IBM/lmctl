@@ -1,9 +1,22 @@
-from .resource_api_base import ResourceAPIBase, CreateAPIMeta, UpdateAPIMeta, json_response_handler
+from typing import Dict, List
+from .tnco_api_base import TNCOAPI
+from lmctl.client.utils import read_response_body_as_json
 
-class ResourceManagersAPI(ResourceAPIBase):
+class ResourceManagersAPI(TNCOAPI):
     endpoint = 'api/resource-managers'
     id_attr = 'name'
 
-    # Create/Update requests return an Onboarding Report as the body
-    create_meta = CreateAPIMeta(response_handler=json_response_handler)
-    update_meta = UpdateAPIMeta(response_handler=json_response_handler)
+    def all(self) -> List:
+        return self._all()
+
+    def get(self, id: str) -> Dict:
+        return self._get(id_value=id)
+
+    def create(self, resource_manager: Dict):
+        return self._create(obj=resource_manager, response_handler=read_response_body_as_json)
+
+    def update(self, resource_manager: Dict):
+        return self._update(obj=resource_manager, response_handler=read_response_body_as_json)
+
+    def delete(self, id: str):
+        self._delete(id_value=id)

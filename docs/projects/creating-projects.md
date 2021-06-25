@@ -32,6 +32,23 @@ lmctl project create --name example --version 1.0 --type Resource --rm ansible-r
 
 When using `brent` on the `--rm` option, LMCTL can also produce the expected directory structure for the type of infrastructure and/or lifecycle driver used to manage this Resource, via `--param` values. (See [create command](../command-reference/project/create.md))
 
+## Creating an ETSI_VNF Resource Project
+
+When creating an ETSI_VNF project you must specify the type as `ETSI_VNF`:
+
+```
+lmctl project create --name example --version 1.0 --type ETSI_VNF
+```
+Only Brent Resource Manager is supported.
+
+## Creating an ETSI_NS Assembly Project
+
+When creating an ETSI_NS project you must specify the type as `ETSI_NS`:
+
+```
+lmctl project create --name example --version 1.0 --type ETSI_NS
+```
+
 ## Creating Subprojects
 
 To include subprojects, specify the name of each with the `--contains` option. For each value on this option you must specify the type of the subproject and name, separated by spaces. If the subproject is a Resource, then the type must also include the intended Resource Manager, separated by two colons (`::`):
@@ -40,7 +57,7 @@ To include subprojects, specify the name of each with the `--contains` option. F
 lmctl project create --name example --version 1.0 --type Assembly --contains Assembly subassembly --contains Resource::brent subresource
 ```
 
-# Creating a Project from existing sources in TNCO (ALM)
+# Creating a Project from existing sources in CP4NA orchestration
 
 If you have already designed a service in TNCO you can base a project around it and pull the existing content using LMCTL. (Note: currently it is not possible to pull the contents of Resources from Ansible RM or Brent):
 
@@ -52,7 +69,7 @@ If you have already designed a service in TNCO you can base a project around it 
    lmctl project pull dev
    ```
 
-3. Verify the `Descriptor/assembly.yml` file has been populated with the design of your service and the `Behaviour` directory has been populated with any Assembly Configurations and/or Scenarios you have in Stratoss LM
+3. Verify the `Descriptor/assembly.yml` file has been populated with the design of your service and the `Behaviour` directory has been populated with any Assembly Configurations and/or Scenarios you have in CP4NA orchestration.
 
 The pull command will also pull the contents of any subprojects that are also of the Assembly type.
 

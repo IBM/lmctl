@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 class LmDescriptorDriver(LmDriver):
     """
-    Client for LM Descriptor APIs
+    Client for CP4NA orchestration Descriptor APIs
     """
 
     def __init__(self, lm_base, lm_security_ctrl=None):

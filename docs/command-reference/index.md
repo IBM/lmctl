@@ -1,10 +1,6 @@
 #  Command Reference
 
-## Action Based CLI
-
-Read [Action Based CLI](action-based-cli.md) to learn how the action based commands work.
-
-## Command Help Pages
+# Command Help Pages
 
 We aim to maintain readable and useful help pages which can be accessed directly from lmctl:
 
@@ -20,11 +16,18 @@ lmctl create descriptor --help
 
 We recommend referring to these when learning the commands. If you find they are unclear or not helpful, please raise a Github issue with your feedback so we can improve them :speech_balloon:
 
-As a result, we are no longer adding command reference documents to this section. 
+# Settings Commands
 
-# Project command reference
+- [login](login.md)
+- [logdir](logdir.md)
+- [ping env](ping-env.md)
+- [use env](use-env.md)
 
-Below are a list of command references written previously, which will maintained for the forseeable.
+# Action Commands
+
+Read [Action Based CLI](action-based-cli.md) to learn how the action based commands work.
+
+# Project Commands
 
 ## pkg
 
@@ -40,49 +43,3 @@ Below are a list of command references written previously, which will maintained
 - [push](./project/push.md)
 - [test](./project/test.md)
 - [validate](./project/validate.md)
-
-# Deprecated command reference
-
-These commands are deprecated in v3.0
-
-## deployment
-
-- [add](./deployment/add.md)
-- [delete](./deployment/delete.md)
-- [get](./deployment/get.md)
-- [list](./deployment/list.md)
-
-## env
-
-- [list](./envs/list.md)
-
-## key
-
-- [add](./key/add.md)
-- [delete](./key/delete.md)
-- [get](./key/get.md)
-- [list](./key/list.md)
-
-## resourcedriver (ALM 2.2+ only)
-
-**Note:** use [lifecycledriver](#lifecycledriver) and [vimdriver](#vimdriver) if using a 2.1 version of ALM version
-
-- [add](./resourcedriver/add.md)
-- [delete](./resourcedriver/delete.md)
-- [get](./resourcedriver/get.md)
-
-## lifecycledriver (ALM 2.1 only)
-
-**Note:** use [resourcedriver](#resourcedriver) for ALM versions 2.2+
-
-- [add](./lifecycledriver/add.md)
-- [delete](./lifecycledriver/delete.md)
-- [get](./lifecycledriver/get.md)
-
-## vimdriver (ALM 2.1 only)
-
-**Note:** use [resourcedriver](#resourcedriver) for ALM versions 2.2+
-
-- [add](./vimdriver/add.md)
-- [delete](./vimdriver/delete.md)
-- [get](./vimdriver/get.md)

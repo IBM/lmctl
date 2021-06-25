@@ -2,15 +2,15 @@ import unittest
 import os
 from lmctl.config import Ctl, Config, ConfigError
 from lmctl.environment.group import EnvironmentGroup, EnvironmentGroup
-from lmctl.environment.lmenv import LmEnvironment
+from lmctl.environment.lmenv import TNCOEnvironment
 from lmctl.environment.armenv import ArmEnvironment
 
 class TestCtl(unittest.TestCase):
 
     def test_init(self):
         environments = {
-            'groupA': EnvironmentGroup('groupA', '', LmEnvironment('alm', 'host'), {'defaultrm': ArmEnvironment('defaultrm', 'host')}),
-            'groupB': EnvironmentGroup('groupB', '', LmEnvironment('alm', 'hostB'), {'defaultrm': ArmEnvironment('defaultrm', 'hostB')})
+            'groupA': EnvironmentGroup('groupA', '', TNCOEnvironment(address='host'), {'defaultrm': ArmEnvironment(address='host')}),
+            'groupB': EnvironmentGroup('groupB', '', TNCOEnvironment(address='hostB'), {'defaultrm': ArmEnvironment(address='hostB')})
         }
         config = Config(environments)
         ctl = Ctl(config)

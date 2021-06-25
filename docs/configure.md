@@ -5,10 +5,12 @@ LMCTL configuration is written as a YAML formatted file and can exist anywhere o
 Table of contents:
 - [Initialise configuration file](#initialise-new-configuration-file)
 - [Environment Groups](#environment-groups)
-  - [TNCO (ALM) Configuration](#tnco-alm-configuration)
+  - [CP4NA orchestration Configuration](#cp4na-orchestration-configuration)
   - [Ansible RM](#ansible-rm)
 
 ## Initialise configuration file
+
+> If you use `lmctl login` then you can skip this section
 
 To initialise a new configuration file, at the default location, run the following:
 
@@ -51,7 +53,7 @@ lmctl get config
 
 # Environment Groups
 
-LMCTL can be used to access one or more TNCO (ALM) and/or Resource Manager (RM) instances. To do so, it must be configured with access addresses and credentials.
+LMCTL can be used to access one or more CP4NA orchestration and/or Resource Manager (RM) instances. To do so, it must be configured with access addresses and credentials.
 
 As any single TNCO environment may have many related RMs, the individual instances are described together in an environment group.
 
@@ -82,7 +84,34 @@ environments:
       ...tnco details...
 ```
 
-## TNCO (ALM) Configuration
+You may also choose an environment group to be the `active_environment`. By doing so, this environment will be considered the default and used on any command which expects an environment name as an argument or option.
+
+```
+active_environment: dev
+environments:
+  dev:
+    description: a dev environment
+    tnco:
+      ...tnco details...
+  test:
+    description: a test environment
+    tnco:
+      ...tnco details...
+  prod:
+    description: a prod environment
+    tnco:
+      ...tnco details...
+```
+
+Try `lmctl get descriptors`, `lmctl get descriptor -e dev` and `lmctl get descriptor -e prod` to observe the difference.
+
+The `active_environment` value can be changed anytime from the command line with `lmctl use env`:
+
+```
+lmctl use env prod
+```
+
+## CP4NA orchestration Configuration
 
 The TNCO environment in a group must be provided under the key `tnco`, `lm` or `alm` with the following properties:
 
@@ -98,72 +127,78 @@ environments:
   example_with_details:
     description: an example environment
     tnco:
-      ### General 
+      ###############
+      #  General    #
+      ###############
+      
+      ## The full HTTP(s) address used to access the API gateway (Ishtar route) of your TNCO instance
+      address: https://ishtar-route.ocp.example.com
 
-      ## The full HTTP(s) address used to access the API gateway of your TNCO instance
-      address: https://app.lm
+      ## Set to true if TNCO is secure and requires authentication to use the APIs
+      secure: True
 
-      ## Set to true if the environment is secure and requires authentication to use the APIs
-      ## - Optional
-      ## - Default: false
-      secure: true
+      #####################################################
+      # Oauth Authentication                              #
+      #####################################################
+     
+      # Indicate the environment is using oauth
+      auth_mode: oauth 
 
-      ### Authentication
-      ### Required if "secure" is true.
+      #=========================#
+      # Oauth Option 1:         #
+      # TNCO Client credentials #
+      #=========================#
 
-      # Auth Option 1: TNCO Client credentials
-      # ID of the client credentials to authenticate with
+      ## ID of the client credentials to authenticate with
       client_id: LmClient
-      # Secret for the above client
-      client_secret: enter-your-secret
-
-      # Auth Option 2: TNCO User based access
-      # ID of the client credentials with password scope authentication enabled
-      #client_id: LmClient
-      # Secret for the above client
+      
+      ## Secret for the above client
       #client_secret: enter-your-secret
-      # The username to authenticate with
+
+      #=========================#
+      # Oauth Option 2:         #
+      # TNCO User based access  #
+      #=========================#
+
+      ## ID of the client credentials with password scope authentication enabled
+      #client_id: LmClient
+
+      ## Secret for the above client
+      #client_secret: enter-your-secret
+
+      ## The username to authenticate with
       #username: jack
-      # The password for the above user
+
+      ## The password for the above user
       #password: enter-your-pass
       
-      # Auth Option 3: TNCO "unofficial" user based access. 
-      # Using username/password without client credentials is not supported by TNCO so could stop functioning in any future release
-      # The username to authenticate with
+      #=================================#
+      # Oauth Option 3:                 #
+      # "unofficial" user based access  #
+      #=================================#
+
+      ## Using username/password without client credentials is not supported by TNCO so could stop functioning in any future release
+      ## The username to authenticate with
       #username: jack
-      # The password for the above user
+      
+      ## The password for the above user
       #password: enter-your-pass
 
-      ### Deprecated properties maintained for backwards compatibility
+      #####################################################
+      # Token Authentication                              #
+      #####################################################
+     
+      # Indicate the environment is using token based auth
+      auth_mode: token 
 
-      ## When not using "address", access to LM is determined by combining <protocol>://<host>:<port>/<path>/
-      ## The host address of the LM API
-      ## - Required
-      #host: app.lm
-      ## The port of the LM API. Leave empty if LM is accessible through host only
-      ## - Optional
-      #port: 32443
-      ## The path of the LM API. Leave empty if LM is accessible on the root path of the host and port given
-      ## - Optional
-      #path: /my-lm
-      ## Set if the environment is accessed through HTTPs or HTTP
-      ## - Optional
-      ## - Default: https
-      #protocol: https
-      ## Access to LM Auth is determined by combining <protocol>://<auth_host>:<auth_port>/ui/ (for pre 2.1 LM environments it will use <protocol>://<auth_host>:<auth_port>/)
-      ## The host address of the LM Username Auth API
-      ## - Optional
-      ## - Default: uses value of 'host'
-      #auth_host: ui.lm
-      ## The port of the LM Username Auth API
-      ## - Optional
-      ## - Default: uses value of 'port'
-      #auth_port: 32443
+      #token: enter-your-token
 ```
 
 ## Ansible RM
 
-Multiple Ansible RM environments may be included in a group under the `arm` key. It is important that the name given to each Ansible RM matches the name used to onboard it to the LM environment in the same group.
+> Deprecated
+
+Multiple Ansible RM environments may be included in a group under the `arm` key. It is important that the name given to each Ansible RM matches the name used to onboard it to the CP4NA orchestration environment in the same group.
 
 Ansible RM environments have the following properties:
 
@@ -206,25 +241,11 @@ environments:
       secure: true
       client_id: LmClient
       username: jack
-    arm:
-      defaultRm:
-        host: 192.168.100.50
-        port: 31081
-        protocol: https
   testing:
     description: an example test environment
-    lm:
+    tnco:
       address: https://app.lm:32443
       secure: true
       auth_address: https://ui.lm:32443
       username: jack
-    arm:
-      coreRm:
-        host: 10.x.y.z
-        port: 31081
-        protocol: https
-      edgeRm:
-        host: 10.x.y.z
-        port: 31082
-        protocol: https
 ```

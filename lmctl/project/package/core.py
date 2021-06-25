@@ -10,6 +10,7 @@ import lmctl.journal as journal
 import lmctl.project.journal as project_journal
 import lmctl.project.package.meta as pkg_metas
 import lmctl.project.processes.push as push_exec
+import lmctl.project.processes.etsi_push as etsi_push_exec
 import lmctl.project.processes.pkg_validation as pkg_validation_exec
 import lmctl.project.processes.testing as test_exec
 import lmctl.project.handlers.manager as handler_manager
@@ -232,14 +233,22 @@ class Pkg:
     def __init_journal(self, journal_consumer=None):
         return project_journal.ProjectJournal(journal_consumer)
 
+    def __is_etsi_pkg(self, pkg_meta):
+        return pkg_meta.is_etsi_content()
+
     def push(self, env_sessions, options):
         journal = self.__init_journal(options.journal_consumer)
         journal.section('Processing Package')
         journal.event('Processing {0}'.format(self.path))
+
         push_workspace = self.__create_push_workspace()
         files.clean_directory(push_workspace)
         pkg_content = self.open(push_workspace)
-        pkg_content.push(env_sessions, options)
+
+        if self.__is_etsi_pkg(pkg_content.meta):
+            etsi_push_exec.EtsiPushProcess(self, pkg_content.meta, journal, env_sessions, push_workspace).execute()
+        else:
+            pkg_content.push(env_sessions, options)
         return pkg_content
 
     def __create_push_workspace(self):
@@ -331,10 +340,10 @@ class PkgContent(PkgContentBase):
         try:
             rm_data = onboarding_driver.get_rm_by_name(rm_name)
         except lm_drivers.NotFoundException as e:
-            msg = 'Could not find RM named \'{0}\' in LM environment'.format(rm_name)
+            msg = 'Could not find RM named \'{0}\' in CP4NA orchestration environment'.format(rm_name)
             journal.error_event(msg)
             raise PushError(msg) from e
-        journal.event('Refreshing LM ({0}) view of RM known as {1} with url {2}'.format(lm_session.env.address, rm_name, rm_data['url']))
+        journal.event('Refreshing CP4NA orchestration ({0}) view of RM known as {1} with url {2}'.format(lm_session.env.address, rm_name, rm_data['url']))
         onboarding_driver.update_rm(rm_data)
 
 class ExpandedPkgTree(files.Tree):

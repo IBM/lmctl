@@ -4,6 +4,7 @@ import logging
 import lmctl.cli.ctlmgmt as ctlmgmt
 from lmctl.cli.controller import get_global_controller
 from lmctl.cli.format import determine_format_class, TableFormat
+from lmctl.cli.cmd_tags import deprecated_tag
 
 logger = logging.getLogger(__name__)
 
@@ -11,13 +12,13 @@ logger = logging.getLogger(__name__)
 # env command line functions
 ######################################################
 
-
-@click.group(help='DEPRECATED in v3.0: Commands for inspecting available LM environments')
+@deprecated_tag
+@click.group(short_help='Use "get env"', help='deprecated in v3.0: Commands for inspecting available CP4NA orchestration environments')
 def env():
     logger.debug('Environments')
 
 
-@env.command(help='List available LM environments')
+@env.command(help='List available CP4NA orchestration environments')
 @click.option('--config', default=None, help='path to lmctl configuration file, if empty then the LMCONFIG environment variable will be used instead')
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
 def list(config, output_format):
@@ -40,7 +41,7 @@ def __parse_envs_to_list(environments):
     for group_name, group in environments.items():
         env = {'name': group_name, 'description': group.description}
         if group.has_lm:
-            env['lm'] = group.lm.address
+            env['lm'] = group.tnco.address
         else:
             env['lm'] = 'N/A'
         arms = group.arms

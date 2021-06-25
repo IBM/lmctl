@@ -86,7 +86,7 @@ class TNCOTarget(Target):
             output_formats = default_output_format_handler()
 
         # Build up a command (but don't decorate it as one yet)
-        @click.option('--path', required=False)
+        @click.option('--path', required=False, help=f'Path to create the file (otherwise a file will be created in the current directory)')
         @click.option('--overwrite', is_flag=True, default=False, show_default=True, help='Overwrite existing file')
         @output_formats.option()
         @click.pass_context

@@ -1,5 +1,31 @@
 # Change Log
 
+## [3.1.0](https://github.com/IBM/lmctl/tree/3.1.0) (2021-06-25)
+[Full Changelog](https://github.com/IBM/lmctl/compare/3.0.0...3.1.0)
+
+**Implemented Enhancements:**
+
+- LMCTL support for ETSI NS and VNF packages [\#82](https://github.com/IBM/lmctl/issues/82)
+- Support default environment [\#86](https://github.com/IBM/lmctl/issues/86)
+- Support authentication with an existing access token (and `lmctl login`) [\#88](https://github.com/IBM/lmctl/issues/88)
+- Tidy up lmctl help menu [\#95](https://github.com/IBM/lmctl/issues/95)
+- Move lmctl.log to ~/.lmctl [\#97](https://github.com/IBM/lmctl/issues/97)
+
+**Fixed Bugs:**
+
+- lmctl create resourcedriver with certificate in same files as properties does not work [\#92](https://github.com/IBM/lmctl/issues/92) 
+- TRACE_CTX_LOG_PREFIX in trace_ctx should be tracectx instead of traceCtx [\#99](https://github.com/IBM/lmctl/issues/99) 
+
+**Documentation:**
+
+- Document new ETSI projects [\#87](https://github.com/IBM/lmctl/issues/87)
+- Use CP4NA in documentation [\#98](https://github.com/IBM/lmctl/issues/98)
+
+**Internals:**
+
+- Use dataclasses to reduce the complexity of the config and environment packages [\#84](https://github.com/IBM/lmctl/issues/84)
+- Tidy up config IO [\#96](https://github.com/IBM/lmctl/issues/96)
+
 ## [3.0.0](https://github.com/IBM/lmctl/tree/3.0.0) (2021-04-29)
 [Full Changelog](https://github.com/IBM/lmctl/compare/2.6.3...3.0.0)
 

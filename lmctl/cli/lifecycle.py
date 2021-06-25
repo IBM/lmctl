@@ -21,7 +21,7 @@ PASSED_WITH_WARNINGS = 'PASSED (with warnings)'
 def build_sessions_for_project(project_config, environment_name, lm_pwd=None, arm_name=None, config_path=None):
     lm_session = ctlmgmt.create_lm_session(environment_name, lm_pwd, config_path)
     if __has_arm_projects(project_config) and arm_name is not None:
-        arm_session = ctlmgmt.create_arm_session(environment_name, arm_name, config_path)
+        arm_session = ctlmgmt.create_arm_session(arm_name, environment_name, config_path)
     else:
         arm_session = None
     return EnvironmentSessions(lm_session, arm_session)
@@ -38,7 +38,7 @@ def __has_arm_projects(config):
 def build_sessions_for_pkg(pkg_meta, environment_name, lm_pwd=None, arm_name=None, config_path=None):
     lm_session = ctlmgmt.create_lm_session(environment_name, lm_pwd, config_path)
     if __has_arm_content(pkg_meta) and arm_name is not None:
-        arm_session = ctlmgmt.create_arm_session(environment_name, arm_name, config_path)
+        arm_session = ctlmgmt.create_arm_session(arm_name, environment_name, config_path)
     else:
         arm_session = None
     return EnvironmentSessions(lm_session, arm_session)
@@ -56,6 +56,15 @@ def open_project(project_path):
     try:
         return project_sources.Project(project_path)
     except project_sources.InvalidProjectError as e:
+        printer.print_text('Error: {0}'.format(str(e)))
+        logger.exception(str(e))
+        exit(1)
+
+def get_pkg_and_open(pkg_path):
+    try:
+        pkg = pkgs.Pkg(pkg_path)
+        return pkg, pkg.open()
+    except pkgs.InvalidPackageError as e:
         printer.print_text('Error: {0}'.format(str(e)))
         logger.exception(str(e))
         exit(1)

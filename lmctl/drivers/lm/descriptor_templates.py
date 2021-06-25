@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 class LmDescriptorTemplatesDriver(LmDriver):
     """
-    Client for LM Descriptor Template APIs
+    Client for CP4NA orchestration Descriptor Template APIs
     """
 
     TEMPLATES_API = 'api/catalog/descriptorTemplates'

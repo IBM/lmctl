@@ -1,0 +1,14 @@
+environments:
+  test:
+    arm: 
+      first: 
+        host: test
+        port: 1
+        protocol: http
+        onboarding_addr: http://onboard
+      
+      second: 
+        host: test2
+        port: 2
+        protocol: https
+        onboarding_addr: http://onboard2

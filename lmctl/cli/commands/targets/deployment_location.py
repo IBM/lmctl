@@ -26,7 +26,10 @@ class DeploymentLocations(TNCOTarget):
         return {
             'name': name,
             'resourceManager': 'brent',
-            'infrastructureType': 'Other'
+            'infrastructureType': 'Other',
+            'infrastructureSpecificProperties': {
+                'locationPropertyA': 'valueA'
+            }
         }
 
     @LmGet(output_formats=output_formats, help=f'''\

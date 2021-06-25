@@ -10,6 +10,8 @@ from .brent_autocorrect import BrentCorrectableValidation
 
 class BrentPkgContentTree(files.Tree):
 
+    RESOURCE_YAML_FILE = 'resource.yaml'
+
     def __init__(self, root_path=None):
         super().__init__(root_path)
 
@@ -18,7 +20,7 @@ class BrentPkgContentTree(files.Tree):
 
     @property
     def root_descriptor_file_path(self):
-        return self.resolve_relative_path('resource.yaml')
+        return self.resolve_relative_path(BrentPkgContentTree.RESOURCE_YAML_FILE)
 
 
 class BrentResourcePackageContentTree(files.Tree):
@@ -127,7 +129,7 @@ class BrentContentHandlerDelegate(handlers_api.ResourceContentHandlerDelegate):
         descriptor = descriptor_utils.DescriptorParser().read_from_file(descriptor_path)
         descriptor_name = descriptor.get_name()
         descriptor_version = descriptor.get_version()
-        journal.event('Removing descriptor {0} from LM ({1})'.format(descriptor_name, lm_session.env.address))
+        journal.event('Removing descriptor {0} from CP4NA orchestration ({1})'.format(descriptor_name, lm_session.env.address))
         descriptor_driver = lm_session.descriptor_driver
         try:
             descriptor_driver.delete_descriptor(descriptor_name)

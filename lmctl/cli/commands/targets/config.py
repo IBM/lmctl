@@ -1,6 +1,6 @@
 import click
 from .target import Target
-from lmctl.config import ConfigFinder, get_config, ConfigError
+from lmctl.config import ConfigFinder, get_config_with_path, ConfigError, find_config_location
 from lmctl.cli.safety_net import safety_net
 from lmctl.cli.format import YamlFormat
 from lmctl.cli.io import IOController
@@ -10,40 +10,73 @@ config_template = '''\
 environments:
   default:
     tnco:
-      ### General 
+      ###############
+      #  General    #
+      ###############
       
-      # The full HTTP(s) address used to access the API gateway of your TNCO instance
-      address: https://example.com
+      ## The full HTTP(s) address used to access the API gateway (Ishtar route) of your TNCO instance
+      address: https://ishtar-route.ocp.example.com
 
-      # Set to true if TNCO is secure and requires authentication to use the APIs
+      ## Set to true if TNCO is secure and requires authentication to use the APIs
       secure: True
 
-      ### Authentication
-      ### Required if "secure" is true.
+      #####################################################
+      # Oauth Authentication                              #
+      #####################################################
+     
+      # Indicate the environment is using oauth
+      auth_mode: oauth 
 
-      # Auth Option 1: TNCO Client credentials
-      # ID of the client credentials to authenticate with
+      #=========================#
+      # Oauth Option 1:         #
+      # TNCO Client credentials #
+      #=========================#
+
+      ## ID of the client credentials to authenticate with
       client_id: LmClient
-      # Secret for the above client
-      client_secret: enter-your-secret
-
-      # Auth Option 2: TNCO User based access
-      # ID of the client credentials with password scope authentication enabled
-      #client_id: LmClient
-      # Secret for the above client
+      
+      ## Secret for the above client
       #client_secret: enter-your-secret
-      # The username to authenticate with
+
+      #=========================#
+      # Oauth Option 2:         #
+      # TNCO User based access  #
+      #=========================#
+
+      ## ID of the client credentials with password scope authentication enabled
+      #client_id: LmClient
+
+      ## Secret for the above client
+      #client_secret: enter-your-secret
+
+      ## The username to authenticate with
       #username: jack
-      # The password for the above user
+
+      ## The password for the above user
       #password: enter-your-pass
       
-      # Auth Option 3: TNCO "unofficial" user based access. 
-      # Using username/password without client credentials is not supported by TNCO so could stop functioning in any future release
-      # The username to authenticate with
+      #=================================#
+      # Oauth Option 3:                 #
+      # "unofficial" user based access  #
+      #=================================#
+
+      ## Using username/password without client credentials is not supported by TNCO so could stop functioning in any future release
+      ## The username to authenticate with
       #username: jack
-      # The password for the above user
+      
+      ## The password for the above user
       #password: enter-your-pass
+
+      #####################################################
+      # Token Authentication                              #
+      #####################################################
+     
+      # Indicate the environment is using token based auth
+      auth_mode: token 
+
+      #token: enter-your-token
 '''
+
 
 class Configuration(Target):
     name = 'config'
@@ -57,7 +90,7 @@ class Configuration(Target):
         @click.pass_context
         def _get(ctx: click.Context, print_path: bool = False, path_only: bool = False):
             with safety_net(ConfigError):
-                loaded_config, config_path = get_config()
+                loaded_config, config_path = get_config_with_path()
             io = IOController.get()
             if path_only:
                 io.print(config_path)
@@ -78,7 +111,7 @@ class Configuration(Target):
         @click.pass_context
         def _create(ctx: click.Context, path: str = None, overwrite: bool = False):
             if path is None:
-                path = ConfigFinder().get_default_config_path()
+                path = find_config_location()
             if os.path.exists(path):
                 if overwrite:
                     dir_path = os.path.dirname(path)

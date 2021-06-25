@@ -2,12 +2,13 @@ import base64
 import logging
 from requests.auth import HTTPBasicAuth
 from typing import Dict
-from .api_base import APIBase
+from .tnco_api_base import TNCOAPI
+from lmctl.client.client_request import TNCOClientRequest
 from lmctl.client.exceptions import TNCOClientError, TNCOClientHttpError
 
 logger = logging.getLogger(__name__)
 
-class AuthenticationAPI(APIBase):
+class AuthenticationAPI(TNCOAPI):
     oauth_endpoint = 'oauth/token'
     legacy_login_endpoint = 'ui/api/login'
     older_legacy_login_endpoint = 'api/login'
@@ -20,7 +21,11 @@ class AuthenticationAPI(APIBase):
         body = {
             'grant_type': 'client_credentials'
         }
-        auth_response = self.base_client.make_request_for_json(method='POST', endpoint=self.oauth_endpoint, auth=auth, include_auth=False, data=body)
+        request = TNCOClientRequest(method='POST', endpoint=self.oauth_endpoint)\
+                        .disable_auth_token()\
+                        .add_form_data(body)\
+                        .add_auth_handler(auth)
+        auth_response = self.base_client.make_request_for_json(request)
         return auth_response
 
     def request_user_access(self, client_id: str, client_secret: str, username: str, password: str) -> Dict:
@@ -30,7 +35,11 @@ class AuthenticationAPI(APIBase):
             'password': password,
             'grant_type': 'password'
         }
-        auth_response = self.base_client.make_request_for_json(method='POST', endpoint=self.oauth_endpoint, auth=auth, include_auth=False, data=body)
+        request = TNCOClientRequest(method='POST', endpoint=self.oauth_endpoint)\
+                        .disable_auth_token()\
+                        .add_form_data(body)\
+                        .add_auth_handler(auth)
+        auth_response = self.base_client.make_request_for_json(request)
         return auth_response
 
     def legacy_login(self, username: str, password: str, legacy_auth_address: str = None) -> Dict:
@@ -39,19 +48,19 @@ class AuthenticationAPI(APIBase):
             'password': password
         }
         try:
-            auth_response = self.base_client.make_request_for_json(method='POST', 
-                                                                    endpoint=self.legacy_login_endpoint, 
-                                                                    include_auth=False, 
-                                                                    override_address=legacy_auth_address, 
-                                                                    json=body)
+            request = TNCOClientRequest(method='POST', endpoint=self.legacy_login_endpoint)\
+                        .disable_auth_token()\
+                        .add_json_body(body)
+            request.override_address = legacy_auth_address
+            auth_response = self.base_client.make_request_for_json(request)
         except TNCOClientHttpError as e:
             if e.status_code == 404:
-                logger.info(f'Failed to access login API at {self.legacy_login_endpoint}, responded with {e.status_code} status code...may be an older LM environment, trying {self.older_legacy_login_endpoint}')
-                auth_response = self.base_client.make_request_for_json(method='POST', 
-                                                                        endpoint=self.older_legacy_login_endpoint, 
-                                                                        include_auth=False, 
-                                                                        override_address=legacy_auth_address, 
-                                                                        json=body)
+                logger.info(f'Failed to access login API at {self.legacy_login_endpoint}, responded with {e.status_code} status code...may be an older CP4NA orchestration environment, trying {self.older_legacy_login_endpoint}')
+                request = TNCOClientRequest(method='POST', endpoint=self.older_legacy_login_endpoint)\
+                        .disable_auth_token()\
+                        .add_json_body(body)
+                request.override_address = legacy_auth_address
+                auth_response = self.base_client.make_request_for_json(request)
             else:
                 raise
         return auth_response

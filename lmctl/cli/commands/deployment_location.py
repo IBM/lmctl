@@ -6,10 +6,12 @@ import json
 import lmctl.cli.ctlmgmt as ctlmgmt
 from lmctl.cli.safety_net import lm_driver_safety_net
 from lmctl.cli.format import determine_format_class, TableFormat
+from lmctl.cli.cmd_tags import deprecated_tag
 
 logger = logging.getLogger(__name__)
 
-@click.group(name='deployment', help='DEPRECATED in v3.0: Commands for managing Deployment Locations')
+@deprecated_tag
+@click.group(name='deployment', short_help='Use "lmctl create/get/update/delete deploymentlocation"', help='deprecated in v3.0: Commands for managing Deployment Locations')
 def deployment():
     logger.debug('Deployment Location Management')
 
@@ -42,10 +44,10 @@ def format_dl_list(output_format, dl_list):
     result = formatter.convert_list(dl_list)
     return result
 
-@deployment.command(name='list', help='List deployment locations on an LM environment')
+@deployment.command(name='list', help='List deployment locations on an CP4NA orchestration environment')
 @click.argument('environment')
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
 def list_locations(environment, config, pwd, output_format):
     dl_driver = get_dl_driver(environment, config, pwd)
@@ -54,11 +56,11 @@ def list_locations(environment, config, pwd, output_format):
     result = format_dl_list(output_format, dl_list)
     click.echo(result)
 
-@deployment.command(name='add', help='Add a deployment location to an LM environment')
+@deployment.command(name='add', help='Add a deployment location to an CP4NA orchestration environment')
 @click.argument('environment')
 @click.argument('name')
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
 @click.option('-r', '--rm', required=True, help='name of Resource Manager to associate the Deployment Location with')
 @click.option('-i', '--infrastructure-type', help='type of infrastructure managed by the Deployment Location')
 @click.option('-d', '--description', help='description of the Deployment Location')
@@ -81,11 +83,11 @@ def add(environment, name, config, pwd, rm, infrastructure_type, description, pr
         new_dl = dl_driver.add_location(new_dl)
     click.echo(format_dl(output_format, new_dl))
 
-@deployment.command(name='delete', help='Remove a deployment location from an LM environment')
+@deployment.command(name='delete', help='Remove a deployment location from an CP4NA orchestration environment')
 @click.argument('environment')
 @click.argument('name')
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
 def delete(environment, name, config, pwd):
     dl_driver = get_dl_driver(environment, config, pwd)
     with lm_driver_safety_net():
@@ -104,7 +106,7 @@ def delete(environment, name, config, pwd):
 @click.argument('environment')
 @click.argument('name')
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with LM (only required if LM is secure and a username has been included in the environment config)')
+@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
 def get(environment, name, config, pwd, output_format):
     dl_driver = get_dl_driver(environment, config, pwd)
