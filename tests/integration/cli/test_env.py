@@ -80,7 +80,7 @@ class TestEnvironments(CLIIntegrationTest):
         expected_output = f'Pinging CP4NA orchestration: {address}'
         expected_output += '\n'
         expected_output += table_format.convert_list(expected_results.tests)
-        expected_output += '\nCP4NA tests passed! ✅'
+        expected_output += '\nCP4NA orchestration tests passed! ✅'
         self.assert_output(result, expected_output)
     
     @patch('lmctl.client.client.DescriptorsAPI')
@@ -104,7 +104,7 @@ class TestEnvironments(CLIIntegrationTest):
         expected_output = f'Pinging CP4NA orchestration: {address}'
         expected_output += '\n'
         expected_output += table_format.convert_list(expected_results.tests)
-        expected_output += '\nCP4NA tests failed! ❌'
+        expected_output += '\nCP4NA orchestration tests failed! ❌'
         self.assert_output(result, expected_output)
 
     @unittest.skip('Templates not GA')
