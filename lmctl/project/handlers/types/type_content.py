@@ -94,7 +94,7 @@ class TypeContentHandler(handlers_api.PkgContentHandler):
         descriptor, descriptor_yml_str = descriptors.DescriptorParser().read_from_file_with_raw(descriptor_path)
         descriptor_name = descriptor.get_name()
         descriptor_driver = lm_session.descriptor_driver
-        journal.event('Checking for Descriptor {0} in LM ({1})'.format(descriptor_name, lm_session.env.address))
+        journal.event('Checking for Descriptor {0} in CP4NA orchestration ({1})'.format(descriptor_name, lm_session.env.address))
         found = True
         try:
             descriptor_driver.get_descriptor(descriptor_name)
@@ -134,7 +134,7 @@ class TypeContentHandler(handlers_api.PkgContentHandler):
         configuration['projectId'] = project_id
         project_descriptor_name = project_id
         behaviour_driver = lm_session.behaviour_driver
-        journal.event('Checking for assembly configuration {0} in LM ({1}) project {2}'.format(configuration['name'], lm_session.env.address, project_id))
+        journal.event('Checking for assembly configuration {0} in CP4NA orchestration ({1}) project {2}'.format(configuration['name'], lm_session.env.address, project_id))
         matching_configuration = self.__find_assembly_configuration_by_name(existing_configurations, configuration['name'])
         if matching_configuration:
             journal.event('Assembly Configuration {0} already exists, updating'.format(configuration['name']))
@@ -155,7 +155,7 @@ class TypeContentHandler(handlers_api.PkgContentHandler):
         scenario['projectId'] = project_id
         behaviour_driver = lm_session.behaviour_driver
         scenario = behaviour_mutations.ScenarioPushMutator(available_configurations).apply(scenario)
-        journal.event('Checking for Scenario {0} in LM ({1}) project {2}'.format(scenario['name'], lm_session.env.address, project_id))
+        journal.event('Checking for Scenario {0} in CP4NA orchestration ({1}) project {2}'.format(scenario['name'], lm_session.env.address, project_id))
         matching_scenario = next((x for x in existing_scenarios if x["name"] == scenario['name']), None)
         if matching_scenario:
             journal.event('Scenario {0} already exists, updating'.format(scenario['name']))

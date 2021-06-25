@@ -3,9 +3,9 @@
 A **project** represents a single Assembly/Resource (NS or xNF) to be developed, tested and published for usage in TNCO environments. LMCTL helps developers manage a project through a recommended lifecycle, making use of common stages in continuous integration and deployment pipelines:
 
 - Develop: design and implement the service
-- Build: produce a distribution of the service to deploy to an LM environment
-- Push: push the distribution to an LM environment
-- Test: run behaviour tests against the service in the LM environment
+- Build: produce a distribution of the service to deploy to an CP4NA orchestration environment
+- Push: push the distribution to an CP4NA orchestration environment
+- Test: run behaviour tests against the service in the CP4NA orchestration environment
 - Publish: publish the distribution to a repository management system
 
 The main benefit of LMCTL is it's ability to organise a collection of artifacts required by an Assembly or Resource, then orchestrate the laborious task of applying changes across TNCO environments for testing.
@@ -94,7 +94,7 @@ myproject/
 | Directory                                    | Requirement | Description                                                                                                   |
 | -------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------- |
 | Definitions                                  | mandatory   | contains definition files                                                            |
-| Definitions/lm                               | mandatory   | contains the Resource descriptor required by LM and Brent                                                     |
+| Definitions/lm                               | mandatory   | contains the Resource descriptor required by CP4NA orchestration and Brent                                                     |
 | Lifecycle                                    | mandatory   | contains lifecycle scripts for the Resource (structure of sub-directories depends on chosen Lifecycle driver) |
 
 

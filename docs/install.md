@@ -89,4 +89,4 @@ lmctl --help
 
 # Next Steps
 
-Now you have LMCTL installed, it's time to [configure](./configure.md) it with access to your TNCO (ALM) environment.
+Now you have LMCTL installed, it's time to [configure](./configure.md) it with access to your CP4NA orchestration environment.

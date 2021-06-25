@@ -5,7 +5,7 @@ from .base import LmDriver, NotFoundException
 
 class LmOnboardRmDriver(LmDriver):
     """
-    Client for LM Resource Manager Onboarding APIs
+    Client for CP4NA orchestration Resource Manager Onboarding APIs
     """
 
     def __init__(self, lm_base, lm_security_ctrl=None):

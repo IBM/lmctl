@@ -75,7 +75,7 @@ class Environments(Target):
     def ping(self):
         @click.command(help=f'''\
                     Test connection with {self.display_name} from active config file
-                    \n\nConnection is tested by making requests to a few pre-selected APIs on the configured TNCO (ALM)''')
+                    \n\nConnection is tested by making requests to a few pre-selected APIs on the configured CP4NA orchestration''')
         @click.argument('name', required=False)
         @tnco_client_secret_option()
         @tnco_pwd_option()
@@ -87,16 +87,16 @@ class Environments(Target):
             happy_exit = True
             if env.has_tnco:
                 tnco_client = ctl.get_tnco_client(environment_group_name=name, input_pwd=pwd, input_client_secret=client_secret)
-                ctl.io.print(f'Pinging TNCO (ALM): {env.tnco.address}')
+                ctl.io.print(f'Pinging CP4NA orchestration: {env.tnco.address}')
                 tnco_ping_result = tnco_client.ping(include_template_engine=include_template_engine)
                 ctl.io.print(TableFormat(table=PingTable()).convert_list(tnco_ping_result.tests))
                 if tnco_ping_result.passed:
-                    ctl.io.print(f'TNCO (ALM) tests passed! ✅')
+                    ctl.io.print(f'CP4NA orchestration tests passed! ✅')
                 else:
-                    ctl.io.print_error(f'TNCO (ALM) tests failed! ❌')
+                    ctl.io.print_error(f'CP4NA orchestration tests failed! ❌')
                     happy_exit = False
             else:
-                ctl.io.print('No TNCO (ALM) configured (skipping)')
+                ctl.io.print('No CP4NA orchestration configured (skipping)')
             if not happy_exit:
                 exit(1)
         return _ping

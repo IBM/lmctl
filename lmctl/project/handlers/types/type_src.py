@@ -221,7 +221,7 @@ class TypeSourceHandler(handlers_api.SourceHandler):
         journal.stage('Pulling descriptor for {0}'.format(self.source_config.name))
         descriptor_name = descriptors.descriptor_named(descriptors.TYPE_DESCRIPTOR_TYPE, self.source_config.full_name, self.source_config.version)
         descriptor_driver = lm_session.descriptor_driver
-        journal.event('Pulling descriptor {0} from LM ({1})'.format(descriptor_name, lm_session.env.address))
+        journal.event('Pulling descriptor {0} from CP4NA orchestration ({1})'.format(descriptor_name, lm_session.env.address))
         try:
             raw_descriptor = descriptor_driver.get_descriptor(descriptor_name)
             descriptor = descriptors.DescriptorParser().read_from_str(raw_descriptor)
@@ -247,7 +247,7 @@ class TypeSourceHandler(handlers_api.SourceHandler):
         try:
             behaviour_driver.get_project(project_id)
         except lm_drivers.NotFoundException:
-            journal.event('No Service Behaviour project with name {0} found in LM {1}, skipping pull'.format(project_id, lm_session.env.address))
+            journal.event('No Service Behaviour project with name {0} found in CP4NA orchestration {1}, skipping pull'.format(project_id, lm_session.env.address))
             return
         discovered_configurations_by_id = self.__pull_assembly_configurations(journal, backup_tool, backup_tree, lm_session, project_id, references)
         self.__pull_scenarios(journal, backup_tool, backup_tree, lm_session, project_id, discovered_configurations_by_id, references)

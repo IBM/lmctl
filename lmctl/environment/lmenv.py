@@ -224,10 +224,10 @@ class LmSession:
     @property
     def descriptor_driver(self):
         """
-        Obtain a LmDescriptorDriver configured for use against this LM environment
+        Obtain a LmDescriptorDriver configured for use against this CP4NA orchestration environment
 
         Returns:
-            LmDescriptorDriver: a configured DescriptorDriver for this LM environment
+            LmDescriptorDriver: a configured DescriptorDriver for this CP4NA orchestration environment
         """
         if not self.__descriptor_driver:
             self.__descriptor_driver = lm_drivers.LmDescriptorDriver(self.env.api_address, self.__get_lm_security_ctrl())
@@ -236,10 +236,10 @@ class LmSession:
     @property
     def onboard_rm_driver(self):
         """
-        Obtain a LmOnboardRmDriver configured for use against this LM environment
+        Obtain a LmOnboardRmDriver configured for use against this CP4NA orchestration environment
 
         Returns:
-            LmOnboardRmDriver: a configured LmOnboardRmDriver for this LM environment
+            LmOnboardRmDriver: a configured LmOnboardRmDriver for this CP4NA orchestration environment
         """
         if not self.__onboard_rm_driver:
             self.__onboard_rm_driver = lm_drivers.LmOnboardRmDriver(self.env.api_address, self.__get_lm_security_ctrl())
@@ -248,10 +248,10 @@ class LmSession:
     @property
     def topology_driver(self):
         """
-        Obtain a LmTopologyDriver configured for use against this LM environment
+        Obtain a LmTopologyDriver configured for use against this CP4NA orchestration environment
 
         Returns:
-            LmTopologyDriver: a configured LmTopologyDriver for this LM environment
+            LmTopologyDriver: a configured LmTopologyDriver for this CP4NA orchestration environment
         """
         if not self.__topology_driver:
             self.__topology_driver = lm_drivers.LmTopologyDriver(self.env.api_address, self.__get_lm_security_ctrl())
@@ -260,10 +260,10 @@ class LmSession:
     @property
     def behaviour_driver(self):
         """
-        Obtain a LmBehaviourDriver configured for use against this LM environment
+        Obtain a LmBehaviourDriver configured for use against this CP4NA orchestration environment
 
         Returns:
-            LmBehaviourDriver: a configured LmBehaviourDriver for this LM environment
+            LmBehaviourDriver: a configured LmBehaviourDriver for this CP4NA orchestration environment
         """
         if not self.__behaviour_driver:
             self.__behaviour_driver = lm_drivers.LmBehaviourDriver(self.env.api_address, self.__get_lm_security_ctrl())
@@ -272,10 +272,10 @@ class LmSession:
     @property
     def deployment_location_driver(self):
         """
-        Obtain a LmDeploymentLocationDriver configured for use against this LM environment
+        Obtain a LmDeploymentLocationDriver configured for use against this CP4NA orchestration environment
 
         Returns:
-            LmDeploymentLocationDriver: a configured LmDeploymentLocationDriver for this LM environment
+            LmDeploymentLocationDriver: a configured LmDeploymentLocationDriver for this CP4NA orchestration environment
         """
         if not self.__deployment_location_driver:
             self.__deployment_location_driver = lm_drivers.LmDeploymentLocationDriver(self.env.api_address, self.__get_lm_security_ctrl())
@@ -284,10 +284,10 @@ class LmSession:
     @property
     def resource_pkg_driver(self):
         """
-        Obtain a LmResourcePkgDriver configured for use against this LM environment
+        Obtain a LmResourcePkgDriver configured for use against this CP4NA orchestration environment
 
         Returns:
-            LmResourcePkgDriver: a configured LmResourcePkgDriver for this LM environment
+            LmResourcePkgDriver: a configured LmResourcePkgDriver for this CP4NA orchestration environment
         """
         if not self.__resource_pkg_driver:
             self.__resource_pkg_driver = lm_drivers.LmResourcePkgDriver(self.env.api_address, self.__get_lm_security_ctrl())
@@ -296,10 +296,10 @@ class LmSession:
     @property
     def pkg_mgmt_driver(self):
         """
-        Obtain a EtsiPackageMgmtDriver configured for use against this LM environment
+        Obtain a EtsiPackageMgmtDriver configured for use against this CP4NA orchestration environment
 
         Returns:
-            EtsiPackageMgmtDriver: a configured EtsiPackageMgmtDriver for this LM environment
+            EtsiPackageMgmtDriver: a configured EtsiPackageMgmtDriver for this CP4NA orchestration environment
         """
         if not self.__pkg_mgmt_driver:
             self.__pkg_mgmt_driver = lm_drivers.EtsiPackageMgmtDriver(self.env.api_address, self.__get_lm_security_ctrl())
@@ -308,10 +308,10 @@ class LmSession:
     @property
     def resource_driver_mgmt_driver(self):
         """
-        Obtain a LmResourceDriverMgmtDriver configured for use against this LM environment
+        Obtain a LmResourceDriverMgmtDriver configured for use against this CP4NA orchestration environment
 
         Returns:
-            LmResourceDriverMgmtDriver: a configured LmResourceDriverMgmtDriver for this LM environment
+            LmResourceDriverMgmtDriver: a configured LmResourceDriverMgmtDriver for this CP4NA orchestration environment
         """
         if not self.__resource_driver_mgmt_driver:
             self.__resource_driver_mgmt_driver = lm_drivers.LmResourceDriverMgmtDriver(self.env.api_address, self.__get_lm_security_ctrl())
@@ -320,10 +320,10 @@ class LmSession:
     @property
     def vim_driver_mgmt_driver(self):
         """
-        Obtain a LmVimDriverMgmtDriver configured for use against this LM environment
+        Obtain a LmVimDriverMgmtDriver configured for use against this CP4NA orchestration environment
 
         Returns:
-            LmVimDriverMgmtDriver: a configured LmVimDriverMgmtDriver for this LM environment
+            LmVimDriverMgmtDriver: a configured LmVimDriverMgmtDriver for this CP4NA orchestration environment
         """
         if not self.__vim_driver_mgmt_driver:
             self.__vim_driver_mgmt_driver = lm_drivers.LmVimDriverMgmtDriver(self.env.api_address, self.__get_lm_security_ctrl())
@@ -332,10 +332,10 @@ class LmSession:
     @property
     def lifecycle_driver_mgmt_driver(self):
         """
-        Obtain a LmLifecycleDriverMgmtDriver configured for use against this LM environment
+        Obtain a LmLifecycleDriverMgmtDriver configured for use against this CP4NA orchestration environment
 
         Returns:
-            LmLifecycleDriverMgmtDriver: a configured LmLifecycleDriverMgmtDriver for this LM environment
+            LmLifecycleDriverMgmtDriver: a configured LmLifecycleDriverMgmtDriver for this CP4NA orchestration environment
         """
         if not self.__lifecycle_driver_mgmt_driver:
             self.__lifecycle_driver_mgmt_driver = lm_drivers.LmLifecycleDriverMgmtDriver(self.env.api_address, self.__get_lm_security_ctrl())
@@ -344,10 +344,10 @@ class LmSession:
     @property
     def infrastructure_keys_driver(self):
         """
-        Obtain a LmInfrastructureKeysDriver configured for use against this LM environment
+        Obtain a LmInfrastructureKeysDriver configured for use against this CP4NA orchestration environment
 
         Returns:
-            LmInfrastructureKeysDriver: a configured LmInfrastructureKeysDriver for this LM environment
+            LmInfrastructureKeysDriver: a configured LmInfrastructureKeysDriver for this CP4NA orchestration environment
         """
         if not self.__infrastructure_keys_driver:
             self.__infrastructure_keys_driver = lm_drivers.LmInfrastructureKeysDriver(self.env.api_address, self.__get_lm_security_ctrl())
@@ -356,10 +356,10 @@ class LmSession:
     @property
     def descriptor_template_driver(self):
         """
-        Obtain a LmDescriptorTemplatesDriver configured for use against this LM environment
+        Obtain a LmDescriptorTemplatesDriver configured for use against this CP4NA orchestration environment
 
         Returns:
-            LmDescriptorTemplatesDriver: a configured LmDescriptorTemplatesDriver for this LM environment
+            LmDescriptorTemplatesDriver: a configured LmDescriptorTemplatesDriver for this CP4NA orchestration environment
         """
         if not self.__descriptor_template_driver:
             self.__descriptor_template_driver = lm_drivers.LmDescriptorTemplatesDriver(self.env.kami_address)
