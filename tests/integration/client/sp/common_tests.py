@@ -27,8 +27,11 @@ class SitePlannerAPITests:
                 api = self._get_api(self.tester.default_sp_client)
                 if field_name in api._relation_fields and retrieved_value is not None:
                     retrieved_value = retrieved_value.get('id', None)
+                    expected_value = expected_value.get('id', None) if isinstance(expected_value, dict) else expected_value
                 elif isinstance(retrieved_value, dict) and 'value' in retrieved_value.keys() and 'label' in retrieved_value.keys():
                     retrieved_value = retrieved_value.get('value', None)
+                if isinstance(expected_value, dict) and 'value' in expected_value.keys() and 'label' in expected_value.keys():
+                    expected_value = expected_value.get('value', None)
                 self.assertEqual(retrieved_value, expected_value, msg=f'Assertion failure on field {field_name}')
 
         def test_crud(self):

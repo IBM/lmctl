@@ -1,3 +1,4 @@
+import copy
 import pynetbox
 from pynetbox.core.query import Request
 from typing import Dict, List, Union
@@ -14,6 +15,7 @@ class SitePlannerAPI:
     _pk_field = 'id'
     _endpoint_chain = ''
     _relation_fields = []
+    _ignore_fields_on_update = []
 
     def __init__(self, sp_client):
         self._sp_client = sp_client
@@ -51,8 +53,8 @@ class SitePlannerAPI:
         pk = obj.get(self._pk_field, None)
         if pk is None:
             raise SitePlannerClientError(f'Cannot update object missing "{self._pk_field}" attribute value')
-        self._sanitize_update(obj)
-        self._put_update(pk, obj)
+        update_data = self._sanitize_update(obj)
+        self._put_update(pk, update_data)
 
     def _put_update(self, pk: Union[str, int], obj: Dict):
         req = Request(
@@ -70,12 +72,14 @@ class SitePlannerAPI:
         existing_obj.delete()
 
     def _sanitize_update(self, obj: Dict):
-        if 'status' in obj and type(obj.get('status')) == dict and 'value' in obj.get('status'):
-            obj['status'] = obj.get('status').get('value')
+        new_obj = copy.deepcopy(obj)
         for k,v in obj.items():
-            if k in self._relation_fields and v is not None and isinstance(v, dict):
-                obj[k] = v.get('id') if 'id' in v else v
+            if k in self._ignore_fields_on_update:
+                del new_obj[k]
+            elif k in self._relation_fields and v is not None and isinstance(v, dict):
+                new_obj[k] = v.get('id') if 'id' in v else v
             elif isinstance(v, dict) and 'value' in v.keys() and 'label' in v.keys():
-                obj[k] = v.get('value')
+                new_obj[k] = v.get('value')
+        return new_obj
 
 

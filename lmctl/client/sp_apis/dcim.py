@@ -28,9 +28,12 @@ class DeviceRolesAPI(SitePlannerAPI):
 
 class DeviceTypesAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.device_types'
+    _relation_fields = ['manufacturer']
+    _ignore_fields_on_update = ['front_image', 'rear_image']
 
 class DevicesAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.devices'
+    _relation_fields = ['device_type', 'device_role', 'tenant', 'platform', 'site', 'rack', 'parent_device', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis']
 
 class FrontPortTemplatesAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.front_port_templates'
