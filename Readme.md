@@ -8,6 +8,11 @@
 
 In addition it includes an opinionated pattern for managing xNF/Network Service designs during the CICD lifecycle, as file based projects, to produce packages suitable for production release.
 
+- [Quick Install](#quick-install)
+- [Latest Release](#latest-release)
+- [User Guide](#user-guide)
+- [Development Doc](#development-docs)
+
 # Quick Install
 
 Assumes you already have Python3.6+ and have decided if LMCTL should be installed in a [virtual environment](https://pypi.org/project/virtualenv/) (recommended) or globallly.
@@ -34,7 +39,7 @@ Login to an environment:
 lmctl login alm-ishtar.example.com --auth-address alm-nimrod.example.com --username almadmin --save-creds
 ```
 
-> Learn more about `lmctl login` in the [getting started guide](docs/getting-started.md)
+For more complete install and login instructions, check out the [getting started guide](docs/getting-started.md)
 
 # Latest release
 

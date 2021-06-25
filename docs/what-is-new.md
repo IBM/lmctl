@@ -248,11 +248,11 @@ lmctl use env joes-env
 
 # Log Directory
 
-Previously, lmctl created/appened to a `lmctl.log` file in the current directory. This meant there would be a new log file in each directory you used lmctl from, which can be a pain, particularly when dealing with lmctl projects.
+Previously, LMCTL created/appened to a `lmctl.log` file in the current directory. This meant there would be a new log file in each directory you used LMCTL from, which can be a pain, particularly when dealing with LMCTL projects.
 
 In v3.1.0+, LMCTL will now create all logs files at `<Home directory>/.lmctl/logs`. 
 
-You can ask lmctl for the exact path on your machine using the new `logdir` command:
+You can ask LMCTL for the exact path on your machine using the new `logdir` command:
 
 ```
 lmctl logdir
