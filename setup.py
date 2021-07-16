@@ -30,7 +30,7 @@ setup(
         'tabulate>=0.8,<1.0',
         'Jinja2==2.11.3',
         'PyYAML>=5.3.0,<6.0',
-        'pydantic==1.8.1',
+        'pydantic==1.8.2',
         'dataclasses>=0.6; python_version < "3.7"',
         'pyjwt>=1.5.3,<2.0'
     ],
