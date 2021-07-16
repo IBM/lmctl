@@ -1,11 +1,5 @@
 # Change Log
 
-## [3.1.1](https://github.com/IBM/lmctl/tree/3.1.1) (2021-07-16)
-[Full Changelog](https://github.com/IBM/lmctl/compare/3.1.0...3.1.1)
-
-**Implemented Enhancements:**
-- Bump pydantic from 1.8.1 to 1.8.2 [\#104](https://github.com/IBM/lmctl/issues/104)
-
 ## [3.1.0](https://github.com/IBM/lmctl/tree/3.1.0) (2021-06-25)
 [Full Changelog](https://github.com/IBM/lmctl/compare/3.0.0...3.1.0)
 
