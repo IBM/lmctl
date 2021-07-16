@@ -16,13 +16,12 @@ class TestDevicesAPI(SitePlannerAPITests.CRUDTest):
             'manufacturer': cls.manufacturer['id'], 
             'model': tester.short_exec_prepended_name('test-devices', limit=50), 
             'slug': tester.short_exec_prepended_name('test-devices', limit=50),
-            'u_height': 1
+            'u_height': 1,
+            'subdevice_role': 'parent'
         })
         cls.platform = tester.default_sp_client.dcim.platforms.create({'name': tester.short_exec_prepended_name('test-devices'), 'slug': tester.short_exec_prepended_name('test-devices')})
         cls.cluster_type = tester.default_sp_client.virtualization.cluster_types.create({'name': tester.short_exec_prepended_name('test-devices'), 'slug': tester.short_exec_prepended_name('test-devices')})
         cls.cluster = tester.default_sp_client.virtualization.clusters.create({'name': tester.short_exec_prepended_name('test-devices'), 'type': cls.cluster_type['id']})
-
-    #TODO test Virtual Chassis, Parent Device and IP addresses
 
     @classmethod
     def after_test_case(cls, tester):
@@ -63,6 +62,60 @@ class TestDevicesAPI(SitePlannerAPITests.CRUDTest):
         obj['comments'] = 'This is an updated lmctl test device'
         return obj
 
+    def test_parent_device(self):
+        device_api = self._get_api(self.tester.default_sp_client)
+        device_type_api = self.tester.default_sp_client.dcim.device_types
+        device_bay_api = self.tester.default_sp_client.dcim.device_bays
+
+        # Create child DeviceType
+        child_device_type = device_type_api.create({
+            'manufacturer': self.manufacturer['id'], 
+            'model': self.tester.short_exec_prepended_name('test-pr-device', limit=50), 
+            'slug': self.tester.short_exec_prepended_name('test-pr-device', limit=50),
+            'u_height': 0,
+            'subdevice_role': 'child'
+        })
+
+        # Create Parent Device
+        parent_device = device_api.create({
+            'name': self.tester.short_exec_prepended_name('test-pr-device-pr'),
+            'device_type': self.device_type['id'],
+            'device_role': self.device_role['id'],
+            'asset_tag': self.tester.short_exec_prepended_name('test-pr-device-pr'),
+            'site': self.site['id'],
+            'rack': self.rack['id'],
+            'position': 1,
+            'face': 'front',
+            'status': 'active'
+        })
+
+        # Create Child Device
+        child_device = device_api.create({
+            'name': self.tester.short_exec_prepended_name('test-pr-device-ch'),
+            'device_type': child_device_type['id'],
+            'device_role': self.device_role['id'],
+            'asset_tag': self.tester.short_exec_prepended_name('test-pr-device-ch'),
+            'site': self.site['id'],
+            'status': 'active'
+        })
+
+        # Create Device Bay
+        device_bay = device_bay_api.create({
+            'device': parent_device['id'],
+            'name': self.tester.short_exec_prepended_name('test-pr-device-bay'),
+            'installed_device': child_device['id']
+        })
+
+        # Check Child
+        get_child_response = device_api.get(child_device['id'])
+        self.assertEqual(get_child_response['parent_device']['id'], parent_device['id'])
+        
+        # Cleanup
+        device_bay_api.delete(device_bay['id'])
+        device_api.delete(child_device['id'])
+        device_api.delete(parent_device['id'])
+        device_type_api.delete(child_device_type['id'])
+        
 
     def test_ip_addresses(self):
         device = {
@@ -112,6 +165,52 @@ class TestDevicesAPI(SitePlannerAPITests.CRUDTest):
         interface_api.delete(interface_b['id'])
         device_api.delete(device['id'])
 
-        
+    def test_virtual_chassis(self):
+        device_api = self._get_api(self.tester.default_sp_client)
+        virtual_chassis_api = self.tester.default_sp_client.dcim.virtual_chassis
 
+        # Create Master Device
+        master_device = device_api.create({
+            'name': self.tester.short_exec_prepended_name('test-vchass-master'),
+            'device_type': self.device_type['id'],
+            'device_role': self.device_role['id'],
+            'asset_tag': self.tester.short_exec_prepended_name('test-vchass-master'),
+            'site': self.site['id'],
+            'rack': self.rack['id'],
+            'position': 1,
+            'face': 'front',
+            'status': 'active',
+            'vc_position': 1,
+            'vc_priority': 1
+        })
+
+        # Create Virtual Chassis
+        vchass = virtual_chassis_api.create({
+            'master': master_device['id'],
+            'domain': 'example'
+        })
+
+        # Create another device
+        other_device = device_api.create({
+            'name': self.tester.short_exec_prepended_name('test-vchass-other'),
+            'device_type': self.device_type['id'],
+            'device_role': self.device_role['id'],
+            'asset_tag': self.tester.short_exec_prepended_name('test-vchass-other'),
+            'site': self.site['id'],
+            'rack': self.rack['id'],
+            'position': 2,
+            'face': 'front',
+            'status': 'active',
+            'virtual_chassis': vchass['id'],
+            'vc_position': 2,
+            'vc_priority': 2
+        })
+
+        # Check Device
+        get_other_device = device_api.get(other_device['id'])
+        self.assertEqual(other_device['virtual_chassis']['id'], vchass['id'])
         
+        # Cleanup
+        virtual_chassis_api.delete(vchass['id'])
+        device_api.delete(other_device['id'])
+        device_api.delete(master_device['id'])

@@ -75,9 +75,12 @@ class IntegrationTester:
         result = self.exec_prepended_name(name)
         if len(result) > limit:
             vowels = set('AEIOU')
-            new_result = ''.join([letter for letter in result if letter.upper() not in vowels])
+            short_exec_id = ''.join([letter for letter in self.execution_id if letter.upper() not in vowels])
+            new_result = f'{short_exec_id}-{name}'
             if len(new_result) > limit:
-                raise ValueError(f'Could not shorten {result} to less than {limit} characters')
+                new_result = ''.join([letter for letter in new_result if letter.upper() not in vowels])
+                if len(new_result) > limit:
+                    raise ValueError(f'Could not shorten {result} to less than {limit} characters')
             return new_result
         else:
             return result

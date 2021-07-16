@@ -77,8 +77,10 @@ class SitePlannerAPI:
             if k in self._ignore_fields_on_update:
                 del new_obj[k]
             elif k in self._relation_fields and v is not None and isinstance(v, dict):
+                # When post/put-ing relatonships we need to send the ID only
                 new_obj[k] = v.get('id') if 'id' in v else v
             elif isinstance(v, dict) and 'value' in v.keys() and 'label' in v.keys():
+                # When post/put-ing choice fields we need to send the value only
                 new_obj[k] = v.get('value')
         return new_obj
 

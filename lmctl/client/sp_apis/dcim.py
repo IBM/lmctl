@@ -19,9 +19,11 @@ class ConsoleServerPortsAPI(SitePlannerAPI):
 
 class DeviceBayTemplatesAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.device_bay_templates'
+    _relation_fields = ['device_type']
 
 class DeviceBaysAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.device_bays'
+    _relation_fields = ['device', 'installed_device']
 
 class DeviceRolesAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.device_roles'
@@ -55,6 +57,7 @@ class ManufacturersAPI(SitePlannerAPI):
 
 class PlatformsAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.platforms'
+    _relation_fields = ['manufacturer']
 
 class PowerFeedsAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.power_feeds'
@@ -104,6 +107,7 @@ class SitesAPI(SitePlannerAPI):
 
 class VirtualChassisAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.virtual_chassis'
+    _relation_fields = ['master']
 
 class DCIMGroup(SitePlannerAPIGroup):
 
