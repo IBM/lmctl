@@ -6,7 +6,7 @@ class TestVirtualChassisAPI(SitePlannerAPITests.CRUDTest):
 
     @classmethod
     def before_test_case(cls, tester):
-        cls.device_setup = DeviceSetup('test-device-bays', tester)
+        cls.device_setup = DeviceSetup('test-virtual-chassis', tester)
 
     @classmethod
     def after_test_case(cls, tester):

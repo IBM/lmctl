@@ -2,17 +2,20 @@ from .sp_api_base import SitePlannerAPIGroup, SitePlannerAPI
 
 class AggregatesAPI(SitePlannerAPI):
     _endpoint_chain = 'ipam.aggregates'
+    _relation_fields = ['rir']
 
 class ExternalServicesAPI(SitePlannerAPI):
     _endpoint_chain = 'plugins.nfvi_management.external_services'
 
 class IPAddressesAPI(SitePlannerAPI):
     _endpoint_chain = 'ipam.ip_addresses'
+    _relation_fields = ['vrf', 'tenant', 'interface', 'nat_inside', 'nat_outside']
 
 # TODO - prefixes/available-ips, prefixes/available-prefixes
 
 class PrefixesAPI(SitePlannerAPI):
     _endpoint_chain = 'ipam.prefixes'
+    _relation_fields = ['site', 'vrf', 'tenant', 'role']
 
 class RirsAPI(SitePlannerAPI):
     _endpoint_chain = 'ipam.rirs'
@@ -22,15 +25,19 @@ class RolesAPI(SitePlannerAPI):
 
 class ServicesAPI(SitePlannerAPI):
     _endpoint_chain = 'ipam.services'
+    _relation_fields = ['device', 'virtual_machine']
 
 class VlanGroupsAPI(SitePlannerAPI):
     _endpoint_chain = 'ipam.vlan_groups'
+    _relation_fields = ['site']
 
 class VlansAPI(SitePlannerAPI):
     _endpoint_chain = 'ipam.vlans'
+    _relation_fields = ['site', 'group', 'tenant', 'role']
 
 class VrfsAPI(SitePlannerAPI):
     _endpoint_chain = 'ipam.vrfs'
+    _relation_fields = ['tenant']
 
 
 class IPAMGroup(SitePlannerAPIGroup):

@@ -7,15 +7,19 @@ class CablesAPI(SitePlannerAPI):
 
 class ConsolePortTemplatesAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.console_port_templates'
+    _relation_fields = ['device_type']
 
 class ConsolePortsAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.console_ports'
+    _relation_fields = ['device', 'cable']
 
 class ConsoleServerPortTemplatesAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.console_server_port_templates'
+    _relation_fields = ['device_type']
 
 class ConsoleServerPortsAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.console_server_ports'
+    _relation_fields = ['device', 'cable']
 
 class DeviceBayTemplatesAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.device_bay_templates'
@@ -39,18 +43,23 @@ class DevicesAPI(SitePlannerAPI):
 
 class FrontPortTemplatesAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.front_port_templates'
+    _relation_fields = ['device_type', 'rear_port']
 
 class FrontPortsAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.front_ports'
+    _relation_fields = ['device_type', 'rear_port', 'cable']
 
 class InterfaceTemplatesAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.interface_templates'
+    _relation_fields = ['device_type']
 
 class InterfacesAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.interfaces'
+    _relation_fields = ['device', 'lag', 'untagged_vlan', 'tagged_vlans']
 
 class InventoryItemsAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.inventory_items'
+    _relation_fields = ['device', 'manufacturer']
 
 class ManufacturersAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.manufacturers'
@@ -61,21 +70,27 @@ class PlatformsAPI(SitePlannerAPI):
 
 class PowerFeedsAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.power_feeds'
+    _relation_fields = ['power_panel', 'rack']
 
 class PowerOutletTemplatesAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.power_outlet_templates'
+    _relation_fields = ['device_type', 'power_port']
 
 class PowerOutletsAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.power_outlets'
+    _relation_fields = ['device', 'power_port', 'cable']
 
 class PowerPanelsAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.power_panels'
+    _relation_fields = ['site', 'rack_group']
 
 class PowerPortTemplatesAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.power_port_templates'
+    _relation_fields = ['device_type']
 
 class PowerPortsAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.power_ports'
+    _relation_fields = ['device', 'cable']
 
 class RackGroupsAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.rack_groups'
@@ -83,6 +98,7 @@ class RackGroupsAPI(SitePlannerAPI):
 
 class RackReservationsAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.rack_reservations'
+    _relation_fields = ['rack', 'user', 'tenant']
 
 class RackRolesAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.rack_roles'
@@ -93,9 +109,11 @@ class RacksAPI(SitePlannerAPI):
 
 class RearPortTemplatesAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.rear_port_templates'
+    _relation_fields = ['device_type']
 
 class RearPortsAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.rear_ports'
+    _relation_fields = ['device', 'cable']
 
 class RegionsAPI(SitePlannerAPI):
     _endpoint_chain = 'dcim.regions'

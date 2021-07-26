@@ -26,8 +26,14 @@ class SitePlannerAPITests:
             if field_name not in self._compare_ignore_fields:
                 api = self._get_api(self.tester.default_sp_client)
                 if field_name in api._relation_fields and retrieved_value is not None:
-                    retrieved_value = retrieved_value.get('id', None)
-                    expected_value = expected_value.get('id', None) if isinstance(expected_value, dict) else expected_value
+                    if isinstance(retrieved_value, list):
+                        retrieved_value = [r.get('id', None) for r in retrieved_value]
+                        retrieved_value.sort()
+                        expected_value = [e.get('id', None) if isinstance(e, dict) else e for e in expected_value]
+                        expected_value.sort()
+                    else:
+                        retrieved_value = retrieved_value.get('id', None)
+                        expected_value = expected_value.get('id', None) if isinstance(expected_value, dict) else expected_value
                 elif isinstance(retrieved_value, dict) and 'value' in retrieved_value.keys() and 'label' in retrieved_value.keys():
                     retrieved_value = retrieved_value.get('value', None)
                 if isinstance(expected_value, dict) and 'value' in expected_value.keys() and 'label' in expected_value.keys():

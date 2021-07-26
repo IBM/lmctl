@@ -3,6 +3,7 @@ from .sp_api_base import SitePlannerAPIGroup, SitePlannerAPI
 
 class ConfigContextsAPI(SitePlannerAPI):
     _endpoint_chain = 'extras.config_contexts'
+    _relation_fields = ['sites', 'roles', 'platforms', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants']
 
 class ExportTemplatesAPI(SitePlannerAPI):
     _endpoint_chain = 'extras.export_templates'

@@ -2,12 +2,14 @@ from .sp_api_base import SitePlannerAPIGroup, SitePlannerAPI
 
 class CircuitTerminationsAPI(SitePlannerAPI):
     _endpoint_chain = 'circuits.circuit_terminations'
+    _relation_fields = ['circuit', 'site', 'cable']
 
 class CircuitTypesAPI(SitePlannerAPI):
     _endpoint_chain = 'circuits.circuit_types'
 
 class CircuitsAPI(SitePlannerAPI):
     _endpoint_chain = 'circuits.circuits'
+    _relation_fields = ['provider', 'type']
 
 class ProvidersAPI(SitePlannerAPI):
     _endpoint_chain = 'circuits.providers'
