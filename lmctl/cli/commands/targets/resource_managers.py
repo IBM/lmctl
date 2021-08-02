@@ -34,7 +34,7 @@ class ResourceManagers(TNCOTarget):
         return {
             'name': name,
             'type': name, 
-            'url': 'https://my-rm.example.com/api/resource-manager'
+            'url': 'https://my-rm.example.com/api/v1/resource-manager'
         }
 
     @LmGet(output_formats=output_formats, help=f'''\

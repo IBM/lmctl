@@ -10,7 +10,7 @@ class LmResourcePkgDriver(LmDriver):
         super().__init__(lm_base, lm_security_ctrl)
 
     def __packages_api(self):
-        return '{0}/api/resource-manager/resource-packages'.format(self.lm_base)
+        return '{0}/api/v1/resource-manager/resource-packages'.format(self.lm_base)
 
     def __package_api(self, resource_type_name):
         return '{0}/{1}'.format(self.__packages_api(), resource_type_name)

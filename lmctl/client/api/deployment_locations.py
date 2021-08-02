@@ -2,7 +2,7 @@ from typing import List, Dict
 from .tnco_api_base import TNCOAPI
 
 class DeploymentLocationAPI(TNCOAPI):
-    endpoint = 'api/deploymentLocations'
+    endpoint = 'api/v1/deploymentLocations'
 
     def all(self) -> List:
         return self._all()

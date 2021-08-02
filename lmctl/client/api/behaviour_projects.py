@@ -2,7 +2,7 @@ from typing import List, Dict
 from .tnco_api_base import TNCOAPI
 
 class BehaviourProjectsAPI(TNCOAPI):
-    endpoint = 'api/behaviour/projects'
+    endpoint = 'api/v1/behaviour/projects'
 
     def all(self) -> List:
         return self._all()

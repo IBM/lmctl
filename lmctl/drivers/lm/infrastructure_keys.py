@@ -14,10 +14,10 @@ class LmInfrastructureKeysDriver(LmDriver):
         super().__init__(lm_base, lm_security_ctrl)
 
     def __infrastructure_keys_api(self):
-        return '{0}/api/resource-manager/infrastructure-keys/shared'.format(self.lm_base)
+        return '{0}/api/v1/resource-manager/infrastructure-keys/shared'.format(self.lm_base)
 
     def __infrastructure_key_by_name_api(self, keyname):
-        return '{0}/api/resource-manager/infrastructure-keys/shared/{1}'.format(self.lm_base, keyname)
+        return '{0}/api/v1/resource-manager/infrastructure-keys/shared/{1}'.format(self.lm_base, keyname)
 
     def get_infrastructure_keys(self):
         url = self.__infrastructure_keys_api()

@@ -18,52 +18,52 @@ class TestAssembliesAPI(unittest.TestCase):
         self.mock_client.make_request.return_value.json.return_value = mock_response
         response = self.assemblies.get('123')
         self.assertEqual(response, mock_response)
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/topology/assemblies/123'))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/v1/topology/assemblies/123'))
     
     def test_get_by_name(self):
         mock_response = [{'id': '123', 'name': 'Test'}]
         self.mock_client.make_request.return_value.json.return_value = mock_response
         response = self.assemblies.get_by_name('Test')
         self.assertEqual(response, mock_response[0])
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/topology/assemblies', query_params={'name': 'Test'}))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/v1/topology/assemblies', query_params={'name': 'Test'}))
    
     def test_get_topN(self):
         mock_response = [{'id': '123', 'name': 'Test'}]
         self.mock_client.make_request.return_value.json.return_value = mock_response
         response = self.assemblies.get_topN()
         self.assertEqual(response, mock_response)
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/topology/assemblies'))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/v1/topology/assemblies'))
     
     def test_all_with_name(self):
         mock_response = [{'id': '123', 'name': 'Test'}]
         self.mock_client.make_request.return_value.json.return_value = mock_response
         response = self.assemblies.all_with_name('Test')
         self.assertEqual(response, mock_response)
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/topology/assemblies', query_params={'name': 'Test'}))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/v1/topology/assemblies', query_params={'name': 'Test'}))
    
     def test_all_with_name_containing(self):
         mock_response = [{'id': '123', 'name': 'Test'}]
         self.mock_client.make_request.return_value.json.return_value = mock_response
         response = self.assemblies.all_with_name_containing('Test')
         self.assertEqual(response, mock_response)
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/topology/assemblies', query_params={'nameContains': 'Test'}))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/v1/topology/assemblies', query_params={'nameContains': 'Test'}))
 
     def test_intent(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = {'descriptorName': 'assembly::Test::1.0', 'assemblyName': 'Test', 'intendedState': 'Active'}
         response = self.assemblies.intent('createAssembly', intent)
         self.assertEqual(response, '123')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/intent/createAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/v1/intent/createAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
     
     def test_intent_create(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = CreateAssemblyIntent(descriptor_name='assembly::Test::1.0', assembly_name='Test', intended_state='Active') 
         response = self.assemblies.intent_create(intent)
         self.assertEqual(response, '123')
         self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', 
-                                                            endpoint='api/intent/createAssembly', 
+                                                            endpoint='api/v1/intent/createAssembly', 
                                                             headers={'Content-Type': 'application/json'}, 
                                                             body=json.dumps({
                                                                 'assemblyName': 'Test', 
@@ -73,15 +73,15 @@ class TestAssembliesAPI(unittest.TestCase):
                                                             })))
 
     def test_intent_create_with_dict(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = {'descriptorName': 'assembly::Test::1.0', 'assemblyName': 'Test', 'intendedState': 'Active'}
         response = self.assemblies.intent_create(intent)
         self.assertEqual(response, '123')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/intent/createAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/v1/intent/createAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
     
     def test_intent_create_or_upgrade(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = CreateOrUpgradeAssemblyIntent(descriptor_name='assembly::Test::1.0', assembly_name='Test', intended_state='Active',
             tags={
@@ -95,7 +95,7 @@ class TestAssembliesAPI(unittest.TestCase):
         response = self.assemblies.intent_create_or_upgrade(intent)
         self.assertEqual(response, '123')
         self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', 
-                                                            endpoint='api/intent/createOrUpgradeAssembly', 
+                                                            endpoint='api/v1/intent/createOrUpgradeAssembly', 
                                                             headers={'Content-Type': 'application/json'}, 
                                                             body=json.dumps({
                                                                 'assemblyName': 'Test', 
@@ -112,13 +112,13 @@ class TestAssembliesAPI(unittest.TestCase):
                                                             })))
 
     def test_intent_upgrade(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = UpgradeAssemblyIntent(assembly_name='Test', descriptor_name='assembly::Test::1.0', intended_state='Active')
         response = self.assemblies.intent_upgrade(intent)
         self.assertEqual(response, '123')
         self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', 
-                                                            endpoint='api/intent/upgradeAssembly',
+                                                            endpoint='api/v1/intent/upgradeAssembly',
                                                             headers={'Content-Type': 'application/json'},  
                                                             body=json.dumps({
                                                                 'assemblyName': 'Test', 
@@ -128,101 +128,101 @@ class TestAssembliesAPI(unittest.TestCase):
                                                             })))
 
     def test_intent_upgrade_with_dict(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = {'descriptorName': 'assembly::Test::1.0', 'assemblyName': 'Test', 'intendedState': 'Active'}
         response = self.assemblies.intent_upgrade(intent)
         self.assertEqual(response, '123')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/intent/upgradeAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/v1/intent/upgradeAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
     
     def test_intent_delete(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = DeleteAssemblyIntent(assembly_name='Test')
         response = self.assemblies.intent_delete(intent)
         self.assertEqual(response, '123')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/intent/deleteAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps({'assemblyName': 'Test'})))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/v1/intent/deleteAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps({'assemblyName': 'Test'})))
     
     def test_intent_delete_with_dict(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = {'assemblyName': 'Test'}
         response = self.assemblies.intent_delete(intent)
         self.assertEqual(response, '123')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/intent/deleteAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/v1/intent/deleteAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
     
     def test_intent_change_state(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = ChangeAssemblyStateIntent(assembly_name='Test', intended_state='Active')
         response = self.assemblies.intent_change_state(intent)
         self.assertEqual(response, '123')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/intent/changeAssemblyState', headers={'Content-Type': 'application/json'}, body=json.dumps({'assemblyName': 'Test', 'intendedState': 'Active'})))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/v1/intent/changeAssemblyState', headers={'Content-Type': 'application/json'}, body=json.dumps({'assemblyName': 'Test', 'intendedState': 'Active'})))
     
     def test_intent_change_state_with_dict(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = {'assemblyName': 'Test', 'intendedState': 'Active'}
         response = self.assemblies.intent_change_state(intent)
         self.assertEqual(response, '123')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/intent/changeAssemblyState', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/v1/intent/changeAssemblyState', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
     
     def test_intent_scale_out(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = ScaleAssemblyIntent(assembly_name='Test', cluster_name='A')
         response = self.assemblies.intent_scale_out(intent)
         self.assertEqual(response, '123')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/intent/scaleOutAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps({'assemblyName': 'Test', 'clusterName': 'A'})))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/v1/intent/scaleOutAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps({'assemblyName': 'Test', 'clusterName': 'A'})))
 
     def test_intent_scale_out_with_dict(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = {'assemblyName': 'Test', 'clusterName': 'A'}
         response = self.assemblies.intent_scale_out(intent)
         self.assertEqual(response, '123')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/intent/scaleOutAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/v1/intent/scaleOutAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
     
     def test_intent_scale_in(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = ScaleAssemblyIntent(assembly_name='Test', cluster_name='A')
         response = self.assemblies.intent_scale_in(intent)
         self.assertEqual(response, '123')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/intent/scaleInAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps({'assemblyName': 'Test', 'clusterName': 'A'})))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/v1/intent/scaleInAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps({'assemblyName': 'Test', 'clusterName': 'A'})))
 
     def test_intent_scale_in_with_dict(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = {'assemblyName': 'Test', 'clusterName': 'A'}
         response = self.assemblies.intent_scale_in(intent)
         self.assertEqual(response, '123')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/intent/scaleInAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/v1/intent/scaleInAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
     
     def test_intent_heal(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = HealAssemblyIntent(assembly_name='Test', broken_component_name='A')
         response = self.assemblies.intent_heal(intent)
         self.assertEqual(response, '123')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/intent/healAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps({'assemblyName': 'Test', 'brokenComponentName': 'A'})))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/v1/intent/healAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps({'assemblyName': 'Test', 'brokenComponentName': 'A'})))
     
     def test_intent_heal_with_dict(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = {'assemblyName': 'Test', 'brokenComponentName': 'A'}
         response = self.assemblies.intent_heal(intent)
         self.assertEqual(response, '123')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/intent/healAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/v1/intent/healAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
     
     def test_intent_adopt(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = AdoptAssemblyIntent(assembly_name='Test', descriptor_name='assembly::Test::1.0', clusters={'B': 1})
         response = self.assemblies.intent_adopt(intent)
         self.assertEqual(response, '123')
         self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', 
-                                                        endpoint='api/intent/adoptAssembly', 
+                                                        endpoint='api/v1/intent/adoptAssembly', 
                                                         headers={'Content-Type': 'application/json'}, 
                                                         body=json.dumps({
                                                             'assemblyName': 'Test',
@@ -232,9 +232,9 @@ class TestAssembliesAPI(unittest.TestCase):
                                                         })))
     
     def test_intent_adopt_with_dict(self):
-        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        mock_response = MagicMock(headers={'Location': '/api/v1/processes/123'})
         self.mock_client.make_request.return_value = mock_response
         intent = {'assemblyName': 'Test', 'descriptorName': 'assembly::Test::1.0', 'clusters': {'B': 1}}
         response = self.assemblies.intent_adopt(intent)
         self.assertEqual(response, '123')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/intent/adoptAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/v1/intent/adoptAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))

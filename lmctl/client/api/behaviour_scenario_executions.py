@@ -2,7 +2,7 @@ from typing import List, Dict
 from lmctl.client.client_request import TNCOClientRequest
 from .tnco_api_base import TNCOAPI
 class BehaviourScenarioExecutionsAPI(TNCOAPI):
-    endpoint = 'api/behaviour/executions'
+    endpoint = 'api/v1/behaviour/executions'
 
     def get(self, id: str, include_scenario: bool = None) -> Dict:
         query_params = {}

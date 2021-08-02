@@ -13,13 +13,13 @@ class LmLifecycleDriverMgmtDriver(LmDriver):
         super().__init__(lm_base, lm_security_ctrl)
 
     def __lifecycle_drivers_api(self):
-        return '{0}/api/resource-manager/lifecycle-drivers'.format(self.lm_base)
+        return '{0}/api/v1/resource-manager/lifecycle-drivers'.format(self.lm_base)
 
     def __lifecycle_drivers_by_type_api(self, lifecycle_type):
-        return '{0}/api/resource-manager/lifecycle-drivers?type={1}'.format(self.lm_base, lifecycle_type)
+        return '{0}/api/v1/resource-manager/lifecycle-drivers?type={1}'.format(self.lm_base, lifecycle_type)
 
     def __lifecycle_driver_by_id_api(self, driver_id):
-        return '{0}/api/resource-manager/lifecycle-drivers/{1}'.format(self.lm_base, driver_id)
+        return '{0}/api/v1/resource-manager/lifecycle-drivers/{1}'.format(self.lm_base, driver_id)
 
     def add_lifecycle_driver(self, lifecycle_driver):
         url = self.__lifecycle_drivers_api()

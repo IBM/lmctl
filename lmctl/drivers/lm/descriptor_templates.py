@@ -11,7 +11,7 @@ class LmDescriptorTemplatesDriver(LmDriver):
     Client for CP4NA orchestration Descriptor Template APIs
     """
 
-    TEMPLATES_API = 'api/catalog/descriptorTemplates'
+    TEMPLATES_API = 'api/v1/catalog/descriptorTemplates'
 
     def __init__(self, lm_base):
         super().__init__(lm_base)

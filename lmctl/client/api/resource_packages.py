@@ -5,7 +5,7 @@ from .tnco_api_base import TNCOAPI
 from lmctl.client.utils import build_relative_endpoint
 
 class ResourcePackagesAPI(TNCOAPI):
-    endpoint = 'api/resource-manager/resource-packages'
+    endpoint = 'api/v1/resource-manager/resource-packages'
 
     def create(self, resource_pkg_path: Union[str,Path]) -> str:
         with open(resource_pkg_path, 'rb') as resource_pkg:

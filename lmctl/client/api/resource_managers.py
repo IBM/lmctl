@@ -3,7 +3,7 @@ from .tnco_api_base import TNCOAPI
 from lmctl.client.utils import read_response_body_as_json
 
 class ResourceManagersAPI(TNCOAPI):
-    endpoint = 'api/resource-managers'
+    endpoint = 'api/v1/resource-managers'
     id_attr = 'name'
 
     def all(self) -> List:

@@ -1,7 +1,7 @@
 from typing import Dict
 from .tnco_api_base import TNCOAPI
 class VIMDriversAPI(TNCOAPI):
-    endpoint = 'api/resource-manager/vim-drivers'
+    endpoint = 'api/v1/resource-manager/vim-drivers'
 
     def get(self, driver_id: str) -> Dict:
         return self._get(id_value=driver_id)

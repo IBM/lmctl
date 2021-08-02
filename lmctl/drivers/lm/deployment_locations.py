@@ -14,13 +14,13 @@ class LmDeploymentLocationDriver(LmDriver):
         super().__init__(lm_base, lm_security_ctrl)
 
     def __locations_api(self):
-        return '{0}/api/deploymentLocations'.format(self.lm_base)
+        return '{0}/api/v1/deploymentLocations'.format(self.lm_base)
 
     def __location_by_name_api(self, location_name):
-        return '{0}/api/deploymentLocations?name={1}'.format(self.lm_base, location_name)
+        return '{0}/api/v1/deploymentLocations?name={1}'.format(self.lm_base, location_name)
 
     def __location_by_id_api(self, location_id):
-        return '{0}/api/deploymentLocations/{1}'.format(self.lm_base, location_id)
+        return '{0}/api/v1/deploymentLocations/{1}'.format(self.lm_base, location_id)
 
     def get_locations(self):
         url = self.__locations_api()

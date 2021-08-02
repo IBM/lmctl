@@ -211,7 +211,7 @@ The file is parsed to resolve the name of the Assembly to delete.
 When you attempt to delete an object that does not exist, you will get an error similar to:
 
 ```
-TNCO error occurred: DELETE request to https://9.20.192.196/api/catalog/descriptors/assembly::example::1.0 failed: status=404, message=No descriptor found with name: assembly::example::1.0
+TNCO error occurred: DELETE request to https://9.20.192.196/api/v1/catalog/descriptors/assembly::example::1.0 failed: status=404, message=No descriptor found with name: assembly::example::1.0
 ```
 
 In many circumstances you may be happy to accept that if the object does not exist, then the delete result should be positive. When this is the case, include the `--ignore-missing` option:

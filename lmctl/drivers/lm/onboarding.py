@@ -13,7 +13,7 @@ class LmOnboardRmDriver(LmDriver):
 
     def update_rm(self, rm_data):
         rm_name = rm_data['name']
-        url = '{0}/api/resource-managers/{1}'.format(self.lm_base, rm_name)
+        url = '{0}/api/v1/resource-managers/{1}'.format(self.lm_base, rm_name)
         headers = self._configure_access_headers()
         response = requests.put(url, json=rm_data, headers=headers, verify=False)
         if response.status_code == 404:
@@ -24,7 +24,7 @@ class LmOnboardRmDriver(LmDriver):
             self._raise_unexpected_status_exception(response)
 
     def get_rm_by_name(self, rm_name):
-        url = '{0}/api/resource-managers/{1}'.format(self.lm_base, rm_name)
+        url = '{0}/api/v1/resource-managers/{1}'.format(self.lm_base, rm_name)
         headers = self._configure_access_headers()
         response = requests.get(url, headers=headers, verify=False)
         if response.status_code == 404:
