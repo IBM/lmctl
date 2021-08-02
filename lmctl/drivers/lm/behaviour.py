@@ -12,37 +12,37 @@ class LmBehaviourDriver(LmDriver):
         super().__init__(lm_base, lm_security_ctrl)
 
     def __projects_api(self):
-        return '{0}/api/behaviour/projects'.format(self.lm_base)
+        return '{0}/api/v1/behaviour/projects'.format(self.lm_base)
 
     def __project_api(self, project_id):
         return '{0}/{1}'.format(self.__projects_api(), project_id)
 
     def __assembly_configurations_in_project_api(self, project_id):
-        return '{0}/api/behaviour/assemblyConfigurations?projectId={1}'.format(self.lm_base, project_id)
+        return '{0}/api/v1/behaviour/assemblyConfigurations?projectId={1}'.format(self.lm_base, project_id)
 
     def __assembly_configurations_api(self):
-        return '{0}/api/behaviour/assemblyConfigurations'.format(self.lm_base)
+        return '{0}/api/v1/behaviour/assemblyConfigurations'.format(self.lm_base)
 
     def __assembly_configuration_api(self, template_id):
-        return '{0}/api/behaviour/assemblyConfigurations/{1}'.format(self.lm_base, template_id)
+        return '{0}/api/v1/behaviour/assemblyConfigurations/{1}'.format(self.lm_base, template_id)
 
     def __scenarios_in_project_api(self, project_id):
-        return '{0}/api/behaviour/scenarios?projectId={1}'.format(self.lm_base, project_id)
+        return '{0}/api/v1/behaviour/scenarios?projectId={1}'.format(self.lm_base, project_id)
 
     def __scenarios_api(self):
-        return '{0}/api/behaviour/scenarios'.format(self.lm_base)
+        return '{0}/api/v1/behaviour/scenarios'.format(self.lm_base)
 
     def __scenario_api(self, scenario_id):
-        return '{0}/api/behaviour/scenarios/{1}'.format(self.lm_base, scenario_id)
+        return '{0}/api/v1/behaviour/scenarios/{1}'.format(self.lm_base, scenario_id)
 
     def __scenario_execs_api(self, scenario_id):
-        return '{0}/api/behaviour/executions?scenarioId={1}'.format(self.lm_base, scenario_id)
+        return '{0}/api/v1/behaviour/executions?scenarioId={1}'.format(self.lm_base, scenario_id)
 
     def __scenario_exec_api(self, exec_id):
-        return '{0}/api/behaviour/executions/{1}'.format(self.lm_base, exec_id)
+        return '{0}/api/v1/behaviour/executions/{1}'.format(self.lm_base, exec_id)
 
     def __scenario_execution_api(self):
-        return '{0}/api/behaviour/executions'.format(self.lm_base)
+        return '{0}/api/v1/behaviour/executions'.format(self.lm_base)
 
     def create_project(self, project):
         url = self.__projects_api()
