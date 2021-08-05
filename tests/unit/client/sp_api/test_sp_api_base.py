@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from lmctl.client.sp_apis import SitePlannerAPI
+from lmctl.client.sp_apis import SitePlannerCrudAPI
 from pynetbox.core.response import Record, RecordSet
 
-class DeviceAPI(SitePlannerAPI):
+class DeviceAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.devices'
 
 class TestSitePlannerAPI(unittest.TestCase):

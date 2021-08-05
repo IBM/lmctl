@@ -1,5 +1,5 @@
 import random
-from tests.integration.client.sp.common_tests import SitePlannerAPITests
+from tests.integration.client.sp.sp_test_base import SitePlannerAPITests
 from tests.integration.client.sp.utils import DeviceSetup
 from lmctl.client import SitePlannerClientError
 

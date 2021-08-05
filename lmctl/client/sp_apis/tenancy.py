@@ -1,12 +1,15 @@
-from .sp_api_base import SitePlannerAPIGroup, SitePlannerAPI
+from .sp_api_base import SitePlannerAPIGroup, SitePlannerCrudAPI
+from .automation_context import AutomationContextAPIMixin
 
-class TenantGroupsAPI(SitePlannerAPI):
+class TenantGroupsAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'tenancy.tenant_groups'
     _relation_fields = ['parent']
 
-class TenantsAPI(SitePlannerAPI):
+class TenantsAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'tenancy.tenants'
     _relation_fields = ['group']
+
+    _object_type = 'tenancy.tenant'
 
 class TenancyGroup(SitePlannerAPIGroup):
 

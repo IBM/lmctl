@@ -1,5 +1,16 @@
 import pynetbox
-from .sp_apis import SitePlannerAPIGroup, CircuitsGroup, DCIMGroup, ExtrasGroup, IPAMGroup, TenancyGroup, VirtualizationGroup
+from .sp_apis import (
+    SitePlannerAPIGroup, 
+    CircuitsGroup, 
+    DCIMGroup, 
+    ExtrasGroup, 
+    IPAMGroup, 
+    TenancyGroup, 
+    VirtualizationGroup, 
+    NFVIAutomationGroup,
+    NFVIManagementGroup,
+    NFVOAutomationGroup
+)
 
 class SitePlannerClient:
     
@@ -38,3 +49,15 @@ class SitePlannerClient:
     @property
     def virtualization(self) -> VirtualizationGroup:
         return VirtualizationGroup(self)
+
+    @property
+    def nfvi_automation(self) -> NFVIAutomationGroup:
+        return NFVIAutomationGroup(self)
+
+    @property
+    def nfvo_automation(self) -> NFVOAutomationGroup:
+        return NFVOAutomationGroup(self)
+
+    @property
+    def nfvi_management(self) -> NFVIManagementGroup:
+        return NFVIManagementGroup(self)

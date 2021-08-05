@@ -1,43 +1,54 @@
-from .sp_api_base import SitePlannerAPIGroup, SitePlannerAPI
+from .sp_api_base import SitePlannerAPIGroup, SitePlannerCrudAPI
+from .automation_context import AutomationContextAPIMixin
 
-class AggregatesAPI(SitePlannerAPI):
+class AggregatesAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'ipam.aggregates'
     _relation_fields = ['rir']
 
-class ExternalServicesAPI(SitePlannerAPI):
-    _endpoint_chain = 'plugins.nfvi_management.external_services'
+    _object_type = 'ipam.aggregate'
 
-class IPAddressesAPI(SitePlannerAPI):
+
+class IPAddressesAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'ipam.ip_addresses'
     _relation_fields = ['vrf', 'tenant', 'interface', 'nat_inside', 'nat_outside']
 
+    _object_type = 'ipam.ipaddress'
+
 # TODO - prefixes/available-ips, prefixes/available-prefixes
 
-class PrefixesAPI(SitePlannerAPI):
+class PrefixesAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'ipam.prefixes'
     _relation_fields = ['site', 'vrf', 'tenant', 'role']
 
-class RirsAPI(SitePlannerAPI):
+    _object_type = 'ipam.prefix'
+
+class RirsAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'ipam.rirs'
 
-class RolesAPI(SitePlannerAPI):
+    _object_type = 'ipam.rir'
+
+class RolesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'ipam.roles'
 
-class ServicesAPI(SitePlannerAPI):
+class ServicesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'ipam.services'
     _relation_fields = ['device', 'virtual_machine']
 
-class VlanGroupsAPI(SitePlannerAPI):
+class VlanGroupsAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'ipam.vlan_groups'
     _relation_fields = ['site']
 
-class VlansAPI(SitePlannerAPI):
+class VlansAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'ipam.vlans'
     _relation_fields = ['site', 'group', 'tenant', 'role']
 
-class VrfsAPI(SitePlannerAPI):
+    _object_type = 'ipam.vlan'
+
+class VrfsAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'ipam.vrfs'
     _relation_fields = ['tenant']
+
+    _object_type = 'ipam.vrf'
 
 
 class IPAMGroup(SitePlannerAPIGroup):
@@ -45,10 +56,6 @@ class IPAMGroup(SitePlannerAPIGroup):
     @property
     def aggregates(self):
         return AggregatesAPI(self._sp_client)
-
-    @property
-    def external_services(self):
-        return ExternalServicesAPI(self._sp_client)
 
     @property
     def ip_addresses(self):

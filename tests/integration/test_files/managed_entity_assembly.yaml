@@ -8,7 +8,13 @@ properties:
     type: string
   dummyIntProp:
     type: integer
-composition: 
+  dummyComp:
+    type: MyComp
+  dummyMapComp:
+    type: map
+    entry-schema:
+      type: MyComp
+composition:
   A: 
     type: resource::[[ execution_id ]]-lmctl-dummy-[[ suffix ]]::1.0
     properties:
@@ -18,15 +24,14 @@ composition:
         value: ${resourceManager}
       deploymentLocation:
         value: ${deploymentLocation}
-  B:
-    type: resource::[[ execution_id ]]-lmctl-dummy-[[ suffix ]]::1.0
-    cluster:
-      initial-quantity: '1'
-      scaling-increment: '1'
-      minimum-nodes: '1'
-      maximum-nodes: '10'
+data-types:
+  ManagedEntityComponent:
     properties:
-      resourceManager:
-        value: ${resourceManager}
-      deploymentLocation:
-        value: ${deploymentLocation}
+      name: 
+        type: string
+  MyComp:
+    derived-from: ManagedEntityComponent
+    properties:
+      compPropA:
+        type: string
+    

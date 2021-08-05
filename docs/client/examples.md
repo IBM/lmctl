@@ -22,7 +22,7 @@ def wait_for_process_to_complete(process_id):
         process_status = process['status']
     if process_status != 'Completed':
         reason = process['statusReason']
-        raise Exception(f'Process did not complete successfully: {process_status}, reason={reason})
+        raise Exception(f'Process did not complete successfully: {process_status}, reason={reason}')
 
 # Send intent to create an Assembly (using  dict)
 process_id = tnco_client.assemblies.intent_create({

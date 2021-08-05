@@ -1,4 +1,4 @@
-from tests.integration.client.sp.common_tests import SitePlannerAPITests
+from tests.integration.client.sp.sp_test_base import SitePlannerAPITests
 from lmctl.client import SitePlannerClientError
 
 class TestRegionsAPI(SitePlannerAPITests.CRUDTest):

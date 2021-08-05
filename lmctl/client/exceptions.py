@@ -42,4 +42,7 @@ class TNCOClientHttpError(TNCOClientError):
         return body
 
 class SitePlannerClientError(Exception):
-    pass
+    
+    @staticmethod
+    def with_pynb_error(pynb_error):
+        return SitePlannerClientError(str(pynb_error))

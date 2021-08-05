@@ -1,3 +1,66 @@
+import os
+
+class TNCOAutomationSetup:
+
+    def __init__(self, name, tester):
+        self.tester = tester
+        ## Add deployment location
+        self.deployment_location = tester.default_client.deployment_locations.create({
+            'name': tester.exec_prepended_name(name),
+            'infrastructureType': 'Other',
+            'resourceManager': 'brent',
+            'properties': {}
+        })
+        ## Upload Resource package
+        res_pkg_path = tester.tmp_file('dummy_resource.zip')
+        tester.build_resource_package_from(tester.test_file('dummy_resource'), res_pkg_path, suffix=name)
+        self.res_pkg_id = tester.default_client.resource_packages.create(res_pkg_path)
+        ## Get Resource descriptor 
+        self.resource_descriptor = tester.load_descriptor_from(tester.test_file(os.path.join('dummy_resource', 'Definitions', 'lm', 'resource.yaml')), suffix=name)
+        ## Add Assembly descriptor
+        self.assembly_descriptor = tester.load_descriptor_from(tester.test_file('managed_entity_assembly.yaml'), suffix=name)
+        self.assembly_descriptor['properties']['resourceManager']['default'] = 'brent'
+        self.assembly_descriptor['properties']['deploymentLocation']['default'] = self.deployment_location['name']
+        tester.default_client.descriptors.create(self.assembly_descriptor)
+
+    def destroy(self):
+        self.tester.default_client.deployment_locations.delete(self.deployment_location['id'])
+        self.tester.default_client.resource_packages.delete(self.res_pkg_id)
+        self.tester.default_client.descriptors.delete(self.resource_descriptor['name'])
+        self.tester.default_client.descriptors.delete(self.assembly_descriptor['name'])
+
+
+class ManagedEntityTypeSetup(TNCOAutomationSetup):
+    def __init__(self, name, tester):
+        super().__init__(name, tester)
+        self.managed_entity_type = tester.default_sp_client.nfvo_automation.managed_entity_types.create({
+            'descriptor': self.assembly_descriptor['name'],
+            'comments': 'Test type',
+            'tags': ['testing', 'lmctl']
+        })
+
+    def destroy(self):
+        super().destroy()
+        self.tester.default_sp_client.nfvo_automation.managed_entity_types.delete(self.managed_entity_type['id'])
+
+class ManagedEntitySetup(ManagedEntityTypeSetup):
+    def __init__(self, name, tester):
+        super().__init__(name, tester)
+        self.managed_entity = tester.default_sp_client.nfvo_automation.managed_entities.create({
+            'name': self.tester.short_exec_prepended_name(name),
+            'type': self.managed_entity_type['id'],
+            'status': 'active',
+            'properties': {
+                'dummyProp': 'test',
+                'dummyIntProp': 42,
+            },
+            'comments': 'Test',
+            'tags': ['testing', 'lmctl']
+        })
+
+    def destroy(self):
+        self.tester.default_sp_client.nfvo_automation.managed_entities.delete(self.managed_entity['id'])
+        super().destroy()
 
 
 class DeviceSetup:

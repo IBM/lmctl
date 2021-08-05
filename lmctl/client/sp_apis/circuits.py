@@ -1,18 +1,23 @@
-from .sp_api_base import SitePlannerAPIGroup, SitePlannerAPI
+from .sp_api_base import SitePlannerAPIGroup, SitePlannerCrudAPI
+from .automation_context import AutomationContextAPIMixin
 
-class CircuitTerminationsAPI(SitePlannerAPI):
+class CircuitTerminationsAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'circuits.circuit_terminations'
     _relation_fields = ['circuit', 'site', 'cable']
 
-class CircuitTypesAPI(SitePlannerAPI):
+class CircuitTypesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'circuits.circuit_types'
 
-class CircuitsAPI(SitePlannerAPI):
+class CircuitsAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'circuits.circuits'
     _relation_fields = ['provider', 'type']
 
-class ProvidersAPI(SitePlannerAPI):
+    _object_type = 'circuits.circuit'
+
+class ProvidersAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'circuits.providers'
+
+    _object_type = 'circuits.provider'
 
 class CircuitsGroup(SitePlannerAPIGroup):
 

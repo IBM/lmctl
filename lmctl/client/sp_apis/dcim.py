@@ -1,129 +1,148 @@
-from .sp_api_base import SitePlannerAPIGroup, SitePlannerAPI
+from .sp_api_base import SitePlannerAPIGroup, SitePlannerCrudAPI
+from .automation_context import AutomationContextAPIMixin
 
-class CablesAPI(SitePlannerAPI):
+class CablesAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'dcim.cables'
+
+    _object_type = 'dcim.cable'
 
 # TODO connected-device, console-connections, interface-connections, power-connections
 
-class ConsolePortTemplatesAPI(SitePlannerAPI):
+class ConsolePortTemplatesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.console_port_templates'
     _relation_fields = ['device_type']
 
-class ConsolePortsAPI(SitePlannerAPI):
+class ConsolePortsAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.console_ports'
     _relation_fields = ['device', 'cable']
 
-class ConsoleServerPortTemplatesAPI(SitePlannerAPI):
+class ConsoleServerPortTemplatesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.console_server_port_templates'
     _relation_fields = ['device_type']
 
-class ConsoleServerPortsAPI(SitePlannerAPI):
+class ConsoleServerPortsAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.console_server_ports'
     _relation_fields = ['device', 'cable']
 
-class DeviceBayTemplatesAPI(SitePlannerAPI):
+class DeviceBayTemplatesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.device_bay_templates'
     _relation_fields = ['device_type']
 
-class DeviceBaysAPI(SitePlannerAPI):
+class DeviceBaysAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.device_bays'
     _relation_fields = ['device', 'installed_device']
 
-class DeviceRolesAPI(SitePlannerAPI):
+class DeviceRolesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.device_roles'
 
-class DeviceTypesAPI(SitePlannerAPI):
+class DeviceTypesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.device_types'
     _relation_fields = ['manufacturer']
     _ignore_fields_on_update = ['front_image', 'rear_image']
 
-class DevicesAPI(SitePlannerAPI):
+class DevicesAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'dcim.devices'
     _relation_fields = ['device_type', 'device_role', 'tenant', 'platform', 'site', 'rack', 'parent_device', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis']
+    
+    _object_type = 'dcim.device'
 
-class FrontPortTemplatesAPI(SitePlannerAPI):
+class FrontPortTemplatesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.front_port_templates'
     _relation_fields = ['device_type', 'rear_port']
 
-class FrontPortsAPI(SitePlannerAPI):
+class FrontPortsAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.front_ports'
     _relation_fields = ['device_type', 'rear_port', 'cable']
 
-class InterfaceTemplatesAPI(SitePlannerAPI):
+class InterfaceTemplatesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.interface_templates'
     _relation_fields = ['device_type']
 
-class InterfacesAPI(SitePlannerAPI):
+class InterfacesAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'dcim.interfaces'
     _relation_fields = ['device', 'lag', 'untagged_vlan', 'tagged_vlans']
 
-class InventoryItemsAPI(SitePlannerAPI):
+    _object_type = 'dcim.interface'
+
+class InventoryItemsAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.inventory_items'
     _relation_fields = ['device', 'manufacturer']
 
-class ManufacturersAPI(SitePlannerAPI):
+class ManufacturersAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.manufacturers'
 
-class PlatformsAPI(SitePlannerAPI):
+class PlatformsAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'dcim.platforms'
     _relation_fields = ['manufacturer']
 
-class PowerFeedsAPI(SitePlannerAPI):
+    _object_type = 'dcim.platform'
+
+class PowerFeedsAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'dcim.power_feeds'
     _relation_fields = ['power_panel', 'rack']
 
-class PowerOutletTemplatesAPI(SitePlannerAPI):
+    _object_type = 'dcim.powerfeed'
+
+class PowerOutletTemplatesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.power_outlet_templates'
     _relation_fields = ['device_type', 'power_port']
 
-class PowerOutletsAPI(SitePlannerAPI):
+class PowerOutletsAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.power_outlets'
     _relation_fields = ['device', 'power_port', 'cable']
 
-class PowerPanelsAPI(SitePlannerAPI):
+class PowerPanelsAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'dcim.power_panels'
     _relation_fields = ['site', 'rack_group']
 
-class PowerPortTemplatesAPI(SitePlannerAPI):
+    _object_type = 'dcim.powerpanel'
+
+class PowerPortTemplatesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.power_port_templates'
     _relation_fields = ['device_type']
 
-class PowerPortsAPI(SitePlannerAPI):
+class PowerPortsAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.power_ports'
     _relation_fields = ['device', 'cable']
 
-class RackGroupsAPI(SitePlannerAPI):
+class RackGroupsAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.rack_groups'
     _relation_fields = ['parent', 'site']
 
-class RackReservationsAPI(SitePlannerAPI):
+class RackReservationsAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.rack_reservations'
     _relation_fields = ['rack', 'user', 'tenant']
 
-class RackRolesAPI(SitePlannerAPI):
+class RackRolesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.rack_roles'
 
-class RacksAPI(SitePlannerAPI):
+class RacksAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'dcim.racks'
     _relation_fields = ['group', 'site', 'tenant', 'role']
 
-class RearPortTemplatesAPI(SitePlannerAPI):
+    _object_type = 'dcim.rack'
+
+class RearPortTemplatesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.rear_port_templates'
     _relation_fields = ['device_type']
 
-class RearPortsAPI(SitePlannerAPI):
+class RearPortsAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.rear_ports'
     _relation_fields = ['device', 'cable']
 
-class RegionsAPI(SitePlannerAPI):
+class RegionsAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'dcim.regions'
     _relation_fields = ['parent']
 
-class SitesAPI(SitePlannerAPI):
+    _object_type = 'dcim.region'
+
+class SitesAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'dcim.sites'
     _relation_fields = ['region', 'tenant']
 
-class VirtualChassisAPI(SitePlannerAPI):
+    _object_type = 'dcim.site'
+
+class VirtualChassisAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'dcim.virtual_chassis'
     _relation_fields = ['master']
 
