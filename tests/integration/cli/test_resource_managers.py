@@ -9,7 +9,7 @@ import json
 import time
 
 class TestResourceManagers(CLIIntegrationTest):
-
+    endpoint = 'https://brent:8291/api/v1'
     @classmethod
     def before_test_case(cls, tester):
         cls.test_case_props = {}
@@ -17,13 +17,13 @@ class TestResourceManagers(CLIIntegrationTest):
         cls.test_case_props['resource_manager_A'] = {
             'name': tester.exec_prepended_name('rm-cmd-A'),
             'type': 'Brent',
-            'url': 'https://brent:8291/api/v1/resource-manager'
+            'url': self.endpoint + '/resource-manager'
         }
         tester.default_client.resource_managers.create(cls.test_case_props['resource_manager_A'])
         cls.test_case_props['resource_manager_B'] = {
             'name': tester.exec_prepended_name('rm-cmd-B'),
             'type': 'Brent',
-            'url': 'https://brent:8291/api/v1/resource-manager'
+            'url': self.endpoint + '/resource-manager'
         }
         tester.default_client.resource_managers.create(cls.test_case_props['resource_manager_B'])
         ## Add deployment location
@@ -109,7 +109,7 @@ class TestResourceManagers(CLIIntegrationTest):
         resource_manager = {
             'name': rm_name,
             'type': 'Brent',
-            'url': 'https://brent:8291/api/v1/resource-manager'
+            'url': self.endpoint + '/resource-manager'
         }
         yml_file = self.tester.create_yaml_file('rm-cmd-create-with.yaml', resource_manager)
         create_result = self.cli_runner.invoke(cli, [
@@ -125,7 +125,7 @@ class TestResourceManagers(CLIIntegrationTest):
         resource_manager = {
             'name': rm_name,
             'type': 'Brent',
-            'url': 'https://brent:8291/api/v1/resource-manager'
+            'url': self.endpoint + '/resource-manager'
         }
         json_file = self.tester.create_json_file('rm-cmd-create-with.json', resource_manager)
         create_result = self.cli_runner.invoke(cli, [
@@ -139,7 +139,7 @@ class TestResourceManagers(CLIIntegrationTest):
     
     def test_create_with_set(self):
         rm_name = self.tester.exec_prepended_name('rm-cmd-create-with-set')
-        url = 'https://brent:8291/api/v1/resource-manager'
+        url = self.endpoint + '/resource-manager'
         create_result = self.cli_runner.invoke(cli, [
             'create', 'resourcemanager', '-e', 'default', 
                         '--set', f'name={rm_name}', 
@@ -157,7 +157,7 @@ class TestResourceManagers(CLIIntegrationTest):
         resource_manager = {
             'name': rm_name,
             'type': 'Brent',
-            'url': 'https://brent:8291/api/v1/resource-manager'
+            'url': self.endpoint + '/resource-manager'
         }
         yml_file = self.tester.create_yaml_file('rm-cmd-yaml-report.yaml', resource_manager)
         create_result = self.cli_runner.invoke(cli, [
@@ -172,7 +172,7 @@ class TestResourceManagers(CLIIntegrationTest):
         resource_manager = {
             'name': rm_name,
             'type': 'Brent',
-            'url': 'https://brent:8291/api/v1/resource-manager'
+            'url': self.endpoint + '/resource-manager'
         }
         yml_file = self.tester.create_yaml_file('rm-cmd-json-report.yaml', resource_manager)
         create_result = self.cli_runner.invoke(cli, [
@@ -187,7 +187,7 @@ class TestResourceManagers(CLIIntegrationTest):
         resource_manager = {
             'name': rm_name,
             'type': 'Brent',
-            'url': 'https://brent:8291/api/v1/resource-manager'
+            'url': self.endpoint + '/resource-manager'
         }
         yml_file = self.tester.create_yaml_file('rm-cmd-create-yaml-print-report.yaml', resource_manager)
         create_result = self.cli_runner.invoke(cli, [
@@ -290,7 +290,7 @@ class TestResourceManagers(CLIIntegrationTest):
         rm_name = self.tester.exec_prepended_name('rm-cmd-delete-with-yaml')
         resource_manager = {
             'name': rm_name,
-            'url': 'https://brent:8291/api/v1/resource-manager'
+            'url': self.endpoint + '/resource-manager'
         }
         yml_file = self.tester.create_yaml_file('rm-cmd-delete-with.yaml', resource_manager)
         create_result = self.cli_runner.invoke(cli, [
@@ -315,7 +315,7 @@ class TestResourceManagers(CLIIntegrationTest):
         rm_name = self.tester.exec_prepended_name('rm-cmd-delete-with-json')
         resource_manager = {
             'name': rm_name,
-            'url': 'https://brent:8291/api/v1/resource-manager'
+            'url': self.endpoint + '/resource-manager'
         }
         json_file = self.tester.create_json_file('rm-cmd-delete-with.json', resource_manager)
         create_result = self.cli_runner.invoke(cli, [
@@ -340,7 +340,7 @@ class TestResourceManagers(CLIIntegrationTest):
         rm_name = self.tester.exec_prepended_name('rm-cmd-delete-with-json')
         resource_manager = {
             'name': rm_name,
-            'url': 'https://brent:8291/api/v1/resource-manager'
+            'url': self.endpoint + '/resource-manager'
         }
         json_file = self.tester.create_json_file('rm-cmd-delete-with.json', resource_manager)
         create_result = self.cli_runner.invoke(cli, [
