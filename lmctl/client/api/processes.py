@@ -3,7 +3,7 @@ from .tnco_api_base import TNCOAPI
 from lmctl.client.client_request import TNCOClientRequest
 
 class ProcessesAPI(TNCOAPI):
-    endpoint = 'api/processes'
+    endpoint = 'api/v1/processes'
 
     def get(self, id: str, shallow: bool = None) -> Dict:
         query_params = {}

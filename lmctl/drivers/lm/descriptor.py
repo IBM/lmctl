@@ -10,12 +10,12 @@ class LmDescriptorDriver(LmDriver):
     """
     Client for CP4NA orchestration Descriptor APIs
     """
-
+    endpoint = '{0}/api/v1'
     def __init__(self, lm_base, lm_security_ctrl=None):
         super().__init__(lm_base, lm_security_ctrl)
 
     def delete_descriptor(self, descriptor_name):
-        url = '{0}/api/catalog/descriptors/{1}'.format(self.lm_base, descriptor_name)
+        url = self.endpoint + '/catalog/descriptors/{1}'.format(self.lm_base, descriptor_name)
         headers = self._configure_access_headers()
         response = requests.delete(url, headers=headers, verify=False)
         if response.status_code == 404:
@@ -26,7 +26,7 @@ class LmDescriptorDriver(LmDriver):
             self._raise_unexpected_status_exception(response)
 
     def get_descriptor(self, descriptor_name):
-        url = '{0}/api/catalog/descriptors/{1}'.format(self.lm_base, descriptor_name)
+        url = self.endpoint + '/catalog/descriptors/{1}'.format(self.lm_base, descriptor_name)
         headers = {
             'Accept': 'application/yaml'
         }
@@ -40,7 +40,7 @@ class LmDescriptorDriver(LmDriver):
             self._raise_unexpected_status_exception(response)
 
     def create_descriptor(self, descriptor_content):
-        url = '{0}/api/catalog/descriptors'.format(self.lm_base)
+        url = self.endpoint + '/catalog/descriptors'.format(self.lm_base)
         headers = {
             'Content-Type': 'application/yaml'
         }
@@ -52,7 +52,7 @@ class LmDescriptorDriver(LmDriver):
             self._raise_unexpected_status_exception(response)
 
     def update_descriptor(self, descriptor_name, descriptor_content):
-        url = '{0}/api/catalog/descriptors/{1}'.format(self.lm_base, descriptor_name)
+        url = self.endpoint + '/catalog/descriptors/{1}'.format(self.lm_base, descriptor_name)
         headers = {
             'Content-Type': 'application/yaml'
         }

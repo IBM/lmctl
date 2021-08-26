@@ -9,27 +9,28 @@ class EtsiPackageMgmtDriver(LmDriver):
     """
     Client for managing packages
     """
-
+    endpoint = '{0}/api/v1'
+    
     def __init__(self, lm_base, lm_security_ctrl=None):
         super().__init__(lm_base, lm_security_ctrl)
 
     def __packages_api(self):
-        return '{0}/api/etsi/vnfpkgm/v2/vnf_packages'.format(self.lm_base)
+        return self.endpoint + '/etsi/vnfpkgm/v2/vnf_packages'.format(self.lm_base)
 
     def __packages_api_by_id_api(self, package_id):
-        return '{0}/api/etsi/vnfpkgm/v2/vnf_packages/{1}'.format(self.lm_base, package_id)
+        return self.endpoint + '/etsi/vnfpkgm/v2/vnf_packages/{1}'.format(self.lm_base, package_id)
 
     def __packages_api_package_content(self, package_id):
-        return '{0}/api/etsi/vnfpkgm/v2/vnf_packages/{1}/package_content'.format(self.lm_base, package_id)
+        return self.endpoint + '/etsi/vnfpkgm/v2/vnf_packages/{1}/package_content'.format(self.lm_base, package_id)
 
     def __nsd_api(self):
-        return '{0}/api/etsi/nsd/v2/ns_descriptors'.format(self.lm_base)
+        return self.endpoint + '/etsi/nsd/v2/ns_descriptors'.format(self.lm_base)
 
     def __nsd_api_by_id(self, package_id):
-        return '{0}/api/etsi/nsd/v2/ns_descriptors/{1}'.format(self.lm_base, package_id)
+        return self.endpoint + '/etsi/nsd/v2/ns_descriptors/{1}'.format(self.lm_base, package_id)
 
     def __nsd_api_package_content(self, package_id):
-        return '{0}/api/etsi/nsd/v2/ns_descriptors/{1}/nsd_content'.format(self.lm_base, package_id)
+        return self.endpoint + '/etsi/nsd/v2/ns_descriptors/{1}/nsd_content'.format(self.lm_base, package_id)
 
     def __configure_headers(self, content_type='application/json'):
         headers = self._configure_access_headers()

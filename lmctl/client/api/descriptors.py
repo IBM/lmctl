@@ -6,7 +6,7 @@ from lmctl.client.utils import build_relative_endpoint_from_data, build_relative
 
 
 class DescriptorsAPI(TNCOAPI):
-    endpoint = 'api/catalog/descriptors'
+    endpoint = 'api/v1/catalog/descriptors'
     id_attr = 'name'
 
     def create(self, descriptor: Dict):

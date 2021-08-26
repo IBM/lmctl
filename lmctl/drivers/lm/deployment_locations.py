@@ -9,18 +9,19 @@ class LmDeploymentLocationDriver(LmDriver):
     """
     Client for CP4NA orchestration Deployment Location APIs
     """
-
+    endpoint = '{0}/api/v1'
+    
     def __init__(self, lm_base, lm_security_ctrl=None):
         super().__init__(lm_base, lm_security_ctrl)
 
     def __locations_api(self):
-        return '{0}/api/deploymentLocations'.format(self.lm_base)
+        return self.endpoint + '/deploymentLocations'.format(self.lm_base)
 
     def __location_by_name_api(self, location_name):
-        return '{0}/api/deploymentLocations?name={1}'.format(self.lm_base, location_name)
+        return self.endpoint + '/deploymentLocations?name={1}'.format(self.lm_base, location_name)
 
     def __location_by_id_api(self, location_id):
-        return '{0}/api/deploymentLocations/{1}'.format(self.lm_base, location_id)
+        return self.endpoint + '/deploymentLocations/{1}'.format(self.lm_base, location_id)
 
     def get_locations(self):
         url = self.__locations_api()

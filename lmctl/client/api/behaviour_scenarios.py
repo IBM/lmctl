@@ -3,7 +3,7 @@ from typing import List, Dict
 from .tnco_api_base import TNCOAPI
 
 class BehaviourScenariosAPI(TNCOAPI):
-    endpoint = 'api/behaviour/scenarios'
+    endpoint = 'api/v1/behaviour/scenarios'
 
     def get(self, id: str) -> Dict:
         return self._get(id_value=id)

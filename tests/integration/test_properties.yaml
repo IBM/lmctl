@@ -4,12 +4,12 @@ config:
       tnco: 
         address:
         secure: True
-        client_id: LmClient
+        client_id: Admin
         client_secret: 
 # Credentials used in Auth testing (set all 3 to valid credentials)
 auth_testing:
   client_credentials:
-    client_id: LmClient
+    client_id: Admin
     client_secret: 
   user_pass:
     client_id: NimrodClient
@@ -18,4 +18,6 @@ auth_testing:
     password: 
   legacy_user_pass:
     username: 
-    password: 
+    password:
+  token_auth:
+    token:  

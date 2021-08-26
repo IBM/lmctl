@@ -3,7 +3,7 @@ from lmctl.client.client_request import TNCOClientRequest
 from .descriptors import DescriptorsAPI
 
 class DescriptorTemplatesAPI(DescriptorsAPI):
-    endpoint = 'api/catalog/descriptorTemplates'
+    endpoint = 'api/v1/catalog/descriptorTemplates'
 
     def __init__(self, base_client: 'TNCOClient'):
         if base_client.kami_address is not None:

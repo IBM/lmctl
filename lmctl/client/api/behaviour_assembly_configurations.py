@@ -2,7 +2,7 @@ from typing import List, Dict
 from .tnco_api_base import TNCOAPI
 
 class BehaviourAssemblyConfigurationsAPI(TNCOAPI):
-    endpoint = 'api/behaviour/assemblyConfigurations'
+    endpoint = 'api/v1/behaviour/assemblyConfigurations'
 
     def get(self, id: str) -> Dict:
         return self._get(id_value=id)

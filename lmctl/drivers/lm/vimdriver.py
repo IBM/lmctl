@@ -8,18 +8,19 @@ class LmVimDriverMgmtDriver(LmDriver):
     """
     Client for managing VIM Drivers
     """
-
+    endpoint = '{0}/api/v1'
+    
     def __init__(self, lm_base, lm_security_ctrl=None):
         super().__init__(lm_base, lm_security_ctrl)
 
     def __vim_drivers_api(self):
-        return '{0}/api/resource-manager/vim-drivers'.format(self.lm_base)
+        return self.endpoint + '/resource-manager/vim-drivers'.format(self.lm_base)
 
     def __vim_drivers_by_type_api(self, inf_type):
-        return '{0}/api/resource-manager/vim-drivers?infrastructureType={1}'.format(self.lm_base, inf_type)
+        return self.endpoint + '/resource-manager/vim-drivers?infrastructureType={1}'.format(self.lm_base, inf_type)
 
     def __vim_driver_by_id_api(self, driver_id):
-        return '{0}/api/resource-manager/vim-drivers/{1}'.format(self.lm_base, driver_id)
+        return self.endpoint + '/resource-manager/vim-drivers/{1}'.format(self.lm_base, driver_id)
 
     def add_vim_driver(self, vim_driver):
         url = self.__vim_drivers_api()

@@ -1,7 +1,7 @@
 from typing import Dict, List
 from .tnco_api_base import TNCOAPI
 class SharedInfrastructureKeysAPI(TNCOAPI):
-    endpoint = 'api/resource-manager/infrastructure-keys/shared'
+    endpoint = 'api/v1/resource-manager/infrastructure-keys/shared'
     id_attr = 'name'
 
     def all(self, include_private_key: bool = None) -> List:

@@ -8,18 +8,19 @@ class LmResourceDriverMgmtDriver(LmDriver):
     """
     Client for managing Resource drivers
     """
-
+    endpoint = '{0}/api/v1'
+    
     def __init__(self, lm_base, lm_security_ctrl=None):
         super().__init__(lm_base, lm_security_ctrl)
 
     def __resource_drivers_api(self):
-        return '{0}/api/resource-manager/resource-drivers'.format(self.lm_base)
+        return self.endpoint + '/resource-manager/resource-drivers'.format(self.lm_base)
 
     def __resource_drivers_by_type_api(self, driver_type):
-        return '{0}/api/resource-manager/resource-drivers?type={1}'.format(self.lm_base, driver_type)
+        return self.endpoint + '/resource-manager/resource-drivers?type={1}'.format(self.lm_base, driver_type)
 
     def __resource_driver_by_id_api(self, driver_id):
-        return '{0}/api/resource-manager/resource-drivers/{1}'.format(self.lm_base, driver_id)
+        return self.endpoint + '/resource-manager/resource-drivers/{1}'.format(self.lm_base, driver_id)
 
     def add_resource_driver(self, resource_driver):
         url = self.__resource_drivers_api()

@@ -2,7 +2,7 @@ from typing import Dict
 from .tnco_api_base import TNCOAPI
 
 class ResourceDriversAPI(TNCOAPI):
-    endpoint = 'api/resource-manager/resource-drivers'
+    endpoint = 'api/v1/resource-manager/resource-drivers'
 
     def get(self, id: str) -> Dict:
         return self._get(id_value=id)

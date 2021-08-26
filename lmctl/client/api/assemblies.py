@@ -10,7 +10,7 @@ from .tnco_api_base import TNCOAPI
 from lmctl.client.utils import build_relative_endpoint, read_response_location_header
 
 class AssembliesAPI(TNCOAPI):
-    topology_endpoint = 'api/topology/assemblies'
+    topology_endpoint = 'api/v1/topology/assemblies'
 
     def get(self, id: str) -> Dict:
         return self._get_json(
@@ -71,7 +71,7 @@ class AssembliesAPI(TNCOAPI):
         return self._intent_request_impl('adoptAssembly', intent_obj)   
 
     def intent_endpoint(self, intent_name: str) -> str:
-        return f'api/intent/{intent_name}'
+        return f'api/v1/intent/{intent_name}'
 
     def _intent_request_impl(self, intent_name: str, intent_obj: Union[Dict, 
                                                                         AdoptAssemblyIntent,

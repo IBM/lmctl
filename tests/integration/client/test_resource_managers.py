@@ -3,7 +3,8 @@ from lmctl.client import TNCOClientHttpError
 import os
 
 class TestResourceManagersAPI(IntegrationTest):
-
+    endpoint = 'https://brent:8291/api/v1'
+    
     @classmethod
     def before_test_case(cls, tester):
         cls.test_case_props = {}
@@ -40,7 +41,7 @@ class TestResourceManagersAPI(IntegrationTest):
     def test_crud(self):
         resource_manager = {
             'name': self.tester.exec_prepended_name('rm-crud'),
-            'url': 'https://brent:8291/api/resource-manager'
+            'url': self.endpoint + '/resource-manager'
         }
         ## Create
         create_response = self.tester.default_client.resource_managers.create(resource_manager)
@@ -67,12 +68,12 @@ class TestResourceManagersAPI(IntegrationTest):
     def test_all(self):
         resource_managers_A = {
             'name': self.tester.exec_prepended_name('rm-all-A'),
-            'url': 'https://brent:8291/api/resource-manager'
+            'url': self.endpoint + '/resource-manager'
         }
         self.tester.default_client.resource_managers.create(resource_managers_A)
         resource_managers_B = {
             'name': self.tester.exec_prepended_name('rm-all-B'),
-            'url': 'https://brent:8291/api/resource-manager'
+            'url': self.endpoint + '/resource-manager'
         }
         self.tester.default_client.resource_managers.create(resource_managers_B)
         all_response = self.tester.default_client.resource_managers.all()
