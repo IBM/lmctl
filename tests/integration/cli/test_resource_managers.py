@@ -17,13 +17,13 @@ class TestResourceManagers(CLIIntegrationTest):
         cls.test_case_props['resource_manager_A'] = {
             'name': tester.exec_prepended_name('rm-cmd-A'),
             'type': 'Brent',
-            'url': self.endpoint + '/resource-manager'
+            'url': cls.endpoint + '/resource-manager'
         }
         tester.default_client.resource_managers.create(cls.test_case_props['resource_manager_A'])
         cls.test_case_props['resource_manager_B'] = {
             'name': tester.exec_prepended_name('rm-cmd-B'),
             'type': 'Brent',
-            'url': self.endpoint + '/resource-manager'
+            'url': cls.endpoint + '/resource-manager'
         }
         tester.default_client.resource_managers.create(cls.test_case_props['resource_manager_B'])
         ## Add deployment location
