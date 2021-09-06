@@ -1,9 +1,9 @@
 from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict
 from lmctl.cli.entry import cli
-from lmctl.cli.format import TableFormat
+from lmctl.cli.format import TableFormat, Table
 from lmctl.client import TNCOClientHttpError
-from lmctl.cli.commands.targets.resource_managers import ResourceManagerTable
+from lmctl.cli.commands.resource_managers import default_columns
 import yaml
 import json
 import time
@@ -100,7 +100,7 @@ class TestResourceManagers(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, [
             'get', 'resourcemanager', self.test_case_props['resource_manager_A']['name'], '-e', 'default'
             ])
-        table_format = TableFormat(table=ResourceManagerTable())
+        table_format = TableFormat(table=Table(default_columns))
         expected_output = table_format.convert_element(self.test_case_props['resource_manager_A'])
         self.assert_output(result, expected_output)
 
@@ -235,16 +235,17 @@ class TestResourceManagers(CLIIntegrationTest):
         self.assertEqual(api_get_result['name'], self.test_case_props['resource_manager_A']['name'])
         self.assertEqual(api_get_result['url'], self.test_case_props['resource_manager_A']['url'])
     
-    def test_update_with_name_and_file_fails(self):
-        yml_file = self.tester.create_yaml_file('rm-cmd-update-with-name-and-file-fails.yaml', self.test_case_props['resource_manager_A'])
+    def test_update_with_name_and_file_merges(self):
+        rm_name = self.test_case_props['resource_manager_A']['name']
+        yml_file = self.tester.create_yaml_file('rm-cmd-update-with-name-and-file-merges.yaml', self.test_case_props['resource_manager_A'])
         update_result = self.cli_runner.invoke(cli, [
-            'update', 'resourcemanager', '-e', 'default', 'SomeName', '-f', yml_file
+            'update', 'resourcemanager', '-e', 'default', rm_name, '-f', yml_file
             ])
-        self.assert_has_system_exit(update_result)
-        expected_output = 'Usage: cli update resourcemanager [OPTIONS] [NAME]'
-        expected_output += '\nTry \'cli update resourcemanager --help\' for help.'
-        expected_output += '\n\nError: Do not use "NAME" argument when using "-f, --file" option'
-        self.assert_output(update_result, expected_output)
+        self.assert_output(update_result, f'Updated: {rm_name}')
+        time.sleep(0.2)
+        api_get_result = self.tester.default_client.resource_managers.get(rm_name)
+        self.assertEqual(api_get_result['name'], self.test_case_props['resource_manager_A']['name'])
+        self.assertEqual(api_get_result['url'], self.test_case_props['resource_manager_A']['url'])
 
     def test_update_with_set_and_no_name_fails(self):
         update_result = self.cli_runner.invoke(cli, [
@@ -253,7 +254,7 @@ class TestResourceManagers(CLIIntegrationTest):
         self.assert_has_system_exit(update_result)
         expected_output = 'Usage: cli update resourcemanager [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli update resourcemanager --help\' for help.'
-        expected_output += '\n\nError: Must set "NAME" argument when no "-f, --file" option specified'
+        expected_output += '\n\nError: Must identify the target by specifying the "name" parameter or by including the "name" attribute in the given object/file'
         self.assert_output(update_result, expected_output)
     
     def test_update_print_report_as_yaml(self):
@@ -367,7 +368,7 @@ class TestResourceManagers(CLIIntegrationTest):
         self.assert_has_system_exit(delete_result)
         expected_output = 'Usage: cli delete resourcemanager [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli delete resourcemanager --help\' for help.'
-        expected_output += '\n\nError: Must set "NAME" argument when no "-f, --file" option specified'
+        expected_output += '\n\nError: Must identify the target by specifying the "name" parameter or by including the "name" attribute in the given object/file'
         self.assert_output(delete_result, expected_output)
     
     def test_delete_with_ignore_missing(self):
@@ -375,4 +376,4 @@ class TestResourceManagers(CLIIntegrationTest):
             'delete', 'resourcemanager', '-e', 'default', 'NonExistentObj', '--ignore-missing'
             ])
         self.assert_no_errors(delete_result)
-        self.assert_output(delete_result, f'No Resource Manager found with name NonExistentObj (ignoring)')
+        self.assert_output(delete_result, f'(Ignored) Entity of type \'Resource Manager\' could not be found matching: id [NonExistentObj]')

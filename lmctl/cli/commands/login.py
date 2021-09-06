@@ -4,9 +4,8 @@ from lmctl.client import TNCOClientBuilder, ClientCredentialsAuth, UserPassAuth,
 from lmctl.config import ConfigFinder, find_config_location, write_config
 from lmctl.environment import TNCOEnvironment, EnvironmentGroup
 from lmctl.cli.controller import get_global_controller, CLIController
-from lmctl.cli.cmd_tags import settings_tag
 
-@settings_tag
+
 @click.command(short_help='Authenticate and save credentials', help='Authenticate with an environment and save credentials in the lmctl config file for subsequent use')
 @click.pass_context
 @click.argument('address')

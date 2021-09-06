@@ -1,17 +1,107 @@
 import click
 import logging
+from .utils import TNCOCommandBuilder, Identity, Identifier
+from lmctl.client import TNCOClient
+from lmctl.cli.format import Column
+from typing import Dict, Any, Type
+
+logger = logging.getLogger(__name__)
+
+
+__all__ = (
+    'generate_deployment_location',
+    'create_deployment_location',
+    'update_deployment_location',
+    'delete_deployment_location',
+    'get_deployment_location',
+)
+
+tnco_builder = TNCOCommandBuilder(
+    singular='deploymentlocation',
+    plural='deploymentlocations',
+    display_name='Deployment Location'
+)
+
+name = Identifier.arg_and_attr('name')
+name_contains_opt = Identifier(
+    param_name='name_contains',
+    param_opts=['--name-contains']
+)
+
+default_columns = [
+    Column('name', header='Name'),
+    Column('resourceManager', header='Resource Manager'),
+    Column('infrastructureType', header='Infrastructure Type'),
+    Column('description', header='Description')
+]
+
+@tnco_builder.make_generate_command()
+def generate_deployment_location():
+    return {
+            'name': 'Example',
+            'resourceManager': 'brent',
+            'infrastructureType': 'Other',
+            'infrastructureSpecificProperties': {
+                'locationPropertyA': 'valueA'
+            }
+        }
+
+@tnco_builder.make_create_command()
+def create_deployment_location(tnco_client: TNCOClient, obj: Dict[str, Any]):
+    tnco_client.deployment_locations.create(obj)
+    deployment_location_name = obj['name']
+    return deployment_location_name
+
+@tnco_builder.make_update_command(identifiers=[name])
+@click.argument(name.param_name, required=False)
+def update_deployment_location(tnco_client: TNCOClient, identity: Identity, obj: Dict[str, Any], patchable: bool):
+    if patchable:
+        patch_values = obj
+        obj = tnco_client.deployment_locations.get(identity.value)
+        obj.update(patch_values)
+    else:
+        obj['name'] = identity.value
+        obj['id'] = identity.value
+    tnco_client.deployment_locations.update(obj)
+    deployment_location_name = obj['name']
+    return deployment_location_name
+
+@tnco_builder.make_get_command(
+    identifiers=[name, name_contains_opt],
+    identifier_required=False,
+    default_columns=default_columns
+)
+@click.argument(name.param_name, required=False)
+@click.option(*name_contains_opt.param_opts, help='Partial name search string')
+def get_deployment_location(tnco_client: TNCOClient, identity: Identity):
+    api = tnco_client.deployment_locations
+    if identity is None:
+        return api.all()
+    else:
+        if identity.identifier.param_name == name.param_name:
+            deployment_location_name = identity.value
+            return api.get(deployment_location_name)
+        else:
+            search_str = identity.value
+            return api.all_with_name(search_str)
+
+@tnco_builder.make_delete_command(identifiers=[name])
+@click.argument(name.param_name, required=False)
+def delete_deployment_location(tnco_client: TNCOClient, identity: Identity):
+    api = tnco_client.deployment_locations
+    deployment_location_name = identity.value
+    api.delete(deployment_location_name)
+    return deployment_location_name
+
+##### Deprecated 
 import yaml
 import os
 import json
 import lmctl.cli.ctlmgmt as ctlmgmt
 from lmctl.cli.safety_net import lm_driver_safety_net
 from lmctl.cli.format import determine_format_class, TableFormat
-from lmctl.cli.cmd_tags import deprecated_tag
 
-logger = logging.getLogger(__name__)
-
-@deprecated_tag
-@click.group(name='deployment', short_help='Use "lmctl create/get/update/delete deploymentlocation"', help='deprecated in v3.0: Commands for managing Deployment Locations')
+@click.group(name='deployment', hidden=True, short_help='Use "lmctl create/get/update/delete deploymentlocation"', help='deprecated in v3.0: Commands for managing Deployment Locations')
 def deployment():
     logger.debug('Deployment Location Management')
 

@@ -1,9 +1,9 @@
 from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict
 from lmctl.cli.entry import cli
-from lmctl.cli.format import TableFormat
+from lmctl.cli.format import TableFormat, Table
 from lmctl.client import TNCOClientHttpError
-from lmctl.cli.commands.targets.descriptor_templates import DescriptorTemplatesTable
+from lmctl.cli.commands.descriptor_templates import default_columns
 import yaml
 import json
 import time
@@ -89,7 +89,7 @@ class TestDescriptorTemplates(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, [
             'get', 'descriptortemplate', self.test_case_props['template_A']['name'], '-e', 'default'
             ])
-        table_format = TableFormat(table=DescriptorTemplatesTable())
+        table_format = TableFormat(table=Table(columns=default_columns))
         expected_output = table_format.convert_element(self.test_case_props['template_A'])
         self.assert_output(result, expected_output)
 

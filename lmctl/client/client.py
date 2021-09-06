@@ -147,6 +147,10 @@ class TNCOClient:
 
     @property
     def behaviour_assembly_confs(self) -> BehaviourAssemblyConfigurationsAPI:
+        return self.behaviour_assembly_configs
+
+    @property
+    def behaviour_assembly_configs(self) -> BehaviourAssemblyConfigurationsAPI:
         return BehaviourAssemblyConfigurationsAPI(self)
 
     @property

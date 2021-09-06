@@ -1,9 +1,9 @@
 from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict
 from lmctl.cli.entry import cli
-from lmctl.cli.format import TableFormat
+from lmctl.cli.format import TableFormat, Table
 from lmctl.client import TNCOClientHttpError
-from lmctl.cli.commands.targets.descriptors import DescriptorTable
+from lmctl.cli.commands.descriptors import default_columns
 import yaml
 import json
 import time
@@ -81,7 +81,7 @@ class TestDescriptors(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, [
             'get', 'descriptor', self.test_case_props['descriptor_A']['name'], '-e', 'default'
             ])
-        table_format = TableFormat(table=DescriptorTable())
+        table_format = TableFormat(table=Table(columns=default_columns))
         expected_output = table_format.convert_element(self.test_case_props['descriptor_A'])
         self.assert_output(result, expected_output)
 
@@ -192,17 +192,6 @@ class TestDescriptors(CLIIntegrationTest):
         api_get_result = self.tester.default_client.descriptors.get(descriptor_name)
         self.assertEqual(api_get_result['description'], 'Updated descriptor for cmd testing with --set')
 
-    def test_update_with_name_and_file_fails(self):
-        yml_file = self.tester.create_yaml_file('descriptor-cmd-update-with-name-and-file-fails.yaml', self.test_case_props['descriptor_A'])
-        update_result = self.cli_runner.invoke(cli, [
-            'update', 'descriptor', '-e', 'default', 'SomeName', '-f', yml_file
-            ])
-        self.assert_has_system_exit(update_result)
-        expected_output = 'Usage: cli update descriptor [OPTIONS] [NAME]'
-        expected_output += '\nTry \'cli update descriptor --help\' for help.'
-        expected_output += '\n\nError: Do not use "NAME" argument when using "-f, --file" option'
-        self.assert_output(update_result, expected_output)
-
     def test_update_with_set_and_no_name_fails(self):
         update_result = self.cli_runner.invoke(cli, [
             'update', 'descriptor', '-e', 'default',  '--set', 'description=testing'
@@ -210,7 +199,7 @@ class TestDescriptors(CLIIntegrationTest):
         self.assert_has_system_exit(update_result)
         expected_output = 'Usage: cli update descriptor [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli update descriptor --help\' for help.'
-        expected_output += '\n\nError: Must set "NAME" argument when no "-f, --file" option specified'
+        expected_output += '\n\nError: Must identify the target by specifying the "name" parameter or by including the "name" attribute in the given object/file'
         self.assert_output(update_result, expected_output)
 
     def test_delete_with_yaml_file(self):
@@ -296,7 +285,7 @@ class TestDescriptors(CLIIntegrationTest):
         self.assert_has_system_exit(delete_result)
         expected_output = 'Usage: cli delete descriptor [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli delete descriptor --help\' for help.'
-        expected_output += '\n\nError: Must set "NAME" argument when no "-f, --file" option specified'
+        expected_output += '\n\nError: Must identify the target by specifying the "name" parameter or by including the "name" attribute in the given object/file'
         self.assert_output(delete_result, expected_output)
     
     def test_delete_with_ignore_missing(self):
@@ -304,4 +293,4 @@ class TestDescriptors(CLIIntegrationTest):
             'delete', 'descriptor', '-e', 'default', 'assembly::nonexistent::1.0', '--ignore-missing'
             ])
         self.assert_no_errors(delete_result)
-        self.assert_output(delete_result, f'No Descriptor found with name assembly::nonexistent::1.0 (ignoring)')
+        self.assert_output(delete_result, f'(Ignored) No descriptor found with name: assembly::nonexistent::1.0')

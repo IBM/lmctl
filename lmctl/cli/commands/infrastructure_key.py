@@ -1,15 +1,94 @@
 import click
 import logging
+from .utils import TNCOCommandBuilder, Identity, Identifier
+from lmctl.client import TNCOClient
+from lmctl.cli.format import Column
+from typing import Dict, Any, Type
+
+logger = logging.getLogger(__name__)
+
+__all__ = (
+    'generate_infrastructure_key',
+    'create_infrastructure_key',
+    'update_infrastructure_key',
+    'delete_infrastructure_key',
+    'get_infrastructure_key',
+)
+
+tnco_builder = TNCOCommandBuilder(
+    singular='infrastructurekey',
+    plural='infrastructurekeys',
+    display_name='Infrastructure Key'
+)
+
+name = Identifier.arg_and_attr('name')
+
+default_columns = [
+    Column('name', header='Name'),
+    Column('id', header='ID'),
+    Column('description', header='Description')
+]
+
+@tnco_builder.make_generate_command()
+def generate_infrastructure_key():
+    return {
+            'name': 'example',
+            'description': 'An infrastructure key', 
+            'privateKey': 'the-private-part',
+            'publicKey': 'the-public-part'
+        }
+
+@tnco_builder.make_create_command()
+def create_infrastructure_key(tnco_client: TNCOClient, obj: Dict[str, Any]):
+    tnco_client.shared_inf_keys.create(obj)
+    infrastructure_key_name = obj['name']
+    return infrastructure_key_name
+
+@tnco_builder.make_update_command(identifiers=[name])
+@click.argument(name.param_name, required=False)
+def update_infrastructure_key(tnco_client: TNCOClient, identity: Identity, obj: Dict[str, Any], patchable: bool):
+    if patchable:
+        patch_values = obj
+        obj = tnco_client.shared_inf_keys.get(identity.value)
+        obj.update(patch_values)
+    else:
+        obj['name'] = identity.value
+    tnco_client.shared_inf_keys.update(obj)
+    return obj['name']
+
+@tnco_builder.make_get_command(
+    identifiers=[name],
+    identifier_required=False,
+    default_columns=default_columns
+)
+@click.argument(name.param_name, required=False)
+@click.option('--include-private', is_flag=True, help='Include private key value for each key in the response')
+def get_infrastructure_key(tnco_client: TNCOClient, identity: Identity, include_private: bool):
+    api = tnco_client.shared_inf_keys
+    if identity is None:
+        return api.all(include_private_key=include_private) 
+    else:
+        return api.get(identity.value, include_private_key=include_private)
+
+@tnco_builder.make_delete_command(identifiers=[name])
+@click.argument(name.param_name, required=False)
+def delete_infrastructure_key(tnco_client: TNCOClient, identity: Identity):
+    infrastructure_key_name = identity.value
+    tnco_client.shared_inf_keys.delete(infrastructure_key_name)
+    return infrastructure_key_name
+
+##### Deprecated 
+
+import logging
 import os
 import lmctl.cli.ctlmgmt as ctlmgmt
 from lmctl.cli.safety_net import lm_driver_safety_net
 from lmctl.cli.format import determine_format_class, TableFormat
-from lmctl.cli.cmd_tags import deprecated_tag
+
 
 logger = logging.getLogger(__name__)
 
-@deprecated_tag
-@click.group(name='key', short_help='Use "lmctl create/get/update/delete infrastructurekey"', help='deprecated in v3.0: Commands for managing shared infrastructure keys')
+@click.group(name='key', hidden=True, short_help='Use "lmctl create/get/update/delete infrastructurekey"', help='deprecated in v3.0: Commands for managing shared infrastructure keys')
 def key():
     logger.debug('Infrastructure Key Management')
 

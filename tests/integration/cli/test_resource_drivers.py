@@ -1,9 +1,9 @@
 from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict
 from lmctl.cli.entry import cli
-from lmctl.cli.format import TableFormat
+from lmctl.cli.format import TableFormat, Table
 from lmctl.client import TNCOClientHttpError
-from lmctl.cli.commands.targets.resource_driver import ResourceDriverTable
+from lmctl.cli.commands.resourcedriver import default_columns
 import yaml
 import json
 import time
@@ -49,7 +49,7 @@ class TestResourceDrivers(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, [
             'get', 'resourcedriver', self.test_case_props['driver_A']['id'], '-e', 'default'
             ])
-        table_format = TableFormat(table=ResourceDriverTable())
+        table_format = TableFormat(table=Table(columns=default_columns))
         expected_output = table_format.convert_element(self.test_case_props['driver_A'])
         self.assert_output(result, expected_output)
 
@@ -57,7 +57,7 @@ class TestResourceDrivers(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, [
             'get', 'resourcedriver', '-e', 'default', '--type', self.test_case_props['driver_B']['type']
             ])
-        table_format = TableFormat(table=ResourceDriverTable())
+        table_format = TableFormat(table=Table(columns=default_columns))
         expected_output = table_format.convert_element(self.test_case_props['driver_B'])
         self.assert_output(result, expected_output)
 
@@ -68,7 +68,7 @@ class TestResourceDrivers(CLIIntegrationTest):
         self.assert_has_system_exit(result)
         expected_output = 'Usage: cli get resourcedriver [OPTIONS] [ID]'
         expected_output += '\nTry \'cli get resourcedriver --help\' for help.'
-        expected_output += '\n\nError: Must set either "ID" argument or "--type" option'
+        expected_output += '\n\nError: Must identify the target by specifying one parameter from ["id", "--type"] or by including one of the following attributes ["id", "infrastructureType"] in the given object/file'
         self.assert_output(result, expected_output)
     
     def test_create_with_yaml_file(self):
@@ -225,7 +225,7 @@ class TestResourceDrivers(CLIIntegrationTest):
         self.assert_has_system_exit(delete_result)
         expected_output = 'Usage: cli delete resourcedriver [OPTIONS] [ID]'
         expected_output += '\nTry \'cli delete resourcedriver --help\' for help.'
-        expected_output += '\n\nError: Must set either "ID" argument or "--type" option or "-f, --file" option'
+        expected_output += '\n\nError: Must identify the target by specifying one parameter from ["id", "--type"] or by including one of the following attributes ["id", "infrastructureType"] in the given object/file'
         self.assert_output(delete_result, expected_output)
     
     def test_delete_with_ignore_missing(self):
@@ -233,4 +233,4 @@ class TestResourceDrivers(CLIIntegrationTest):
             'delete', 'resourcedriver', '-e', 'default', 'NonExistentObj', '--ignore-missing'
             ])
         self.assert_no_errors(delete_result)
-        self.assert_output(delete_result, f'No Resource Driver found with ID NonExistentObj (ignoring)')
+        self.assert_output(delete_result, f'(Ignored) 404 Client Error:  for url: https://9.20.192.159/api/resource-manager/resource-drivers/NonExistentObj')

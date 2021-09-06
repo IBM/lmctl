@@ -1,9 +1,9 @@
 from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict
 from lmctl.cli.entry import cli
-from lmctl.cli.format import TableFormat
+from lmctl.cli.format import TableFormat, Table
 from lmctl.client import TNCOClientHttpError
-from lmctl.cli.commands.targets.behaviour_projects import ProjectTable
+from lmctl.cli.commands.behaviour_projects import default_columns
 import yaml
 import json
 import time
@@ -81,7 +81,7 @@ class TestBehaviourProjects(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, [
             'get', 'behaviourproject', self.test_case_props['project_A']['id'], '-e', 'default'
             ])
-        table_format = TableFormat(table=ProjectTable())
+        table_format = TableFormat(table=Table(columns=default_columns))
         expected_output = table_format.convert_element(self.test_case_props['project_A'])
         self.assert_output(result, expected_output)
         
@@ -165,16 +165,19 @@ class TestBehaviourProjects(CLIIntegrationTest):
         api_get_result = self.tester.default_client.behaviour_projects.get(project_name)
         self.assertEqual(api_get_result['description'], 'Updated descriptor for cmd testing with --set')
 
-    def test_update_with_name_and_file_fails(self):
-        yml_file = self.tester.create_yaml_file('project-cmd-update-with-name-and-file-fails.yaml', self.test_case_props['project_A'])
+    def test_update_with_name_and_file(self):
+        project_name = self.test_case_props['project_A']['id']
+        project = self.test_case_props['project_A'].copy()
+        project['name'] = None
+        project['description'] = 'Updated descriptor for cmd testing with file' 
+        yml_file = self.tester.create_yaml_file('project-cmd-update-with-name-and-file.yaml', project)
         update_result = self.cli_runner.invoke(cli, [
-            'update', 'behaviourproject', '-e', 'default', 'SomeName', '-f', yml_file
+            'update', 'behaviourproject', '-e', 'default', project_name, '-f', yml_file
             ])
-        self.assert_has_system_exit(update_result)
-        expected_output = 'Usage: cli update behaviourproject [OPTIONS] [NAME]'
-        expected_output += '\nTry \'cli update behaviourproject --help\' for help.'
-        expected_output += '\n\nError: Do not use "NAME" argument when using "-f, --file" option'
-        self.assert_output(update_result, expected_output)
+        self.assert_output(update_result, f'Updated: {project_name}')
+        time.sleep(0.2)
+        api_get_result = self.tester.default_client.behaviour_projects.get(project_name)
+        self.assertEqual(api_get_result['description'], 'Updated descriptor for cmd testing with file')
 
     def test_update_with_set_and_no_name_fails(self):
         update_result = self.cli_runner.invoke(cli, [
@@ -183,7 +186,7 @@ class TestBehaviourProjects(CLIIntegrationTest):
         self.assert_has_system_exit(update_result)
         expected_output = 'Usage: cli update behaviourproject [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli update behaviourproject --help\' for help.'
-        expected_output += '\n\nError: Must set "NAME" argument when no "-f, --file" option specified'
+        expected_output += '\n\nError: Must identify the target by specifying the "name" parameter or by including the "name" attribute in the given object/file'
         self.assert_output(update_result, expected_output)
 
     def test_delete_with_yaml_file(self):
@@ -269,7 +272,7 @@ class TestBehaviourProjects(CLIIntegrationTest):
         self.assert_has_system_exit(delete_result)
         expected_output = 'Usage: cli delete behaviourproject [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli delete behaviourproject --help\' for help.'
-        expected_output += '\n\nError: Must set "NAME" argument when no "-f, --file" option specified'
+        expected_output += '\n\nError: Must identify the target by specifying the "name" parameter or by including the "name" attribute in the given object/file'
         self.assert_output(delete_result, expected_output)
     
     def test_delete_with_ignore_missing(self):
@@ -277,4 +280,4 @@ class TestBehaviourProjects(CLIIntegrationTest):
             'delete', 'behaviourproject', '-e', 'default', 'NonExistentObj', '--ignore-missing'
             ])
         self.assert_no_errors(delete_result)
-        self.assert_output(delete_result, f'No Behaviour Project found with name (ID) NonExistentObj (ignoring)')
+        self.assert_output(delete_result, f'(Ignored) Entity of type \'Project\' could not be found matching: id=NonExistentObj')

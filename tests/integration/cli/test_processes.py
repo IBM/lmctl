@@ -1,10 +1,10 @@
 from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict, Tuple
 from lmctl.cli.entry import cli
-from lmctl.cli.format import TableFormat
+from lmctl.cli.format import TableFormat, Table
 from lmctl.client import TNCOClientHttpError
 from lmctl.client.models import CreateAssemblyIntent, DeleteAssemblyIntent
-from lmctl.cli.commands.targets.processes import ProcessTable
+from lmctl.cli.commands.processes import default_columns
 import yaml
 import os
 import json
@@ -96,7 +96,7 @@ class TestProcesses(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, 
             ['get', 'process', '-e', 'default', process_id]
         )
-        table_format = TableFormat(table=ProcessTable())
+        table_format = TableFormat(table=Table(columns=default_columns))
         target_process = self.tester.default_client.processes.get(process_id)
         expected_output = table_format.convert_element(target_process)
         self.assert_output(result, expected_output)
@@ -120,7 +120,7 @@ class TestProcesses(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, 
             ['get', 'process', '-e', 'default', '--assembly-name', assembly_name]
         )
-        table_format = TableFormat(table=ProcessTable())
+        table_format = TableFormat(table=Table(columns=default_columns))
         target_process = self.tester.default_client.processes.get(process_id)
         expected_output = table_format.convert_element(target_process)
         self.assert_output(result, expected_output)
