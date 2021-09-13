@@ -1,5 +1,12 @@
+import logging
+from typing import Dict
 from .sp_api_base import SitePlannerAPIGroup, SitePlannerCrudAPI
 from .automation_context import AutomationContextAPIMixin
+from lmctl.client.exceptions import SitePlannerClientError
+
+logger = logging.getLogger(__name__)
+
+
 
 class AggregatesAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'ipam.aggregates'
@@ -50,6 +57,61 @@ class VrfsAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
 
     _object_type = 'ipam.vrf'
 
+class SubnetRolesAPI(SitePlannerCrudAPI):
+    _endpoint_chain = 'ipam.subnetroles'
+
+    def get_by_name(self, name: str) -> Dict:
+        resp = self._make_direct_http_call(
+            verb='get',
+            override_url=self._pynb_endpoint.url + f'/?name={name}',
+        ).json()
+        count = resp.get('count', 0)
+        if count == 0:
+            return None
+        if count > 1:
+            raise SitePlannerClientError(f'Too many matches on name: {name}')
+        results = resp.get('results', None)
+        if results is None:
+            return None
+        obj = results[0]
+        return self._record_to_dict(obj)
+
+
+class SubnetsAPI(SitePlannerCrudAPI):
+    _endpoint_chain = 'ipam.subnets'
+
+    def get_by_name(self, name: str) -> Dict:
+        resp = self._make_direct_http_call(
+            verb='get',
+            override_url=self._pynb_endpoint.url + f'/?name={name}',
+        ).json()
+        count = resp.get('count', 0)
+        if count == 0:
+            return None
+        if count > 1:
+            raise SitePlannerClientError(f'Too many matches on name: {name}')
+        results = resp.get('results', None)
+        if results is None:
+            return None
+        obj = results[0]
+        return self._record_to_dict(obj)
+
+    def get_by_cidr(self, cidr: str) -> Dict:
+        resp = self._make_direct_http_call(
+            verb='get',
+            override_url=self._pynb_endpoint.url + f'/?cidr={cidr}',
+        ).json()
+        count = resp.get('count', 0)
+        if count == 0:
+            return None
+        if count > 1:
+            raise SitePlannerClientError(f'Too many matches on cidr: {cidr}')
+        results = resp.get('results', None)
+        if results is None:
+            return None
+        obj = results[0]
+        return self._record_to_dict(obj)
+
 
 class IPAMGroup(SitePlannerAPIGroup):
 
@@ -88,3 +150,11 @@ class IPAMGroup(SitePlannerAPIGroup):
     @property
     def vrfs(self):
         return VrfsAPI(self._sp_client)
+
+    @property
+    def subnets(self):
+        return SubnetsAPI(self._sp_client)
+
+    @property
+    def subnet_roles(self):
+        return SubnetRolesAPI(self._sp_client)

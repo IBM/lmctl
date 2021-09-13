@@ -1,3 +1,4 @@
+from lmctl.client.sp_apis.sdwan import SDWANGroup
 import pynetbox
 from .sp_apis import (
     SitePlannerAPIGroup, 
@@ -9,7 +10,7 @@ from .sp_apis import (
     VirtualizationGroup, 
     NFVIAutomationGroup,
     NFVIManagementGroup,
-    NFVOAutomationGroup
+    NFVOAutomationGroup,
 )
 
 class SitePlannerClient:
@@ -45,6 +46,10 @@ class SitePlannerClient:
     @property
     def tenancy(self) -> TenancyGroup:
         return TenancyGroup(self)
+
+    @property
+    def sdwan(self) -> SDWANGroup:
+        return SDWANGroup(self)
 
     @property
     def virtualization(self) -> VirtualizationGroup:
