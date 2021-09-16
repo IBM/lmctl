@@ -16,11 +16,45 @@ class ClusterGroupsAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
 class ClusterTypesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'virtualization.cluster_types'
 
+    def get_by_name(self, name: str) -> Dict:
+        override_url = self._pynb_endpoint.url + f'/?name={name}'
+        resp = self._make_direct_http_call(
+            verb='get',
+            override_url=override_url,
+        ).json()
+        count = resp.get('count', 0)
+        if count == 0:
+            return None
+        if count > 1:
+            raise SitePlannerClientError(f'Too many matches on name: {name}')
+        results = resp.get('results', None)
+        if results is None:
+            return None
+        obj = results[0]
+        return self._record_to_dict(obj)
+
 class ClustersAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _endpoint_chain = 'virtualization.clusters'
     _relation_fields = ['type', 'group', 'tenant', 'site']
 
     _object_type = 'virtualization.cluster'
+
+    def get_by_name(self, name: str) -> Dict:
+        override_url = self._pynb_endpoint.url + f'/?name={name}'
+        resp = self._make_direct_http_call(
+            verb='get',
+            override_url=override_url,
+        ).json()
+        count = resp.get('count', 0)
+        if count == 0:
+            return None
+        if count > 1:
+            raise SitePlannerClientError(f'Too many matches on name: {name}')
+        results = resp.get('results', None)
+        if results is None:
+            return None
+        obj = results[0]
+        return self._record_to_dict(obj)
 
 class InterfacesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'virtualization.interfaces'
@@ -31,6 +65,24 @@ class VirtualMachinesAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
     _relation_fields = ['site', 'cluster', 'role', 'tenant', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6']
 
     _object_type = 'virtualization.virtualmachine'
+
+    def get_by_name(self, name: str) -> Dict:
+        override_url = self._pynb_endpoint.url + f'/?name={name}'
+        resp = self._make_direct_http_call(
+            verb='get',
+            override_url=override_url,
+        ).json()
+        count = resp.get('count', 0)
+        if count == 0:
+            return None
+        if count > 1:
+            raise SitePlannerClientError(f'Too many matches on name: {name}')
+        results = resp.get('results', None)
+        if results is None:
+            return None
+        obj = results[0]
+        return self._record_to_dict(obj)
+
 
 class CloudAccountTypesAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'virtualization.cloudaccounttypes'

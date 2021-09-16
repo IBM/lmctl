@@ -21,6 +21,23 @@ class IPAddressesAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
 
     _object_type = 'ipam.ipaddress'
 
+    def get_by_address(self, addr: str) -> Dict:
+        override_url = self._pynb_endpoint.url + f'/?address={addr}'
+        resp = self._make_direct_http_call(
+            verb='get',
+            override_url=override_url,
+        ).json()
+        count = resp.get('count', 0)
+        if count == 0:
+            return None
+        if count > 1:
+            raise SitePlannerClientError(f'Too many matches on address: {addr}')
+        results = resp.get('results', None)
+        if results is None:
+            return None
+        obj = results[0]
+        return self._record_to_dict(obj)
+
 # TODO - prefixes/available-ips, prefixes/available-prefixes
 
 class PrefixesAPI(SitePlannerCrudAPI, AutomationContextAPIMixin):
