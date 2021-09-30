@@ -1,4 +1,5 @@
 import copy
+from lmctl.client.client_request import TNCOClientRequest
 import pynetbox
 import requests
 from pynetbox.core.query import Request, RequestError, AllocationError, ContentError
@@ -72,6 +73,11 @@ class SitePlannerAPI:
                 new_obj[k] = v.get('value')
         return new_obj
 
+    def _get_json(self, endpoint: str, query_params: Dict[str,str] = None):
+        request = TNCOClientRequest.build_request_for_json(endpoint=endpoint)
+        if query_params is not None:
+            request.query_params.update(query_params)
+        return self._exec_request_and_parse_json(request)
 
 class SitePlannerCreateMixin:
     def create(self, obj: Dict) -> Dict:

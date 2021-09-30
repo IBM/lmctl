@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Dict, List, Union
 from .sp_api_base import SitePlannerAPIGroup, SitePlannerCrudAPI, SitePlannerAPI, SitePlannerGetMixin, SitePlannerDeleteMixin, SitePlannerListMixin
 from .utils import make_call, check_response_and_get_json, check_response
 from lmctl.client.utils import read_response_location_header, read_response_body_as_json
@@ -7,7 +7,16 @@ from pynetbox.core.query import Request
 
 class AutomationContextProcessesAPI(SitePlannerAPI, SitePlannerGetMixin, SitePlannerDeleteMixin, SitePlannerListMixin):
     _endpoint_chain = 'plugins.nfvi-automation.automation_context_processes'
-    
+
+    def query(self, **query_params) -> List:
+        return self._get_json(self.endpoint, query_params=query_params)
+
+    def get_by_object_type_and_pk(self, object_type: str, object_pk: str) -> List:
+        result_set = self._make_pynb_call('filter', {
+            'object_type': object_type,
+            'v': object_pk
+        })
+        return [self._record_to_dict(r) for r in result_set]
 
 class AutomationContextsAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'plugins.nfvi-automation.automation_contexts'

@@ -3,7 +3,7 @@ from .sp_api_base import SitePlannerAPIGroup, SitePlannerCrudAPI
 from .automation_context import AutomationContextAPIMixin
 from lmctl.client.utils import read_response_location_header
 from lmctl.client.exceptions import SitePlannerClientError
-from typing import Dict
+from typing import Dict, List
 
 
 logger = logging.getLogger(__name__)
@@ -162,21 +162,12 @@ class VPCsAPI(SitePlannerCrudAPI):
         obj = results[0]
         return self._record_to_dict(obj)
 
-    def get_by_cloud_provider_id(self, id: str) -> Dict:
+    def get_by_cloud_provider_id(self, id: str) -> List:
         resp = self._make_direct_http_call(
             verb='get',
-            override_url=self._pynb_endpoint.url + f'/?cloud_provider_id={id}',
+            override_url=self._pynb_endpoint.url + f'/?cloud_account_id={id}',
         ).json()
-        count = resp.get('count', 0)
-        if count == 0:
-            return None
-        if count > 1:
-            raise SitePlannerClientError(f'Too many matches on cloud_provider_id: {id}')
-        results = resp.get('results', None)
-        if results is None:
-            return None
-        obj = results[0]
-        return self._record_to_dict(obj)
+        return [self._record_to_dict(r) for r in resp.get('results', [])]
 
     def build(self, id: str) -> str:
         response = self._make_direct_http_call(
