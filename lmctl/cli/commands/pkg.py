@@ -5,11 +5,12 @@ import os
 import lmctl.cli.lifecycle as lifecycle_cli
 import lmctl.project.package.core as pkgs
 from lmctl.cli.format import determine_format_class
+from lmctl.cli.cmd_tags import project_tag
 
 logger = logging.getLogger(__name__)
 
-
-@click.group(help='Commands for managing a package built from an Assembly/Resource Project')
+@project_tag
+@click.group(short_help='Onboard a package built from a Project', help='Onboard a package previously built from a Project, distributed as a ".tgz" or ".csar" file')
 def pkg():
     logger.debug('Package Management')
 
@@ -17,15 +18,15 @@ def pkg():
 PUSH_HEADER = 'Push'
 
 
-@pkg.command(help='Push a previously built package to a LM environment')
+@pkg.command(help='Push a previously built package to a CP4NA orchestration environment')
 @click.argument('package')
 @click.argument('environment', required=False, default=None)
 @click.option('--config', default=None, help='configuration file')
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources to must be provided')
-@click.option('--pwd', '--api-key', default=None, help='TNCO (ALM) password/api_key used for authenticating. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
+@click.option('--pwd', '--api-key', default=None, help='password/api_key used for authenticating with CP4NA orchestration. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
 def push(package, environment, config, armname, pwd, autocorrect):
-    """Pushes an existing Assembly/Resource package to a target LM (and ARM) environment"""
+    """Pushes an existing Assembly/Resource package to a target CP4NA orchestration (and ARM) environment"""
     logger.debug('Pushing package at: {0}'.format(package))
     pkg, pkg_content = lifecycle_cli.get_pkg_and_open(package)
     try:

@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class LmInfrastructureKeysDriver(LmDriver):
     """
-    Client for LM Infrastructure Key APIs
+    Client for CP4NA orchestration Infrastructure Key APIs
     """
 
     def __init__(self, lm_base, lm_security_ctrl=None):

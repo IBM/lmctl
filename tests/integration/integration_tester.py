@@ -39,7 +39,7 @@ class IntegrationTester:
             shutil.rmtree(self.tmp_dir)
 
     def read_latest_copy_of_config(self):
-        return get_config(override_config_path=self.config_path)[0]
+        return get_config(override_config_path=self.config_path)
     
     def _create_config_file(self):
         self.config_path = os.path.join(self.tmp_dir, 'lmctl-config.yaml')

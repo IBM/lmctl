@@ -2,13 +2,15 @@ from .common import build_address
 from typing import Union
 import lmctl.drivers.arm as arm_drivers
 from pydantic.dataclasses import dataclass
-from pydantic import constr, root_validator
+from pydantic import root_validator
+from lmctl.utils.dcutils.dc_capture import recordattrs
 
 DEFAULT_PROTOCOL = 'https'
 
+@recordattrs
 @dataclass
 class ArmEnvironment:
-    name: constr(strip_whitespace=True, min_length=1)
+    name: str = None
     address: str = None
     host: str = None
     port: Union[str,int] = None

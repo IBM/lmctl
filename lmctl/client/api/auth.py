@@ -55,7 +55,7 @@ class AuthenticationAPI(TNCOAPI):
             auth_response = self.base_client.make_request_for_json(request)
         except TNCOClientHttpError as e:
             if e.status_code == 404:
-                logger.info(f'Failed to access login API at {self.legacy_login_endpoint}, responded with {e.status_code} status code...may be an older LM environment, trying {self.older_legacy_login_endpoint}')
+                logger.info(f'Failed to access login API at {self.legacy_login_endpoint}, responded with {e.status_code} status code...may be an older CP4NA orchestration environment, trying {self.older_legacy_login_endpoint}')
                 request = TNCOClientRequest(method='POST', endpoint=self.older_legacy_login_endpoint)\
                         .disable_auth_token()\
                         .add_json_body(body)

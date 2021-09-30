@@ -4,9 +4,14 @@
 
 # LMCTL 
 
-:computer: LMCTL is a command-line client that provides commands for interacting with IBM Cloud Pak for Network Automation (CP4NA) orchestrator (previously TNCO/ALM) environments. 
+:computer: LMCTL is a command-line client that provides commands for interacting with IBM Cloud Pak for Network Automation (CP4NA) orchestration managed (previously known as TNCO/ALM) environments. 
 
 In addition it includes an opinionated pattern for managing xNF/Network Service designs during the CICD lifecycle, as file based projects, to produce packages suitable for production release.
+
+- [Quick Install](#quick-install)
+- [Latest Release](#latest-release)
+- [User Guide](#user-guide)
+- [Development Doc](#development-docs)
 
 # Quick Install
 
@@ -34,7 +39,7 @@ Login to an environment:
 lmctl login alm-ishtar.example.com --auth-address alm-nimrod.example.com --username almadmin --save-creds
 ```
 
-> Learn more about `lmctl login` in the [getting started guide](docs/getting-started.md)
+For more complete install and login instructions, check out the [getting started guide](docs/getting-started.md)
 
 # Latest release
 

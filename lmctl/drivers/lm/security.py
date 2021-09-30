@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class LmSecurityDriver(LmDriver):
     """
-    Client for LM Security APIs
+    Client for CP4NA orchestration Security APIs
     """
 
     def __init__(self, lm_base):
@@ -37,15 +37,15 @@ class LmSecurityDriver(LmDriver):
 
 class LmSecurityCtrl:
     """
-    Manages authentication with a target LM environment 
+    Manages authentication with a target CP4NA orchestration environment 
     """
 
     def __init__(self, auth_address, username=None, password=None, client_id=None, client_secret=None, token=None, api_key=None, auth_mode=None):
         """
-        Constructs a new instance of controller for a target LM environment and target user
+        Constructs a new instance of controller for a target CP4NA orchestration environment and target user
 
         Args:
-            auth_address (str): the base URL of the target LM environment for authentication. May be a Zen endpoint if auth_mode is Zen e.g. http://ui.lm:32080
+            auth_address (str): the base URL of the target CP4NA orchestration environment for authentication. May be a Zen endpoint if auth_mode is Zen e.g. http://ui.lm:32080
             username (str): the username to authenticate as
             password (str): the password for the specified username
             client_id (str): the client_id to authenticate as

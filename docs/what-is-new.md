@@ -3,17 +3,20 @@
 :tada:
 
 Contents:
-- New in 3.0.X
+- New in 3.0.0
   - :file_folder: [Default LMCTL config file location](#default-lmctl-config-file-location)
   - :muscle: [Expanded Command Capabilities](#expanded-command-capabilities)
-  - :snake: [CP4NA Python Client](#cp4na-python-client)
-  - :wrench: [CP4NA Environment Improvements](#cp4na-environment-address-improvements)
+  - :snake: [CP4NA orchestration Python Client](#cp4na-python-client)
+  - :wrench: [CP4NA orchestration Environment Improvements](#cp4na-environment-address-improvements)
   - :closed_lock_with_key: [Client Credential Authentication](#client-credential-authentication)
-  - :point_right: [Ping CP4NA environment to check configuration](#ping-cp4na-environment-to-check-configuration)
-- New in 3.1.x
+  - :point_right: [Ping CP4NA orchestration environment to check configuration](#ping-cp4na-environment-to-check-configuration)
+- New in 3.1.0
   - :closed_lock_with_key: [Login Command](#login-command)
   - :closed_lock_with_key: [Token Authentication](#token-authentication)
   - :file_folder: [Default Active Environment](#active-environment)
+  - :clipboard: [Log Directory](#log-directory)
+
+# 3.0.0
 
 # Default LMCTL config file location
 
@@ -57,13 +60,13 @@ We hope, by moving the verb to the front of the command, the readability of the 
 
 Don't worry, if you've got scripts using the old style, they will still work! (But they are deprecated, so refactor these when possible)
 
-Every entity in CP4NA has been grouped by the actions allowed on them. Check out the actions available:
+Every entity in CP4NA orchestration has been grouped by the actions allowed on them. Check out the actions available:
 
 ```
 lmctl --help
 ```
 
-Pick an action and check the CP4NA entities you can interact with:
+Pick an action and check the CP4NA orchestration entities you can interact with:
 
 ```
 lmctl get --help
@@ -79,11 +82,11 @@ Read more about commands in the [command reference section of the user guide](co
 
 # CP4NA Python Client
 
-For command line users this part will appear boring but for Python developers looking to interact with CP4NA from their favourite language, you're in luck! 
+For command line users this part will appear boring but for Python developers looking to interact with CP4NA orchestration from their favourite language, you're in luck! 
 
 The previous client module was not built with external use in mind (everything from the `lmctl.drivers` package). In v3.0, we've added a new client module (`lmctl.client`) to be imported and used in Python code outside of LMCTL!
 
-What does this mean? It means you can write Python code to interact with CP4NA:
+What does this mean? It means you can write Python code to interact with CP4NA orchestration:
 
 ```
 from lmctl.client import client_builder
@@ -102,7 +105,7 @@ Read more about the Python client capabilities in the [client section of the use
 
 # CP4NA environment address improvements
 
-Previously, when configuring a target CP4NA (ALM) environment you would use multiple properties to set the address: 
+Previously, when configuring a target CP4NA environment you would use multiple properties to set the address: 
 
 ```yaml
 environments:
@@ -128,7 +131,7 @@ environments:
 
 # Client Credential Authentication
 
-Before v3.0 you could only authenticate with a secure CP4NA environment using client credential-less username/password. In short, this means authenticating with just a username/password. Although allowed, this is not a supported CP4NA authentication method so could disappear at any time. 
+Before v3.0 you could only authenticate with a secure CP4NA environment using client credential-less username/password. In short, this means authenticating with just a username/password. Although allowed, this is not a supported CP4NA orchestration authentication method so could disappear at any time. 
 
 In v3.0, we've added support for legitimate username/password authentication in combination with client credentials AND support for client credentials authentication.
 
@@ -174,6 +177,8 @@ Check you've configured your environment(s) correctly by testing the connection:
 ```
 lmctl ping env <name of env>
 ```
+
+# 3.1.0
 
 # Login Command
 
@@ -239,4 +244,16 @@ The `active_environment` value can also be toggled from the command line, with t
 
 ```
 lmctl use env joes-env
+```
+
+# Log Directory
+
+Previously, LMCTL created/appened to a `lmctl.log` file in the current directory. This meant there would be a new log file in each directory you used LMCTL from, which can be a pain, particularly when dealing with LMCTL projects.
+
+In v3.1.0+, LMCTL will now create all logs files at `<Home directory>/.lmctl/logs`. 
+
+You can ask LMCTL for the exact path on your machine using the new `logdir` command:
+
+```
+lmctl logdir
 ```

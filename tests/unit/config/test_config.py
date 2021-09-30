@@ -2,7 +2,7 @@ import unittest
 import os
 import tempfile
 import shutil
-from lmctl.config import get_config, ConfigError
+from lmctl.config import get_config, ConfigError, get_config_with_path
 
 TEST_CONFIG = '''\
 environments:
@@ -27,7 +27,7 @@ class TestGetConfig(unittest.TestCase):
     def test_get_config_at_path(self):
         config_file_path = os.path.join(self.tmp_dir, 'config.yaml')
         self.__write_file(config_file_path, TEST_CONFIG)
-        config, config_path = get_config(config_file_path)
+        config, config_path = get_config_with_path(config_file_path)
         self.assertEqual(config_path, config_file_path)
         self.assertTrue('test' in config.environments)
 
@@ -35,14 +35,14 @@ class TestGetConfig(unittest.TestCase):
         config_file_path = os.path.join(self.tmp_dir, 'config.yaml')
         with self.assertRaises(ConfigError) as context:
             get_config(config_file_path)
-        self.assertEqual(str(context.exception), f'Provided config path does not exist: {config_file_path}')
+        self.assertEqual(str(context.exception), f'Config path does not exist: {config_file_path}')
 
     def test_use_config_finder_when_no_path(self):
         config_file_path = os.path.join(self.tmp_dir, 'config.yaml')
         self.__write_file(config_file_path, TEST_CONFIG)
         os.environ['LMCONFIG'] = config_file_path
         try:
-            config, config_path = get_config()
+            config, config_path = get_config_with_path()
         finally:
             del os.environ['LMCONFIG']
         self.assertEqual(config_path, config_file_path)

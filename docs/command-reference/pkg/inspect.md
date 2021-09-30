@@ -2,7 +2,7 @@
 
 ## Description
 
-Inspect a package to see the contents to be pushed into a target Stratoss&trade; LM environment
+Inspect a package to see the contents to be pushed into a target CP4NA orchestration environment
 
 ## Usage
 

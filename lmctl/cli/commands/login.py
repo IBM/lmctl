@@ -1,11 +1,13 @@
 import click
 import os
 from lmctl.client import TNCOClientBuilder, ClientCredentialsAuth, UserPassAuth, LegacyUserPassAuth, JwtTokenAuth, TOKEN_AUTH_MODE, LEGACY_OAUTH_MODE, ZEN_AUTH_MODE
-from lmctl.config import ConfigParser, ConfigFinder
-from lmctl.environment import TNCOEnvironment
+from lmctl.config import ConfigFinder, find_config_location, write_config
+from lmctl.environment import TNCOEnvironment, EnvironmentGroup
 from lmctl.cli.controller import get_global_controller, CLIController
+from lmctl.cli.cmd_tags import settings_tag
 
-@click.command(help='Authenticate with an environment and save credentials in the lmctl config file for subsequent use')
+@settings_tag
+@click.command(short_help='Authenticate and save credentials', help='Authenticate with an environment and save credentials in the lmctl config file for subsequent use')
 @click.pass_context
 @click.argument('address')
 @click.option('-u', '--username', default=None, help='Username')
@@ -24,12 +26,12 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
             token: str = None, name: str = None, auth_address: str = None, save_creds: bool = False, yes_to_prompts: bool = False, print_token: bool = False, is_zen: bool = False):
     
     # Support missing config file by pre-creating one
-    path = ConfigFinder().get_default_config_path()
+    path = find_config_location(ignore_not_found=True)
     if not os.path.exists(path):
         with open(path, 'w') as f:
             f.write('environments: {}')
 
-    ctl = get_global_controller()
+    ctl = get_global_controller(override_config_path=path)
 
     _error_if_set(ctx, '--token', token, '--username', username)
     _error_if_set(ctx, '--token', token, '-p, --pwd, --password', pwd)
@@ -73,7 +75,6 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
         auth_mode = ZEN_AUTH_MODE
 
     tnco_env = TNCOEnvironment(
-        name='login', 
         address=address, 
         secure=True,
         client_id=client_id,
@@ -119,16 +120,15 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
                 tnco_env_dict['auth_address'] = auth_address
             if api_key is not None:
                 tnco_env_dict['api_key'] = api_key
+        tnco_env = TNCOEnvironment(**tnco_env_dict)
 
-        # Read as raw dict to prevent null/defaults being written
-        parser = ConfigParser()
-        config_dict = parser.from_file_as_dict(ctl.config_path)
-        config_dict['active_environment'] = name
-        if name not in config_dict['environments']:
-            config_dict['environments'][name] = {}
-        config_dict['environments'][name]['tnco'] = tnco_env_dict
+        # Write
+        if name not in ctl.config.environments:
+            ctl.config.environments[name] = EnvironmentGroup(name=name)
+        ctl.config.environments[name].tnco = tnco_env
+        ctl.config.active_environment = name
         ctl.io.print(f'Updating config at: {ctl.config_path}')
-        parser.write_config_from_dict(config_dict, ctl.config_path)
+        write_config(ctl.config, override_config_path=ctl.config_path)
 
 def _ensure_name(ctl: CLIController, name: str = None, yes_to_prompts: bool = False) -> str:
     if name is None:

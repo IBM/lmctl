@@ -2,21 +2,23 @@ branches:
   only:
   - master
   - develop
-  - /^support\/.*$/
+  - "/^support\\/.*$/"
 language: python
 python:
 - '3.6'
 - '3.7'
+- '3.8'
+- '3.9'
 install:
 - pip install .
 script:
 - python3 -m unittest discover -s tests.unit
 notifications:
   email:
-    on_success: change 
-    on_failure: always 
+    on_success: change
+    on_failure: always
   slack:
     on_success: change
     on_failure: always
     rooms:
-      secure: L43ValVmi3xYFOTLn07AMtnr4RdJePX4hPi+46W47P6ZOwB31GIlh+7zptjtrpv6UIG8XqOc317LZA+eHuPi15p00hNHeyS+127I/R0gcEAw+lkTgKV9FzsYcd+P1kjJAsePawBLZ8H1rpfoeEYI/bhdxIYf/62vdrdtzUyStN2OMz0m2O3WafD/v1d+ODZCmGQ2QfAfeg1OHJ7LHBF4A9pYkR2dKXir93qaQWmuqWn5p4QSV5xEib0vi0POfiPxZI/UG2zsYLQrSVMgAqE483r2nKcjBF63zOc8axTbicdr2TLeMoxJOCM1A4dSrDK9rFNh44O2XOgpjTu/ChOx+wCRoJmlisjgz690LQDsMGcER81Mj4zxU1XcbGzkycHrr4YCTHyAMmy3flTmjhW4TS7kkur1owX44h7h6VHxlOkRgPrDVcR7o90Y2QIcV0SxJHGhEE7hdSuesDuilj3pAd6qCx1pvkIL/06JxAqqEtYSa3AIu/EHAeAU7dilnx+Gs4Mi471ZQI6xY7OQDTYgmTtxe+KNFcOod1XSkgWYQuNqnATZLxa0VEHuWP84cts7ZX5MSIgWQvDa77eqzP58wR1bA3GjIIETGhvLthYWleKWuZmH4HBu0VCmtyWsrjMFJZZleIqilOlbG2Mk5S0fxDkVyrchC1iXkYiRR3EggCw=
+      secure: h7kWp7crWanRkd3BptT6fiGLn5uSRQj0BH+/nyVII0+RUYMLN2CoM+c4vFJT/BAlP/y1jLHMboTB3RRQwem8DjEa2Is5xp31ekg03dW8IBiG7P237QvY98gsdi2yXXwaQcOQ8YdyaKKHEGOpmVluWHuWKOSPIEKxW/lP4Yss9xOl04NVGNNFC/U+dkVuFjuSfLn15Se6SGXR6kOIv97a/ZjqBoG0Sv9TXcUrCS6pHIkHHrhlMpem9yvAB18d51DRfckafTWFsD5SpaV2SVamuowyMZDi8BnLqi5ezQcmBHMPnuiXuOygTcVUARpy+q/g9tFzCh8DuOnTTDeWRgM0jUjRbAfL/B8H0EbUGF85fL2VDilMT9K37D7vai+FiyE+3p1u7gv6XChG7yicX7u38ROU47QLrAT1vMahBauxMxX7hDqMEGnJsHV9K5j7i8RP79ZeSw7BmoSmaV74WObGfFnxKtxudgRz21fduBnaWDFIPiIGls51R6o9f2qoqA92IqL6JQ+6hsoCC6en9D/H+X/PrnggL6IbN3seolojkDd7l2iPU+9GxQwGPp1a3b7mkVf8iQzPzO24EG2rRoPKzr8HHIwvivr3td6L50A0kkY9lAH6btZ+CZ9IIqJF6TTQLRi/wQ6V+Gk+krL2CKb87OzLbke5VbAtuZ1vTkqErhY=

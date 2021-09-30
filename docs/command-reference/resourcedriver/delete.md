@@ -2,7 +2,7 @@
 
 ## Description
 
-Remove a resource driver from a LM environment by ID (or by type)
+Remove a resource driver from a CP4NA orchestration environment by ID (or by type)
 
 ## Usage
 
@@ -22,5 +22,5 @@ lmctl resourcedriver delete [OPTIONS] ENVIRONMENT [DRIVER-ID]
 | Name       | Description                                                                                                                          | Default                       | Example                                  |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------- | ---------------------------------------- |
 | `--config` | path to an LMCTL configuration file to use instead of the file specified on LMCONFIG environment variable                            | LMCONFIG environment variable | --config /home/user/my_lmctl_config.yaml |
-| `--pwd`    | password used for authenticating with LM (only required if LM is secure and no password has been included in the configuration file) | -                             | --pwd secret                             |
+| `--pwd`    | password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and no password has been included in the configuration file) | -                             | --pwd secret                             |
 | `--type`   | Driver type used to identify the resource driver to remove. Use this instead of the driver-id argument                           | -                             | --type Ansible                           |

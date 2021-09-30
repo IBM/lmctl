@@ -340,10 +340,10 @@ class PkgContent(PkgContentBase):
         try:
             rm_data = onboarding_driver.get_rm_by_name(rm_name)
         except lm_drivers.NotFoundException as e:
-            msg = 'Could not find RM named \'{0}\' in LM environment'.format(rm_name)
+            msg = 'Could not find RM named \'{0}\' in CP4NA orchestration environment'.format(rm_name)
             journal.error_event(msg)
             raise PushError(msg) from e
-        journal.event('Refreshing LM ({0}) view of RM known as {1} with url {2}'.format(lm_session.env.address, rm_name, rm_data['url']))
+        journal.event('Refreshing CP4NA orchestration ({0}) view of RM known as {1} with url {2}'.format(lm_session.env.address, rm_name, rm_data['url']))
         onboarding_driver.update_rm(rm_data)
 
 class ExpandedPkgTree(files.Tree):

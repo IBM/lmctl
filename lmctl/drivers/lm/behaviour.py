@@ -5,7 +5,7 @@ from .base import LmDriver, NotFoundException
 
 class LmBehaviourDriver(LmDriver):
     """
-    Client for the LM Behaviour APIs
+    Client for the CP4NA orchestration Behaviour APIs
     """
 
     def __init__(self, lm_base, lm_security_ctrl=None):

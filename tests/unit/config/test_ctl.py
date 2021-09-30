@@ -9,8 +9,8 @@ class TestCtl(unittest.TestCase):
 
     def test_init(self):
         environments = {
-            'groupA': EnvironmentGroup('groupA', '', TNCOEnvironment('alm', address='host'), {'defaultrm': ArmEnvironment('defaultrm', address='host')}),
-            'groupB': EnvironmentGroup('groupB', '', TNCOEnvironment('alm', address='hostB'), {'defaultrm': ArmEnvironment('defaultrm', address='hostB')})
+            'groupA': EnvironmentGroup('groupA', '', TNCOEnvironment(address='host'), {'defaultrm': ArmEnvironment(address='host')}),
+            'groupB': EnvironmentGroup('groupB', '', TNCOEnvironment(address='hostB'), {'defaultrm': ArmEnvironment(address='hostB')})
         }
         config = Config(environments)
         ctl = Ctl(config)

@@ -1,6 +1,6 @@
 import click
 from .target import Target
-from lmctl.config import ConfigFinder, get_config, ConfigError
+from lmctl.config import ConfigFinder, get_config_with_path, ConfigError, find_config_location
 from lmctl.cli.safety_net import safety_net
 from lmctl.cli.format import YamlFormat
 from lmctl.cli.io import IOController
@@ -112,7 +112,7 @@ class Configuration(Target):
         @click.pass_context
         def _get(ctx: click.Context, print_path: bool = False, path_only: bool = False):
             with safety_net(ConfigError):
-                loaded_config, config_path = get_config()
+                loaded_config, config_path = get_config_with_path()
             io = IOController.get()
             if path_only:
                 io.print(config_path)
@@ -133,7 +133,7 @@ class Configuration(Target):
         @click.pass_context
         def _create(ctx: click.Context, path: str = None, overwrite: bool = False):
             if path is None:
-                path = ConfigFinder().get_default_config_path()
+                path = find_config_location()
             if os.path.exists(path):
                 if overwrite:
                     dir_path = os.path.dirname(path)

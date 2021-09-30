@@ -5,7 +5,7 @@ from .base import LmDriver, NotFoundException
 
 class LmTopologyDriver(LmDriver):
     """
-    Client for LM Topology APIs
+    Client for CP4NA orchestration Topology APIs
     """
 
     def __init__(self, lm_base, lm_security_ctrl=None):

@@ -94,7 +94,7 @@ class TestTNCOClient(unittest.TestCase):
             client = TNCOClient('https://test.example.com', use_sessions=True)
             client.make_request(TNCOClientRequest(method='GET', endpoint='api/test'))
             mock_session = self._get_requests_session(requests_session_builder)
-            mock_session.request.assert_called_with(method='GET', url='https://test.example.com/api/test', headers={'X-TraceCtx-TransactionId': '123456789'}, verify=False)
+            mock_session.request.assert_called_with(method='GET', url='https://test.example.com/api/test', headers={'x-tracectx-transactionid': '123456789'}, verify=False)
 
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_combines_trace_ctx_and_auth_and_user_supplied_headers(self, requests_session_builder):
@@ -104,7 +104,7 @@ class TestTNCOClient(unittest.TestCase):
             client = TNCOClient('https://test.example.com', auth_type=mock_auth, use_sessions=True)
             client.make_request(TNCOClientRequest(method='GET', endpoint='api/test', headers={'Accept': 'plain/text'}))
             mock_session = self._get_requests_session(requests_session_builder)
-            mock_session.request.assert_called_with(method='GET', url='https://test.example.com/api/test', headers={'Accept': 'plain/text', 'Authorization': f'Bearer {self.token}', 'X-TraceCtx-TransactionId': '123456789'}, verify=False)
+            mock_session.request.assert_called_with(method='GET', url='https://test.example.com/api/test', headers={'Accept': 'plain/text', 'Authorization': f'Bearer {self.token}', 'x-tracectx-transactionid': '123456789'}, verify=False)
 
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_raises_error(self, requests_session_builder):
