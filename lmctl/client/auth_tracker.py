@@ -47,7 +47,7 @@ class AuthTracker:
             self._time_of_expiry = self._get_expires_time_from_jwt(self.current_access_token)
 
     def _get_expires_time_from_jwt(self, token):
-        jwt_content = jwt.decode(token, options={'verify_signature': False}, algorithms=self.jwt_algorithms)
+        jwt_content = jwt.decode(token, options={'verify_signature': False, 'verify_aud': False}, algorithms=self.jwt_algorithms)
         exp = jwt_content.get('exp')
         if exp is None:
             raise ValueError('Expected "exp" in token content')
