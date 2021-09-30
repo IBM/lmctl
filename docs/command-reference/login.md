@@ -26,12 +26,12 @@ lmctl login [OPTIONS] ADDRESS
 | `--client`         | Client ID used to authenticate       | -                       | --client Admin                             |
 | `--client-secret`          | Secret used for authenticating the client given on `client`   | -                             | --client-secret secret |
 | `--token` | Authenticate with a token instead of credentials    | -                         | --token eyJhbGciOiJIUzI1NiIsInR5cCI6.....8enat7Ao       |
+| `--zen` | Indicate that the Zen authentication method should be used (must provide --api-key) | False | --zen |
 | `--name` | Name given to the environment saved in the configuration file | default | --name dev |
-| `--auth-address` | Auth address required for username/password access (without client credentials). This is usually the Nimrod route in your environment | - | --auth-address alm-nimrod.example.com |
+| `--auth-address` | Auth address required for username/password access (without client credentials). This is usually the Nimrod route in your environment. When `--zen` is provided, this should be the address for the Zen authorization API | - | --auth-address alm-nimrod.example.com |
 | `--save-creds` | Save the credentials instead of the token | False | --save-creds |
 | `--print` | Print the access token rather than saving it | False | --print |
 | `-y` | Force command to accept all confirmation prompts e.g. to override existing environment with the same name | False | -y |
-| `--zen` | Indicate that the Zen authentication method should be used (must provide --api-key) | False | --zen |
 
 ## Examples
 
