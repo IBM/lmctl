@@ -27,7 +27,7 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
     if not os.path.exists(path):
         with open(path, 'w') as f:
             f.write('environments: {}')
-
+    
     ctl = get_global_controller(override_config_path=path)
 
     _error_if_set(ctx, '--token', token, '--username', username)

@@ -12,6 +12,8 @@ class TestLoginCommands(command_testing.CommandTestCase):
 
     def setUp(self):
         super().setUp()
+
+        clear_global_controller()
         
         self.tnco_env_client_patcher = patch('lmctl.environment.lmenv.TNCOClientBuilder')
         self.mock_tnco_client_builder_class = self.tnco_env_client_patcher.start()
@@ -38,7 +40,6 @@ class TestLoginCommands(command_testing.CommandTestCase):
     
     def tearDown(self):
         super().tearDown()
-        clear_global_controller()
 
         if os.path.exists(self.tmp_dir):
             shutil.rmtree(self.tmp_dir)

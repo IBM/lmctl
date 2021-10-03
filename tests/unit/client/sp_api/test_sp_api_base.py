@@ -79,7 +79,14 @@ class TestSitePlannerAPI(unittest.TestCase):
         endpoint.get.return_value = MagicMock()
         api.update({'id': '123', 'model': 'm1'})
 
-        endpoint.get.return_value.update.assert_called_once_with({'id': '123', 'model': 'm1'})
+        exp_headers = {
+            'Content-Type': 'application/json;',
+            'authorization': f'Token {endpoint.token}',
+            'X-Session-Key': endpoint.session_key
+        }
+        http_session = endpoint.api.http_session 
+        # Add to URL 3 times, as this how SitePlannerUpdateMixin._put_update builds up the URL
+        http_session.put.assert_called_once_with(endpoint.url + '/' + '123' + '/', headers=exp_headers, params={}, json={'id': '123', 'model': 'm1'})
 
     def test_delete(self):
         api = DeviceAPI(self.sp_client)

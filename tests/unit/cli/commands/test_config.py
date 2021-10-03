@@ -52,7 +52,8 @@ class TestConfigTarget(CommandTestCase):
             f.write('Existing content')
         result = self.runner.invoke(cli, ['create', 'config', '--path', target_path])
         self.assert_has_system_exit(result)
-        expected_output = f'Error: Cannot create configuration file at path "{target_path}" because there is already a file there and "--overwrite" was not set'
+        expected_output = 'Usage: cli create config [OPTIONS]'
+        expected_output += f'\n\nError: Cannot create configuration file at path "{target_path}" because there is already a file there and "--overwrite" was not set'
         self.assert_output(result, expected_output)
 
     def test_create_also_creates_directory(self):
@@ -81,7 +82,7 @@ class TestConfigTarget(CommandTestCase):
             content = f.read()
         self.assertEqual(content, 'Original content')
 
-    @patch('lmctl.cli.commands.targets.config.find_config_location')
+    @patch('lmctl.cli.commands.config.find_config_location')
     def test_create_at_default_directory(self, mock_find_config_location):
         default_dir = os.path.join(self.tmp_dir, 'defaultdir')
         os.makedirs(default_dir)
@@ -92,7 +93,7 @@ class TestConfigTarget(CommandTestCase):
         config = get_config(default_path)
         self.assertIsInstance(config, Config)
 
-    @patch('lmctl.cli.commands.targets.config.get_config_with_path')
+    @patch('lmctl.cli.commands.config.get_config_with_path')
     def test_get(self, mock_get_config):
         config_path = os.path.join(self.tmp_dir, 'config.yaml')
         with open(config_path, 'w') as f:
@@ -102,7 +103,7 @@ class TestConfigTarget(CommandTestCase):
         self.assert_no_errors(result)
         self.assert_output(result, test_config)
 
-    @patch('lmctl.cli.commands.targets.config.get_config_with_path')
+    @patch('lmctl.cli.commands.config.get_config_with_path')
     def test_get_print_path(self, mock_get_config):
         config_path = os.path.join(self.tmp_dir, 'config.yaml')
         with open(config_path, 'w') as f:
@@ -115,7 +116,7 @@ class TestConfigTarget(CommandTestCase):
         expected_output += test_config
         self.assert_output(result, expected_output)
 
-    @patch('lmctl.cli.commands.targets.config.get_config_with_path')
+    @patch('lmctl.cli.commands.config.get_config_with_path')
     def test_get_print_path_only(self, mock_get_config):
         config_path = os.path.join(self.tmp_dir, 'config.yaml')
         with open(config_path, 'w') as f:
