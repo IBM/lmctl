@@ -1,6 +1,6 @@
 import logging
 from .config import Config
-from .exceptions import ConfigError
+from .exceptions import ConfigError, ConfigParserError
 from .finder import ConfigFinder, CtlConfigFinder
 from .parser import ConfigParser
 from .rewriter import ConfigRewriter

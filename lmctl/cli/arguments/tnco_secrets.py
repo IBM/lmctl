@@ -11,13 +11,13 @@ __all__ = (
 )
 
 default_pwd_help = 'CP4NA orchestration password used for authenticating.'\
-    + ' Only required if the environment is secure and a username has been included in your configuration file with no password'
+    + ' Only required if the environment is secure and a username has been included in your configuration file with no password (api_key if using auth_mode: zen)'
 
 class TNCOPwdOption(click.Option):
 
     def __init__(
             self, 
-            param_decls: Sequence[str] = ['--pwd'],
+            param_decls: Sequence[str] = ['--pwd', '--api-key'],
             help: str = default_pwd_help,
             **kwargs):
         param_decls = [p for p in param_decls]

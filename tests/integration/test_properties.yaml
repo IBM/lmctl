@@ -6,19 +6,25 @@ config:
         secure: True
         client_id: LmClient
         client_secret: 
-      site_planner:
-        address:
-        api_token: 
-# Credentials used in Auth testing (set all 3 to valid credentials)
+        site_planner:
+          address:
+          api_token: 
 auth_testing:
-  client_credentials:
-    client_id: LmClient
-    client_secret: 
-  user_pass:
-    client_id: NimrodClient
-    client_secret: 
-    username: 
-    password: 
-  legacy_user_pass:
-    username: 
-    password: 
+  zen_api_key:
+    username: almadmin
+    api_key: 
+  # Pre-Zen
+  # Credentials used in Auth testing (set all 3 to valid credentials)
+  #auth_mode: oauth
+  #client_credentials:
+  #  client_id: LmClient
+  #  client_secret: 
+  #user_pass:
+  #  client_id: NimrodClient
+  #  client_secret: 
+  #  username: 
+  #  password: 
+  #legacy_user_pass:
+  #  username: 
+  #  password: 
+  
