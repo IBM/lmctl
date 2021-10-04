@@ -30,7 +30,8 @@ active_opt = Identifier(
 default_columns = [
     Column('name', header='Name'),
     Column('description', header='Description'),
-    Column('cp4na', header='CP4NA', accessor=lambda x: x.tnco.address if x.tnco else None)
+    Column('cp4na', header='CP4NA', accessor=lambda x: x.tnco.address if x.tnco else None),
+    Column('auth', header='Auth', accessor=lambda x: x.tnco.auth_mode if x.tnco else None),
 ]
 
 ping_table = Table(columns=[
