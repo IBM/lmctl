@@ -1,7 +1,7 @@
 import unittest
 import unittest.mock as mock
 from pydantic import ValidationError
-from lmctl.environment import TNCOEnvironment, LmSessionConfig, LmSession
+from lmctl.environment import TNCOEnvironment, LmSessionConfig, LmSession, SitePlannerEnvironment
 from lmctl.client import TNCOClient, LegacyUserPassAuth, UserPassAuth, ClientCredentialsAuth, JwtTokenAuth
 
 class TestTNCOEnvironment(unittest.TestCase):
@@ -100,6 +100,10 @@ class TestTNCOEnvironment(unittest.TestCase):
         env = TNCOEnvironment(address='http://test:8080', secure=True, auth_mode='token', token='123')
         self.assertEqual(env.auth_mode, 'token')
         self.assertEqual(env.token, '123')
+
+    def test_site_planner_set(self):
+        env = TNCOEnvironment(address='http://test:8080', site_planner=SitePlannerEnvironment('http://sp:8081'))
+        self.assertEqual(env.site_planner.address, 'http://sp:8081')
 
     def test_create_session_config(self):
         env = TNCOEnvironment(address='http://test')

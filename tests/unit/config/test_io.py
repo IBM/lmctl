@@ -4,7 +4,7 @@ import os
 import shutil
 from unittest.mock import patch
 from lmctl.config import Config, ConfigIO, ConfigError
-from lmctl.environment import EnvironmentGroup, TNCOEnvironment, ArmEnvironment
+from lmctl.environment import EnvironmentGroup, TNCOEnvironment, ArmEnvironment, SitePlannerEnvironment
 from .config_files import ConfigFileTestHelper
 
 class TestConfigIO(unittest.TestCase):
@@ -255,7 +255,16 @@ class TestConfigIO(unittest.TestCase):
             'test': EnvironmentGroup(
                 name='test',
                 description='Just testing',
-                tnco=TNCOEnvironment(address='https://localhost:80', secure=True, username='jack', client_id='client'),
+                tnco=TNCOEnvironment(
+                    address='https://localhost:80',
+                    secure=True,
+                    username='jack',
+                    client_id='client',
+                    site_planner=SitePlannerEnvironment(
+                        address='https://localhost:81',
+                        api_token='123'
+                    )
+                ),
                 arms={
                     'defaultrm': ArmEnvironment(address='https://localhost:81')
                 }
@@ -275,7 +284,11 @@ class TestConfigIO(unittest.TestCase):
                         'address': 'https://localhost:80',
                         'secure': True,
                         'username': 'jack', 
-                        'client_id': 'client'
+                        'client_id': 'client',
+                        'site_planner': {
+                            'address': 'https://localhost:81',
+                            'api_token': '123'
+                        }
                     },
                     'arms': {
                         'defaultrm': {
@@ -350,7 +363,16 @@ class TestConfigIO(unittest.TestCase):
             'test': EnvironmentGroup(
                 name='test',
                 description='Just testing',
-                tnco=TNCOEnvironment(address='https://localhost:80', secure=True, username='jack', client_id='client'),
+                tnco=TNCOEnvironment(
+                    address='https://localhost:80', 
+                    secure=True,
+                    username='jack',
+                    client_id='client',
+                    site_planner=SitePlannerEnvironment(
+                        address='https://localhost:81',
+                        api_token='123',
+                    )
+                ),
                 arms={
                     'defaultrm': ArmEnvironment(address='https://localhost:81')
                 }
@@ -366,7 +388,11 @@ class TestConfigIO(unittest.TestCase):
                         'address': 'https://localhost:80',
                         'secure': True,
                         'username': 'jack', 
-                        'client_id': 'client'
+                        'client_id': 'client',
+                        'site_planner': {
+                            'address': 'https://localhost:81',
+                            'api_token': '123'
+                        }
                     },
                     'arms': {
                         'defaultrm': {
@@ -376,3 +402,34 @@ class TestConfigIO(unittest.TestCase):
                 }
             }
         })
+
+    def test_read_site_planner(self):
+        config_io = ConfigIO()
+        config_path = self.test_helper.prepare_file('sp-config')
+
+        config = config_io.file_to_config(config_path)
+        self.assertIsNotNone(config)
+        self.assertIsInstance(config, Config)
+        self.assertIn('test', config.environments)
+        test_env = config.environments['test']
+        self.assertEqual(test_env.lm.address, 'https://127.0.0.1:1111')
+        self.assertEqual(test_env.lm.site_planner, SitePlannerEnvironment(address='https://127.0.0.1:2222', api_token='123'))
+
+    def test_parse_invalid_site_planner(self):
+        invalid_config = {
+          'environments': {
+            'test': {
+                'description': 'a test group',
+                'lm': {
+                    'address': 'http://localhost',
+                    'secure': False,
+                    'site_planner': {
+                        'address': ' '
+                    }
+                }
+            }
+          }
+        }
+        with self.assertRaises(ConfigError) as context:
+            ConfigIO().dict_to_config(invalid_config)
+        self.assertEqual(str(context.exception), 'Config error: 1 validation error for ParsingModel[Config]\n__root__ -> environments -> test -> tnco -> site_planner -> address\n  ensure this value has at least 1 characters (type=value_error.any_str.min_length; limit_value=1)')

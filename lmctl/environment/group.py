@@ -1,10 +1,12 @@
 from typing import Dict, Optional
-from .lmenv import TNCOEnvironment
-from .armenv import ArmEnvironment
-from .site_planner_env import SitePlannerEnvironment
+
 from pydantic.dataclasses import dataclass
 from pydantic import constr, Field
+
 from lmctl.utils.dcutils.dc_capture import recordattrs
+
+from .lmenv import TNCOEnvironment
+from .armenv import ArmEnvironment
 
 @recordattrs
 @dataclass
@@ -13,7 +15,6 @@ class EnvironmentGroup:
     description: Optional[str] = Field(default=None)
     tnco: Optional[TNCOEnvironment] = Field(default=None)
     arms: Optional[Dict[str, ArmEnvironment]] = Field(default_factory=dict)
-    site_planner: Optional[SitePlannerEnvironment] = Field(default=None)
 
     @property
     def lm(self):
@@ -26,7 +27,3 @@ class EnvironmentGroup:
     @property
     def has_tnco(self):
         return self.tnco is not None
-
-    @property
-    def has_site_planner(self):
-        return self.site_planner is not None

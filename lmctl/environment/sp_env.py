@@ -8,7 +8,7 @@ from lmctl.client import SitePlannerClient, SitePlannerClientBuilder
 @recordattrs
 @dataclass
 class SitePlannerEnvironment:
-    address: constr(strip_whitespace=True, min_length=1) = None
+    address: constr(strip_whitespace=True, min_length=1)
     api_token: Optional[str] = None 
 
     def build_client(self) -> SitePlannerClient:

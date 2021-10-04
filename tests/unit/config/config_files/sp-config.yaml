@@ -1,0 +1,8 @@
+environments:
+  test:
+    lm:
+      address: https://127.0.0.1:1111
+      secure: False
+      site_planner:
+        address: https://127.0.0.1:2222
+        api_token: 123

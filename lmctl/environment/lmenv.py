@@ -1,11 +1,16 @@
 import lmctl.drivers.lm as lm_drivers
 from typing import Union, Optional
-from .common import build_address
-from urllib.parse import urlparse
-from lmctl.client import TNCOClient, TNCOClientBuilder, TOKEN_AUTH_MODE, LEGACY_OAUTH_MODE
+
 from pydantic.dataclasses import dataclass
 from pydantic import constr, root_validator
+
+from urllib.parse import urlparse
+
+from lmctl.client import TNCOClient, TNCOClientBuilder, TOKEN_AUTH_MODE, LEGACY_OAUTH_MODE
 from lmctl.utils.dcutils.dc_capture import recordattrs
+
+from .common import build_address
+from .sp_env import SitePlannerEnvironment
 
 DEFAULT_KAMI_PORT = '31289'
 DEFAULT_KAMI_PROTOCOL = 'http'
@@ -41,6 +46,8 @@ class TNCOEnvironment:
     kami_address: Optional[str] = None
     kami_port: Optional[Union[str,int]] = DEFAULT_KAMI_PORT 
     kami_protocol: Optional[str] = DEFAULT_KAMI_PROTOCOL
+
+    site_planner: Optional[SitePlannerEnvironment] = None
 
     @root_validator(pre=True)
     @classmethod
