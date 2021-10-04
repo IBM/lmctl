@@ -5,7 +5,7 @@ from .utils import pass_io, Identity, Identifier
 from lmctl.cli.controller import get_global_controller, CLIController
 from lmctl.cli.io import IOController
 from lmctl.cli.tags import SETTINGS_TAG
-from lmctl.cli.arguments import set_param_option, file_input_option, output_format_option, EnvironmentNameOption, TNCOClientSecretHelp, TNCOPwdOption, TNCOTokenHelp
+from lmctl.cli.arguments import output_format_option, TNCOClientSecretOption, TNCOPwdOption, TNCOTokenOption
 from lmctl.cli.format import Column, OutputFormat, TableFormat, Table
 from lmctl.client import TNCOClient
 from lmctl.environment import EnvironmentGroup
@@ -79,9 +79,9 @@ class PingEnvironmentCommand(click.Command):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.params.append(click.Argument([name_arg.param_name], required=False))
-        self.params.append(TNCOClientSecretHelp())
+        self.params.append(TNCOClientSecretOption())
         self.params.append(TNCOPwdOption())
-        self.params.append(TNCOTokenHelp())
+        self.params.append(TNCOTokenOption())
 
         self.behaviour = self.callback
         self.callback = self._callback

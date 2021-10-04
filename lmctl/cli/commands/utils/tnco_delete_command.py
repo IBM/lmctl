@@ -3,7 +3,7 @@ from typing import Dict, Any, Sequence, Callable
 from .identifier import Identifier, determine_identifier, strip_identifiers
 from .ignore_missing import IgnoreMissingSafetyNet, DisableIgnoreMissingSafetyNet, tnco_missing_detector
 from .tnco_env_command import TNCOEnvironmentCommand
-from .constraint import mutually_exclusive
+from .constraints import mutually_exclusive
 from lmctl.cli.controller import get_global_controller
 from lmctl.cli.arguments import FileInputOption, IgnoreMissingOption
 

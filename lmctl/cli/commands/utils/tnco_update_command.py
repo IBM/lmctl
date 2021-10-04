@@ -3,7 +3,7 @@ from typing import Dict, Any, Sequence
 from .tnco_env_command import TNCOEnvironmentCommand
 from .obj_utils import shallow_merge_objs
 from .identifier import Identifier, determine_identifier, strip_identifiers
-from .constraint import mutually_exclusive
+from .constraints import mutually_exclusive
 from lmctl.cli.controller import get_global_controller
 from lmctl.cli.arguments import FileInputOption, SetParamOption
 

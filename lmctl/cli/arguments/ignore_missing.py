@@ -3,7 +3,6 @@ from typing import Sequence
 
 __all__ = (
     'IgnoreMissingOption',
-    'ignore_missing_option',
 )
 
 class IgnoreMissingOption(click.Option):
@@ -20,11 +19,3 @@ class IgnoreMissingOption(click.Option):
             help=help,
             **kwargs
         )
-
-def ignore_missing_option():
-    def decorator(f):
-        return click.option('--ignore-missing', 
-                        help='Ignore if object not found',
-                        is_flag=True
-                        )(f)
-    return decorator

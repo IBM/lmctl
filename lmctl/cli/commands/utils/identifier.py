@@ -5,11 +5,28 @@ from typing import List, Optional, Sequence, Any, Dict
 __all__ = (
     'Identifier',
     'determine_identifier',
+    'strip_identifiers',
     'Identity'
 )
 
 @dataclass
 class Identifier:
+    """
+    Holds details of an identifier that may be found in data for an object (a dict) or as a parameter on a CLI. 
+
+    The intended usage of this class is to declare identifiers on commands which may target an object based on either file input or cli parameters. 
+    For example, TNCODeleteCommand, which can determine the object to be deleted from data in a YAML/JSON file or from a cli parameter.
+
+    An identifier with an `obj_attribute` but no `param_name` indicates the identifier can be found in object data but is never set through a cli parameter. 
+    An identifier with an `param_name` but no `obj_attribute` indicates the identifier can set through a cli parameter but is not included in object data. 
+
+    Set `param_opts` when the option the user sees on a cli command is different from the `param_name`.
+    For example the following option would have a `param_name` of `id` but the user sees `-i` or `--id` on the command. 
+      ```
+      @click.option('-i, --id')
+      ```
+    In this case, `param_opts` should be set to `['-i', '--id']`.
+    """
     obj_attribute: Optional[str] = None
     param_name: Optional[str] = None
     param_opts: Optional[List[str]] = field(default_factory=list)
@@ -17,7 +34,9 @@ class Identifier:
     def get_cli_display_name(self):
         if len(self.param_opts) > 0:
             return ', '.join(self.param_opts)
-        return self.param_name
+        if self.param_name is not None:
+            return self.param_name
+        raise TypeError(f'Cannot retrieve cli_display_name for Identifier without "param_opts" or "param_name" (obj_attribute={self.obj_attribute})')
 
     @staticmethod
     def arg_and_attr(name):
@@ -28,10 +47,15 @@ class Identifier:
 
 @dataclass
 class Identity:
+    """
+    Details the result of identifying a target from a set of identifiers. Includes the Identifier which matched and the value given to this identifying attribute.
+
+    Also indicates if the identity was resolved from a file (using `obj_attribute` of the Identifier) or from cli parameters.
+    """
     identifier: Identifier
     value: Any
     from_file: bool = False
-    from_params: bool = True
+    from_params: bool = False
 
 def strip_identifiers(identifiers, **input_param_values):
     # strip identifier args
@@ -72,12 +96,13 @@ def determine_identifier(potential_identifiers: Sequence[Identifier],
         )
     elif required:
         error_msg = 'Must identify the target by specifying'
-        if len(potential_identifiers) > 1:
+        param_identifiers = [p for p in potential_identifiers if p.param_name is not None]
+        if len(param_identifiers) > 1:
             error_msg += ' one parameter from'
-            identifers_str = ', '.join([f'"{p.get_cli_display_name()}"' for p in potential_identifiers])
+            identifers_str = ', '.join([f'"{p.get_cli_display_name()}"' for p in param_identifiers])
             error_msg += f' [{identifers_str}]'
-        else:
-            error_msg += f' the "{potential_identifiers[0].get_cli_display_name()}" parameter'
+        elif len(param_identifiers) == 1:
+            error_msg += f' the "{param_identifiers[0].get_cli_display_name()}" parameter'
         
         attr_identifiers = [p for p in potential_identifiers if p.obj_attribute is not None]
         if len(attr_identifiers) > 1:

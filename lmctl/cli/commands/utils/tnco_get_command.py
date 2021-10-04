@@ -2,7 +2,7 @@ import click
 from typing import Dict, Any, Sequence
 from .identifier import Identifier, determine_identifier, strip_identifiers
 from .tnco_env_command import TNCOEnvironmentCommand
-from .constraint import mutually_exclusive
+from .constraints import mutually_exclusive
 from lmctl.cli.controller import get_global_controller
 from lmctl.cli.arguments import FileInputOption, OutputFormatOption
 from lmctl.cli.format import Column, OutputFormat

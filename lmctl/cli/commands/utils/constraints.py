@@ -16,7 +16,7 @@ def constraint(constraint_check: Callable[...,Tuple[bool,str]]) -> FuncDecorator
         def wrapper(*args, **kwargs):
             result, reason = constraint_check(*args, **kwargs)
             if result is False:
-                raise click.UsageError(reason, ctx=click.get_current_context())
+                raise click.UsageError(reason if reason is not None else f'N/A (No reason given by constraint: {cmd_callback.__name__})', ctx=click.get_current_context())
 
             return cmd_callback(*args, **kwargs)
 
