@@ -3,7 +3,7 @@ import click
 
 from ..command_testing import CommandTestCase
 
-from lmctl.cli.commands.utils import constraint, mutually_exclusive
+from lmctl.cli.commands.utils import constraint, mutually_exclusive, mutually_exclusive_group
 
 @click.group()
 def test_cli():
@@ -110,6 +110,15 @@ def with_mutual_exclusive_bool_opt(clear_all, name):
 def with_stacked_mutual_exclusive(clear_all, name, force, timeout):
     pass
 
+@test_cli.command()
+@click.option('--token', type=str)
+@click.option('--username', type=str)
+@click.option('--password', type=str)
+@click.option('--client_id', type=str)
+@mutually_exclusive_group(('token', '--token'), mutex_with=[('username', '--username'), ('password', '--password'), ('client_id', '--client-id')])
+def with_mutually_exclusive_group(token, username, password, client_id):
+    pass
+
 class TestMutuallyExclusive(CommandTestCase):
 
     def test_mutex_passes_when_one_opt_set(self):
@@ -155,4 +164,20 @@ class TestMutuallyExclusive(CommandTestCase):
         expected_output = 'Usage: with-stacked-mutual-exclusive [OPTIONS]'
         expected_output += '\nTry \'with-stacked-mutual-exclusive --help\' for help.'
         expected_output += '\n\nError: Cannot use "--name" with "--clear-all" as they are mutually exclusive'
+        self.assert_output(result, expected_output)
+
+    def test_mutex_group_passes_when_only_main_param_set(self):
+        result = self.runner.invoke(with_mutually_exclusive_group, ['--token', '123'])
+        self.assert_no_errors(result)
+
+    def test_mutex_group_passes_when_only_other_params_set(self):
+        result = self.runner.invoke(with_mutually_exclusive_group, ['--username', 'Joe', '--password', '123'])
+        self.assert_no_errors(result)
+
+    def test_mutex_group_fails_when_main_and_any_other_param_set(self):
+        result = self.runner.invoke(with_mutually_exclusive_group, ['--token', '123', '--password', '123'])
+        self.assert_has_system_exit(result)
+        expected_output = 'Usage: with-mutually-exclusive-group [OPTIONS]'
+        expected_output += '\nTry \'with-mutually-exclusive-group --help\' for help.'
+        expected_output += '\n\nError: Cannot use "--password" with "--token" as they are mutually exclusive'
         self.assert_output(result, expected_output)

@@ -4,7 +4,7 @@ from lmctl.client import TNCOClientBuilder, ClientCredentialsAuth, UserPassAuth,
 from lmctl.config import ConfigFinder, find_config_location, write_config
 from lmctl.environment import TNCOEnvironment, EnvironmentGroup
 from lmctl.cli.controller import get_global_controller, CLIController
-
+from lmctl.cli.commands.utils import mutually_exclusive_group
 
 @click.command(short_help='Authenticate and save credentials', help='Authenticate with an environment and save credentials in the lmctl config file for subsequent use')
 @click.pass_context
@@ -21,6 +21,18 @@ from lmctl.cli.controller import get_global_controller, CLIController
 @click.option('--print', 'print_token', is_flag=True, default=False, help='Print the access token rather than saving it')
 @click.option('-y', 'yes_to_prompts', is_flag=True, default=False, show_default=True, help='Force command to accept all confirmation prompts e.g. to override existing environment with the same name')
 @click.option('--zen', 'is_zen', is_flag=True, default=False, help='Indicate that the Zen authentication method should be used (must provide --api-key)')
+@mutually_exclusive_group(
+    ('token', '--token'),
+    mutex_with=[
+        ('username', '--username'),
+        ('password', '-p, --pwd, --password'), 
+        ('client_id', '--client-id'),
+        ('client_secret', '--client-secret'),
+        ('auth_address', '--auth-address'),
+        ('api-key', '--api-key'),
+        ('is_zen', '--zen'),
+    ]
+)
 def login(ctx: click.Context, address: str, username: str = None, pwd: str = None, api_key: str = None, client_id: str = None, client_secret: str = None, 
             token: str = None, name: str = None, auth_address: str = None, save_creds: bool = False, yes_to_prompts: bool = False, print_token: bool = False, is_zen: bool = False):
     
@@ -31,17 +43,6 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
             f.write('environments: {}')
     
     ctl = get_global_controller(override_config_path=path)
-
-    _error_if_set(ctx, '--token', token, '--username', username)
-    _error_if_set(ctx, '--token', token, '-p, --pwd, --password', pwd)
-    _error_if_set(ctx, '--token', token, '--client', client_id)
-    _error_if_set(ctx, '--token', token, '--client-secret', client_secret)
-    _error_if_set(ctx, '--token', token, '--auth-address', auth_address)
-    _error_if_set(ctx, '--token', token, '--api-key', api_key)
-    if is_zen:
-        # Only test "is_zen" when set to True
-        _error_if_set(ctx, '--token', token, '--zen', is_zen)
-
 
     if token is None and client_id is None and username is None:
         # No credentials passed, must prompt
@@ -136,10 +137,6 @@ def _ensure_name(ctl: CLIController, name: str = None, yes_to_prompts: bool = Fa
         if not yes_to_prompts:
             ctl.io.confirm_prompt(f'An environment with name "{name}" already exists, do you want to override it?', abort=True)
     return name
-        
-def _error_if_set(ctx: click.Context, first_opt: str, first_opt_value: str, second_opt: str, second_opt_value: str):
-    if first_opt_value is not None and second_opt_value is not None:
-        raise click.BadArgumentUsage(message=f'Do not use "{first_opt}" option when using "{second_opt}" option', ctx=ctx)
 
 def _prompt_if_not_set(ctl: CLIController, name: str, value: str = None, secret: bool = False) -> str:
     if value is None:
