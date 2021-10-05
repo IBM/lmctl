@@ -1,6 +1,6 @@
 import click
 import os
-from lmctl.client import TNCOClientBuilder, ClientCredentialsAuth, UserPassAuth, LegacyUserPassAuth, JwtTokenAuth, TOKEN_AUTH_MODE, LEGACY_OAUTH_MODE, ZEN_AUTH_MODE
+from lmctl.client import TNCOClientBuilder, ClientCredentialsAuth, UserPassAuth, LegacyUserPassAuth, JwtTokenAuth, TOKEN_AUTH_MODE, OAUTH_MODE, ZEN_AUTH_MODE
 from lmctl.config import ConfigFinder, find_config_location, write_config
 from lmctl.environment import TNCOEnvironment, EnvironmentGroup
 from lmctl.cli.controller import get_global_controller, CLIController
@@ -68,7 +68,7 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
             else:
                 pwd = _prompt_if_not_set(ctl, 'Password', pwd, secret=True)
 
-    auth_mode = LEGACY_OAUTH_MODE
+    auth_mode = OAUTH_MODE
     if token is not None:
         auth_mode = TOKEN_AUTH_MODE
     elif is_zen:

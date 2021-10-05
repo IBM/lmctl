@@ -64,7 +64,7 @@ lmctl login alm-ishtar.example.com --token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
 ### Combination 5: Login with Zen username/api-key
 
 ```
-lmctl login alm-ishtar.example.com --auth-address zen.example.com --zen --username almadmin --api-key 123
+lmctl login alm-ishtar.example.com --zen --auth-address cpd-lifecycle-manager.apps.example.com/icp4d-api/v1/authorize --username almadmin --api-key 123
 ```
 
 ### Save with alternative name

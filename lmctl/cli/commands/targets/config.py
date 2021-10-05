@@ -22,14 +22,14 @@ environments:
 
       #####################################################################
       #  Zen Authentication                                               #
-      #  Required if "secure" is true and not using Legacy Oauth or Token #
+      #  Required if "secure" is true and not using Oauth or Token #
       #####################################################################
       
       # Indicate environment is using Zen
       auth_mode: zen
-
+      
       ## The full HTTP(s) address and path used to access the Zen authentication APIs E.g. https://<hostname>/icp4d-api/v1/authorize
-      auth_address: https://zen-route.ocp.example.com/icp4d-api/v1/authorize
+      auth_address: https://cpd-lifecycle-manager.apps.example.com/icp4d-api/v1/authorize
 
       ## The username to authenticate with
       username: example-user
@@ -47,7 +47,7 @@ environments:
       #token: enter-your-token
 
       ##############################################################
-      # Legacy Oauth Authentication                                #
+      # Oauth Authentication                                #
       # Required if "secure" is true and not using Zen or Token    #
       # The following authentication options                       #
       # are only valid on older TNCO (ALM) environments            #

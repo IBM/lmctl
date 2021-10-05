@@ -1,4 +1,4 @@
 
 ZEN_AUTH_MODE = 'zen'
 TOKEN_AUTH_MODE = 'token'
-LEGACY_OAUTH_MODE = 'oauth'
+OAUTH_MODE = 'oauth'

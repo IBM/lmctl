@@ -1,6 +1,6 @@
-# TNCO Python Client
+# CP4NA Python Client
 
-You may have used LMCTL from the command line but it may also be used in Python based scripts/applications as a client module for TNCO.
+You may have used LMCTL from the command line but it may also be used in Python based scripts/applications as a client module for CP4NA.
 
 ## Quick Import
 
@@ -9,32 +9,41 @@ To use LMCTL in your code, [install it with pip](../install.md) then start impor
 ```python
 from lmctl.client import client_builder
 
-tnco_client = client_builder().address('https://tnco-api-host').client_credentials_auth('LmClient', 'admin').build()
+cp4na_client = client_builder().address('https://cp4na-ishtar.example.com').client_credentials_auth('LmClient', 'admin').build()
 ```
 
-For details on how to include LMCTL as a dependency so it's installed for all users of your project/application see [Add LMCTL to Python project](add-to-python-project.md)
+For details on how to include LMCTL as a dependency, so it can be installed for all users of your project/application see [Add LMCTL to Python project](add-to-python-project.md)
 
 ## Building a Client
 
-A TNCOClient can be configured in a number of ways however, the recommended way is to use TNCOClientBuilder:
+A CP4NA client can be configured in a number of ways. The recommended way is to use `client_builder`:
 
 ```python
 from lmctl.client import client_builder
 
-tnco_client = client_builder().address('https://tnco-api-host').client_credentials_auth('LmClient', 'admin').build()
+cp4na_client = client_builder().address('https://cp4na-ishtar.example.com').client_credentials_auth('LmClient', 'admin').build()
 ```
 
-Same as:
+This builder provides methods to configure the following types of authentication:
 
 ```python
-from lmctl.client import TNCOClientBuilder
+# Zen Authentication (CP4NA 2.2+ on OCP)
+cp4na_client = client_builder().address('https://cp4na-ishtar.example.com').zen_api_key_auth(username='MyUser', api_key='MyKey', zen_auth_address='https:/cpd-lifecycle-manager.apps.example.com//icp4d-api/v1/authorize').build()
 
-tnco_client = TNCOClientBuilder().address('https://tnco-api-host').client_credentials_auth('LmClient', 'admin').build()
+# Client Credentials (environments without Zen)
+cp4na_client = client_builder().address('https://cp4na-ishtar.example.com').client_credentials_auth(client_id='LmClient', client_secret='admin').build()
+
+# UI Username/Password (environments without Zen)
+cp4na_client = client_builder().address('https://cp4na-ishtar.example.com').legacy_user_pass_auth(username='almadmin', password='mypass', legacy_auth_address='https://cp4na-nimrod.example.com').build()
+
+# Client based Username/Password (environments without Zen)
+cp4na_client = client_builder().address('https://cp4na-ishtar.example.com').legacy_user_pass_auth(client_id='LmClient', client_secret='admin', username='almadmin', password='mypass').build()
+
 ```
 
 ## Build Client from existing command line configuration
 
-To load a TNCOClient from the same configuration used on the command line, you should use the `lmctl.config` package:
+To build a client from the same configuration file used on the command line, you may import and use `get_global_config` from the `lmctl.config` package:
 
 ```python
 from lmctl.config import get_global_config
@@ -45,7 +54,7 @@ lmctl_config = get_global_config()
 tnco_env = lmctl_config.environments['default'].tnco
 
 # Get client
-tnco_client = tnco_env.build_client()
+cp4na_client = tnco_env.build_client()
 ```
 
 To load from a configuration file from a non-default location, pass a file path to `get_global_config`

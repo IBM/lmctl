@@ -95,14 +95,20 @@ The `login` command will perform the following:
 
 The credentials for your environment may be provided in a few different combinations but the most convenient methods are described below:
 
-- [CP4NA 2.2 with Zen](#zen-authentication)
-- [CP4NA 2.1 (and all other pre-2.2) with oauth](#legacy-oauth-authentication)
+- [CP4NA 2.2+ on OCP with Zen](#zen-authentication)
+- [CP4NA on Kubernetes with Oauth](#oauth-authentication)
 
 Check out the [login command documentation](command-reference/login.md) to view more detailed information on each combination.
 
 ## Zen Authentication
 
-> CP4NA 2.2+ only
+> CP4NA 2.2+ on OCP only
+
+You will need to provide the Zen authorization address (usually exposed by route named `cpd-lifecycle-manager`). For example:
+
+```
+ZEN_AUTH_ADDRESS=https://cpd-lifecycle-manager.apps.myocp.com/icp4d-api/v1/authorize
+```
 
 Login using your Zen username and API key:
 
@@ -125,11 +131,11 @@ lmctl ping env
 
 If the output of this command ends with `CP4NA orchestration tests passed! ✅` then you're ready to go. 
 
-Eventually your access token will expire, resulting in authentication errors when using lmctl. When this occurs, run `login` again to reauthenticate OR check out the [Automation Reauthentication](#automatic-reauthentication) section below to save your credentials in the lmctl config file so lmctl may automatically re-authenticate you when the token expires.
+Eventually your access token will expire, resulting in authentication errors when using lmctl. When this occurs, run `login` again to reauthenticate OR check out the [Automation Reauthentication](#automatic-reauthentication) section below to save your credentials in your config file so lmctl may automatically re-authenticate when the token expires.
 
-## Legacy Oauth Authentication
+## Oauth Authentication
 
-> Note: This mode is for any CP4NA version prior to 2.2.
+> For any environment where Zen authentication is not used
 
 First, try logging in with the same username and password you use to access the CP4NA orchestration user interface (UI). You will need to provide the UI address (Nimrod Route) for your environment. On most OCP installations, this can be retrieved with:
 
