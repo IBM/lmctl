@@ -83,7 +83,7 @@ LMCTL requires credentials to access the orchestration component of your Cloud P
 The most efficient method of configuring LMCTL is to use the `lmctl login` with the API gateway (Ishtar Route) address for your environment. On most OCP installations, this can be retrieved with:
 
 ```
-API_GATEWAY=$(oc get route alm-ishtar -o jsonpath='{.spec.host}')
+API_GATEWAY=$(oc get route cp4na-o-ishtar -o jsonpath='{.spec.host}')
 ```
 
 The `login` command will perform the following:
@@ -140,7 +140,7 @@ Eventually your access token will expire, resulting in authentication errors whe
 First, try logging in with the same username and password you use to access the CP4NA orchestration user interface (UI). You will need to provide the UI address (Nimrod Route) for your environment. On most OCP installations, this can be retrieved with:
 
 ```
-UI_ADDRESS=$(oc get route alm-nimrod -o jsonpath='{.spec.host}')
+UI_ADDRESS=$(oc get route cp4na-o-nimrod -o jsonpath='{.spec.host}')
 ```
 
 Run `lmctl login`, changing the `--username` and `--password` values to valid credentials for your environment:
