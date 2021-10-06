@@ -104,10 +104,10 @@ Check out the [login command documentation](command-reference/login.md) to view 
 
 > CP4NA 2.2+ on OCP only
 
-You will need to provide the Zen authorization address (usually exposed by route named `cpd-lifecycle-manager`). For example:
+You will need to provide the Zen authorization address. On most OCP installations, this can be retrieved with:
 
 ```
-ZEN_AUTH_ADDRESS=https://cpd-lifecycle-manager.apps.myocp.com/icp4d-api/v1/authorize
+ZEN_AUTH_ADDRESS=$(oc get route cpd -o jsonpath='{.spec.host}')/icp4d-api/v1/authorize
 ```
 
 Login using your Zen username and API key:
