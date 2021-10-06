@@ -49,7 +49,7 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
         if is_zen:
             auth_address = _prompt_if_not_set(ctl, 'Auth Address', auth_address)
             username = _prompt_if_not_set(ctl, 'Username', username)
-            api_key = _prompt_if_not_set(ctl, 'API Key', api_key)
+            api_key = _prompt_if_not_set(ctl, 'API Key', api_key, secret=True)
         else:
             # If auth address is not set then we must prompt for client credentials in addition to username/password
             if auth_address is None:
@@ -64,7 +64,7 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
             if client_id is None and auth_address is None:
                 raise click.BadArgumentUsage(message=f'Must specify "--auth-address" option when attempting to authenticate with username/password/api_key but without client/client-secret', ctx=ctx)
             if is_zen:
-                api_key = _prompt_if_not_set(ctl, 'API Key', api_key)
+                api_key = _prompt_if_not_set(ctl, 'API Key', api_key, secret=True)
             else:
                 pwd = _prompt_if_not_set(ctl, 'Password', pwd, secret=True)
 
