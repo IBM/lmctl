@@ -104,16 +104,22 @@ Check out the [login command documentation](command-reference/login.md) to view 
 
 > CP4NA 2.2+ on OCP only
 
-You will need to provide the Zen authorization address. On most OCP installations, this can be retrieved with either:
+You will need to provide the Zen authorization address. On most OCP installations, this can be retrieved with:
 
 ```
 ZEN_AUTH_ADDRESS=$(oc get orchestration default -o jsonpath='{.status.uiendpoints.orchestration}')/icp4d-api/v1/authorize
 ```
 
-Login using your Zen username and API key:
+You'll also need to obtain an API key for your Zen user. This can retrieved by visiting the CP4NA UI (address returned by `oc get orchestration default -o jsonpath='{.status.uiendpoints.orchestration}'`) and logging in with with your Zen username and password.
+
+Access `Profile and Settings` from the user menu icon located in the top right section of the navigation header. From the profile page you can generate your API key by clicking on the `API Key` link in the top right and then `Generate new key`. 
+
+![Zen API Key](images/zen-api-key.png)
+
+You may be warned that generating a new key will invalidate any previous keys. Either use your existing key (if known) or click `Generate` to create a new one. Make a copy of this key and use it to login with lmctl:
 
 ```
-lmctl login $API_GATEWAY --zen --auth-address $ZEN_AUTH_ADDRESS --username myuser --api-key 123
+lmctl login $API_GATEWAY --zen --auth-address $ZEN_AUTH_ADDRESS --username admin --api-key FdpmmyFIIslv0s3eN9tCTKeYAt3457pnmrTZacvo
 ```
 
 You should see output similar to:
