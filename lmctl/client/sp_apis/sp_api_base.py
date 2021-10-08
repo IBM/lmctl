@@ -106,7 +106,8 @@ class SitePlannerGetMixin:
         obj = self._make_pynb_call('get', id)
         if obj is None:
             # 404
-            raise SitePlannerClientError(f'Could not find object with {self._pk_field}: {id}')
+            return None
+            # raise SitePlannerClientError(f'Could not find object with {self._pk_field}: {id}')
         return self._record_to_dict(obj)
 
 class SitePlannerDeleteMixin:
