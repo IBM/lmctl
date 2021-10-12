@@ -169,6 +169,13 @@ class VPCsAPI(SitePlannerCrudAPI):
         ).json()
         return [self._record_to_dict(r) for r in resp.get('results', [])]
 
+    def get_by_configured_vpc_id(self, id: str) -> List:
+        resp = self._make_direct_http_call(
+            verb='get',
+            override_url=self._pynb_endpoint.url + f'/?configured_vpc_id={id}',
+        ).json()
+        return [self._record_to_dict(r) for r in resp.get('results', [])]
+
     def get_by_cloud_provider_vpc_id(self, id: str) -> List:
         resp = self._make_direct_http_call(
             verb='get',
