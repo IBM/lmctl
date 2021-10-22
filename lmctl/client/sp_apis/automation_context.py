@@ -21,20 +21,21 @@ class AutomationContextProcessesAPI(SitePlannerAPI, SitePlannerGetMixin, SitePla
 class AutomationContextsAPI(SitePlannerCrudAPI):
     _endpoint_chain = 'plugins.nfvi-automation.automation_contexts'
 
-    def build(self, object_type: str, object_pk: str) -> str:
-        return self._build(object_type, object_pk, dry_run=False)
+    def build(self, object_type: str, object_pk: str, build_properties: Dict = {}) -> str:
+        return self._build(object_type, object_pk, dry_run=False, build_properties=build_properties)
 
-    def build_dry_run(self, object_type: str, object_pk: str) -> Dict:
-        return self._build(object_type, object_pk, dry_run=True)
+    def build_dry_run(self, object_type: str, object_pk: str, build_properties: Dict = {}) -> Dict:
+        return self._build(object_type, object_pk, dry_run=True, build_properties=build_properties)
 
-    def _build(self, object_type: str, object_pk: str, dry_run: bool = False) -> Union[str, Dict]:
+    def _build(self, object_type: str, object_pk: str, dry_run: bool = False, build_properties: Dict = {}) -> Union[str, Dict]:
         response = self._make_direct_http_call(
             verb='post',
             override_url=self._pynb_endpoint.url + '/build/',
             data={
                 'object_type': object_type,
                 'object_pk': object_pk,
-                'dry_run': dry_run
+                'dry_run': dry_run,
+                'properties': build_properties
             }
         )
         if dry_run:
