@@ -64,3 +64,15 @@ class AuthenticationAPI(TNCOAPI):
             else:
                 raise
         return auth_response
+
+    def request_zen_api_key_access(self, username: str, api_key: str, zen_auth_address: str = None) -> Dict:
+        body = {
+            'username': username,
+            'api_key': api_key
+        }
+        request = TNCOClientRequest(method='POST', endpoint=None)\
+                        .disable_auth_token()\
+                        .add_json_body(body)
+        request.override_address = zen_auth_address
+        auth_response = self.base_client.make_request_for_json(request)
+        return auth_response

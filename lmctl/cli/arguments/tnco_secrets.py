@@ -4,7 +4,7 @@ from typing import List
 default_pwd_help = 'CP4NA orchestration password used for authenticating.'\
     + ' Only required if the environment is secure and a username has been included in your configuration file with no password'
 
-def tnco_pwd_option(options: List = ['--pwd'], var_name: str = 'pwd', help: str = default_pwd_help):
+def tnco_pwd_option(options: List = ['--pwd', '--api-key'], var_name: str = 'pwd', help: str = default_pwd_help):
     def decorator(f):
         return click.option(*options, var_name, 
                         help=help

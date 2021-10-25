@@ -51,7 +51,14 @@ class CLIController:
             exit(1)
         tnco = env_group.tnco
         if tnco.secure:
-            if tnco.is_using_token_auth:
+            if tnco.is_using_zen_auth:
+                if tnco.username is not None:
+                    if input_pwd is not None and len(input_pwd.strip()) > 0:
+                        tnco.api_key = input_pwd
+                    elif tnco.api_key is None:
+                        prompt_pwd = self.io.prompt(f'Please enter API key for TNCO (ALM) user {tnco.username}', hide_input=True, default='')
+                        tnco.api_key = prompt_pwd
+            elif tnco.is_using_token_auth:
                 if input_token is not None and len(input_token.strip()) > 0:
                     tnco.token = input_token
                 elif tnco.token is None:

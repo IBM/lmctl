@@ -32,6 +32,7 @@ class EnvironmentTable(Table):
         Column('name', header='Name'),
         Column('description', header='Description'),
         Column('tnco', header='TNCO/ALM', accessor=lambda x: x.tnco.address if x.tnco else None),
+        Column('auth', header='Auth', accessor=lambda x: x.tnco.auth_mode if x.tnco else None),
         Column('arm', header='Ansible RM', accessor=build_arms_string)
     ]
 

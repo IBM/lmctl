@@ -44,7 +44,7 @@ def format_ik_list(output_format, ik_list):
 @key.command(name='list', help='List all shared infrastructure keys for an CP4NA orchestration environment')
 @click.argument('environment')
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
+@click.option('--pwd', '--api-key', default=None, help='password/api_key used for authenticating with CP4NA orchestration. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
 def list_keys(environment, config, pwd, output_format):
     ik_driver = get_ik_driver(environment, config, pwd)
@@ -61,7 +61,7 @@ def get_ik_driver(environment_name, config_path, pwd):
 @click.argument('environment')
 @click.argument('name')
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
+@click.option('--pwd', '--api-key', default=None, help='password/api_key used for authenticating with CP4NA orchestration. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
 def get(environment, name, config, pwd, output_format):
     """Get infrastructure key"""
@@ -78,7 +78,7 @@ def get(environment, name, config, pwd, output_format):
 @click.argument('environment')
 @click.argument('name')
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
+@click.option('--pwd', '--api-key', default=None, help='password/api_key used for authenticating with CP4NA orchestration. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('-u', '--public', 'public_key', help='path to the file containing the public key (usually a .pub)')
 @click.option('-i', '--private', 'private_key', help='path to the file containing the private key (usually a .pem)')
 @click.option('-d', '--description', help='description of the shared infrastructure key')
@@ -123,7 +123,7 @@ def load_key_file(key_file, filetype):
 @click.argument('environment')
 @click.argument('name')
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
+@click.option('--pwd', '--api-key', default=None, help='password/api_key used for authenticating with CP4NA orchestration. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 def delete(environment, name, config, pwd):
     ik_driver = get_ik_driver(environment, config, pwd)
     with lm_driver_safety_net():

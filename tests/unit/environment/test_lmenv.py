@@ -2,7 +2,7 @@ import unittest
 import unittest.mock as mock
 from pydantic import ValidationError
 from lmctl.environment import TNCOEnvironment, LmSessionConfig, LmSession
-from lmctl.client import TNCOClient, LegacyUserPassAuth, UserPassAuth, ClientCredentialsAuth, JwtTokenAuth
+from lmctl.client import TNCOClient, LegacyUserPassAuth, UserPassAuth, ClientCredentialsAuth, JwtTokenAuth, ZenAPIKeyAuth
 
 class TestTNCOEnvironment(unittest.TestCase):
     maxDiff = None
@@ -96,6 +96,28 @@ class TestTNCOEnvironment(unittest.TestCase):
         env = TNCOEnvironment(address='http://test:8080', kami_protocol='https')
         self.assertEqual(env.kami_address, 'https://test:31289')
 
+    def test_zen_auth_mode(self):
+        env = TNCOEnvironment(address='http://test:8080', secure=True, auth_mode='zen', username='Zenny', api_key='12345', auth_address='http://zen:8000/api')
+        self.assertEqual(env.auth_mode, 'zen')
+        self.assertEqual(env.username, 'Zenny')
+        self.assertEqual(env.api_key, '12345')
+        self.assertEqual(env.auth_address, 'http://zen:8000/api')
+        
+    def test_zen_auth_missing_username(self):
+        with self.assertRaises(ValidationError) as context:
+            TNCOEnvironment(address='http://test:8080', secure=True, auth_mode='zen', auth_address='http://zen:8000/api')
+        self.assertEqual(str(context.exception), '1 validation error for TNCOEnvironment\n__root__\n  Secure TNCO environment must be configured with a "username" property when using "auth_mode=zen". If the TNCO environment is not secure then set "secure" to False (type=value_error)')
+
+    def test_zen_auth_missing_auth_address(self):
+        with self.assertRaises(ValidationError) as context:
+            TNCOEnvironment(address='http://test:8080', secure=True, auth_mode='zen', username='user', api_key='API')
+        self.assertEqual(str(context.exception), '1 validation error for TNCOEnvironment\n__root__\n  Secure TNCO environment must be configured with Zen authentication address on the "auth_address" property (or "auth_host"/"auth_port"/"auth_protocol") when using "auth_mode=zen". If the TNCO environment is not secure then set "secure" to False (type=value_error)')
+
+    def test_invalid_use_of_api_key_when_in_oauth_mode(self):
+        with self.assertRaises(ValidationError) as context:
+            TNCOEnvironment(address='http://test:8080', secure=True, auth_mode='oauth', username='user', api_key='API')
+        self.assertEqual(str(context.exception), '1 validation error for TNCOEnvironment\n__root__\n  Secure TNCO environment cannot be configured with "api_key" when using "auth_mode=oauth". Use "client_id/client_secret" or "username/password" combination or set "auth_mode" to "zen". If the TNCO environment is not secure then set "secure" to False (type=value_error)')
+    
     def test_token_auth_mode(self):
         env = TNCOEnvironment(address='http://test:8080', secure=True, auth_mode='token', token='123')
         self.assertEqual(env.auth_mode, 'token')
@@ -127,6 +149,13 @@ class TestTNCOEnvironment(unittest.TestCase):
         self.assertEqual(session_config.client_secret, 'secret')
         self.assertEqual(session_config.auth_mode, 'oauth')
 
+    def test_create_session_config_with_zen_auth(self):
+        env = TNCOEnvironment('lm', host='test', port=80, protocol='https', secure=True, username='user', api_key='key', auth_address='http://zen:80', auth_mode='zen')
+        session_config = env.create_session_config()
+        self.assertEqual(session_config.username, 'user')
+        self.assertEqual(session_config.api_key, 'key')
+        self.assertEqual(session_config.auth_mode, 'zen')
+    
     def test_create_session_config_with_token_auth(self):
         env = TNCOEnvironment(host='test', port=80, protocol='https', secure=True, auth_mode='token', token='123')
         session_config = env.create_session_config()
@@ -197,6 +226,24 @@ class TestTNCOEnvironment(unittest.TestCase):
         self.assertIsInstance(client.auth_type, ClientCredentialsAuth)
         self.assertEqual(client.auth_type.client_id, 'TNCOClient')
         self.assertEqual(client.auth_type.client_secret, 'sosecret')
+    
+    def test_build_client_zen_auth(self):
+        config = TNCOEnvironment(
+                         address='https://testing',
+                         secure=True, 
+                         auth_mode='zen',
+                         username='user', 
+                         api_key='secret', 
+                         auth_host='auth', 
+                         auth_port=81, 
+                         auth_protocol='https'
+                         )
+        client = config.build_client()
+        self.assertIsInstance(client, TNCOClient)
+        self.assertIsInstance(client.auth_type, ZenAPIKeyAuth)
+        self.assertEqual(client.auth_type.username, 'user')
+        self.assertEqual(client.auth_type.api_key, 'secret')
+        self.assertEqual(client.auth_type.zen_auth_address, 'https://auth:81')
 
     def test_build_client_token_auth(self):
         config = TNCOEnvironment(
@@ -326,6 +373,19 @@ class TestLmSession(unittest.TestCase):
         mock_client_builder.client_credentials_auth.assert_not_called()
         mock_client_builder.token_auth.assert_called_once_with(token='123')
 
+    @mock.patch('lmctl.environment.lmenv.lm_drivers.security.TNCOClientBuilder')
+    def test_security_ctrl_builds_client_with_zen_auth(self, mock_client_builder_init):
+        env = TNCOEnvironment(address='http://api:80', secure=True, username='user', api_key='123', auth_mode='zen', auth_address='http://zen:81')
+        session_config = env.create_session_config()
+        session = LmSession(session_config)
+        driver = session.descriptor_driver #Force LmSecurityCtrl to be created
+        mock_client_builder = mock_client_builder_init.return_value 
+        mock_client_builder.address.assert_called_once_with('http://zen:81')
+        mock_client_builder.legacy_user_pass_auth.assert_not_called()
+        mock_client_builder.user_pass_auth.assert_not_called()
+        mock_client_builder.client_credentials_auth.assert_not_called()
+        mock_client_builder.zen_api_key_auth.assert_called_once_with(username='user', api_key='123', zen_auth_address='http://zen:81')
+
     @mock.patch('lmctl.environment.lmenv.lm_drivers.LmDescriptorDriver')
     def test_descriptor_driver(self, descriptor_driver_init):
         session = LmSession(LmSessionConfig(TNCOEnvironment(host='test', port=80, protocol='https'), None, auth_mode='oauth'))
@@ -338,7 +398,7 @@ class TestLmSession(unittest.TestCase):
     def test_descriptor_driver_with_security(self, descriptor_driver_init, mock_security_ctrl_init):
         session = LmSession(LmSessionConfig(TNCOEnvironment(host='test', port=80, protocol='https', secure=True, username='user', auth_host='auth', auth_port=81, auth_protocol='http'), 'user', 'secret', auth_mode='oauth'))
         driver = session.descriptor_driver
-        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, token=None, auth_mode='oauth')
+        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, token=None, api_key=None, auth_mode='oauth')
         descriptor_driver_init.assert_called_once_with('https://test:80', mock_security_ctrl_init.return_value)
         self.assertEqual(driver, descriptor_driver_init.return_value)
 
@@ -354,7 +414,7 @@ class TestLmSession(unittest.TestCase):
     def test_onboard_rm_driver_with_security(self, onboard_rm_driver_init, mock_security_ctrl_init):
         session = LmSession(LmSessionConfig(TNCOEnvironment(host='test', port=80, protocol='https', secure=True, username='user', auth_host='auth', auth_port=81, auth_protocol='http'), 'user', 'secret', auth_mode='oauth'))
         driver = session.onboard_rm_driver
-        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, token=None, auth_mode='oauth')
+        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, token=None, api_key=None, auth_mode='oauth')
         onboard_rm_driver_init.assert_called_once_with('https://test:80', mock_security_ctrl_init.return_value)
         self.assertEqual(driver, onboard_rm_driver_init.return_value)
 
@@ -370,7 +430,7 @@ class TestLmSession(unittest.TestCase):
     def test_topology_driver_with_security(self, topology_driver_init, mock_security_ctrl_init):
         session = LmSession(LmSessionConfig(TNCOEnvironment(host='test', port=80, protocol='https', secure=True, username='user', auth_host='auth', auth_port=81, auth_protocol='http'), 'user', 'secret', auth_mode='oauth'))
         driver = session.topology_driver
-        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, token=None, auth_mode='oauth')
+        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, token=None, api_key=None, auth_mode='oauth')
         topology_driver_init.assert_called_once_with('https://test:80', mock_security_ctrl_init.return_value)
         self.assertEqual(driver, topology_driver_init.return_value)
 
@@ -386,7 +446,7 @@ class TestLmSession(unittest.TestCase):
     def test_behaviour_driver_with_security(self, behaviour_driver_init, mock_security_ctrl_init):
         session = LmSession(LmSessionConfig(TNCOEnvironment(host='test', port=80, protocol='https', secure=True, username='user', auth_host='auth', auth_port=81, auth_protocol='http'), 'user', 'secret', auth_mode='oauth'))
         driver = session.behaviour_driver
-        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, token=None, auth_mode='oauth')
+        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, token=None, api_key=None, auth_mode='oauth')
         behaviour_driver_init.assert_called_once_with('https://test:80', mock_security_ctrl_init.return_value)
         self.assertEqual(driver, behaviour_driver_init.return_value)
 
@@ -402,7 +462,7 @@ class TestLmSession(unittest.TestCase):
     def test_deployment_location_driver_with_security(self, deployment_location_driver_init, mock_security_ctrl_init):
         session = LmSession(LmSessionConfig(TNCOEnvironment(host='test', port=80, protocol='https', secure=True, username='user', auth_host='auth', auth_port=81, auth_protocol='http'), 'user', 'secret', auth_mode='oauth'))
         driver = session.deployment_location_driver
-        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, token=None, auth_mode='oauth')
+        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, token=None, api_key=None, auth_mode='oauth')
         deployment_location_driver_init.assert_called_once_with('https://test:80', mock_security_ctrl_init.return_value)
         self.assertEqual(driver, deployment_location_driver_init.return_value)
 
@@ -418,6 +478,6 @@ class TestLmSession(unittest.TestCase):
     def test_infrastructure_keys_driver_with_security(self, infrastructure_keys_driver_init, mock_security_ctrl_init):
         session = LmSession(LmSessionConfig(TNCOEnvironment(host='test', port=80, protocol='https', secure=True, username='user', auth_host='auth', auth_port=81, auth_protocol='http'), 'user', 'secret', auth_mode='oauth'))
         driver = session.infrastructure_keys_driver
-        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, token=None, auth_mode='oauth')
+        mock_security_ctrl_init.assert_called_once_with('http://auth:81', username='user', password='secret', client_id=None, client_secret=None, token=None, api_key=None, auth_mode='oauth')
         infrastructure_keys_driver_init.assert_called_once_with('https://test:80', mock_security_ctrl_init.return_value)
         self.assertEqual(driver, infrastructure_keys_driver_init.return_value)
