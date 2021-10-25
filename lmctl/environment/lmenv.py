@@ -1,11 +1,12 @@
 import lmctl.drivers.lm as lm_drivers
 from typing import Union, Optional
+
 from pydantic.dataclasses import dataclass
 from pydantic import constr, root_validator
 
 from urllib.parse import urlparse
 
-from lmctl.client import TNCOClient, TNCOClientBuilder, TOKEN_AUTH_MODE, LEGACY_OAUTH_MODE, ZEN_AUTH_MODE
+from lmctl.client import TNCOClient, TNCOClientBuilder, TOKEN_AUTH_MODE, OAUTH_MODE, ZEN_AUTH_MODE
 from lmctl.utils.dcutils.dc_capture import recordattrs
 
 from .common import build_address
@@ -30,7 +31,7 @@ class TNCOEnvironment:
     password: Optional[str] = None
     api_key: Optional[str] = None
     token: Optional[str] = None
-    auth_mode: Optional[str] = LEGACY_OAUTH_MODE
+    auth_mode: Optional[str] = OAUTH_MODE
 
     host: Optional[str] = None
     port: Optional[Union[str,int]] = None
@@ -57,10 +58,10 @@ class TNCOEnvironment:
 
             auth_mode = values.get('auth_mode', None)
             if auth_mode is None:
-                auth_mode = LEGACY_OAUTH_MODE
+                auth_mode = OAUTH_MODE
                 values['auth_mode'] = auth_mode
 
-            if auth_mode.lower() == LEGACY_OAUTH_MODE:
+            if auth_mode.lower() == OAUTH_MODE:
                 values = cls._validate_oauth(values)
             elif auth_mode.lower() == ZEN_AUTH_MODE:
                 values = cls._validate_zen(values)
@@ -78,11 +79,11 @@ class TNCOEnvironment:
         username = values.get('username', None)
         password = values.get('password', None)
         if not client_id and not username:
-            raise ValueError(f'Secure TNCO environment must be configured with either "client_id" or "username" property when using "auth_mode={LEGACY_OAUTH_MODE}". If the TNCO environment is not secure then set "secure" to False')
+            raise ValueError(f'Secure TNCO environment must be configured with either "client_id" or "username" property when using "auth_mode={OAUTH_MODE}". If the TNCO environment is not secure then set "secure" to False')
         # Currently api_key can only be used with Zen, so we perform an extra check to let the user know 
         api_key = values.get('api_key', None)
         if api_key is not None:
-            raise ValueError(f'Secure TNCO environment cannot be configured with "api_key" when using "auth_mode={LEGACY_OAUTH_MODE}". Use "client_id/client_secret" or "username/password" combination or set "auth_mode" to "{ZEN_AUTH_MODE}". If the TNCO environment is not secure then set "secure" to False')
+            raise ValueError(f'Secure TNCO environment cannot be configured with "api_key" when using "auth_mode={OAUTH_MODE}". Use "client_id/client_secret" or "username/password" combination or set "auth_mode" to "{ZEN_AUTH_MODE}". If the TNCO environment is not secure then set "secure" to False')
         return values
 
     @classmethod
@@ -179,7 +180,7 @@ class TNCOEnvironment:
 
     @property
     def is_using_oauth(self):
-        return self.auth_mode.lower() == LEGACY_OAUTH_MODE.lower()
+        return self.auth_mode.lower() == OAUTH_MODE.lower()
 
     @property
     def is_using_zen_auth(self):
@@ -203,7 +204,7 @@ class LmSessionConfig:
 
     @property
     def is_using_oauth(self):
-        return self.auth_mode.lower() == LEGACY_OAUTH_MODE.lower()
+        return self.auth_mode.lower() == OAUTH_MODE.lower()
 
     @property
     def is_using_zen_auth(self):

@@ -1,6 +1,6 @@
 import click
 import os
-from lmctl.client import TNCOClientBuilder, ClientCredentialsAuth, UserPassAuth, LegacyUserPassAuth, JwtTokenAuth, TOKEN_AUTH_MODE, LEGACY_OAUTH_MODE, ZEN_AUTH_MODE
+from lmctl.client import TNCOClientBuilder, ClientCredentialsAuth, UserPassAuth, LegacyUserPassAuth, JwtTokenAuth, TOKEN_AUTH_MODE, OAUTH_MODE, ZEN_AUTH_MODE
 from lmctl.config import ConfigFinder, find_config_location, write_config
 from lmctl.environment import TNCOEnvironment, EnvironmentGroup
 from lmctl.cli.controller import get_global_controller, CLIController
@@ -49,7 +49,7 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
         if is_zen:
             auth_address = _prompt_if_not_set(ctl, 'Auth Address', auth_address)
             username = _prompt_if_not_set(ctl, 'Username', username)
-            api_key = _prompt_if_not_set(ctl, 'API Key', api_key)
+            api_key = _prompt_if_not_set(ctl, 'API Key', api_key, secret=True)
         else:
             # If auth address is not set then we must prompt for client credentials in addition to username/password
             if auth_address is None:
@@ -64,11 +64,11 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
             if client_id is None and auth_address is None:
                 raise click.BadArgumentUsage(message=f'Must specify "--auth-address" option when attempting to authenticate with username/password/api_key but without client/client-secret', ctx=ctx)
             if is_zen:
-                api_key = _prompt_if_not_set(ctl, 'API Key', api_key)
+                api_key = _prompt_if_not_set(ctl, 'API Key', api_key, secret=True)
             else:
                 pwd = _prompt_if_not_set(ctl, 'Password', pwd, secret=True)
 
-    auth_mode = LEGACY_OAUTH_MODE
+    auth_mode = OAUTH_MODE
     if token is not None:
         auth_mode = TOKEN_AUTH_MODE
     elif is_zen:

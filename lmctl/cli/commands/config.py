@@ -72,7 +72,7 @@ environments:
 
       #####################################################################
       #  Zen Authentication                                               #
-      #  Required if "secure" is true and not using Legacy Oauth or Token #
+      #  Required if "secure" is true and not using Oauth or Token        #
       #####################################################################
       
       # Indicate environment is using Zen

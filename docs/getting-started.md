@@ -83,7 +83,7 @@ LMCTL requires credentials to access the orchestration component of your Cloud P
 The most efficient method of configuring LMCTL is to use the `lmctl login` with the API gateway (Ishtar Route) address for your environment. On most OCP installations, this can be retrieved with:
 
 ```
-API_GATEWAY=$(oc get route alm-ishtar -o jsonpath='{.spec.host}')
+API_GATEWAY=https://$(oc get route cp4na-o-ishtar -o jsonpath='{.spec.host}')
 ```
 
 The `login` command will perform the following:
@@ -95,19 +95,31 @@ The `login` command will perform the following:
 
 The credentials for your environment may be provided in a few different combinations but the most convenient methods are described below:
 
-- [CP4NA 2.2 with Zen](#zen-authentication)
-- [CP4NA 2.1 (and all other pre-2.2) with oauth](#legacy-oauth-authentication)
+- [CP4NA 2.2+ on OCP with Zen](#zen-authentication)
+- [CP4NA on Kubernetes with Oauth](#oauth-authentication)
 
 Check out the [login command documentation](command-reference/login.md) to view more detailed information on each combination.
 
 ## Zen Authentication
 
-> CP4NA 2.2+ only
+> CP4NA 2.2+ on OCP only
 
-Login using your Zen username and API key:
+You will need to provide the Zen authorization address. On most OCP installations, this can be retrieved with:
 
 ```
-lmctl login $API_GATEWAY --zen --auth-address $ZEN_AUTH_ADDRESS --username myuser --api-key 123
+ZEN_AUTH_ADDRESS=$(oc get orchestration default -o jsonpath='{.status.uiendpoints.orchestration}')/icp4d-api/v1/authorize
+```
+
+You'll also need to obtain an API key for your Zen user. This can retrieved by visiting the CP4NA UI (address returned by `oc get orchestration default -o jsonpath='{.status.uiendpoints.orchestration}'`) and logging in with with your Zen username and password.
+
+Access `Profile and Settings` from the user menu icon located in the top right section of the navigation header. From the profile page you can generate your API key by clicking on the `API Key` link in the top right and then `Generate new key`. 
+
+![Zen API Key](images/zen-api-key.png)
+
+You may be warned that generating a new key will invalidate any previous keys. Either use your existing key (if known) or click `Generate` to create a new one. Make a copy of this key and use it to login with lmctl:
+
+```
+lmctl login $API_GATEWAY --zen --auth-address $ZEN_AUTH_ADDRESS --username admin --api-key FdpmmyFIIslv0s3eN9tCTKeYAt3457pnmrTZacvo
 ```
 
 You should see output similar to:
@@ -125,16 +137,16 @@ lmctl ping env
 
 If the output of this command ends with `CP4NA orchestration tests passed! ✅` then you're ready to go. 
 
-Eventually your access token will expire, resulting in authentication errors when using lmctl. When this occurs, run `login` again to reauthenticate OR check out the [Automation Reauthentication](#automatic-reauthentication) section below to save your credentials in the lmctl config file so lmctl may automatically re-authenticate you when the token expires.
+Eventually your access token will expire, resulting in authentication errors when using lmctl. When this occurs, run `login` again to reauthenticate OR check out the [Automation Reauthentication](#automatic-reauthentication) section below to save your credentials in your config file so lmctl may automatically re-authenticate when the token expires.
 
-## Legacy Oauth Authentication
+## Oauth Authentication
 
-> Note: This mode is for any CP4NA version prior to 2.2.
+> For any environment where Zen authentication is not used
 
 First, try logging in with the same username and password you use to access the CP4NA orchestration user interface (UI). You will need to provide the UI address (Nimrod Route) for your environment. On most OCP installations, this can be retrieved with:
 
 ```
-UI_ADDRESS=$(oc get route alm-nimrod -o jsonpath='{.spec.host}')
+UI_ADDRESS=https://$(oc get route cp4na-o-nimrod -o jsonpath='{.spec.host}')
 ```
 
 Run `lmctl login`, changing the `--username` and `--password` values to valid credentials for your environment:
