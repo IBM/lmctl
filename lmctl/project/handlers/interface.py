@@ -162,7 +162,7 @@ class SourceCreator(abc.ABC):
     
     def _do_create_etsi_vnf_manifest(self, journal, source_request):
         file_ops = []
-        d = datetime.now()
+        d = datetime.now(timezone.utc)
         manifest_content = 'metadata:\n'
         manifest_content += 'vnfd_id: TBC\n'
         manifest_content += 'vnf_provider_id: IBM\n'
@@ -177,7 +177,7 @@ class SourceCreator(abc.ABC):
 
     def _do_create_etsi_ns_manifest(self, journal, source_request):
         file_ops = []
-        d = datetime.now()        
+        d = datetime.now(timezone.utc)        
         manifest_content = 'metadata:\n'
         manifest_content += 'nsd_designer: IBM\n'
         manifest_content += 'nsd_invariant_id: TBC\n'
