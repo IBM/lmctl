@@ -1,6 +1,5 @@
 from .api import *
 from typing import Dict
-from urllib.parse import urlparse, urlencode
 from .exceptions import TNCOClientError, TNCOClientHttpError
 from .auth_type import AuthType
 from .auth_tracker import AuthTracker
@@ -160,6 +159,10 @@ class TNCOClient:
     @property
     def behaviour_scenario_execs(self) -> BehaviourScenarioExecutionsAPI:
         return BehaviourScenarioExecutionsAPI(self)
+
+    @property
+    def brent_deployment_locations(self) -> BrentDeploymentLocationAPI:
+        return BrentDeploymentLocationAPI(self)
 
     @property
     def deployment_locations(self) -> DeploymentLocationAPI:

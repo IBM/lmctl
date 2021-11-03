@@ -4,6 +4,7 @@ from .behaviour_assembly_configurations import BehaviourAssemblyConfigurationsAP
 from .behaviour_projects import BehaviourProjectsAPI
 from .behaviour_scenarios import BehaviourScenariosAPI
 from .behaviour_scenario_executions import BehaviourScenarioExecutionsAPI
+from .brent_deployment_locations import BrentDeploymentLocationAPI
 from .deployment_locations import DeploymentLocationAPI
 from .descriptors import DescriptorsAPI
 from .descriptor_templates import DescriptorTemplatesAPI
