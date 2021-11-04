@@ -36,7 +36,7 @@ lmctl --version
 
 Login to an environment:
 ```
-lmctl login alm-ishtar.example.com --auth-address alm-nimrod.example.com --username almadmin --save-creds
+lmctl login cp4na-o-ishtar.example.com --auth-address cp4na-o-nimrod.example.com --username almadmin --save-creds
 ```
 
 For more complete install and login instructions, check out the [getting started guide](docs/getting-started.md)

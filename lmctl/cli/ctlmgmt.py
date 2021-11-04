@@ -58,7 +58,14 @@ def create_lm_session(environment_group_name = None, lm_pwd=None, config_path=No
     lm = env_group.tnco
     lm_session_config = lm.create_session_config()
     if lm.secure:
-        if lm_session_config.is_using_token_auth:
+        if lm_session_config.is_using_zen_auth:
+            if lm_session_config.username is not None:
+                if lm_pwd is not None and len(lm_pwd.strip()) > 0:
+                    lm_session_config.api_key = lm_pwd
+                elif lm_session_config.api_key is None:
+                    prompt_pwd = click.prompt(f'Please enter API key for LM user {lm_session_config.username}', hide_input=True, default='')
+                    lm_session_config.api_key = prompt_pwd
+        elif lm_session_config.is_using_token_auth:
             if lm_token is not None and len(lm_token.strip()) > 0:
                 lm_session_config.token = lm_token
             elif lm_session_config.token is None:

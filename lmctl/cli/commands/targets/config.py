@@ -20,12 +20,42 @@ environments:
       ## Set to true if TNCO is secure and requires authentication to use the APIs
       secure: True
 
+      #####################################################################
+      #  Zen Authentication                                               #
+      #  Required if "secure" is true and not using Oauth or Token #
+      #####################################################################
+      
+      # Indicate environment is using Zen
+      auth_mode: zen
+      
+      ## The full HTTP(s) address and path used to access the Zen authentication APIs E.g. https://<hostname>/icp4d-api/v1/authorize
+      auth_address: https://cpd-lifecycle-manager.apps.example.com/icp4d-api/v1/authorize
+
+      ## The username to authenticate with
+      username: example-user
+
+      ## The API key for the above user
+      #api_key: enter-your-api-key
+
       #####################################################
-      # Oauth Authentication                              #
+      # Token Authentication                              #
       #####################################################
      
+      # Indicate the environment is using token based auth
+      #auth_mode: token 
+
+      #token: enter-your-token
+
+      ##############################################################
+      # Oauth Authentication                                #
+      # Required if "secure" is true and not using Zen or Token    #
+      # The following authentication options                       #
+      # are only valid on older TNCO (ALM) environments            #
+      # which do not use Zen SSO                                   #
+      ##############################################################
+     
       # Indicate the environment is using oauth
-      auth_mode: oauth 
+      #auth_mode: oauth 
 
       #=========================#
       # Oauth Option 1:         #
@@ -33,7 +63,7 @@ environments:
       #=========================#
 
       ## ID of the client credentials to authenticate with
-      client_id: LmClient
+      #client_id: LmClient
       
       ## Secret for the above client
       #client_secret: enter-your-secret
@@ -67,14 +97,6 @@ environments:
       ## The password for the above user
       #password: enter-your-pass
 
-      #####################################################
-      # Token Authentication                              #
-      #####################################################
-     
-      # Indicate the environment is using token based auth
-      auth_mode: token 
-
-      #token: enter-your-token
 '''
 
 

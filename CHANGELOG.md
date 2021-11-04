@@ -1,5 +1,24 @@
 # Change Log
 
+## [3.2.0](https://github.com/IBM/lmctl/tree/3.2.0) (2021-11-04)
+[Full Changelog](https://github.com/IBM/lmctl/compare/3.1.0...3.2.0)
+
+**Implemented Enhancements:**
+
+- Add Zen authentication support [\#80](https://github.com/IBM/lmctl/issues/80)
+
+**Fixed Bugs:**
+
+- Generated dates in new ETSI VNF and NS projects do not conform to RFC3339 [\#115](https://github.com/IBM/lmctl/issues/115) 
+
+**Dependencies:**
+
+- Bump pydantic from 1.8.1 to 1.8.2 [\#104](https://github.com/IBM/lmctl/issues/104) 
+
+**Documentation:**
+
+- Fixing the broken link to 'Command Reference' page [\#114](https://github.com/IBM/lmctl/pull/114) 
+
 ## [3.1.0](https://github.com/IBM/lmctl/tree/3.1.0) (2021-06-25)
 [Full Changelog](https://github.com/IBM/lmctl/compare/3.0.0...3.1.0)
 

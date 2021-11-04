@@ -47,7 +47,7 @@ def format_dl_list(output_format, dl_list):
 @deployment.command(name='list', help='List deployment locations on an CP4NA orchestration environment')
 @click.argument('environment')
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
+@click.option('--pwd', '--api-key', default=None, help='password/api_key used for authenticating with CP4NA orchestration. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
 def list_locations(environment, config, pwd, output_format):
     dl_driver = get_dl_driver(environment, config, pwd)
@@ -60,7 +60,7 @@ def list_locations(environment, config, pwd, output_format):
 @click.argument('environment')
 @click.argument('name')
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
+@click.option('--pwd', '--api-key', default=None, help='password/api_key used for authenticating with CP4NA orchestration. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('-r', '--rm', required=True, help='name of Resource Manager to associate the Deployment Location with')
 @click.option('-i', '--infrastructure-type', help='type of infrastructure managed by the Deployment Location')
 @click.option('-d', '--description', help='description of the Deployment Location')
@@ -87,7 +87,7 @@ def add(environment, name, config, pwd, rm, infrastructure_type, description, pr
 @click.argument('environment')
 @click.argument('name')
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
+@click.option('--pwd', '--api-key', default=None, help='password/api_key used for authenticating with CP4NA orchestration. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 def delete(environment, name, config, pwd):
     dl_driver = get_dl_driver(environment, config, pwd)
     with lm_driver_safety_net():
@@ -106,7 +106,7 @@ def delete(environment, name, config, pwd):
 @click.argument('environment')
 @click.argument('name')
 @click.option('--config', default=None, help='configuration file')
-@click.option('--pwd', default=None, help='password used for authenticating with CP4NA orchestration (only required if CP4NA orchestration is secure and a username has been included in the environment config)')
+@click.option('--pwd', '--api-key', default=None, help='password/api_key used for authenticating with CP4NA orchestration. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
 def get(environment, name, config, pwd, output_format):
     dl_driver = get_dl_driver(environment, config, pwd)
