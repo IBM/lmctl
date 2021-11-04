@@ -15,6 +15,8 @@ Contents:
   - :closed_lock_with_key: [Token Authentication](#token-authentication)
   - :file_folder: [Default Active Environment](#active-environment)
   - :clipboard: [Log Directory](#log-directory)
+- New in 3.2.0
+  - :closed_lock_with_key: [Zen Authentication](#zen-authentication)
 
 # 3.0.0
 
@@ -257,3 +259,17 @@ You can ask LMCTL for the exact path on your machine using the new `logdir` comm
 ```
 lmctl logdir
 ```
+
+# 3.2.0
+
+# Zen Authentication
+
+When using Cloud Pak for Network Automation v2.2+ (CP4NA) you may be required to authenticate with Zen credentials, a common authentication framework for IBM Cloudpaks. 
+
+The configuration file and login command now support `auth_mode: zen`, allowing you to authenticate with your Zen credentials: 
+
+```
+lmctl login $API_GATEWAY --zen --auth-address $ZEN_AUTH_ADDRESS --username admin --api-key FdpmmyFIIslv0s3eN9tCTKeYAt3457pnmrTZacvo
+```
+
+For more details, check out the [Getting Started](getting-started.md#zen-authentication) guide or the [Login Command Reference](command-reference/login.md).
