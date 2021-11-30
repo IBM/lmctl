@@ -201,11 +201,11 @@ class TestLogin(CLIIntegrationTest):
         address = existing_tnco.address
         if zen_auth_address is None:
             if existing_tnco.auth_address is not None:
-                auth_address = existing_tnco.auth_address 
+                zen_auth_address = existing_tnco.auth_address 
             else:
-                auth_address = address
+                zen_auth_address = address
 
-        result = self.cli_runner.invoke(cli, ['login', address, '--zen', '--username', username, '--api-key', api_key, '--auth-address', auth_address, '--name', 'env8'])
+        result = self.cli_runner.invoke(cli, ['login', address, '--zen', '--username', username, '--api-key', api_key, '--auth-address', zen_auth_address, '--name', 'env8'])
         self.assert_no_errors(result)
         expected_output = 'Login success'
         expected_output += f'\nUpdating config at: {self.tester.config_path}'
@@ -233,11 +233,11 @@ class TestLogin(CLIIntegrationTest):
         address = existing_tnco.address
         if zen_auth_address is None:
             if existing_tnco.auth_address is not None:
-                auth_address = existing_tnco.auth_address 
+                zen_auth_address = existing_tnco.auth_address 
             else:
-                auth_address = address
+                zen_auth_address = address
 
-        result = self.cli_runner.invoke(cli, ['login', address, '--zen', '--username', username, '--api-key', api_key, '--auth-address', auth_address, '--save-creds', '--name', 'env9'])
+        result = self.cli_runner.invoke(cli, ['login', address, '--zen', '--username', username, '--api-key', api_key, '--auth-address', zen_auth_address, '--save-creds', '--name', 'env9'])
         self.assert_no_errors(result)
         expected_output = 'Login success'
         expected_output += f'\nUpdating config at: {self.tester.config_path}'
