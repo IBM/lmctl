@@ -41,7 +41,7 @@ class TestAuthenticationAPI(IntegrationTest):
             return
         username = self.tester.test_properties.auth_testing.zen_api_key.username
         api_key = self.tester.test_properties.auth_testing.zen_api_key.api_key
-        auth_response = self.tester.default_client.auth.request_zen_api_key_access(username, api_key)
+        auth_response = self.tester.default_client.auth.request_zen_api_key_access(username, api_key, zen_auth_address=self.tester.test_properties.auth_testing.zen_api_key.zen_auth_address)
         self.assertIn('token', auth_response)
 
     def test_token(self):
