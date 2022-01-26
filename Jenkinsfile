@@ -4,4 +4,8 @@ String tarquinBranch = "develop"
 
 library "tarquin@$tarquinBranch"
 
-pipelineLmctl {}
+pipelinePy {
+  pkgInfoPath = 'lmctl/pkg_info.json'
+  applicationName = 'lmctl'
+  attachDocsToRelease = true
+}
