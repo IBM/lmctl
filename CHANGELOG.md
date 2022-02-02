@@ -1,5 +1,12 @@
 # Change Log
 
+## [3.2.1](https://github.com/IBM/lmctl/tree/3.2.1) (2022-02-02)
+[Full Changelog](https://github.com/IBM/lmctl/compare/3.2.0...3.2.1)
+
+**Implemented Enhancements:**
+
+- Uplift dependency ranges for `click`, `oyaml`, `Jinja2`, `pydantic` and `pyjwt` [\#121](https://github.com/IBM/lmctl/issues/121)
+
 ## [3.2.0](https://github.com/IBM/lmctl/tree/3.2.0) (2021-11-04)
 [Full Changelog](https://github.com/IBM/lmctl/compare/3.1.0...3.2.0)
 
