@@ -367,7 +367,7 @@ class TestLmSession(unittest.TestCase):
         session = LmSession(session_config)
         driver = session.descriptor_driver #Force LmSecurityCtrl to be created
         mock_client_builder = mock_client_builder_init.return_value 
-        mock_client_builder.address.assert_called_once_with('http://api:80')
+        mock_client_builder.address.assert_called_once_with(None)
         mock_client_builder.legacy_user_pass_auth.assert_not_called()
         mock_client_builder.user_pass_auth.assert_not_called()
         mock_client_builder.client_credentials_auth.assert_not_called()
