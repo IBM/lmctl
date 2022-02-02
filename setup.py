@@ -23,16 +23,16 @@ setup(
     packages=find_namespace_packages(include=['lmctl*']),
     include_package_data=True,
     install_requires=[
-        'click>=7.1,<8.0',
+        'click>=7.1,<9.0',
         'requests>=2.23,<3.0',
         'ruamel.yaml>=0.16,<1.0',
-        'oyaml>=0.8,<1.0',
+        'oyaml>=0.8,<2.0',
         'tabulate>=0.8,<1.0',
-        'Jinja2==2.11.3',
+        'Jinja2>=2.11,<4.0',
         'PyYAML>=5.3.0,<6.0',
-        'pydantic==1.8.2',
+        'pydantic>=1.8,<2.0',
         'dataclasses>=0.6; python_version < "3.7"',
-        'pyjwt>=1.5.3,<2.0'
+        'pyjwt>=1.5.3,<3.0'
     ],
     entry_points='''
         [console_scripts]

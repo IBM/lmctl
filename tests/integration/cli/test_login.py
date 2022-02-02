@@ -1,3 +1,4 @@
+from lmctl.client import zen_auth
 from .cli_test_base import CLIIntegrationTest
 from lmctl.cli.entry import cli
 
@@ -251,4 +252,4 @@ class TestLogin(CLIIntegrationTest):
         self.assertEqual(tnco.username, username)
         self.assertEqual(tnco.api_key, api_key)
         self.assertIsNone(tnco.token)
-        self.assertTrue(tnco.is_using_zen)
+        self.assertTrue(tnco.is_using_zen_auth)
