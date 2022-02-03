@@ -1,5 +1,12 @@
 # Change Log
 
+## [3.2.2](https://github.com/IBM/lmctl/tree/3.2.2) (2022-02-03)
+[Full Changelog](https://github.com/IBM/lmctl/compare/3.2.1...3.2.2)
+
+**Fixed Bugs:**
+
+- Class reference used as output during lmctl project create [\#118](https://github.com/IBM/lmctl/issues/118)
+
 ## [3.2.1](https://github.com/IBM/lmctl/tree/3.2.1) (2022-02-02)
 [Full Changelog](https://github.com/IBM/lmctl/compare/3.2.0...3.2.1)
 
