@@ -8,4 +8,5 @@ pipelinePy {
   pkgInfoPath = 'lmctl/pkg_info.json'
   applicationName = 'lmctl'
   attachDocsToRelease = true
+  releaseToPypi = true
 }
