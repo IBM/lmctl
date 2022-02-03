@@ -180,7 +180,7 @@ class ProjectCreator:
             raise CreateError(str(e)) from e
 
     def __create_sources_for(self, journal, path, source_config, name_chain):
-        journal.event('Creating sources for {0}'.format(source_config))
+        journal.event('Creating sources for {0}'.format(source_config.name))
         tree = project_sources.ProjectBaseTree(path)
         source_creator = handlers_manager.source_creator_for(source_config)()
         param_key = self.__param_key_from_name_chain(name_chain)
