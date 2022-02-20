@@ -110,6 +110,23 @@ class SitePlannerGetMixin:
             # raise SitePlannerClientError(f'Could not find object with {self._pk_field}: {id}')
         return self._record_to_dict(obj)
 
+    def get_by_name(self, name: str) -> Dict:
+        override_url = self._pynb_endpoint.url + f'/?name={name}'
+        resp = self._make_direct_http_call(
+            verb='get',
+            override_url=override_url,
+        ).json()
+        count = resp.get('count', 0)
+        if count == 0:
+            return None
+        if count > 1:
+            raise SitePlannerClientError(f'Too many matches on name: {name}')
+        results = resp.get('results', None)
+        if results is None:
+            return None
+        obj = results[0]
+        return self._record_to_dict(obj)
+
 class SitePlannerDeleteMixin:
  
     def delete(self, id: str):
