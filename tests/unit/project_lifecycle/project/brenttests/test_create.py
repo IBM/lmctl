@@ -213,9 +213,10 @@ properties:
     description: Localization language of the NS to be instantiated
     type: string
 lifecycle:
+  Create: {{}}
   Install: {{}}
-  Configure: {{}}
   Uninstall: {{}}
+  Delete: {{}}
 default-driver:
   sol005:
     selector:
