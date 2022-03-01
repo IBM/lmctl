@@ -31,12 +31,11 @@ lmctl project create [OPTIONS] [LOCATION]
 
 Params for the root Project take the format "param_name param_value", whilst params for Subprojects (those set on `--contains`) use the format "subproject_name.param_name param_value". 
 
-For example, the following sets the driver param to "ansible" for the root Project but "sol003" & "sol005" for the Subproject named A:
+For example, the following sets the driver param to "ansible" for the root Project but "sol003" for the Subproject named A:
 
 ```
 --contains Resource::brent A --param driver ansible --param A.driver sol003
 
---contains Resource::brent A --param driver ansible --param A.driver sol005
 ```
 
 The following table describes the known params available for all projects: 
