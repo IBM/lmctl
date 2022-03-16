@@ -216,9 +216,8 @@ properties:
     type: string
 lifecycle:
   Create: {{}}
-  Install: {{}}
-  Uninstall: {{}}
   Delete: {{}}
+  Update: {{}}
 default-driver:
   sol005:
     selector:
@@ -412,7 +411,7 @@ class TestCreateBrentProjects(ProjectSimTestCase):
         tester.assert_has_file_path(os.path.join(sol005_scripts_dir, BRENT_SOL005_TERMINATE_NS_REQUEST_FILE))
         tester.assert_has_file_path(os.path.join(sol005_scripts_dir, BRENT_SOL005_NS_INSTANCE_FILE))
         
-   def test_create_restconf(self):
+    def test_create_restconf(self):
         request = CreateResourceProjectRequest()
         request.name = 'Test'
         request.version = '0.1'
@@ -521,7 +520,7 @@ class TestCreateBrentProjects(ProjectSimTestCase):
             tester.assert_has_file_path(os.path.join(sol005_scripts_dir, BRENT_SOL005_TERMINATE_NS_REQUEST_FILE))
             tester.assert_has_file_path(os.path.join(sol005_scripts_dir, BRENT_SOL005_NS_INSTANCE_FILE))
             
-     def test_create_restconf_with_lifecycle_param(self):
+    def test_create_restconf_with_lifecycle_param(self):
         request = CreateResourceProjectRequest()
         request.name = 'Test'
         request.version = '0.1'
@@ -775,7 +774,7 @@ class TestCreateBrentProjects(ProjectSimTestCase):
         tester.assert_has_file_path(os.path.join(sol005_scripts_dir, BRENT_SOL005_TERMINATE_NS_REQUEST_FILE))
         tester.assert_has_file_path(os.path.join(sol005_scripts_dir, BRENT_SOL005_NS_INSTANCE_FILE))
         
-     def test_create_restconf_with_subprojects(self):
+    def test_create_restconf_with_subprojects(self):
         request = CreateResourceProjectRequest()
         request.name = 'Test'
         request.target_location = self.tmp_dir

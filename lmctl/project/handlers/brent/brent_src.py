@@ -144,7 +144,7 @@ class AnsibleLifecycleTree(files.Tree):
 
     CONFIG_DIR_NAME = 'config'
     SCRIPTS_DIR_NAME = 'scripts'
-     TEMPLATE_DIR_NAME = 'template'
+    TEMPLATE_DIR_NAME = 'template'
     CONFIG_INVENTORY_FILE_NAME = 'inventory'
     CONFIG_HOSTVARS_DIR_NAME = 'host_vars'
 
@@ -200,7 +200,7 @@ class Sol005LifecycleTree(files.Tree):
     def scripts_path(self):
         return self.resolve_relative_path(Sol005LifecycleTree.SCRIPTS_DIR_NAME)
         
- class RestConfTree(files.Tree):
+class RestConfTree(files.Tree):
     TEMPLATE_DIR_NAME = 'template'
     CREATE_RC_REQUEST_FILE_NAME = 'Create.xml'
     UPDATE_RC_REQUEST_FILE_NAME = 'Update.xml'
@@ -247,7 +247,7 @@ class BrentSourceTree(files.Tree):
     SOL003_LIFECYCLE_DIR_NAME = 'sol003'
     SOL005_LIFECYCLE_DIR_NAME = 'sol005'
     KUBERNETES_LIFECYCLE_DIR_NAME = 'kubernetes'
-    LIFECYCLE_TYPE_RESTCONF = 'restconf'
+    RESTCONF_LIFECYCLE_DIR_NAME = 'restconf'
     
     @property
     def definitions_path(self):
@@ -305,7 +305,7 @@ class BrentSourceTree(files.Tree):
     def kubernetes_lifecycle_path(self):
         return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.KUBERNETES_LIFECYCLE_DIR_NAME)
         
-     @property
+    @property
     def restconf_lifecycle_path(self):
         return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.RESTCONF_LIFECYCLE_DIR_NAME)
         
@@ -529,7 +529,7 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
             descriptor.insert_lifecycle('Create')
             descriptor.insert_lifecycle('Update')
             descriptor.insert_lifecycle('Delete')
-         elif lifecycle_type == LIFECYCLE_TYPE_RESTCONF:
+        elif lifecycle_type == LIFECYCLE_TYPE_RESTCONF:
             file_ops.append(
                 handlers_api.CreateDirectoryOp(source_tree.restconf_lifecycle_path, handlers_api.EXISTING_IGNORE))
             restconf_tree = RestConfTree(source_tree.restconf_lifecycle_path)
