@@ -144,6 +144,7 @@ class AnsibleLifecycleTree(files.Tree):
 
     CONFIG_DIR_NAME = 'config'
     SCRIPTS_DIR_NAME = 'scripts'
+     TEMPLATE_DIR_NAME = 'template'
     CONFIG_INVENTORY_FILE_NAME = 'inventory'
     CONFIG_HOSTVARS_DIR_NAME = 'host_vars'
 
@@ -198,6 +199,16 @@ class Sol005LifecycleTree(files.Tree):
     @property
     def scripts_path(self):
         return self.resolve_relative_path(Sol005LifecycleTree.SCRIPTS_DIR_NAME)
+        
+ class RestConfTree(files.Tree):
+    TEMPLATE_DIR_NAME = 'template'
+    CREATE_RC_REQUEST_FILE_NAME = 'Create.xml'
+    UPDATE_RC_REQUEST_FILE_NAME = 'Update.xml'
+    DELETE_RC_REQUEST_FILE_NAME = 'Delete.xml'
+
+    @property
+    def scripts_path(self):
+        return self.resolve_relative_path(RestConfTree.TEMPLATE_DIR_NAME)
 
 class KubernetesLifecycleTree(files.Tree):
     
@@ -236,6 +247,7 @@ class BrentSourceTree(files.Tree):
     SOL003_LIFECYCLE_DIR_NAME = 'sol003'
     SOL005_LIFECYCLE_DIR_NAME = 'sol005'
     KUBERNETES_LIFECYCLE_DIR_NAME = 'kubernetes'
+    LIFECYCLE_TYPE_RESTCONF = 'restconf'
     
     @property
     def definitions_path(self):
@@ -292,6 +304,11 @@ class BrentSourceTree(files.Tree):
     @property
     def kubernetes_lifecycle_path(self):
         return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.KUBERNETES_LIFECYCLE_DIR_NAME)
+        
+     @property
+    def restconf_lifecycle_path(self):
+        return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.RESTCONF_LIFECYCLE_DIR_NAME)
+        
 
 DRIVER_PARAM_NAME = 'driver'
 INFRASTRUCTURE_PARAM_NAME = 'inf'
@@ -300,6 +317,7 @@ LIFECYCLE_TYPE_ANSIBLE = 'ansible'
 LIFECYCLE_TYPE_SOL003 = 'sol003'
 LIFECYCLE_TYPE_SOL005 = 'sol005'
 LIFECYCLE_TYPE_KUBERNETES = 'kubernetes'
+LIFECYCLE_TYPE_RESTCONF = 'restconf'
 INFRASTRUCTURE_TYPE_OPENSTACK = 'openstack'
 SOL003_SCRIPT_NAMES = []
 SOL003_SCRIPT_NAMES.append(Sol003LifecycleTree.CREATE_VNF_REQUEST_FILE_NAME)
@@ -319,6 +337,10 @@ SOL005_SCRIPT_NAMES.append(Sol005LifecycleTree.UPDATE_NS_REQUEST_STOP_FILE_NAME)
 SOL005_SCRIPT_NAMES.append(Sol005LifecycleTree.SCALE_NS_REQUEST_FILE_NAME)
 SOL005_SCRIPT_NAMES.append(Sol005LifecycleTree.TERMINATE_NS_REQUEST_FILE_NAME)
 SOL005_SCRIPT_NAMES.append(Sol005LifecycleTree.NS_INSTANCE_FILE_NAME)
+RESTCONF_SCRIPT_NAMES = []
+RESTCONF_SCRIPT_NAMES.append(RestConfTree.CREATE_RC_REQUEST_FILE_NAME)
+RESTCONF_SCRIPT_NAMES.append(RestConfTree.UPDATE_RC_REQUEST_FILE_NAME)
+RESTCONF_SCRIPT_NAMES.append(RestConfTree.DELETE_RC_REQUEST_FILE_NAME)
 
 class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
 
@@ -327,8 +349,8 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
 
     def get_params(self, source_request):
         params = []
-        params.append(handlers_api.SourceParam(DRIVER_PARAM_NAME, required=False, default_value=None, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003, LIFECYCLE_TYPE_SOL005, LIFECYCLE_TYPE_KUBERNETES]))
-        params.append(handlers_api.SourceParam(LIFECYCLE_PARAM_NAME, required=False, default_value=None, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003, LIFECYCLE_TYPE_SOL005, LIFECYCLE_TYPE_KUBERNETES]))
+        params.append(handlers_api.SourceParam(DRIVER_PARAM_NAME, required=False, default_value=None, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003, LIFECYCLE_TYPE_SOL005, LIFECYCLE_TYPE_KUBERNETES, LIFECYCLE_TYPE_RESTCONF]))
+        params.append(handlers_api.SourceParam(LIFECYCLE_PARAM_NAME, required=False, default_value=None, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003, LIFECYCLE_TYPE_SOL005, LIFECYCLE_TYPE_KUBERNETES, LIFECYCLE_TYPE_RESTCONF]))
         params.append(handlers_api.SourceParam(INFRASTRUCTURE_PARAM_NAME, required=False, default_value=None, allowed_values=[INFRASTRUCTURE_TYPE_OPENSTACK, LIFECYCLE_TYPE_KUBERNETES]))
         return params
 
@@ -505,8 +527,36 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
                 ptype='string')
             descriptor.add_property('localizationLanguage', description='Localization language of the NS to be instantiated', ptype='string')
             descriptor.insert_lifecycle('Create')
-            descriptor.insert_lifecycle('Install')
-            descriptor.insert_lifecycle('Uninstall')
+            descriptor.insert_lifecycle('Update')
+            descriptor.insert_lifecycle('Delete')
+         elif lifecycle_type == LIFECYCLE_TYPE_RESTCONF:
+            file_ops.append(
+                handlers_api.CreateDirectoryOp(source_tree.restconf_lifecycle_path, handlers_api.EXISTING_IGNORE))
+            restconf_tree = RestConfTree(source_tree.restconf_lifecycle_path)
+            file_ops.append(handlers_api.CreateDirectoryOp(restconf_tree.scripts_path, handlers_api.EXISTING_IGNORE))
+            current_path = os.path.abspath(__file__)
+            dir_path = os.path.dirname(current_path)
+            restconf_scripts_template_path = os.path.join(dir_path, 'restconf', 'template')
+            for script_name in RESTCONF_SCRIPT_NAMES:
+                orig_script_path = os.path.join(restconf_scripts_template_path, script_name)
+                with open(orig_script_path, 'r') as f:
+                    content = f.read()
+                file_ops.append(handlers_api.CreateFileOp(os.path.join(restconf_tree.scripts_path, script_name), content,
+                                                          handlers_api.EXISTING_IGNORE))
+            descriptor.insert_default_driver('restconf', infrastructure_types=['*'])
+            descriptor.add_property('id', description='Identifier for the ID',
+                                    ptype='string', required=True)
+            descriptor.add_property('type',
+                                    description='Identifier for the type',
+                                    ptype='string', read_only=True)
+            descriptor.add_property('ipaddress', description='IPAddress', ptype='string',
+                                    value='${name}')
+            descriptor.add_property('neighborIPv4', description='Optional neighborIPv4',
+                                    ptype='string')
+            descriptor.add_property('remoteAsIPv4', description='remoteAsIPv4',
+                                    ptype='string', required=True)
+            descriptor.insert_lifecycle('Create')
+            descriptor.insert_lifecycle('Update')
             descriptor.insert_lifecycle('Delete')
 
 class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):

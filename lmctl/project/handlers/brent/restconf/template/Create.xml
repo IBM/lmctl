@@ -1,0 +1,22 @@
+<dynamic>
+    <nssi>{{slicename}}</nssi>
+    <l3>
+        <auto-rt/>
+        <as-number>{{asNumber}}</as-number>
+        <endpoint>
+            <pe>{{endpointPe}}</pe>
+            <interface>
+                <if-type>{{ifType}}</if-type>
+                <if-id>{{ifId}}</if-id>
+                <pe-ip-addr>{{peIpAddress}}</pe-ip-addr>
+                <ce-pe-prot>
+                    <e-bgp>
+                        <neighbor-ipv4>{{neighborIPv4}}</neighbor-ipv4>
+                        <remote-as-ipv4>{{remoteAsIPv4}}</remote-as-ipv4>
+                    </e-bgp>
+                </ce-pe-prot>
+            </interface>
+        </endpoint>
+    </l3>
+    <nsst>{nsst}</nsst>
+</dynamic>
