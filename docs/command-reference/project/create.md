@@ -47,9 +47,9 @@ The following table describes the known params available for all projects:
 The following table describes the known params available for projects using the `brent` rm type: 
 
 | Name | Description | Options                              | Default | 
-| ---- | ---- |--------------------------------------| --- |
-| driver | This parameter guides the creation of the Project (or Subproject) with example files for the intended driver | ansible, sol003, sol005              | - |
-| lifecycle | Deprecated: same as `driver` | ansible, sol003, sol005,  kubernetes | - |
+| ---- | ---- |------------------------------------------------| --- |
+| driver | This parameter guides the creation of the Project (or Subproject) with example files for the intended driver | ansible, sol003, sol005, restconf              | - |
+| lifecycle | Deprecated: same as `driver` | ansible, sol003, sol005, restconf, kubernetes | - |
 | inf | This parameter guides the creation of the Project (or Subproject) with example files for a separate driver to be used on Create/Delete | openstack, kubernetes                | - |
 
 If both `driver` and `lifecycle` have not been set then the default for `driver` is set to `ansible` and the default for `inf` is set to `openstack`. This means if you choose to not set any parameters, you will have a Resource which will use the Openstack driver for Create/Delete but Ansible for all other transitions.
@@ -77,6 +77,11 @@ lmctl project create --type Resource --param driver sol003
 Resource with Sol005 driver for all transitions (only Install, Configure ,Uninstall are included in the generated descriptor):
 ```
 lmctl project create --type Resource --param driver sol005
+```
+
+Resource with Restconf driver for all transitions (Create, Update ,Delete are included in the generated descriptor):
+```
+lmctl project create --type Resource --param driver restconf
 ```
 
 Resource with Openstack driver for Create/Delete (will be included in the generated descriptor) but Sol003 driver for all others (only Install, Configure and Uninstall are included in the generated descriptor):
@@ -109,6 +114,6 @@ lmctl project create --type ETSI_NS --param driver sol005
 The following table describes the known params available for projects using the `brent2.1`/`lm2.1` rm type: 
 
 | Name | Description | Options                 | Default | 
-| ---- | ---- |-------------------------| --- |
-| lifecycle | This parameter guides the creation of the Project (or Subproject) with example files for the intended lifecycle driver | ansible, sol003, sol005 | ansible |
+| ---- | ---- |-----------------------------------| --- |
+| lifecycle | This parameter guides the creation of the Project (or Subproject) with example files for the intended lifecycle driver | ansible, sol003, sol005, restconf | ansible |
 | inf | This parameter guides the creation of the Project (or Subproject) with example files for the intended infrastructure driver | openstack               | openstack |
