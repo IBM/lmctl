@@ -144,7 +144,6 @@ class AnsibleLifecycleTree(files.Tree):
 
     CONFIG_DIR_NAME = 'config'
     SCRIPTS_DIR_NAME = 'scripts'
-    TEMPLATE_DIR_NAME = 'template'
     CONFIG_INVENTORY_FILE_NAME = 'inventory'
     CONFIG_HOSTVARS_DIR_NAME = 'host_vars'
 
@@ -527,7 +526,8 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
                 ptype='string')
             descriptor.add_property('localizationLanguage', description='Localization language of the NS to be instantiated', ptype='string')
             descriptor.insert_lifecycle('Create')
-            descriptor.insert_lifecycle('Update')
+            descriptor.insert_lifecycle('Install')
+            descriptor.insert_lifecycle('Uninstall')
             descriptor.insert_lifecycle('Delete')
         elif lifecycle_type == LIFECYCLE_TYPE_RESTCONF:
             file_ops.append(

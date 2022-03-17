@@ -216,8 +216,9 @@ properties:
     type: string
 lifecycle:
   Create: {{}}
+  Install: {{}}
+  Uninstall: {{}}
   Delete: {{}}
-  Update: {{}}
 default-driver:
   sol005:
     selector:
