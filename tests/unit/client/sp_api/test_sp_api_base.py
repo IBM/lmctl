@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, ANY
 from lmctl.client.sp_apis import SitePlannerCrudAPI
 from pynetbox.core.response import Record, RecordSet
 
@@ -78,8 +78,8 @@ class TestSitePlannerAPI(unittest.TestCase):
 
         endpoint.get.return_value = MagicMock()
         api.update({'id': '123', 'model': 'm1'})
-
-        endpoint.get.return_value.update.assert_called_once_with({'id': '123', 'model': 'm1'})
+        
+        endpoint.api.http_session.put.assert_called_once_with(ANY, headers=ANY, params=ANY, json={'id': '123', 'model': 'm1'})
 
     def test_delete(self):
         api = DeviceAPI(self.sp_client)
