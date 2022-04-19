@@ -580,7 +580,7 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
             descriptor.insert_lifecycle('Delete') 
         elif lifecycle_type == LIFECYCLE_TYPE_NETCONF:
             file_ops.append(
-                handlers_api.CreateDirectoryOp(source_tree.ne, handlers_api.EXISTING_IGNORE))
+                handlers_api.CreateDirectoryOp(source_tree.netconf_lifecycle_path, handlers_api.EXISTING_IGNORE))
             netconf_tree = NetConfTree(source_tree.netconf_lifecycle_path)
             file_ops.append(handlers_api.CreateDirectoryOp(netconf_tree.scripts_path, handlers_api.EXISTING_IGNORE))
             current_path = os.path.abspath(__file__)
@@ -599,7 +599,7 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
                                     description='Parmeter for the ID',
                                     ptype='string', required=True)
             descriptor.add_property('defaultOperation',
-                                    description='Acceptable vales - merge, replace, none',ptype='string')
+                                    description='Acceptable values - merge, replace, none',ptype='string')
             descriptor.insert_lifecycle('Create')
             descriptor.insert_lifecycle('Update')
             descriptor.insert_lifecycle('Delete') 

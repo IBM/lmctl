@@ -273,7 +273,7 @@ properties:
     type: string
     required: true
   defaultOperation:
-    description: Acceptable vales - merge, replace, none
+    description: Acceptable values - merge, replace, none
     type: string
 lifecycle:
   Create: {{}}
