@@ -252,8 +252,8 @@ properties:
     required: true
 lifecycle:
   Create: {{}}
+  Upgrade: {{}}
   Delete: {{}}
-  Update: {{}}
 default-driver:
   restconf:
     selector:

@@ -601,7 +601,7 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
             descriptor.add_property('defaultOperation',
                                     description='Acceptable values - merge, replace, none',ptype='string')
             descriptor.insert_lifecycle('Create')
-            descriptor.insert_lifecycle('Update')
+            descriptor.insert_lifecycle('Upgrade')
             descriptor.insert_lifecycle('Delete') 
 
 class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
