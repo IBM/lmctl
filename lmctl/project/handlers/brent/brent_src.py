@@ -211,6 +211,7 @@ class RestConfTree(files.Tree):
     
 class NetConfTree(files.Tree):
     TEMPLATE_DIR_NAME = 'template'
+    RSA_DIR_NAME = 'keys'
     CREATE_NC_REQUEST_FILE_NAME = 'Create.xml'
     UPDATE_NC_REQUEST_FILE_NAME = 'Update.xml'
     DELETE_NC_REQUEST_FILE_NAME = 'Delete.xml'
@@ -218,6 +219,10 @@ class NetConfTree(files.Tree):
     @property
     def scripts_path(self):
         return self.resolve_relative_path(NetConfTree.TEMPLATE_DIR_NAME)
+    
+    @property
+    def rsa_path(self):
+        return self.resolve_relative_path(NetConfTree.RSA_DIR_NAME)
 
 class KubernetesLifecycleTree(files.Tree):
     
@@ -360,6 +365,7 @@ NETCONF_SCRIPT_NAMES = []
 NETCONF_SCRIPT_NAMES.append(NetConfTree.CREATE_NC_REQUEST_FILE_NAME)
 NETCONF_SCRIPT_NAMES.append(NetConfTree.UPDATE_NC_REQUEST_FILE_NAME)
 NETCONF_SCRIPT_NAMES.append(NetConfTree.DELETE_NC_REQUEST_FILE_NAME)
+NETCONF_RSA_NAME = "id_rsa"
 
 class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
 
@@ -582,16 +588,25 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
             file_ops.append(
                 handlers_api.CreateDirectoryOp(source_tree.netconf_lifecycle_path, handlers_api.EXISTING_IGNORE))
             netconf_tree = NetConfTree(source_tree.netconf_lifecycle_path)
+            file_ops.append(handlers_api.CreateDirectoryOp(netconf_tree.rsa_path, handlers_api.EXISTING_IGNORE))
             file_ops.append(handlers_api.CreateDirectoryOp(netconf_tree.scripts_path, handlers_api.EXISTING_IGNORE))
             current_path = os.path.abspath(__file__)
             dir_path = os.path.dirname(current_path)
             netconf_scripts_template_path = os.path.join(dir_path, 'netconf', 'template')
+            netconf_rsa_template_path = os.path.join(dir_path, 'netconf', 'keys')
             for script_name in NETCONF_SCRIPT_NAMES:
                 orig_script_path = os.path.join(netconf_scripts_template_path, script_name)
                 with open(orig_script_path, 'r') as f:
                     content = f.read()
                 file_ops.append(handlers_api.CreateFileOp(os.path.join(netconf_tree.scripts_path, script_name), content,
                                                           handlers_api.EXISTING_IGNORE))
+        
+            rsa_script_path = os.path.join(netconf_rsa_template_path, NETCONF_RSA_NAME)
+            with open(rsa_script_path, 'r') as f:
+                content = f.read()
+            file_ops.append(handlers_api.CreateFileOp(os.path.join(netconf_tree.rsa_path, NETCONF_RSA_NAME), content,
+                                                          handlers_api.EXISTING_IGNORE))
+
             descriptor.insert_default_driver('netconf', infrastructure_types=['*'])
             descriptor.add_property('netconfId', description='Identifier for the Netconf',
                                     ptype='string', required=True)

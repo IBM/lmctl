@@ -20,8 +20,8 @@ from tests.common.project_testing import (ProjectSimTestCase, PROJECT_CONTAINS_D
                                             BRENT_SOL005_NS_INSTANCE_FILE, PROJECT_TOSCA_META_DIR, PROJECT_TOSCA_META_FILE, BRENT_RESTCONF_DIR, 
                                             BRENT_RESTCONF_SCRIPTS_DIR, BRENT_RESTCONF_CREATE_REQUEST_FILE,
                                             BRENT_RESTCONF_UPDATE_REQUEST_FILE, BRENT_RESTCONF_DELETE_REQUEST_FILE,
-                                            BRENT_NETCONF_DIR, BRENT_NETCONF_SCRIPTS_DIR, BRENT_NETCONF_CREATE_REQUEST_FILE, 
-                                            BRENT_NETCONF_UPDATE_REQUEST_FILE, BRENT_NETCONF_DELETE_REQUEST_FILE)
+                                            BRENT_NETCONF_DIR, BRENT_NETCONF_SCRIPTS_DIR, BRENT_NETCONF_RSA_DIR, BRENT_NETCONF_CREATE_REQUEST_FILE, 
+                                            BRENT_NETCONF_RSA_FILE, BRENT_NETCONF_UPDATE_REQUEST_FILE, BRENT_NETCONF_DELETE_REQUEST_FILE)
 from lmctl.project.source.core import Project
 
 EXPECTED_OPENSTACK_EXAMPLE_HEAT = '''\
@@ -500,7 +500,10 @@ class TestCreateBrentProjects(ProjectSimTestCase):
         netconf_dir = os.path.join(BRENT_LIFECYCLE_DIR, BRENT_NETCONF_DIR)
         tester.assert_has_directory(netconf_dir)
         netconf_scripts_dir = os.path.join(netconf_dir, BRENT_NETCONF_SCRIPTS_DIR)
+        netconf_rsa_dir = os.path.join(netconf_dir, BRENT_NETCONF_RSA_DIR)
         tester.assert_has_directory(netconf_scripts_dir)
+        tester.assert_has_directory(netconf_rsa_dir)
+        tester.assert_has_file_path(os.path.join(netconf_rsa_dir, BRENT_NETCONF_RSA_FILE))
         tester.assert_has_file_path(os.path.join(netconf_scripts_dir, BRENT_NETCONF_CREATE_REQUEST_FILE))
         tester.assert_has_file_path(os.path.join(netconf_scripts_dir, BRENT_NETCONF_UPDATE_REQUEST_FILE))
         tester.assert_has_file_path(os.path.join(netconf_scripts_dir, BRENT_NETCONF_DELETE_REQUEST_FILE))
