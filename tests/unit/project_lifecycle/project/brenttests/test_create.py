@@ -252,8 +252,8 @@ properties:
     required: true
 lifecycle:
   Create: {{}}
-  Upgrade: {{}}
   Delete: {{}}
+  Update: {{}}
 default-driver:
   restconf:
     selector:
@@ -277,8 +277,8 @@ properties:
     type: string
 lifecycle:
   Create: {{}}
+  Upgrade: {{}}
   Delete: {{}}
-  Update: {{}}
 default-driver:
   netconf:
     selector:
