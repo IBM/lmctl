@@ -614,10 +614,11 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
                                     description='Parmeter for the ID',
                                     ptype='string', required=True)
             descriptor.add_property('defaultOperation',
-                                    description='Acceptable values - merge, replace, none',ptype='string')
+                                    description='Acceptable values - merge, replace, none',
+                                    ptype='string')
             descriptor.insert_lifecycle('Create')
+            descriptor.insert_lifecycle('Delete')
             descriptor.insert_lifecycle('Upgrade')
-            descriptor.insert_lifecycle('Delete') 
 
 class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
     

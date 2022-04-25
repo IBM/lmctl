@@ -277,8 +277,8 @@ properties:
     type: string
 lifecycle:
   Create: {{}}
-  Upgrade: {{}}
   Delete: {{}}
+  Upgrade: {{}}
 default-driver:
   netconf:
     selector:
