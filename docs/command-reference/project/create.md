@@ -49,7 +49,7 @@ The following table describes the known params available for projects using the 
 | Name | Description | Options                              | Default | 
 | ---- | ---- |------------------------------------------------| --- |
 | driver | This parameter guides the creation of the Project (or Subproject) with example files for the intended driver | ansible, sol003, sol005, restconf              | - |
-| lifecycle | Deprecated: same as `driver` | ansible, sol003, sol005, restconf, kubernetes | - |
+| lifecycle | Deprecated: same as `driver` | ansible, sol003, sol005, restconf, kubernetes, netconf | - |
 | inf | This parameter guides the creation of the Project (or Subproject) with example files for a separate driver to be used on Create/Delete | openstack, kubernetes                | - |
 
 If both `driver` and `lifecycle` have not been set then the default for `driver` is set to `ansible` and the default for `inf` is set to `openstack`. This means if you choose to not set any parameters, you will have a Resource which will use the Openstack driver for Create/Delete but Ansible for all other transitions.
@@ -84,6 +84,11 @@ Resource with Restconf driver for all transitions (Create, Update ,Delete are in
 lmctl project create --type Resource --param driver restconf
 ```
 
+Resource with Netconf driver for all transitions (Create, Update ,Delete are included in the generated descriptor):
+```
+lmctl project create --type Resource --param driver netconf
+```
+
 Resource with Openstack driver for Create/Delete (will be included in the generated descriptor) but Sol003 driver for all others (only Install, Configure and Uninstall are included in the generated descriptor):
 ```
 lmctl project create --type Resource --param driver sol003 --param inf openstack
@@ -114,6 +119,6 @@ lmctl project create --type ETSI_NS --param driver sol005
 The following table describes the known params available for projects using the `brent2.1`/`lm2.1` rm type: 
 
 | Name | Description | Options                 | Default | 
-| ---- | ---- |-----------------------------------| --- |
-| lifecycle | This parameter guides the creation of the Project (or Subproject) with example files for the intended lifecycle driver | ansible, sol003, sol005, restconf | ansible |
+| ---- | ---- |----------------------------------------| --- |
+| lifecycle | This parameter guides the creation of the Project (or Subproject) with example files for the intended lifecycle driver | ansible, sol003, sol005, restconf, netconf | ansible |
 | inf | This parameter guides the creation of the Project (or Subproject) with example files for the intended infrastructure driver | openstack               | openstack |

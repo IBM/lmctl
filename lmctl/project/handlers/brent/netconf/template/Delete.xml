@@ -1,0 +1,3 @@
+<nc:config xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+<netconflist xmlns="urn:mynetconf:test"><netconf><netconf-id>{{ netconfId }}</netconf-id><netconf-param nc:operation="delete"/></netconf></netconflist>
+</nc:config>
