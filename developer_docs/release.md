@@ -81,7 +81,7 @@ The `build.py` script automates the following steps:
 - Build the Jenkins JNLP Slave image
 - Package Documentation
 - Push Whl to Pypi
-- Push Jenkins JNLP Slave Image to Dockerhub
+- Push Jenkins JNLP Slave Image to `icr.io/cp4na-drivers` group on IBM Cloud Container Registry
 - Create a tagged commit in the git repository to mark this release
 
 To perform a release, run `build.py` and set the following options:
