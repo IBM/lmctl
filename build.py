@@ -15,7 +15,7 @@ DIST_DIR = 'dist'
 WHL_FORMAT = 'lmctl-{version}-py3-none-any.whl'
 DOCS_FORMAT = 'lmctl-{version}-docs'
 DOCS_DIR = 'docs'
-DOCKER_IMG_TAG = 'accanto/lmctl-jnlp-slave:{version}'
+DOCKER_IMG_TAG = 'icr.io/cp4na-drivers/lmctl-jnlp-slave:{version}'
 DOCKER_IMG_PATH = os.path.join('docker', 'jenkins-jnlp-slave')
 
 parser=argparse.ArgumentParser()
@@ -146,34 +146,54 @@ class Builder:
 
     def doIt(self):
         self._establish_who_we_are()
+        self.validate()
+        self.prepare()
         if args.release == True:
             self.release()
         else:
             self.build()
+
+        if self.vars.post_version is not None:
+            self.set_post_version()
+            if args.release == True:
+                self.push_post_release_git_changes()
+
         self.report()
 
-    def build(self):
+    def validate(self):
+        if args.release:
+            if self.vars.version is None:
+                raise ValueError('Must set --version when releasing')
+            if self.vars.post_version is None:
+                raise ValueError('Must set --post-version when releasing')
+
+    def prepare(self):
+        if self.vars.version is not None:
+            self.set_version()
         self.determine_version()
+
+    def tidy_up(self):
+        if self.vars.post_version is not None:
+            self.set_post_version()
+            if args.release:
+                self.push_post_release_git_changes()
+       
+    def build(self):
         self.run_unit_tests()
         self.build_python_wheel()
         self.pkg_docs()
 
     def release(self):
-        if self.vars.version is None:
-            raise ValueError('Must set --version when releasing')
         if self.vars.post_version is None:
             raise ValueError('Must set --post-version when releasing')
-        self.set_version()
         self.build()
         self.push_whl()
         print('Waiting 5 seconds for Pypi to update....')
         # Give the whl some time to be indexed on pypi
         time.sleep(5)
-        self.build_jnlp_docker_image() # Requires the whl to have been pushed
-        self.push_jnlp_docker_image()
+        #self.build_jnlp_docker_image() # Requires the whl to have been pushed
+        #self.push_jnlp_docker_image()
         self.push_release_git_changes()
-        self.set_post_version()
-        self.push_post_release_git_changes()
 
     def get_pypi_details(self):
         if self.vars.pypi_user is None:
@@ -182,7 +202,7 @@ class Builder:
             self.vars.pypi_pass = getpass.getpass('Pypi Password:')
 
     def set_version(self):
-        with self.stage('Setting Release Version') as s:
+        with self.stage('Setting Version') as s:
             pkg_info_path = os.path.join(self.project_path, PKG_ROOT, PKG_INFO)
             print('Setting version in {0} to {1}'.format(pkg_info_path, self.vars.version))
             with open(pkg_info_path, 'r') as f:
@@ -204,7 +224,7 @@ class Builder:
             s.run_cmd('python3', 'setup.py', 'bdist_wheel')
 
     def set_post_version(self):
-        with self.stage('Setting Post Release Version') as s:
+        with self.stage('Setting Post Build Version') as s:
             pkg_info_path = os.path.join(self.project_path, PKG_ROOT, PKG_INFO)
             print('Setting version in {0} to {1}'.format(pkg_info_path, self.vars.post_version))
             with open(pkg_info_path, 'r') as f:

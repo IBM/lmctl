@@ -101,6 +101,7 @@ class TNCOEnvironment:
     @root_validator(pre=True)
     @classmethod
     def normalize_addresses(cls, values):
+        auth_mode = values.get('auth_mode', None)
         address = values.get('address', None)
         if address is None:
             host = values.get('host', None)
@@ -115,7 +116,7 @@ class TNCOEnvironment:
 
         # Auth host
         auth_address = values.get('auth_address', None)
-        if auth_address is None:
+        if auth_address is None and (auth_mode is None or auth_mode.lower() != TOKEN_AUTH_MODE):
             auth_host = values.get('auth_host', None)
             auth_host = auth_host.strip() if auth_host is not None else None
             if not auth_host:

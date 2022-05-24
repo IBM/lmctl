@@ -1,5 +1,38 @@
 # Change Log
 
+## [3.2.2](https://github.com/IBM/lmctl/tree/3.2.2) (2022-02-03)
+[Full Changelog](https://github.com/IBM/lmctl/compare/3.2.1...3.2.2)
+
+**Fixed Bugs:**
+
+- Class reference used as output during lmctl project create [\#118](https://github.com/IBM/lmctl/issues/118)
+
+## [3.2.1](https://github.com/IBM/lmctl/tree/3.2.1) (2022-02-02)
+[Full Changelog](https://github.com/IBM/lmctl/compare/3.2.0...3.2.1)
+
+**Implemented Enhancements:**
+
+- Uplift dependency ranges for `click`, `oyaml`, `Jinja2`, `pydantic` and `pyjwt` [\#121](https://github.com/IBM/lmctl/issues/121)
+
+## [3.2.0](https://github.com/IBM/lmctl/tree/3.2.0) (2021-11-04)
+[Full Changelog](https://github.com/IBM/lmctl/compare/3.1.0...3.2.0)
+
+**Implemented Enhancements:**
+
+- Add Zen authentication support [\#80](https://github.com/IBM/lmctl/issues/80)
+
+**Fixed Bugs:**
+
+- Generated dates in new ETSI VNF and NS projects do not conform to RFC3339 [\#115](https://github.com/IBM/lmctl/issues/115) 
+
+**Dependencies:**
+
+- Bump pydantic from 1.8.1 to 1.8.2 [\#104](https://github.com/IBM/lmctl/issues/104) 
+
+**Documentation:**
+
+- Fixing the broken link to 'Command Reference' page [\#114](https://github.com/IBM/lmctl/pull/114) 
+
 ## [3.1.0](https://github.com/IBM/lmctl/tree/3.1.0) (2021-06-25)
 [Full Changelog](https://github.com/IBM/lmctl/compare/3.0.0...3.1.0)
 

@@ -12,8 +12,7 @@
 ## Maintainers
 
 - Daniel Vaccaro-Senna [@dvaccarosenna](https://github.com/dvaccarosenna)
-- Craig Howarth [@chowarth123](https://github.com/chowarth123)
-- Steve Glover [@sglover](https://github.com/sglover)
+- Owen Lynch [@owen-lynch-ibm](https://github.com/owen-lynch-ibm)
 
 ## Reporting Issues
 
@@ -55,11 +54,11 @@ Before submitting changes, please complete the following:
 
 - Ensure there is an open issue for your intended change. If not, raise one **before** starting work, as this allows other users/maintainers to give feedback on the suggested idea before you make changes.
 
-- Assign yourself to the issue so others are aware it's being worked on
+- Leave a comment on the issue stating your intention to work on the issue, so others are aware it's being worked on (a maintainer should then assign it to you)
 
 When working on the changes, please complete the following:
 
-- Create a branch for your work based off the `develop` branch (**not** `master`). The `develop` branch is used for ongoing development and is merged to `master` when releases are finalised. 
+- Create a branch for your work based off the `develop` branch (**not** `master`). The `develop` branch is used for ongoing development and is merged to `master` when releases are finalised (if you're not a maintainer you'll need to fork this repo and create the branch in your fork. You'll be able to raise a PR against this repo from your fork). 
 
 - Name your branch `issue/<issue number>` where `issue number` corresponds to the unique ID of the issue e.g. work on [issue#99](https://github.com/IBM/lmctl/issues/99) was completed on branch [issue/99](https://github.com/IBM/lmctl/pull/100)
 
@@ -69,13 +68,13 @@ When working on the changes, please complete the following:
 
  When submitting a pull request, please complete the following:
 
-- Create the [pull request on Github](https://github.com/IBM/lmctl/compare) with `base: develop` and `compare: your-branch`. 
+- Create the pull request on Github with `base: develop` and `compare: your-branch` (from your fork). 
 
 - In the description of your PR add `Fixes #issue-number` e.g. `Fixes #99` 
 
-- Assign the PR to the maintainers of this project (see start of this document)
+- Monitor the PR for comments/approval, responding to any suggested changes. Once at least one maintainer has approved the PR it will be merged when deemed appropriate (usually on approval but there may be rare cases where changes are put on hold). 
 
-- Monitor the PR for comments/approval, responding to any suggested changes. Once at least one maintainer has approved the PR it will be merged when deemed appropriate (usually on approval but there may be rare cases where changes are put on hold).
+**Note:** if your PR is left stale for a while, trying tagging one of the maintainers (listed [above](#maintainers))
 
 ## Issue and PR Lifecycle
 
@@ -84,6 +83,7 @@ Maintainers will manage the lifecycle of all issues and PRs, this includes:
 - assigning/adjusting milestones
 - assigning/adjusting tags
 - closing issues
+- assigning issues/PRs
 - merging/closing PRs
 
 ## Contributing to these guidelines

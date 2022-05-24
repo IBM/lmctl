@@ -1,2 +1,5 @@
 include example-config.yaml lmctl/utils/logging.yaml lmctl/pkg_info.json
 recursive-include lmctl/project/handlers/brent/sol003 *
+recursive-include lmctl/project/handlers/brent/sol005 *
+recursive-include lmctl/project/handlers/brent/restconf *
+recursive-include lmctl/project/handlers/brent/netconf *

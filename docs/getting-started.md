@@ -225,4 +225,4 @@ lmctl ping env
 
 You can read more about the configuration options available with LMCTL in the [configure](configure.md) section of this documentation.
 
-Otherwise, check out the [Command Reference](#command-reference) to learn more about the commands LMCTL provides.
+Otherwise, check out the [Command Reference](command-reference/index.md) to learn more about the commands LMCTL provides.
