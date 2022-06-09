@@ -191,8 +191,8 @@ class Builder:
         print('Waiting 5 seconds for Pypi to update....')
         # Give the whl some time to be indexed on pypi
         time.sleep(5)
-        #self.build_jnlp_docker_image() # Requires the whl to have been pushed
-        #self.push_jnlp_docker_image()
+        self.build_jnlp_docker_image() # Requires the whl to have been pushed
+        self.push_jnlp_docker_image()
         self.push_release_git_changes()
 
     def get_pypi_details(self):
