@@ -184,6 +184,46 @@ class Sol003LifecycleTree(files.Tree):
     def scripts_path(self):
         return self.resolve_relative_path(Sol003LifecycleTree.SCRIPTS_DIR_NAME)
 
+class Sol005LifecycleTree(files.Tree):
+    SCRIPTS_DIR_NAME = 'scripts'
+    CREATE_NS_REQUEST_FILE_NAME = 'CreateNsRequest.js'
+    HEAL_NS_REQUEST_FILE_NAME = 'HealNsRequest.js'
+    INSTANTIATE_NS_REQUEST_FILE_NAME = 'InstantiateNsRequest.js'
+    UPDATE_NS_REQUEST_START_FILE_NAME = 'UpdateNsRequest-Start.js'
+    UPDATE_NS_REQUEST_STOP_FILE_NAME = 'UpdateNsRequest-Stop.js'
+    SCALE_NS_REQUEST_FILE_NAME = 'ScaleNsRequest.js'
+    TERMINATE_NS_REQUEST_FILE_NAME = 'TerminateNsRequest.js'
+    NS_INSTANCE_FILE_NAME = 'NsInstance.js'
+
+    @property
+    def scripts_path(self):
+        return self.resolve_relative_path(Sol005LifecycleTree.SCRIPTS_DIR_NAME)
+        
+class RestConfTree(files.Tree):
+    TEMPLATE_DIR_NAME = 'template'
+    CREATE_RC_REQUEST_FILE_NAME = 'Create.xml'
+    UPDATE_RC_REQUEST_FILE_NAME = 'Update.xml'
+    DELETE_RC_REQUEST_FILE_NAME = 'Delete.xml'
+
+    @property
+    def scripts_path(self):
+        return self.resolve_relative_path(RestConfTree.TEMPLATE_DIR_NAME)
+    
+class NetConfTree(files.Tree):
+    TEMPLATE_DIR_NAME = 'template'
+    RSA_DIR_NAME = 'keys'
+    CREATE_NC_REQUEST_FILE_NAME = 'Create.xml'
+    UPDATE_NC_REQUEST_FILE_NAME = 'Update.xml'
+    DELETE_NC_REQUEST_FILE_NAME = 'Delete.xml'
+
+    @property
+    def scripts_path(self):
+        return self.resolve_relative_path(NetConfTree.TEMPLATE_DIR_NAME)
+    
+    @property
+    def rsa_path(self):
+        return self.resolve_relative_path(NetConfTree.RSA_DIR_NAME)
+
 class KubernetesLifecycleTree(files.Tree):
     
     OBJECTS_DIR_NAME = 'objects'
@@ -219,7 +259,10 @@ class BrentSourceTree(files.Tree):
     OPENSTACK_LIFECYCLE_DIR_NAME = 'openstack'
     ANSIBLE_LIFECYCLE_DIR_NAME = 'ansible'
     SOL003_LIFECYCLE_DIR_NAME = 'sol003'
+    SOL005_LIFECYCLE_DIR_NAME = 'sol005'
     KUBERNETES_LIFECYCLE_DIR_NAME = 'kubernetes'
+    RESTCONF_LIFECYCLE_DIR_NAME = 'restconf'
+    NETCONF_LIFECYCLE_DIR_NAME = 'netconf'
     
     @property
     def definitions_path(self):
@@ -270,15 +313,31 @@ class BrentSourceTree(files.Tree):
         return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.SOL003_LIFECYCLE_DIR_NAME)
 
     @property
+    def sol005_lifecycle_path(self):
+        return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.SOL005_LIFECYCLE_DIR_NAME)
+
+    @property
     def kubernetes_lifecycle_path(self):
         return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.KUBERNETES_LIFECYCLE_DIR_NAME)
+        
+    @property
+    def restconf_lifecycle_path(self):
+        return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.RESTCONF_LIFECYCLE_DIR_NAME)
+    
+    @property
+    def netconf_lifecycle_path(self):
+        return self.resolve_relative_path(BrentSourceTree.LIFECYCLE_DIR_NAME, BrentSourceTree.NETCONF_LIFECYCLE_DIR_NAME)
+        
 
 DRIVER_PARAM_NAME = 'driver'
 INFRASTRUCTURE_PARAM_NAME = 'inf'
 LIFECYCLE_PARAM_NAME = 'lifecycle'
 LIFECYCLE_TYPE_ANSIBLE = 'ansible'
 LIFECYCLE_TYPE_SOL003 = 'sol003'
+LIFECYCLE_TYPE_SOL005 = 'sol005'
 LIFECYCLE_TYPE_KUBERNETES = 'kubernetes'
+LIFECYCLE_TYPE_RESTCONF = 'restconf'
+LIFECYCLE_TYPE_NETCONF = 'netconf'
 INFRASTRUCTURE_TYPE_OPENSTACK = 'openstack'
 SOL003_SCRIPT_NAMES = []
 SOL003_SCRIPT_NAMES.append(Sol003LifecycleTree.CREATE_VNF_REQUEST_FILE_NAME)
@@ -289,6 +348,24 @@ SOL003_SCRIPT_NAMES.append(Sol003LifecycleTree.OPERATE_VNF_REQUEST_STOP_FILE_NAM
 SOL003_SCRIPT_NAMES.append(Sol003LifecycleTree.SCALE_VNF_REQUEST_FILE_NAME)
 SOL003_SCRIPT_NAMES.append(Sol003LifecycleTree.TERMINATE_VNF_REQUEST_FILE_NAME)
 SOL003_SCRIPT_NAMES.append(Sol003LifecycleTree.VNF_INSTANCE_FILE_NAME)
+SOL005_SCRIPT_NAMES = []
+SOL005_SCRIPT_NAMES.append(Sol005LifecycleTree.CREATE_NS_REQUEST_FILE_NAME)
+SOL005_SCRIPT_NAMES.append(Sol005LifecycleTree.HEAL_NS_REQUEST_FILE_NAME)
+SOL005_SCRIPT_NAMES.append(Sol005LifecycleTree.INSTANTIATE_NS_REQUEST_FILE_NAME)
+SOL005_SCRIPT_NAMES.append(Sol005LifecycleTree.UPDATE_NS_REQUEST_START_FILE_NAME)
+SOL005_SCRIPT_NAMES.append(Sol005LifecycleTree.UPDATE_NS_REQUEST_STOP_FILE_NAME)
+SOL005_SCRIPT_NAMES.append(Sol005LifecycleTree.SCALE_NS_REQUEST_FILE_NAME)
+SOL005_SCRIPT_NAMES.append(Sol005LifecycleTree.TERMINATE_NS_REQUEST_FILE_NAME)
+SOL005_SCRIPT_NAMES.append(Sol005LifecycleTree.NS_INSTANCE_FILE_NAME)
+RESTCONF_SCRIPT_NAMES = []
+RESTCONF_SCRIPT_NAMES.append(RestConfTree.CREATE_RC_REQUEST_FILE_NAME)
+RESTCONF_SCRIPT_NAMES.append(RestConfTree.UPDATE_RC_REQUEST_FILE_NAME)
+RESTCONF_SCRIPT_NAMES.append(RestConfTree.DELETE_RC_REQUEST_FILE_NAME)
+NETCONF_SCRIPT_NAMES = []
+NETCONF_SCRIPT_NAMES.append(NetConfTree.CREATE_NC_REQUEST_FILE_NAME)
+NETCONF_SCRIPT_NAMES.append(NetConfTree.UPDATE_NC_REQUEST_FILE_NAME)
+NETCONF_SCRIPT_NAMES.append(NetConfTree.DELETE_NC_REQUEST_FILE_NAME)
+NETCONF_RSA_NAME = "id_rsa"
 
 class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
 
@@ -297,8 +374,8 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
 
     def get_params(self, source_request):
         params = []
-        params.append(handlers_api.SourceParam(DRIVER_PARAM_NAME, required=False, default_value=None, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003, LIFECYCLE_TYPE_KUBERNETES]))
-        params.append(handlers_api.SourceParam(LIFECYCLE_PARAM_NAME, required=False, default_value=None, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003, LIFECYCLE_TYPE_KUBERNETES]))
+        params.append(handlers_api.SourceParam(DRIVER_PARAM_NAME, required=False, default_value=None, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003, LIFECYCLE_TYPE_SOL005, LIFECYCLE_TYPE_KUBERNETES, LIFECYCLE_TYPE_RESTCONF, LIFECYCLE_TYPE_NETCONF]))
+        params.append(handlers_api.SourceParam(LIFECYCLE_PARAM_NAME, required=False, default_value=None, allowed_values=[LIFECYCLE_TYPE_ANSIBLE, LIFECYCLE_TYPE_SOL003, LIFECYCLE_TYPE_SOL005, LIFECYCLE_TYPE_KUBERNETES, LIFECYCLE_TYPE_RESTCONF, LIFECYCLE_TYPE_NETCONF]))
         params.append(handlers_api.SourceParam(INFRASTRUCTURE_PARAM_NAME, required=False, default_value=None, allowed_values=[INFRASTRUCTURE_TYPE_OPENSTACK, LIFECYCLE_TYPE_KUBERNETES]))
         return params
 
@@ -448,6 +525,100 @@ class BrentSourceCreatorDelegate(handlers_api.ResourceSourceCreatorDelegate):
             descriptor.insert_lifecycle('Install')
             descriptor.insert_lifecycle('Configure')
             descriptor.insert_lifecycle('Uninstall')
+        elif lifecycle_type == LIFECYCLE_TYPE_SOL005:
+            file_ops.append(handlers_api.CreateDirectoryOp(source_tree.sol005_lifecycle_path, handlers_api.EXISTING_IGNORE))
+            sol005_tree = Sol005LifecycleTree(source_tree.sol005_lifecycle_path)
+            file_ops.append(handlers_api.CreateDirectoryOp(sol005_tree.scripts_path, handlers_api.EXISTING_IGNORE))
+            current_path = os.path.abspath(__file__)
+            dir_path = os.path.dirname(current_path)
+            sol005_scripts_template_path = os.path.join(dir_path, 'sol005', 'scripts')
+            for script_name in SOL005_SCRIPT_NAMES:
+                orig_script_path = os.path.join(sol005_scripts_template_path, script_name)
+                with open(orig_script_path, 'r') as f:
+                    content = f.read()
+                file_ops.append(handlers_api.CreateFileOp(os.path.join(sol005_tree.scripts_path, script_name), content, handlers_api.EXISTING_IGNORE))
+            descriptor.insert_default_driver('sol005', infrastructure_types=['*'])
+            descriptor.add_property('nsdId', description='Identifier for the NSD to use for this NS instance', ptype='string', required=True)
+            descriptor.add_property('nsInstanceId', description='Identifier for the NS instance, as provided by the nsInstanceName', ptype='string', read_only=True)
+            descriptor.add_property('nsInstanceName', description='Name for the NS instance', ptype='string', value='${name}')
+            descriptor.add_property('nsInstanceDescription', description='Optional description for the NS instance', ptype='string')
+            descriptor.add_property('nsPkgId', description='Identifier for the NS package to be used for this NS instance', ptype='string', required=True)
+            descriptor.add_property('nsProvider', description='Provider of the NS and NSD', ptype='string', read_only=True)
+            descriptor.add_property('nsProductName', description='NS Product Name', ptype='string', read_only=True)
+            descriptor.add_property('nsSoftwareVersion', description='NS Software Version', ptype='string', read_only=True)
+            descriptor.add_property('nsdVersion', description='Version of the NSD', ptype='string', read_only=True)
+            descriptor.add_property('flavourId', description='Identifier of the NS DF to be instantiated', ptype='string', required=True)
+            descriptor.add_property('instantiationLevelId', description='Identifier of the instantiation level of the deployment flavour to be instantiated. If not present, the default instantiation level as declared in the NSD is instantiated', \
+                ptype='string')
+            descriptor.add_property('localizationLanguage', description='Localization language of the NS to be instantiated', ptype='string')
+            descriptor.insert_lifecycle('Create')
+            descriptor.insert_lifecycle('Install')
+            descriptor.insert_lifecycle('Uninstall')
+            descriptor.insert_lifecycle('Delete')
+        elif lifecycle_type == LIFECYCLE_TYPE_RESTCONF:
+            file_ops.append(
+                handlers_api.CreateDirectoryOp(source_tree.restconf_lifecycle_path, handlers_api.EXISTING_IGNORE))
+            restconf_tree = RestConfTree(source_tree.restconf_lifecycle_path)
+            file_ops.append(handlers_api.CreateDirectoryOp(restconf_tree.scripts_path, handlers_api.EXISTING_IGNORE))
+            current_path = os.path.abspath(__file__)
+            dir_path = os.path.dirname(current_path)
+            restconf_scripts_template_path = os.path.join(dir_path, 'restconf', 'template')
+            for script_name in RESTCONF_SCRIPT_NAMES:
+                orig_script_path = os.path.join(restconf_scripts_template_path, script_name)
+                with open(orig_script_path, 'r') as f:
+                    content = f.read()
+                file_ops.append(handlers_api.CreateFileOp(os.path.join(restconf_tree.scripts_path, script_name), content,
+                                                          handlers_api.EXISTING_IGNORE))
+            descriptor.insert_default_driver('restconf', infrastructure_types=['*'])
+            descriptor.add_property('id', description='Identifier for the ID',
+                                    ptype='string', required=True)
+            descriptor.add_property('type',
+                                    description='Identifier for the type',
+                                    ptype='string', read_only=True)
+            descriptor.add_property('ipaddress', description='IPAddress', ptype='string',
+                                    value='${name}')
+            descriptor.add_property('neighborIPv4', description='Optional neighborIPv4',
+                                    ptype='string')
+            descriptor.add_property('remoteAsIPv4', description='remoteAsIPv4',
+                                    ptype='string', required=True)
+            descriptor.insert_lifecycle('Create')
+            descriptor.insert_lifecycle('Update')
+            descriptor.insert_lifecycle('Delete') 
+        elif lifecycle_type == LIFECYCLE_TYPE_NETCONF:
+            file_ops.append(
+                handlers_api.CreateDirectoryOp(source_tree.netconf_lifecycle_path, handlers_api.EXISTING_IGNORE))
+            netconf_tree = NetConfTree(source_tree.netconf_lifecycle_path)
+            file_ops.append(handlers_api.CreateDirectoryOp(netconf_tree.rsa_path, handlers_api.EXISTING_IGNORE))
+            file_ops.append(handlers_api.CreateDirectoryOp(netconf_tree.scripts_path, handlers_api.EXISTING_IGNORE))
+            current_path = os.path.abspath(__file__)
+            dir_path = os.path.dirname(current_path)
+            netconf_scripts_template_path = os.path.join(dir_path, 'netconf', 'template')
+            netconf_rsa_template_path = os.path.join(dir_path, 'netconf', 'keys')
+            for script_name in NETCONF_SCRIPT_NAMES:
+                orig_script_path = os.path.join(netconf_scripts_template_path, script_name)
+                with open(orig_script_path, 'r') as f:
+                    content = f.read()
+                file_ops.append(handlers_api.CreateFileOp(os.path.join(netconf_tree.scripts_path, script_name), content,
+                                                          handlers_api.EXISTING_IGNORE))
+        
+            rsa_script_path = os.path.join(netconf_rsa_template_path, NETCONF_RSA_NAME)
+            with open(rsa_script_path, 'r') as f:
+                content = f.read()
+            file_ops.append(handlers_api.CreateFileOp(os.path.join(netconf_tree.rsa_path, NETCONF_RSA_NAME), content,
+                                                          handlers_api.EXISTING_IGNORE))
+
+            descriptor.insert_default_driver('netconf', infrastructure_types=['*'])
+            descriptor.add_property('netconfId', description='Identifier for the Netconf',
+                                    ptype='string', required=True)
+            descriptor.add_property('netconfParam',
+                                    description='Parmeter for the ID',
+                                    ptype='string', required=True)
+            descriptor.add_property('defaultOperation',
+                                    description='Acceptable values - merge, replace, none',
+                                    ptype='string')
+            descriptor.insert_lifecycle('Create')
+            descriptor.insert_lifecycle('Delete')
+            descriptor.insert_lifecycle('Upgrade')
 
 class BrentSourceHandlerDelegate(handlers_api.ResourceSourceHandlerDelegate):
     

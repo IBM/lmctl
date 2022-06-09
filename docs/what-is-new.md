@@ -273,3 +273,15 @@ lmctl login $API_GATEWAY --zen --auth-address $ZEN_AUTH_ADDRESS --username admin
 ```
 
 For more details, check out the [Getting Started](getting-started.md#zen-authentication) guide or the [Login Command Reference](command-reference/login.md).
+
+# 3.3.0
+
+# Netconf, Restconf and Sol005 Driver project support
+
+You can now manage Resource projects intended for the Netconf, Restconf or Sol005 resource drivers. 
+
+```
+lmctl project create --type ETSI_NS --param driver sol005
+```
+
+For more details, check out the [create project command reference](command-reference/project/create.md) and the [guide to managing projects](projects/overview.md).

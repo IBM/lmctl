@@ -15,7 +15,7 @@ DIST_DIR = 'dist'
 WHL_FORMAT = 'lmctl-{version}-py3-none-any.whl'
 DOCS_FORMAT = 'lmctl-{version}-docs'
 DOCS_DIR = 'docs'
-DOCKER_IMG_TAG = 'accanto/lmctl-jnlp-slave:{version}'
+DOCKER_IMG_TAG = 'icr.io/cp4na-drivers/lmctl-jnlp-slave:{version}'
 DOCKER_IMG_PATH = os.path.join('docker', 'jenkins-jnlp-slave')
 
 parser=argparse.ArgumentParser()
