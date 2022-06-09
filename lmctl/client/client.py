@@ -1,15 +1,18 @@
+from .sp_client import SitePlannerClient
 from .api import *
-from typing import Dict
-from urllib.parse import urlparse, urlencode
 from .exceptions import TNCOClientError, TNCOClientHttpError
 from .auth_type import AuthType
 from .auth_tracker import AuthTracker
 from .error_capture import tnco_error_capture
 from .client_test_result import TestResult, TestResults
 from .client_request import TNCOClientRequest
+
 from lmctl.utils.trace_ctx import trace_ctx
+
 import requests
 import logging
+from typing import Dict
+from .sp_client import SitePlannerOverrides
 
 logger = logging.getLogger(__name__)
 
@@ -20,18 +23,16 @@ class TNCOClient:
     TNCO APIs are grouped by functional attributes.
     """
 
-    POST = 'post'
-    GET = 'get'
-    PUT = 'put'
-    DELETE = 'delete'
-
-    def __init__(self, address: str, auth_type: AuthType = None, kami_address: str = None, use_sessions: bool = False):
+    def __init__(self, address: str, auth_type: AuthType = None, kami_address: str = None, use_sessions: bool = False, 
+                        sp_overrides: SitePlannerOverrides = None):
         self.address = self._parse_address(address)
         self.auth_type = auth_type
         self.kami_address = kami_address
         self.auth_tracker = AuthTracker() if self.auth_type is not None else None
         self._session = None
         self.use_sessions = use_sessions
+        self.sp_overrides = sp_overrides
+        self._site_planner = None
 
     def _parse_address(self, address: str) -> str:
         if address is not None:
@@ -63,10 +64,10 @@ class TNCOClient:
     def _add_auth_headers(self, headers: Dict) -> Dict:
         if self.auth_tracker is not None:
             access_token = self.get_access_token()
-            headers['Authorization'] = f'Bearer {self.auth_tracker.current_access_token}'
+            headers['Authorization'] = f'Bearer {access_token}'
         return headers
 
-    def _supplement_headers(self, headers: Dict, inject_current_auth: bool = True) -> Dict:
+    def supplement_headers(self, headers: Dict, inject_current_auth: bool = True) -> Dict:
         trace_ctx_headers = trace_ctx.to_http_header_dict()
         logger.debug(f'CP4NA orchestration request headers from trace ctx: {trace_ctx_headers}')
         headers.update(trace_ctx_headers)       
@@ -97,7 +98,7 @@ class TNCOClient:
 
         if request.additional_auth_handler is not None:
             request_kwargs['auth'] = request.additional_auth_handler        
-        self._supplement_headers(headers=request_kwargs['headers'], inject_current_auth=request.inject_current_auth) 
+        self.supplement_headers(headers=request_kwargs['headers'], inject_current_auth=request.inject_current_auth) 
 
         try:
             response = self._curr_session().request(method=request.method, url=url, verify=False, **request_kwargs)
@@ -205,3 +206,25 @@ class TNCOClient:
     def vim_drivers(self) -> VIMDriversAPI:
         return VIMDriversAPI(self)
     
+    @property
+    def site_planner(self) -> SitePlannerClient:
+        if self._site_planner is None:
+
+            sp_address = self.address
+            inject_sp_path = True
+            api_token = None
+            use_auth = True
+
+            if self.sp_overrides is not None:
+                if self.sp_overrides.address is not None:
+                    sp_address = self.sp_overrides.address
+                    inject_sp_path = False
+                use_auth = self.sp_overrides.use_auth
+                api_token = self.sp_overrides.api_token
+
+            # api_token can be None whilst auth is enabled. 
+            # In that case, the Zen/Oauth token obtained from this TNCOClient is used instead
+            # This is actually the standard for most production installs (api_token only used in some test/dev environments)
+            self._site_planner = SitePlannerClient(sp_address, use_auth=use_auth, api_token=api_token, parent_client=self, inject_sp_path=inject_sp_path)
+
+        return self._site_planner

@@ -1,40 +1,27 @@
 import unittest
 from pydantic import ValidationError
-from lmctl.environment import SitePlannerEnvironment, SitePlannerClient
+from lmctl.environment import SitePlannerEnvironmentOverrides
 
-class TestSitePlannerEnvironment(unittest.TestCase):
+class TestSitePlannerEnvironmentOverrides(unittest.TestCase):
     maxDiff = None
 
-    def test_minimum_init(self):
-        config = SitePlannerEnvironment(address='testing')
+    def test_init_with_address(self):
+        config = SitePlannerEnvironmentOverrides(address='testing')
         self.assertEqual(config.address, 'testing')
         self.assertIsNone(config.api_token)
+        self.assertIsNone(config.secure)
 
-    def test_init_fails_when_address_is_none(self):
-        with self.assertRaises(TypeError) as context:
-            config = SitePlannerEnvironment()
-        self.assertEqual(str(context.exception), '__init__() missing 1 required positional argument: \'address\'')
-        with self.assertRaises(ValidationError) as context:
-            config = SitePlannerEnvironment(address=' ')
-        self.assertEqual(str(context.exception), '1 validation error for SitePlannerEnvironment\naddress\n  ensure this value has at least 1 characters (type=value_error.any_str.min_length; limit_value=1)')
+    def test_init_without_address(self):
+        config = SitePlannerEnvironmentOverrides()
+        self.assertIsNone(config.address)
+        self.assertIsNone(config.api_token)
+        self.assertIsNone(config.secure)
 
     def test_api_token(self):
-        config = SitePlannerEnvironment(address='testing', api_token='123')
+        config = SitePlannerEnvironmentOverrides(address='testing', api_token='123')
         self.assertEqual(config.address, 'testing')
         self.assertEqual(config.api_token, '123')
-    
-    def test_build_client(self):
-        config = SitePlannerEnvironment(address='testing', api_token='123')
-        client = config.build_client()
-        self.assertIsInstance(client, SitePlannerClient)
-        self.assertEqual(client.address, 'testing')
-        self.assertEqual(client.api_token, '123')
 
-    def test_build_client_without_token(self):
-        config = SitePlannerEnvironment(address='testing')
-        client = config.build_client()
-        self.assertIsInstance(client, SitePlannerClient)
-        self.assertEqual(client.address, 'testing')
-        self.assertIsNone(client.api_token)
-
-    
+    def test_secure(self):
+        config = SitePlannerEnvironmentOverrides(secure=False)
+        self.assertFalse(config.secure)

@@ -11,8 +11,7 @@ from .error_capture import TNCOErrorCapture, tnco_error_capture
 from .client_test_result import TestResult, TestResults
 from .client_request import TNCOClientRequest
 from .constants import *
-from .sp_client import SitePlannerClient
-from .sp_client_builder import SitePlannerClientBuilder
+from .sp_client import SitePlannerClient, SitePlannerOverrides
 
 
 def builder():

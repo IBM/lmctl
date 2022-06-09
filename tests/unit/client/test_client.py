@@ -3,7 +3,7 @@ import requests
 import json
 import jwt
 from unittest.mock import patch, MagicMock, Mock
-from lmctl.client import TNCOClient, TNCOClientError, TNCOClientHttpError, TNCOErrorCapture, TNCOClientRequest
+from lmctl.client import TNCOClient, TNCOClientError, TNCOClientHttpError, TNCOErrorCapture, TNCOClientRequest, SitePlannerOverrides
 from datetime import datetime, timedelta
 
 class TestTNCOClient(unittest.TestCase):
@@ -271,4 +271,53 @@ class TestTNCOClient(unittest.TestCase):
         self.assertEqual(result.tests[3].name, 'Resource Manager')
         self.assertTrue(result.tests[3].passed)
         self.assertIsNone(result.tests[3].error)
-        
+    
+    def test_site_planner_client(self):
+        client = TNCOClient('https://test.example.com')
+        sp_client = client.site_planner
+
+        self.assertEqual(sp_client.address, 'https://test.example.com')
+        self.assertIsNone(sp_client.api_token)
+        self.assertEqual(sp_client.parent_client, client)
+        self.assertTrue(sp_client.use_auth)
+
+    def test_site_planner_client_with_alternative_address(self):
+        client = TNCOClient('https://test.example.com', sp_overrides=SitePlannerOverrides(address='https://siteplanner.example.com'))
+        sp_client = client.site_planner
+
+        self.assertEqual(sp_client.address, 'https://siteplanner.example.com')
+        self.assertIsNone(sp_client.api_token)
+        self.assertEqual(sp_client.parent_client, client)
+        self.assertTrue(sp_client.use_auth)
+
+    def test_site_planner_client_with_api_token(self):
+        client = TNCOClient('https://test.example.com', sp_overrides=SitePlannerOverrides(api_token='abcdef'))
+        sp_client = client.site_planner
+
+        self.assertEqual(sp_client.address, 'https://test.example.com')
+        self.assertEqual(sp_client.api_token, 'abcdef')
+        self.assertEqual(sp_client.parent_client, client)
+        self.assertTrue(sp_client.use_auth)
+
+    def test_site_planner_client_with_auth_disabled(self):
+        client = TNCOClient('https://test.example.com', sp_overrides=SitePlannerOverrides(use_auth=False))
+        sp_client = client.site_planner
+
+        self.assertEqual(sp_client.address, 'https://test.example.com')
+        self.assertIsNone(sp_client.api_token)
+        self.assertEqual(sp_client.parent_client, client)
+        self.assertFalse(sp_client.use_auth)
+
+    def test_site_planner_client_injects_sp_path_when_using_same_address(self):
+        """
+        When re-using the Ishtar address for Site Planner requests, the /site-planner/ subpath needs to be included on Site Planner requests
+        """
+        client = TNCOClient('https://test.example.com')
+        sp_client = client.site_planner
+        self.assertEqual(sp_client.address, 'https://test.example.com')
+        self.assertTrue(sp_client.inject_sp_path)
+
+        client = TNCOClient('https://test.example.com', sp_overrides=SitePlannerOverrides(address='https://siteplanner.example.com'))
+        sp_client = client.site_planner
+        self.assertEqual(sp_client.address, 'https://siteplanner.example.com')
+        self.assertFalse(sp_client.inject_sp_path)

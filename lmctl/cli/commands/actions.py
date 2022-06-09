@@ -2,7 +2,6 @@ import click
 import inspect
 import sys
 from typing import Optional, Iterable, Callable
-from collections import OrderedDict
 from lmctl.cli.tags import SETTINGS_TAG, CP4NA_CORE_TAG, SITE_PLANNER_TAG
 from .super_group import SuperGroup
 
@@ -77,7 +76,6 @@ def use():
 
 # Get all groups in this module, except base classes such as SuperGroup
 _group_members = inspect.getmembers(sys.modules[__name__], lambda x: isinstance(x, click.Group) and not x==SuperGroup)
-_all = [g[0] for g in _group_members]
-_all = _all + ['action_groups']
-__all__ = tuple(_all)
-
+_to_expose = [g[0] for g in _group_members]
+_to_expose = _to_expose + ['action_groups']
+__all__ = tuple(_to_expose)

@@ -6,11 +6,11 @@ from pydantic import constr, root_validator
 
 from urllib.parse import urlparse
 
-from lmctl.client import TNCOClient, TNCOClientBuilder, TOKEN_AUTH_MODE, OAUTH_MODE, ZEN_AUTH_MODE
+from lmctl.client import TNCOClientBuilder, TOKEN_AUTH_MODE, OAUTH_MODE, ZEN_AUTH_MODE
 from lmctl.utils.dcutils.dc_capture import recordattrs
 
 from .common import build_address
-from .sp_env import SitePlannerEnvironment
+from .sp_env import SitePlannerEnvironmentOverrides
 
 DEFAULT_KAMI_PORT = '31289'
 DEFAULT_KAMI_PROTOCOL = 'http'
@@ -48,7 +48,7 @@ class TNCOEnvironment:
     kami_port: Optional[Union[str,int]] = DEFAULT_KAMI_PORT 
     kami_protocol: Optional[str] = DEFAULT_KAMI_PROTOCOL
 
-    site_planner: Optional[SitePlannerEnvironment] = None
+    site_planner: Optional[SitePlannerEnvironmentOverrides] = None
 
     @root_validator(pre=True)
     @classmethod
@@ -154,6 +154,7 @@ class TNCOEnvironment:
                                 token=self.token,
                                 auth_mode=self.auth_mode
                             )
+
     def build_client(self):
         builder = TNCOClientBuilder()
         builder.address(self.address)
@@ -173,6 +174,17 @@ class TNCOEnvironment:
                         builder.legacy_user_pass_auth(username=self.username, password=self.password, legacy_auth_address=self.auth_address)
                 else:
                     builder.client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret)
+        
+        # Site Planner - usually uses the same config as TNCO (same auth, same endpoints)
+        # But overrides can be applied
+        if self.site_planner is not None:
+            if self.site_planner.address is not None:
+                builder.override_sp_address(self.site_planner.address)
+            if self.site_planner.api_token is not None:
+                builder.override_sp_api_token(self.site_planner.api_token)
+            if self.site_planner.secure is False:
+                builder.override_sp_disable_auth()
+        
         return builder.build()
 
     @property

@@ -1,7 +1,7 @@
 import unittest
 import unittest.mock as mock
 from pydantic import ValidationError
-from lmctl.environment import TNCOEnvironment, LmSessionConfig, LmSession, SitePlannerEnvironment
+from lmctl.environment import TNCOEnvironment, LmSessionConfig, LmSession, SitePlannerEnvironmentOverrides
 from lmctl.client import TNCOClient, LegacyUserPassAuth, UserPassAuth, ClientCredentialsAuth, JwtTokenAuth, ZenAPIKeyAuth
 
 class TestTNCOEnvironment(unittest.TestCase):
@@ -122,10 +122,6 @@ class TestTNCOEnvironment(unittest.TestCase):
         env = TNCOEnvironment(address='http://test:8080', secure=True, auth_mode='token', token='123')
         self.assertEqual(env.auth_mode, 'token')
         self.assertEqual(env.token, '123')
-
-    def test_site_planner_set(self):
-        env = TNCOEnvironment(address='http://test:8080', site_planner=SitePlannerEnvironment('http://sp:8081'))
-        self.assertEqual(env.site_planner.address, 'http://sp:8081')
 
     def test_create_session_config(self):
         env = TNCOEnvironment(address='http://test')
@@ -261,6 +257,63 @@ class TestTNCOEnvironment(unittest.TestCase):
         self.assertIsInstance(client.auth_type, JwtTokenAuth)
         self.assertEqual(client.auth_type.token, '123')
 
+    def test_build_without_sp_overrides(self):
+        config = TNCOEnvironment(
+                         address='https://testing',
+                         secure=True, 
+                         auth_mode='token',
+                         token='123'
+                         )
+        client = config.build_client()
+        self.assertIsNone(client.sp_overrides)
+
+    def test_build_with_sp_address_override(self):
+        config = TNCOEnvironment(
+                         address='https://testing',
+                         secure=True, 
+                         auth_mode='token',
+                         token='123',
+                         site_planner=SitePlannerEnvironmentOverrides(
+                             address='https://site-planner'
+                         )
+                )
+        client = config.build_client()
+        self.assertIsNotNone(client.sp_overrides)
+        self.assertEqual(client.sp_overrides.address, 'https://site-planner')
+        self.assertIsNone(client.sp_overrides.api_token)
+        self.assertTrue(client.sp_overrides.use_auth)
+
+    def test_build_with_sp_api_token_override(self):
+        config = TNCOEnvironment(
+                         address='https://testing',
+                         secure=True, 
+                         auth_mode='token',
+                         token='123',
+                         site_planner=SitePlannerEnvironmentOverrides(
+                             api_token='abcdef'
+                         )
+                )
+        client = config.build_client()
+        self.assertIsNotNone(client.sp_overrides)
+        self.assertEqual(client.sp_overrides.api_token, 'abcdef')
+        self.assertIsNone(client.sp_overrides.address)
+        self.assertTrue(client.sp_overrides.use_auth)
+
+    def test_build_with_sp_api_secure_override(self):
+        config = TNCOEnvironment(
+                         address='https://testing',
+                         secure=True, 
+                         auth_mode='token',
+                         token='123',
+                         site_planner=SitePlannerEnvironmentOverrides(
+                             secure=False
+                         )
+                )
+        client = config.build_client()
+        self.assertIsNotNone(client.sp_overrides)
+        self.assertIsNone(client.sp_overrides.api_token)
+        self.assertIsNone(client.sp_overrides.address)
+        self.assertFalse(client.sp_overrides.use_auth)
 
 class TestLmSessionConfig(unittest.TestCase):
 

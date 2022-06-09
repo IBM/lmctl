@@ -4,6 +4,7 @@ from .zen_auth import ZenAPIKeyAuth
 from .token_auth import JwtTokenAuth
 from .client import TNCOClient
 from .auth_type import AuthType
+from .sp_client import SitePlannerOverrides
 
 class TNCOClientBuilder:
 
@@ -11,6 +12,7 @@ class TNCOClientBuilder:
         self._address = None
         self._kami_address = None
         self._auth = None
+        self._sp_overrides = None
     
     @property
     def address(self):
@@ -55,6 +57,25 @@ class TNCOClientBuilder:
     def legacy_user_pass_auth(self, username: str, password: str, legacy_auth_address: str = None) -> 'TNCOClientBuilder':
         self._auth = LegacyUserPassAuth(username=username, password=password, legacy_auth_address=legacy_auth_address)
         return self
+
+    def override_sp_address(self, address: str) -> 'TNCOClientBuilder':
+        self._init_sp_overrides()
+        self._sp_overrides.address = address
+        return self
+
+    def override_sp_api_token(self, api_token: str) -> 'TNCOClientBuilder':
+        self._init_sp_overrides()
+        self._sp_overrides.api_token = api_token
+        return self
+
+    def override_sp_disable_auth(self) -> 'TNCOClientBuilder':
+        self._init_sp_overrides()
+        self._sp_overrides.use_auth = False
+        return self
     
     def build(self):
-        return TNCOClient(self._address, auth_type=self._auth, kami_address=self._kami_address)
+        return TNCOClient(self._address, auth_type=self._auth, kami_address=self._kami_address, sp_overrides=self._sp_overrides)
+
+    def _init_sp_overrides(self):
+        if self._sp_overrides is None:
+            self._sp_overrides = SitePlannerOverrides()
