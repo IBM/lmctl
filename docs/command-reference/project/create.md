@@ -48,7 +48,7 @@ The following table describes the known params available for projects using the 
 
 | Name | Description | Options                              | Default | 
 | ---- | ---- |------------------------------------------------| --- |
-| driver | This parameter guides the creation of the Project (or Subproject) with example files for the intended driver | ansible, sol003, sol005, restconf              | - |
+| driver | This parameter guides the creation of the Project (or Subproject) with example files for the intended driver | ansible, sol003, sol005, restconf, kubernetes, netconf  | - |
 | lifecycle | Deprecated: same as `driver` | ansible, sol003, sol005, restconf, kubernetes, netconf | - |
 | inf | This parameter guides the creation of the Project (or Subproject) with example files for a separate driver to be used on Create/Delete | openstack, kubernetes                | - |
 
