@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-String tarquinBranch = "develop"
+String tarquinBranch = "TNC/tnc-o-tracking#4626"
 
 library "tarquin@$tarquinBranch"
 
