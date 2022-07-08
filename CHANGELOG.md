@@ -1,5 +1,15 @@
 # Change Log
 
+## [3.3.0](https://github.com/IBM/lmctl/tree/3.3.0) (2022-06-09)
+[Full Changelog](https://github.com/IBM/lmctl/compare/3.2.2...3.3.0)
+
+**Implemented Enhancements:**
+
+- Sol005 Driver integration [\#131](https://github.com/IBM/lmctl/issues/131)
+- RestConf Driver integration [\#132](https://github.com/IBM/lmctl/issues/132)
+- Support PyYAML v6.0 [\#135](https://github.com/IBM/lmctl/issues/135)
+- NetConf Driver integration [\#138](https://github.com/IBM/lmctl/issues/138)
+
 ## [3.2.2](https://github.com/IBM/lmctl/tree/3.2.2) (2022-02-03)
 [Full Changelog](https://github.com/IBM/lmctl/compare/3.2.1...3.2.2)
 
