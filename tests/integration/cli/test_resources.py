@@ -140,7 +140,7 @@ class TestResources(CLIIntegrationTest):
         self.assert_has_system_exit(heal_result)
         expected_output = 'Usage: cli heal resource [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli heal resource --help\' for help.'
-        expected_output += '\n\nError: Do not use "NAME" argument when using "--metric-key" option'
+        expected_output += '\n\nError: Cannot use "--metric-key" with "name" as they are mutually exclusive'
         self.assert_output(heal_result, expected_output)
     
     def test_heal_with_id_and_name_fails(self):
@@ -150,7 +150,7 @@ class TestResources(CLIIntegrationTest):
         self.assert_has_system_exit(heal_result)
         expected_output = 'Usage: cli heal resource [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli heal resource --help\' for help.'
-        expected_output += '\n\nError: Do not use "--id" option when using "--metric-key" option'
+        expected_output += '\n\nError: Cannot use "--metric-key" with "--id" as they are mutually exclusive'
         self.assert_output(heal_result, expected_output)
     
     def test_heal_with_assembly_id_and_name_fails(self):
@@ -160,7 +160,7 @@ class TestResources(CLIIntegrationTest):
         self.assert_has_system_exit(heal_result)
         expected_output = 'Usage: cli heal resource [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli heal resource --help\' for help.'
-        expected_output += '\n\nError: Do not use "--assembly-name" option when using "--assembly-id" option'
+        expected_output += '\n\nError: Cannot use "--assembly-id" with "--assembly-name" as they are mutually exclusive'
         self.assert_output(heal_result, expected_output)
     
     def test_heal_without_name_id_or_metric_key_fails(self):
@@ -170,6 +170,6 @@ class TestResources(CLIIntegrationTest):
         self.assert_has_system_exit(heal_result)
         expected_output = 'Usage: cli heal resource [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli heal resource --help\' for help.'
-        expected_output += '\n\nError: Must set "NAME" argument or "--id" option or "--metric-key" to identify the Resource to be healed'
+        expected_output += '\n\nError: Must identify the target by specifying one parameter from ["name", "--id", "--metric-key"] or by including one of the following attributes ["brokenComponentName", "brokenComponentId", "brokenComponentMetricKey"] in the given object/file'
         self.assert_output(heal_result, expected_output)
     
