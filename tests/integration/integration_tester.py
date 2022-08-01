@@ -26,7 +26,7 @@ class IntegrationTester:
         self._create_config_file()
         self.config = get_global_config()
         self.default_client = self.build_default_client()
-        self.default_sp_client = self.build_default_sp_client()
+        self.default_sp_client = self.default_client.site_planner
         self.execution_id = generate_name()
         self.test_id = 0
         print(f'Generated execution name: {self.execution_id}')
@@ -66,10 +66,6 @@ class IntegrationTester:
     def build_client(self):
         default_env = self.get_default_env()
         return default_env.tnco.build_client()
-    
-    def build_default_sp_client(self):
-        default_env = self.get_default_env()
-        return default_env.site_planner.build_client()
 
     def exec_prepended_name(self, name: str) -> str:
         return f'{self.execution_id}-{name}'

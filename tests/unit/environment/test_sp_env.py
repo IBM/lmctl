@@ -9,13 +9,13 @@ class TestSitePlannerEnvironmentOverrides(unittest.TestCase):
         config = SitePlannerEnvironmentOverrides(address='testing')
         self.assertEqual(config.address, 'testing')
         self.assertIsNone(config.api_token)
-        self.assertIsNone(config.secure)
+        self.assertTrue(config.secure)
 
     def test_init_without_address(self):
         config = SitePlannerEnvironmentOverrides()
         self.assertIsNone(config.address)
         self.assertIsNone(config.api_token)
-        self.assertIsNone(config.secure)
+        self.assertTrue(config.secure)
 
     def test_api_token(self):
         config = SitePlannerEnvironmentOverrides(address='testing', api_token='123')

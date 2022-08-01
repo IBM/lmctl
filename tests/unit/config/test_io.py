@@ -4,7 +4,7 @@ import os
 import shutil
 from unittest.mock import patch
 from lmctl.config import Config, ConfigIO, ConfigError
-from lmctl.environment import EnvironmentGroup, TNCOEnvironment, ArmEnvironment, SitePlannerEnvironment
+from lmctl.environment import EnvironmentGroup, TNCOEnvironment, ArmEnvironment, SitePlannerEnvironmentOverrides
 from .config_files import ConfigFileTestHelper
 
 class TestConfigIO(unittest.TestCase):
@@ -260,7 +260,7 @@ class TestConfigIO(unittest.TestCase):
                     secure=True,
                     username='jack',
                     client_id='client',
-                    site_planner=SitePlannerEnvironment(
+                    site_planner=SitePlannerEnvironmentOverrides(
                         address='https://localhost:81',
                         api_token='123'
                     )
@@ -368,7 +368,7 @@ class TestConfigIO(unittest.TestCase):
                     secure=True,
                     username='jack',
                     client_id='client',
-                    site_planner=SitePlannerEnvironment(
+                    site_planner=SitePlannerEnvironmentOverrides(
                         address='https://localhost:81',
                         api_token='123',
                     )
@@ -413,7 +413,7 @@ class TestConfigIO(unittest.TestCase):
         self.assertIn('test', config.environments)
         test_env = config.environments['test']
         self.assertEqual(test_env.lm.address, 'https://127.0.0.1:1111')
-        self.assertEqual(test_env.lm.site_planner, SitePlannerEnvironment(address='https://127.0.0.1:2222', api_token='123'))
+        self.assertEqual(test_env.lm.site_planner, SitePlannerEnvironmentOverrides(address='https://127.0.0.1:2222', api_token='123'))
 
     def test_parse_invalid_site_planner(self):
         invalid_config = {
@@ -424,7 +424,7 @@ class TestConfigIO(unittest.TestCase):
                     'address': 'http://localhost',
                     'secure': False,
                     'site_planner': {
-                        'address': ' '
+                        'invalid': ' '
                     }
                 }
             }
@@ -432,4 +432,4 @@ class TestConfigIO(unittest.TestCase):
         }
         with self.assertRaises(ConfigError) as context:
             ConfigIO().dict_to_config(invalid_config)
-        self.assertEqual(str(context.exception), 'Config error: 1 validation error for ParsingModel[Config]\n__root__ -> environments -> test -> tnco -> site_planner -> address\n  ensure this value has at least 1 characters (type=value_error.any_str.min_length; limit_value=1)')
+        self.assertEqual(str(context.exception), 'Config error: 1 validation error for ParsingModel[Config]\n__root__ -> environments -> test -> tnco -> site_planner\n  __init__() got an unexpected keyword argument \'invalid\' (type=type_error)')

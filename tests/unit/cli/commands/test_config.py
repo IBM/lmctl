@@ -53,6 +53,7 @@ class TestConfigTarget(CommandTestCase):
         result = self.runner.invoke(cli, ['create', 'config', '--path', target_path])
         self.assert_has_system_exit(result)
         expected_output = 'Usage: cli create config [OPTIONS]'
+        expected_output += '\nTry \'cli create config --help\' for help.'
         expected_output += f'\n\nError: Cannot create configuration file at path "{target_path}" because there is already a file there and "--overwrite" was not set'
         self.assert_output(result, expected_output)
 

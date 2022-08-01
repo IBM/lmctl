@@ -55,7 +55,6 @@ class SitePlannerAPITests:
             
             ## Create
             create_response = api.create(obj)
-            self.assertIn(self._pk_field, create_response)
             pk_value = create_response.get(self._pk_field)
 
             ## Read
