@@ -84,7 +84,7 @@ class SuperGroup(click.Group):
         self._write_command_tag_groups(ctx, formatter, cmds_by_tag)
         
 
-    def _sort_commands_by_tags(self, ctx: click.Context) -> OrderedDict[str, Tuple[str, click.Command]]:
+    def _sort_commands_by_tags(self, ctx: click.Context) -> 'OrderedDict[str, Tuple[str, click.Command]]':
         cmds_by_tag = self._establish_tag_buckets()
         untagged_cmds = []
         for cmd_name in self.list_commands(ctx):
@@ -104,11 +104,11 @@ class SuperGroup(click.Group):
         cmds_by_tag[self.untagged_command_title] = untagged_cmds
         return cmds_by_tag
 
-    def _all_commands_are_untagged(self, cmds_by_tag: OrderedDict[str, Tuple[str, click.Command]]) -> bool:
+    def _all_commands_are_untagged(self, cmds_by_tag: 'OrderedDict[str, Tuple[str, click.Command]]') -> bool:
         tags_with_cmds = [tag for tag, cmd_tpls in cmds_by_tag.items() if len(cmd_tpls) > 0]
         return len(tags_with_cmds) == 1 and tags_with_cmds[0] == self.untagged_command_title
 
-    def _write_command_tag_groups(self, ctx: click.Context, formatter: click.HelpFormatter, cmds_by_tag: OrderedDict[str, Tuple[str, click.Command]]):
+    def _write_command_tag_groups(self, ctx: click.Context, formatter: click.HelpFormatter, cmds_by_tag: 'OrderedDict[str, Tuple[str, click.Command]]'):
         # Check if all commands ended up in the untagged section
         if self._all_commands_are_untagged(cmds_by_tag):
             # Shortcut to print as a normal list of commands with title "Commands"
