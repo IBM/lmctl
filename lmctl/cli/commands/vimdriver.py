@@ -4,12 +4,10 @@ import lmctl.cli.ctlmgmt as ctlmgmt
 from lmctl.cli.safety_net import lm_driver_safety_net
 from lmctl.cli.format import determine_format_class, TableFormat
 from lmctl.utils.certificates import read_certificate_file
-from lmctl.cli.cmd_tags import deprecated_tag
 
 logger = logging.getLogger(__name__)
 
-@deprecated_tag
-@click.group(short_help='Use "lmctl create/get/delete resourcedriver"', help='deprecated in v3.0: Commands for managing VIM drivers (CP4NA orchestration 2.1 only)')
+@click.group(hidden=True, short_help='Use "lmctl create/get/delete resourcedriver"', help='deprecated in v3.0: Commands for managing VIM drivers (CP4NA orchestration 2.1 only)')
 def vimdriver():
     click.echo('WARNING: vimdriver command support should only be used with 2.1 versions of CP4NA orchestration')
 

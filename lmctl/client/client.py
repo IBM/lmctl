@@ -1,15 +1,16 @@
 from .api import *
-from typing import Dict
-from urllib.parse import urlparse, urlencode
 from .exceptions import TNCOClientError, TNCOClientHttpError
 from .auth_type import AuthType
 from .auth_tracker import AuthTracker
 from .error_capture import tnco_error_capture
 from .client_test_result import TestResult, TestResults
 from .client_request import TNCOClientRequest
+
 from lmctl.utils.trace_ctx import trace_ctx
+
 import requests
 import logging
+from typing import Dict
 
 logger = logging.getLogger(__name__)
 
@@ -19,11 +20,6 @@ class TNCOClient:
 
     TNCO APIs are grouped by functional attributes.
     """
-
-    POST = 'post'
-    GET = 'get'
-    PUT = 'put'
-    DELETE = 'delete'
 
     def __init__(self, address: str, auth_type: AuthType = None, kami_address: str = None, use_sessions: bool = False):
         self.address = self._parse_address(address)
@@ -63,7 +59,7 @@ class TNCOClient:
     def _add_auth_headers(self, headers: Dict) -> Dict:
         if self.auth_tracker is not None:
             access_token = self.get_access_token()
-            headers['Authorization'] = f'Bearer {self.auth_tracker.current_access_token}'
+            headers['Authorization'] = f'Bearer {access_token}'
         return headers
 
     def _supplement_headers(self, headers: Dict, inject_current_auth: bool = True) -> Dict:
@@ -147,6 +143,10 @@ class TNCOClient:
 
     @property
     def behaviour_assembly_confs(self) -> BehaviourAssemblyConfigurationsAPI:
+        return self.behaviour_assembly_configs
+
+    @property
+    def behaviour_assembly_configs(self) -> BehaviourAssemblyConfigurationsAPI:
         return BehaviourAssemblyConfigurationsAPI(self)
 
     @property
@@ -200,4 +200,3 @@ class TNCOClient:
     @property
     def vim_drivers(self) -> VIMDriversAPI:
         return VIMDriversAPI(self)
-    

@@ -37,6 +37,7 @@ class TestResourcePackages(CLIIntegrationTest):
         update_result = self.cli_runner.invoke(cli, [
             'update', 'resourcepkg', descriptor_name, '-e', 'default', '-f', pkg_path
             ])
+        self.assert_no_errors(update_result)
         self.assert_output(update_result, f'Updated package for: {descriptor_name}')
     
     def test_update_without_file_fails(self):
@@ -44,7 +45,7 @@ class TestResourcePackages(CLIIntegrationTest):
             'update', 'resourcepkg', '-e', 'default', 'SomeName'
             ])
         self.assert_has_system_exit(update_result)
-        expected_output = 'Usage: cli update resourcepkg [OPTIONS] RESOURCE_NAME'
+        expected_output = 'Usage: cli update resourcepkg [OPTIONS] NAME'
         expected_output += '\nTry \'cli update resourcepkg --help\' for help.'
         expected_output += '\n\nError: Missing option \'-f\' / \'--file\'.'
         self.assert_output(update_result, expected_output)
@@ -55,9 +56,9 @@ class TestResourcePackages(CLIIntegrationTest):
             'update', 'resourcepkg', '-e', 'default', '-f', pkg_path
             ])
         self.assert_has_system_exit(update_result)
-        expected_output = 'Usage: cli update resourcepkg [OPTIONS] RESOURCE_NAME'
+        expected_output = 'Usage: cli update resourcepkg [OPTIONS] NAME'
         expected_output += '\nTry \'cli update resourcepkg --help\' for help.'
-        expected_output += '\n\nError: Missing argument \'RESOURCE_NAME\'.'
+        expected_output += '\n\nError: Missing argument \'NAME\'.'
         self.assert_output(update_result, expected_output)
 
     def test_delete_with_name(self):

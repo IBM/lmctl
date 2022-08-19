@@ -1,9 +1,9 @@
 from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict
 from lmctl.cli.entry import cli
-from lmctl.cli.format import TableFormat
+from lmctl.cli.format import TableFormat, Table
 from lmctl.client import TNCOClientHttpError
-from lmctl.cli.commands.targets.infrastructure_keys import InfrastructureKeyTable
+from lmctl.cli.commands.infrastructure_key import default_columns
 import yaml
 import json
 import time
@@ -127,7 +127,7 @@ class TestInfrastructureKeys(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, [
             'get', 'infrastructurekey', self.test_case_props['key_A']['name'], '-e', 'default', '--include-private'
             ])
-        table_format = TableFormat(table=InfrastructureKeyTable())
+        table_format = TableFormat(table=Table(columns=default_columns))
         expected_output = table_format.convert_element(self.test_case_props['key_A'])
         self.assert_output(result, expected_output)
 
@@ -211,16 +211,17 @@ class TestInfrastructureKeys(CLIIntegrationTest):
         api_get_result = self.tester.default_client.shared_inf_keys.get(key_name)
         self.assertEqual(api_get_result['description'], 'Updated descriptor for cmd testing with --set')
 
-    def test_update_with_name_and_file_fails(self):
-        yml_file = self.tester.create_yaml_file('inf-key-cmd-update-with-name-and-file-fails.yaml', self.test_case_props['key_A'])
+    def test_update_with_name_and_file_merges(self):
+        key_name = self.test_case_props['key_A']['name']
+        self.test_case_props['key_A']['description'] = 'Updated description for cmd testing with file'
+        yml_file = self.tester.create_yaml_file('inf-key-cmd-update-with-name-and-file.yaml', self.test_case_props['key_A'])
         update_result = self.cli_runner.invoke(cli, [
-            'update', 'infrastructurekey', '-e', 'default', 'SomeName', '-f', yml_file
+            'update', 'infrastructurekey', '-e', 'default', self.test_case_props['key_A']['name'], '-f', yml_file
             ])
-        self.assert_has_system_exit(update_result)
-        expected_output = 'Usage: cli update infrastructurekey [OPTIONS] [NAME]'
-        expected_output += '\nTry \'cli update infrastructurekey --help\' for help.'
-        expected_output += '\n\nError: Do not use "NAME" argument when using "-f, --file" option'
-        self.assert_output(update_result, expected_output)
+        self.assert_output(update_result, f'Updated: {key_name}')
+        time.sleep(0.2)
+        api_get_result = self.tester.default_client.shared_inf_keys.get(key_name)
+        self.assertEqual(api_get_result['description'], 'Updated description for cmd testing with file')
 
     def test_update_with_set_and_no_name_fails(self):
         update_result = self.cli_runner.invoke(cli, [
@@ -229,7 +230,7 @@ class TestInfrastructureKeys(CLIIntegrationTest):
         self.assert_has_system_exit(update_result)
         expected_output = 'Usage: cli update infrastructurekey [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli update infrastructurekey --help\' for help.'
-        expected_output += '\n\nError: Must set "NAME" argument when no "-f, --file" option specified'
+        expected_output += '\n\nError: Must identify the target by specifying the "name" parameter or by including the "name" attribute in the given object/file'
         self.assert_output(update_result, expected_output)
 
     def test_delete_with_yaml_file(self):
@@ -315,7 +316,7 @@ class TestInfrastructureKeys(CLIIntegrationTest):
         self.assert_has_system_exit(delete_result)
         expected_output = 'Usage: cli delete infrastructurekey [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli delete infrastructurekey --help\' for help.'
-        expected_output += '\n\nError: Must set "NAME" argument when no "-f, --file" option specified'
+        expected_output += '\n\nError: Must identify the target by specifying the "name" parameter or by including the "name" attribute in the given object/file'
         self.assert_output(delete_result, expected_output)
     
     def test_delete_with_ignore_missing(self):
@@ -323,4 +324,4 @@ class TestInfrastructureKeys(CLIIntegrationTest):
             'delete', 'infrastructurekey', '-e', 'default', 'NonExistentObj', '--ignore-missing'
             ])
         self.assert_no_errors(delete_result)
-        self.assert_output(delete_result, f'No Infrastructure Key found with name NonExistentObj (ignoring)')
+        self.assert_output(delete_result, f'(Ignored) Entity of type \'Shared Infrastructure Key\' could not be found matching: NonExistentObj')

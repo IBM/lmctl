@@ -1,9 +1,9 @@
 from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict
 from lmctl.cli.entry import cli
-from lmctl.cli.format import TableFormat
+from lmctl.cli.format import TableFormat, Table
 from lmctl.client import TNCOClientHttpError
-from lmctl.cli.commands.targets.behaviour_assembly_configurations import AssemblyConfigurationTable
+from lmctl.cli.commands.behaviour_assembly_configurations import default_columns
 import yaml
 import json
 import time
@@ -93,7 +93,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, [
             'get', 'assemblyconfig', self.test_case_props['assembly_config_A']['id'], '-e', 'default'
             ])
-        table_format = TableFormat(table=AssemblyConfigurationTable())
+        table_format = TableFormat(table=Table(columns=default_columns))
         expected_output = table_format.convert_element(self.test_case_props['assembly_config_A'])
         self.assert_output(result, expected_output)
 
@@ -104,7 +104,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
         self.assert_has_system_exit(result)
         expected_output = 'Usage: cli get assemblyconfig [OPTIONS] [ID]'
         expected_output += '\nTry \'cli get assemblyconfig --help\' for help.'
-        expected_output += '\n\nError: Do not use "ID" argument when using the "--project" option'
+        expected_output += '\n\nError: Cannot use "--project" with "id" as they are mutually exclusive'
         self.assert_output(result, expected_output)
     
     def test_get_without_id_or_project_fails(self):
@@ -114,7 +114,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
         self.assert_has_system_exit(result)
         expected_output = 'Usage: cli get assemblyconfig [OPTIONS] [ID]'
         expected_output += '\nTry \'cli get assemblyconfig --help\' for help.'
-        expected_output += '\n\nError: Must set either "ID" argument or "--project" option'
+        expected_output += '\n\nError: Must identify the target by specifying one parameter from ["id", "--project"] or by including one of the following attributes ["id", "projectId"] in the given object/file'
         self.assert_output(result, expected_output)
 
     def test_create_with_yaml_file(self):
@@ -133,7 +133,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
             'create', 'assemblyconfig', '-e', 'default', '-f', yml_file
             ])
         self.assertTrue(create_result.output.startswith('Created: '))
-        assembly_config_id = create_result.output[len('Created: ')-1:].strip()
+        assembly_config_id = create_result.output[len('Created: ')-1:create_result.output.index('(')].strip()
         api_get_result = self.tester.default_client.behaviour_assembly_confs.get(assembly_config_id)
         self.assertEqual(api_get_result['name'], assembly_config['name'])
         self.assertEqual(api_get_result['projectId'], assembly_config['projectId'])
@@ -157,7 +157,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
             ])
         self.assert_no_errors(create_result)
         self.assertTrue(create_result.output.startswith('Created: '))
-        assembly_config_id = create_result.output[len('Created: ')-1:].strip()
+        assembly_config_id = create_result.output[len('Created: ')-1:create_result.output.index('(')].strip()
         api_get_result = self.tester.default_client.behaviour_assembly_confs.get(assembly_config_id)
         self.assertEqual(api_get_result['name'], assembly_config['name'])
         self.assertEqual(api_get_result['projectId'], assembly_config['projectId'])
@@ -176,7 +176,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
             ])
         self.assert_no_errors(create_result)
         self.assertTrue(create_result.output.startswith('Created: '))
-        assembly_config_id = create_result.output[len('Created: ')-1:].strip()
+        assembly_config_id = create_result.output[len('Created: ')-1:create_result.output.index('(')].strip()
         time.sleep(0.2)
         api_get_result = self.tester.default_client.behaviour_assembly_confs.get(assembly_config_id)
         self.assertEqual(api_get_result['name'], assembly_config_name)
@@ -190,7 +190,8 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
             'update', 'assemblyconfig', '-e', 'default', '-f', yml_file
             ])
         assembly_config_id = self.test_case_props['assembly_config_A']['id']
-        self.assert_output(update_result, f'Updated: {assembly_config_id}')
+        assembly_config_name = self.test_case_props['assembly_config_A']['name']
+        self.assert_output(update_result, f'Updated: {assembly_config_id} ({assembly_config_name})')
         time.sleep(0.2)
         api_get_result = self.tester.default_client.behaviour_assembly_confs.get(assembly_config_id)
         self.assertEqual(api_get_result['description'], 'Updated description for cmd testing with yaml')
@@ -202,40 +203,47 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
             'update', 'assemblyconfig', '-e', 'default', '-f', json_file
             ])
         assembly_config_id = self.test_case_props['assembly_config_A']['id']
-        self.assert_output(update_result, f'Updated: {assembly_config_id}')
+        assembly_config_name = self.test_case_props['assembly_config_A']['name']
+        self.assert_output(update_result, f'Updated: {assembly_config_id} ({assembly_config_name})')
         time.sleep(0.2)
         api_get_result = self.tester.default_client.behaviour_assembly_confs.get(assembly_config_id)
         self.assertEqual(api_get_result['description'], 'Updated description for cmd testing with json')
 
     def test_update_with_set(self):
         assembly_config_id = self.test_case_props['assembly_config_A']['id']
+        assembly_config_name = self.test_case_props['assembly_config_A']['name']
         update_result = self.cli_runner.invoke(cli, [
             'update', 'assemblyconfig', '-e', 'default', assembly_config_id, '--set', 'description=Updated descriptor for cmd testing with --set'
             ])
-        self.assert_output(update_result, f'Updated: {assembly_config_id}')
+        self.assert_output(update_result, f'Updated: {assembly_config_id} ({assembly_config_name})')
         time.sleep(0.2)
         api_get_result = self.tester.default_client.behaviour_assembly_confs.get(assembly_config_id)
         self.assertEqual(api_get_result['description'], 'Updated descriptor for cmd testing with --set')
 
-    def test_update_with_name_and_file_fails(self):
-        yml_file = self.tester.create_yaml_file('assembly-config-cmd-update-with-name-and-file-fails.yaml', self.test_case_props['assembly_config_A'])
+    def test_update_with_id_and_file(self):
+        assembly_config_id = self.test_case_props['assembly_config_A']['id']
+        assembly_config_name = self.test_case_props['assembly_config_A']['name']
+        assembly_config = self.test_case_props['assembly_config_A'].copy()
+        assembly_config['description'] = 'Updated descriptor for cmd testing with file'
+        yml_file = self.tester.create_yaml_file('assembly-config-cmd-update-with-id-and-file.yaml', assembly_config)
         update_result = self.cli_runner.invoke(cli, [
-            'update', 'assemblyconfig', '-e', 'default', 'SomeName', '-f', yml_file
+            'update', 'assemblyconfig', '-e', 'default', assembly_config_id, '-f', yml_file
             ])
-        self.assert_has_system_exit(update_result)
-        expected_output = 'Usage: cli update assemblyconfig [OPTIONS] [ID]'
-        expected_output += '\nTry \'cli update assemblyconfig --help\' for help.'
-        expected_output += '\n\nError: Do not use "ID" argument when using "-f, --file" option'
-        self.assert_output(update_result, expected_output)
+        self.assert_no_errors(update_result)
+        self.assert_output(update_result, f'Updated: {assembly_config_id} ({assembly_config_name})')
+        time.sleep(0.2)
+        api_get_result = self.tester.default_client.behaviour_assembly_confs.get(assembly_config_id)
+        self.assertEqual(api_get_result['description'], 'Updated descriptor for cmd testing with file')
 
-    def test_update_with_set_and_no_name_fails(self):
+
+    def test_update_with_set_and_no_id_fails(self):
         update_result = self.cli_runner.invoke(cli, [
             'update', 'assemblyconfig', '-e', 'default',  '--set', 'description=testing'
             ])
         self.assert_has_system_exit(update_result)
         expected_output = 'Usage: cli update assemblyconfig [OPTIONS] [ID]'
         expected_output += '\nTry \'cli update assemblyconfig --help\' for help.'
-        expected_output += '\n\nError: Must set "ID" argument when no "-f, --file" option specified'
+        expected_output += '\n\nError: Must identify the target by specifying the "id" parameter or by including the "id" attribute in the given object/file'
         self.assert_output(update_result, expected_output)
 
     def test_delete_with_yaml_file(self):
@@ -251,7 +259,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
             ])
         self.assert_no_errors(create_result)
         self.assertTrue(create_result.output.startswith('Created: '))
-        assembly_config_id = create_result.output[len('Created: ')-1:].strip()
+        assembly_config_id = create_result.output[len('Created: ')-1:create_result.output.index('(')].strip()
         assembly_config['id'] = assembly_config_id
         yml_file = self.tester.create_yaml_file('assembly-config-cmd-delete-with.yaml', assembly_config)
         delete_result = self.cli_runner.invoke(cli, [
@@ -263,7 +271,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
             api_get_result = self.tester.default_client.behaviour_assembly_confs.get(assembly_config_id)
             self.fail('Assembly Configuration should have been deleted but it can still be found')
         except TNCOClientHttpError as e:
-            if e.status_code != 404:
+            if e.status_code != 404 and 'does not exist' not in e.detail_message: # Temp check on detail_message as API returns 500 for not found (bug)
                 self.fail(f'Retrieving the Assembly Configuration failed with an unexpected error: {str(e)}')
     
     def test_delete_with_json_file(self):
@@ -279,7 +287,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
             ])
         self.assert_no_errors(create_result)
         self.assertTrue(create_result.output.startswith('Created: '))
-        assembly_config_id = create_result.output[len('Created: ')-1:].strip()
+        assembly_config_id = create_result.output[len('Created: ')-1:create_result.output.index('(')].strip()
         assembly_config['id'] = assembly_config_id
         json_file = self.tester.create_json_file('assembly-config-cmd-delete-with.json', assembly_config)
         delete_result = self.cli_runner.invoke(cli, [
@@ -291,7 +299,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
             api_get_result = self.tester.default_client.behaviour_assembly_confs.get(assembly_config_id)
             self.fail('Assembly Configuration should have been deleted but it can still be found')
         except TNCOClientHttpError as e:
-            if e.status_code != 404:
+            if e.status_code != 404 and 'does not exist' not in e.detail_message: # Temp check on detail_message as API returns 500 for not found (bug)
                 self.fail(f'Retrieving the Assembly Configuration failed with an unexpected error: {str(e)}')
     
     def test_delete_with_id(self):
@@ -307,7 +315,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
             ])
         self.assert_no_errors(create_result)
         self.assertTrue(create_result.output.startswith('Created: '))
-        assembly_config_id = create_result.output[len('Created: ')-1:].strip()
+        assembly_config_id = create_result.output[len('Created: ')-1:create_result.output.index('(')].strip()
         delete_result = self.cli_runner.invoke(cli, [
             'delete', 'assemblyconfig', '-e', 'default', assembly_config_id
             ])
@@ -317,7 +325,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
             api_get_result = self.tester.default_client.behaviour_assembly_confs.get(assembly_config_id)
             self.fail('Assembly Configuration should have been deleted but it can still be found')
         except TNCOClientHttpError as e:
-            if e.status_code != 404:
+            if e.status_code != 404 and 'does not exist' not in e.detail_message: # Temp check on detail_message as API returns 500 for not found (bug)
                 self.fail(f'Retrieving the Assembly Configuration failed with an unexpected error: {str(e)}')
     
     def test_delete_with_no_name_or_file_fails(self):
@@ -327,7 +335,7 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
         self.assert_has_system_exit(delete_result)
         expected_output = 'Usage: cli delete assemblyconfig [OPTIONS] [ID]'
         expected_output += '\nTry \'cli delete assemblyconfig --help\' for help.'
-        expected_output += '\n\nError: Must set "ID" argument when no "-f, --file" option specified'
+        expected_output += '\n\nError: Must identify the target by specifying the "id" parameter or by including the "id" attribute in the given object/file'
         self.assert_output(delete_result, expected_output)
     
     def test_delete_with_ignore_missing(self):
@@ -335,4 +343,4 @@ class TestBehaviourAssemblyConfigurations(CLIIntegrationTest):
             'delete', 'assemblyconfig', '-e', 'default', 'NonExistentObj', '--ignore-missing'
             ])
         self.assert_no_errors(delete_result)
-        self.assert_output(delete_result, f'No Assembly Configuration found with ID NonExistentObj (ignoring)')
+        self.assert_output(delete_result, f'(Ignored) Entity of type \'AssemblyConfiguration\' could not be found matching: id=NonExistentObj')
