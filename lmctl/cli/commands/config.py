@@ -4,7 +4,7 @@ from .actions import get, create
 from .utils import pass_io
 from lmctl.cli.io import IOController
 from lmctl.cli.tags import SETTINGS_TAG
-from lmctl.config import ConfigFinder, get_config_with_path, ConfigError, find_config_location
+from lmctl.config import get_config_with_path, find_config_location
 from lmctl.cli.arguments import overwrite_file_option, output_file_option
 
 __all__ = (
@@ -35,8 +35,8 @@ def get_config(print_path: bool, path_only: bool, io: IOController):
 @create.command(singular, aliases=[plural], tags=[SETTINGS_TAG], help=f'Create starter LMCTL {display_name} file')
 @output_file_option(help='Set the file path location the file is created in')
 @overwrite_file_option(help='Overwrite existing file at location (the existing file is renamed)')
-@pass_io
-def create_config(io: IOController, path: str = None, overwrite: bool = False):
+def create_config(path: str = None, overwrite: bool = False):
+    io = IOController.get()
     if path is None:
         path = find_config_location()
     if os.path.exists(path):
