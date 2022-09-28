@@ -58,7 +58,7 @@ Before submitting changes, please complete the following:
 
 When working on the changes, please complete the following:
 
-- Create a branch for your work based off the `develop` branch (**not** `master`). The `develop` branch is used for ongoing development and is merged to `master` when releases are finalised (if you're not a maintainer you'll need to fork this repo and create the branch in your fork. You'll be able to raise a PR against this repo from your fork). 
+- Create a branch for your work based off the `develop` branch (**not** `main`). The `develop` branch is used for ongoing development and is merged to `main` when releases are finalised (if you're not a maintainer you'll need to fork this repo and create the branch in your fork. You'll be able to raise a PR against this repo from your fork). 
 
 - Name your branch `issue/<issue number>` where `issue number` corresponds to the unique ID of the issue e.g. work on [issue#99](https://github.com/IBM/lmctl/issues/99) was completed on branch [issue/99](https://github.com/IBM/lmctl/pull/100)
 

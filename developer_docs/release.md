@@ -30,21 +30,21 @@ Update the `CHANGELOG.md` file with a list of issues fixed by this release (see 
 
 Commit and push these changes.
 
-## 4. Merge Develop to Master
+## 4. Merge Develop to Main
 
-Development work is normally carried out on the `develop` branch. Merge this branch to `master`, by creating a PR, 
+Development work is normally carried out on the `develop` branch. Merge this branch to `main`, by creating a PR, 
 
-Then perform the release from the `master` branch. This ensures the `master` branch is tagged correctly. 
+Then perform the release from the `main` branch. This ensures the `main` branch is tagged correctly. 
 
 > Note: do NOT delete the `develop` branch
 
-## 5. Build and Release (on master)
+## 5. Build and Release (on main)
 
 Access the `lmctl` build job on the internal CI/CD tool (maintainers should be aware and have access to this. Speak to another maintainer if not).
 
-Navigate to the job for the `master` branch. The merge to `master` should have already triggered a build. Let this build complete in order to verify there were no issues with the merge. The automated job will not complete the release, it will only build and run the unit tests.
+Navigate to the job for the `main` branch. The merge to `main` should have already triggered a build. Let this build complete in order to verify there were no issues with the merge. The automated job will not complete the release, it will only build and run the unit tests.
 
-Once ready, click `Build with Parameters` for on the `master` branch job. Enable the `release` option and click `BUILD`.
+Once ready, click `Build with Parameters` for on the `main` branch job. Enable the `release` option and click `BUILD`.
 
 Wait for the build to complete successfully. 
 
@@ -60,7 +60,7 @@ Verify the release has been published to [pypi](https://pypi.org/manage/project/
 
 Complete the following steps to ensure development can continue as normal:
 
-- Merge `master` to `develop` so any release updates and the post-version are copied over from master (doesn't require a PR)
+- Merge `main` to `develop` so any release updates and the post-version are copied over from main (doesn't require a PR)
 - Close the Milestone for this release on [Github](https://github.com/IBM/lmctl/milestones)
 - Create a new Milestone for next release (if one does not exist). Use the value of the `--post-version` option from earlier
 
@@ -72,7 +72,7 @@ Complete the following steps to ensure development can continue as normal:
 
 Complete steps 1-4 from the main release instructions (found above).
 
-## 5. Build and Release (on master)
+## 5. Build and Release (on main)
 
 The `build.py` script automates the following steps: 
 
