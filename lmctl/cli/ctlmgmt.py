@@ -35,8 +35,8 @@ def get_environment_group(environment_group_name: str = None, config_path=None):
         env_group = get_active_environment(ctl)
     if env_group is None:
         output.printer.error(f'Error: Environment name not provided and there is no "active_environment" group set in config. ' +
-                                'Check command --help for ways to provide"-e/--environment" or environment argument. ' + 
-                                'Alternatively, add "active_environment" to lmctl config with the name of the environment (from the same config) you would like to use as the default')
+                                'Check command --help for ways to provide environment argument. ' + 
+                                'Alternatively, use "lmctl use env" to choose an active environment')
         exit(1)
     return env_group
 

@@ -28,9 +28,9 @@ class CLIController:
                 exit(1)
             env_group = self.get_active_environment()
         if env_group is None:
-            self.io.print_error(f'Error: Environment name not provided and there is no "active_environment" group set in config. ' +
-                                    'Check command --help for ways to provide"-e/--environment" or environment argument. ' + 
-                                    'Alternatively, add "active_environment" to lmctl config with the name of the environment (from the same config) you would like to use as the default')
+            self.io.print_error(f'Error: Environment name not provided and there is no "active_environment" group set your configuration. ' +
+                                    'Check command --help for ways to provide environment argument. ' + 
+                                    'Alternatively, use "lmctl use env" to choose an active environment')
             exit(1)
         return env_group
 

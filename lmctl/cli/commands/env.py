@@ -1,15 +1,14 @@
 import click
 import logging
-from .actions import get, use, ping
-from .utils import pass_io, Identity, Identifier
+
+from .actions import get, use, ping, delete
+from .utils import pass_io, Identifier
 from lmctl.cli.controller import get_global_controller, CLIController
-from lmctl.cli.io import IOController
 from lmctl.cli.tags import SETTINGS_TAG
-from lmctl.cli.arguments import output_format_option, TNCOClientSecretOption, TNCOPwdOption, TNCOTokenOption
+from lmctl.cli.arguments import output_format_option, TNCOClientSecretOption, TNCOPwdOption, TNCOTokenOption, ignore_missing_option
 from lmctl.cli.format import Column, OutputFormat, TableFormat, Table
-from lmctl.client import TNCOClient
 from lmctl.environment import EnvironmentGroup
-from lmctl.config import ConfigError, get_config_with_path, write_config
+from lmctl.config import get_config_with_path, write_config
 
 __all__ = (
     'get_env',
@@ -28,10 +27,10 @@ active_opt = Identifier(
 )
 
 default_columns = [
-    Column('name', header='Name'),
+    Column('name', header='Name', accessor=lambda x: f'{x.name} (active)' if hasattr(x, 'active') and x.active == True else x.name),
     Column('description', header='Description'),
     Column('cp4na', header='CP4NA', accessor=lambda x: x.tnco.address if x.tnco else None),
-    Column('auth', header='Auth', accessor=lambda x: x.tnco.auth_mode if x.tnco else None),
+    Column('auth', header='Auth Type', accessor=lambda x: x.tnco.auth_mode if x.tnco else None),
 ]
 
 ping_table = Table(columns=[
@@ -70,8 +69,16 @@ def get_env(
             exit(1)
 
     if isinstance(result, list):
+        # Decorate with active
+        if ctl.config.active_environment is not None:
+            for env in result:
+                if env.name == ctl.config.active_environment:
+                    env.active = True
         ctl.io.print(output_format.convert_list(result))
     else:
+        # Decorate with active
+        if result and ctl.config.active_environment == result.name:
+            result.active = True
         ctl.io.print(output_format.convert_element(result))
 
 class PingEnvironmentCommand(click.Command):
@@ -133,6 +140,45 @@ def use_env(name: str):
     ctl.io.print(f'Updating config at: {config_path}')
     loaded_config.active_environment = name
     write_config(loaded_config, override_config_path=config_path)
+
+@delete.command(singular, aliases=[plural], help=f'Remove an environment from active LMCTL config file')
+@click.argument(name_arg.param_name, required=False)
+@click.option(*active_opt.param_opts, is_flag=True, default=False, show_default=True, help='Remove the active environment (if set)')
+@ignore_missing_option()
+def delete_env(name: str, active: bool, ignore_missing: bool):
+    if name is not None and active is True:
+        raise click.UsageError(f'Cannot not use "{name_arg.get_cli_display_name()}" argument when using the "{active_opt.get_cli_display_name()}" option', ctx=click.get_current_context())
+
+    ctl = get_global_controller()
+    if name is None and active is False:
+        raise click.UsageError(f'Must specify "{name_arg.get_cli_display_name()}" argument or "{active_opt.get_cli_display_name()}" option', ctx=click.get_current_context())
+
+    if active is True:
+        if ctl.config.active_environment is None:
+            if ignore_missing:
+                ctl.io.print(f'(Ignored) No active environment')
+                exit(0)
+            else:
+                raise click.UsageError(f'Cannot use "{active_opt.get_cli_display_name()}" option when no active environment is set in config', ctx=click.get_current_context())
+        else:
+            name = ctl.config.active_environment
+ 
+    removed_env = ctl.config.environments.pop(name, None)
+    if removed_env is None:
+        if ignore_missing:
+            ctl.io.print(f'(Ignored) No environment named "{name}" could be found in current config file')
+            exit(0)
+        else:
+            ctl.io.print_error(f'No environment named "{name}" could be found in current config file')
+            exit(1)
+    else:
+        ctl.io.print(f'Removed environment: {removed_env.name}')
+        # Dont forget to unset the active environment if currently set to the environment being removed
+        if ctl.config.active_environment == removed_env.name:
+            ctl.config.active_environment = None
+            ctl.io.print(f'Clearing {removed_env.name} as the active environment (run "lmctl use env" to make another environment active)')
+        ctl.io.print(f'Updating config at: {ctl.config_path}')
+        write_config(ctl.config, override_config_path=ctl.config_path)    
 
 
 ######### Deprecated
