@@ -1,12 +1,23 @@
 import click
 import os
-from lmctl.client import TNCOClientBuilder, ClientCredentialsAuth, UserPassAuth, LegacyUserPassAuth, JwtTokenAuth, TOKEN_AUTH_MODE, OAUTH_MODE, ZEN_AUTH_MODE
-from lmctl.config import ConfigFinder, find_config_location, write_config
+import logging
+from pydantic import ValidationError
+from lmctl.client import TOKEN_AUTH_MODE, OAUTH_MODE, ZEN_AUTH_MODE
+from lmctl.config import find_config_location, write_config
 from lmctl.environment import TNCOEnvironment, EnvironmentGroup
 from lmctl.cli.controller import get_global_controller, CLIController
 from lmctl.cli.commands.utils import mutually_exclusive_group
 
-@click.command(short_help='Authenticate and save credentials', help='Authenticate with an environment and save credentials in the lmctl config file for subsequent use')
+logger = logging.getLogger(__name__)
+
+@click.command(short_help='Authenticate and optionally save credentials', help='''\
+    Authenticates with an environment and save the access token in your lmctl config file for subsequent use. 
+    \n\nA single use token is obtained using the credentials and this token is persisted in the lmctl config file, instead of your credentials. Once the token has expired, you will no longer be able to access this environment and will need to call "login" again.
+    \n\nTo avoid leaking your credentials in your command history it is recommended that you exclude "--client-secret", "--password" and "--api-key" from your command. You will be prompted for these where appropriate.
+    \n\nUsing "--save-creds" will persist the credentials in the lmctl config file instead, which will allow lmctl to reauthenticate on your behalf when the current access token expires. This is discouraged as the config file is plain text and easily accessed on your environment.
+    \n\nYou can check the contents of your local lmctl config file at any time with "lmctl get config"
+    '''
+)
 @click.pass_context
 @click.argument('address')
 @click.option('-u', '--username', default=None, help='Username')
@@ -74,18 +85,27 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
     elif is_zen:
         auth_mode = ZEN_AUTH_MODE
 
-    tnco_env = TNCOEnvironment(
-        address=address, 
-        secure=True,
-        client_id=client_id,
-        client_secret=client_secret,
-        username=username,
-        password=pwd,
-        api_key=api_key,
-        token=token,
-        auth_mode=auth_mode,
-        auth_address=auth_address
-    )
+    try:
+        tnco_env = TNCOEnvironment(
+            address=address, 
+            secure=True,
+            client_id=client_id,
+            client_secret=client_secret,
+            username=username,
+            password=pwd,
+            api_key=api_key,
+            token=token,
+            auth_mode=auth_mode,
+            auth_address=auth_address
+        )
+    except ValidationError as e:
+        logger.exception('Error creating TNCOEnvironment')
+        user_friendly_errors = []
+        for error in e.errors():
+            user_friendly_errors.append(error['msg'])
+        user_friendly_errors_str = ', '.join(user_friendly_errors)
+        ctl.io.print_error(f'Error: {user_friendly_errors_str}')
+        exit(1)
     client = tnco_env.build_client()
     access_token = client.get_access_token()
 
