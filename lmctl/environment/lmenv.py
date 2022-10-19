@@ -1,16 +1,26 @@
 import lmctl.drivers.lm as lm_drivers
+import logging
+import os
+
 from typing import Union, Optional
 from .common import build_address
 from urllib.parse import urlparse
-from lmctl.client import TNCOClient, TNCOClientBuilder, TOKEN_AUTH_MODE, ZEN_AUTH_MODE, OAUTH_MODE
+from lmctl.client import TNCOClientBuilder, TOKEN_AUTH_MODE, ZEN_AUTH_MODE, OAUTH_MODE
 from pydantic.dataclasses import dataclass
 from pydantic import constr, root_validator
 from lmctl.utils.dcutils.dc_capture import recordattrs
 
+logger = logging.getLogger(__name__)
+
+ALLOW_ALL_SCHEMES_ENV_VAR = 'LMCTL_ALLOW_ALL_SCHEMES'
+
+HTTP_PROTOCOL = 'http'
+HTTPS_PROTOCOL = 'https'
+
 DEFAULT_KAMI_PORT = '31289'
-DEFAULT_KAMI_PROTOCOL = 'http'
+DEFAULT_KAMI_PROTOCOL = HTTP_PROTOCOL
 DEFAULT_BRENT_NAME = 'brent'
-DEFAULT_PROTOCOL = 'https'
+DEFAULT_PROTOCOL = HTTPS_PROTOCOL
 DEFAULT_SECURE = False
 
 @recordattrs
@@ -68,9 +78,7 @@ class TNCOEnvironment:
     @classmethod
     def _validate_oauth(cls, values):
         client_id = values.get('client_id', None)
-        client_secret = values.get('client_secret', None)
         username = values.get('username', None)
-        password = values.get('password', None)
         if not client_id and not username:
             raise ValueError(f'Secure TNCO environment must be configured with either "client_id" or "username" property when using "auth_mode={OAUTH_MODE}". If the TNCO environment is not secure then set "secure" to False')
         # Currently api_key can only be used with Zen, so we perform an extra check to let the user know 
@@ -105,7 +113,9 @@ class TNCOEnvironment:
             port = values.get('port', None)
             path = values.get('path', None)
             address = build_address(host, protocol=protocol, port=port, path=path)
-            values['address'] = address
+
+        address = cls._finalise_address(address)
+        values['address'] = address
 
         # Auth host
         auth_address = values.get('auth_address', None)
@@ -113,13 +123,16 @@ class TNCOEnvironment:
             auth_host = values.get('auth_host', None)
             auth_host = auth_host.strip() if auth_host is not None else None
             if not auth_host:
-                values['auth_address'] = address
+                auth_address = address
             else:
                 auth_protocol = values.get('auth_protocol', values.get('protocol', DEFAULT_PROTOCOL))
                 auth_port = values.get('auth_port', None)
                 auth_path = values.get('auth_path', None)
-                auth_address = build_address(auth_host, protocol=auth_protocol, port=auth_port)
-                values['auth_address'] = auth_address
+                auth_address = build_address(auth_host, protocol=auth_protocol, port=auth_port, path=auth_path)
+
+        if auth_address is not None:
+            auth_address = cls._finalise_address(auth_address)
+            values['auth_address'] = auth_address
 
         # Kami Address
         kami_address = values.get('kami_address', None)
@@ -136,6 +149,21 @@ class TNCOEnvironment:
             values['kami_address'] = kami_address
 
         return values
+    
+    @classmethod
+    def _finalise_address(cls, address):
+        final_address = address
+        parsed_url = urlparse(final_address)
+
+        if parsed_url.scheme is None or len(parsed_url.scheme.strip()) == 0:
+            logger.debug(f'Adding "{HTTPS_PROTOCOL}://" to {final_address}')
+            final_address = f'{HTTPS_PROTOCOL}://{final_address}'
+        elif parsed_url.scheme != HTTPS_PROTOCOL:
+            allow_all_schemes = os.environ.get(ALLOW_ALL_SCHEMES_ENV_VAR, None)
+            if allow_all_schemes is None or allow_all_schemes.lower() != 'true':
+                raise ValueError(f'Use of "{parsed_url.scheme}" scheme is not encouraged by lmctl, use "{HTTPS_PROTOCOL}" instead ({address})')
+
+        return final_address
 
     def create_session_config(self):
         return LmSessionConfig(self, 
