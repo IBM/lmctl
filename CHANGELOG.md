@@ -11,7 +11,7 @@
 
 **Fixed Bugs:**
 
-- Use Pydantic 1.10 or lower [\#156](https://github.com/IBM/lmctl/issues/156)
+- Use Pydantic 1.9 [\#156](https://github.com/IBM/lmctl/issues/156)
 
 **Internals:**
 
