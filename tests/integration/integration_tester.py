@@ -64,10 +64,24 @@ class IntegrationTester:
 
     def build_client(self):
         default_env = self.get_default_env()
-        return default_env.lm.build_client()
-           
+        return default_env.tnco.build_client()
+
     def exec_prepended_name(self, name: str) -> str:
         return f'{self.execution_id}-{name}'
+
+    def short_exec_prepended_name(self, name: str, limit: int = 30) -> str:
+        result = self.exec_prepended_name(name)
+        if len(result) > limit:
+            vowels = set('AEIOU')
+            short_exec_id = ''.join([letter for letter in self.execution_id if letter.upper() not in vowels])
+            new_result = f'{short_exec_id}-{name}'
+            if len(new_result) > limit:
+                new_result = ''.join([letter for letter in new_result if letter.upper() not in vowels])
+                if len(new_result) > limit:
+                    raise ValueError(f'Could not shorten {result} to less than {limit} characters')
+            return new_result
+        else:
+            return result
 
     def wait_until(self, condition: Callable, *condition_args, timeout: float = 60, interval: float = 0.1):
         start = time.time()

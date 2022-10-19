@@ -1,16 +1,17 @@
 from .output_format import OutputFormat
 from typing import Union, Callable, List, Any
 from tabulate import tabulate
+from pydantic.dataclasses import dataclass, Field
 
+@dataclass
 class Column:
+    name: str
+    header: str = None
+    accessor: Union[str, Callable] = None
 
-    def __init__(self, name: str, header: str = None, accessor: Union[str, callable] = None):
-        self.name = name
-        self.header = header
-        self.accessor = accessor
-
+@dataclass
 class Table:
-    columns: List[Column] = []
+    columns: List[Column] = Field(default_factory=list)
 
 class TableFormat(OutputFormat):
 

@@ -5,7 +5,7 @@ environments:
       secure: True
       username: jack
       password: secret
-      auth_address: http://auth:4643
+      auth_address: https://auth:4643
       kami_address: https://127.0.0.1:34567
     arm:
       default:
