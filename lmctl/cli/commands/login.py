@@ -1,13 +1,23 @@
 import click
 import os
-from lmctl.client import TNCOClientBuilder, ClientCredentialsAuth, UserPassAuth, LegacyUserPassAuth, JwtTokenAuth, TOKEN_AUTH_MODE, OAUTH_MODE, ZEN_AUTH_MODE
-from lmctl.config import ConfigFinder, find_config_location, write_config
+import logging
+from pydantic import ValidationError
+from lmctl.client import TOKEN_AUTH_MODE, OAUTH_MODE, ZEN_AUTH_MODE
+from lmctl.config import find_config_location, write_config
 from lmctl.environment import TNCOEnvironment, EnvironmentGroup
 from lmctl.cli.controller import get_global_controller, CLIController
-from lmctl.cli.cmd_tags import settings_tag
+from lmctl.cli.commands.utils import mutually_exclusive_group
 
-@settings_tag
-@click.command(short_help='Authenticate and save credentials', help='Authenticate with an environment and save credentials in the lmctl config file for subsequent use')
+logger = logging.getLogger(__name__)
+
+@click.command(short_help='Authenticate and optionally save credentials', help='''\
+    Authenticates with an environment and save the access token in your lmctl config file for subsequent use. 
+    \n\nA single use token is obtained using the credentials and this token is persisted in the lmctl config file, instead of your credentials. Once the token has expired, you will no longer be able to access this environment and will need to call "login" again.
+    \n\nTo avoid leaking your credentials in your command history it is recommended that you exclude "--client-secret", "--password" and "--api-key" from your command. You will be prompted for these where appropriate.
+    \n\nUsing "--save-creds" will persist the credentials in the lmctl config file instead, which will allow lmctl to reauthenticate on your behalf when the current access token expires. This is discouraged as the config file is plain text and easily accessed on your environment.
+    \n\nYou can check the contents of your local lmctl config file at any time with "lmctl get config"
+    '''
+)
 @click.pass_context
 @click.argument('address')
 @click.option('-u', '--username', default=None, help='Username')
@@ -22,6 +32,18 @@ from lmctl.cli.cmd_tags import settings_tag
 @click.option('--print', 'print_token', is_flag=True, default=False, help='Print the access token rather than saving it')
 @click.option('-y', 'yes_to_prompts', is_flag=True, default=False, show_default=True, help='Force command to accept all confirmation prompts e.g. to override existing environment with the same name')
 @click.option('--zen', 'is_zen', is_flag=True, default=False, help='Indicate that the Zen authentication method should be used (must provide --api-key)')
+@mutually_exclusive_group(
+    ('token', '--token'),
+    mutex_with=[
+        ('username', '--username'),
+        ('password', '-p, --pwd, --password'), 
+        ('client_id', '--client-id'),
+        ('client_secret', '--client-secret'),
+        ('auth_address', '--auth-address'),
+        ('api-key', '--api-key'),
+        ('is_zen', '--zen'),
+    ]
+)
 def login(ctx: click.Context, address: str, username: str = None, pwd: str = None, api_key: str = None, client_id: str = None, client_secret: str = None, 
             token: str = None, name: str = None, auth_address: str = None, save_creds: bool = False, yes_to_prompts: bool = False, print_token: bool = False, is_zen: bool = False):
     
@@ -30,19 +52,8 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
     if not os.path.exists(path):
         with open(path, 'w') as f:
             f.write('environments: {}')
-
+    
     ctl = get_global_controller(override_config_path=path)
-
-    _error_if_set(ctx, '--token', token, '--username', username)
-    _error_if_set(ctx, '--token', token, '-p, --pwd, --password', pwd)
-    _error_if_set(ctx, '--token', token, '--client', client_id)
-    _error_if_set(ctx, '--token', token, '--client-secret', client_secret)
-    _error_if_set(ctx, '--token', token, '--auth-address', auth_address)
-    _error_if_set(ctx, '--token', token, '--api-key', api_key)
-    if is_zen:
-        # Only test "is_zen" when set to True
-        _error_if_set(ctx, '--token', token, '--zen', is_zen)
-
 
     if token is None and client_id is None and username is None:
         # No credentials passed, must prompt
@@ -74,18 +85,27 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
     elif is_zen:
         auth_mode = ZEN_AUTH_MODE
 
-    tnco_env = TNCOEnvironment(
-        address=address, 
-        secure=True,
-        client_id=client_id,
-        client_secret=client_secret,
-        username=username,
-        password=pwd,
-        api_key=api_key,
-        token=token,
-        auth_mode=auth_mode,
-        auth_address=auth_address
-    )
+    try:
+        tnco_env = TNCOEnvironment(
+            address=address, 
+            secure=True,
+            client_id=client_id,
+            client_secret=client_secret,
+            username=username,
+            password=pwd,
+            api_key=api_key,
+            token=token,
+            auth_mode=auth_mode,
+            auth_address=auth_address
+        )
+    except ValidationError as e:
+        logger.exception('Error creating TNCOEnvironment')
+        user_friendly_errors = []
+        for error in e.errors():
+            user_friendly_errors.append(error['msg'])
+        user_friendly_errors_str = ', '.join(user_friendly_errors)
+        ctl.io.print_error(f'Error: {user_friendly_errors_str}')
+        exit(1)
     client = tnco_env.build_client()
     access_token = client.get_access_token()
 
@@ -137,10 +157,6 @@ def _ensure_name(ctl: CLIController, name: str = None, yes_to_prompts: bool = Fa
         if not yes_to_prompts:
             ctl.io.confirm_prompt(f'An environment with name "{name}" already exists, do you want to override it?', abort=True)
     return name
-        
-def _error_if_set(ctx: click.Context, first_opt: str, first_opt_value: str, second_opt: str, second_opt_value: str):
-    if first_opt_value is not None and second_opt_value is not None:
-        raise click.BadArgumentUsage(message=f'Do not use "{first_opt}" option when using "{second_opt}" option', ctx=ctx)
 
 def _prompt_if_not_set(ctl: CLIController, name: str, value: str = None, secret: bool = False) -> str:
     if value is None:

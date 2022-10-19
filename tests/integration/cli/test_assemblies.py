@@ -1,14 +1,15 @@
 from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict
 from lmctl.cli.entry import cli
-from lmctl.cli.format import TableFormat
+from lmctl.cli.format import TableFormat, Table
 from lmctl.client import TNCOClientHttpError
-from lmctl.cli.commands.targets.assemblies import AssemblyTable
+from lmctl.cli.commands.assemblies import default_columns
 from lmctl.client.models import CreateAssemblyIntent, DeleteAssemblyIntent
 import yaml
 import os
 import json
 import time
+import unittest
 
 class TestAssemblies(CLIIntegrationTest):
 
@@ -81,11 +82,11 @@ class TestAssemblies(CLIIntegrationTest):
                 DeleteAssemblyIntent(assembly_name=name)
             )
             tester.wait_until(cls._build_check_process_success(tester), delete_process_id)
-        time.sleep(0.5)
-        tester.default_client.deployment_locations.delete(cls.test_case_props['deployment_location']['name'])
+        time.sleep(1.5)
         tester.default_client.resource_packages.delete(cls.test_case_props['res_pkg_id'])
         tester.default_client.descriptors.delete(cls.test_case_props['assembly_descriptor']['name'])
         tester.default_client.descriptors.delete(cls.test_case_props['resource_descriptor']['name'])
+        tester.default_client.deployment_locations.delete(cls.test_case_props['deployment_location']['name'])
     
     def _match_assembly(self, x: Dict, y: Dict):
         if x.get('id') != y.get('id'):
@@ -115,7 +116,7 @@ class TestAssemblies(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, 
             ['get', 'assembly', '-e', 'default', self.test_case_props['assembly_A_name']]
         )
-        table_format = TableFormat(table=AssemblyTable())
+        table_format = TableFormat(table=Table(columns=default_columns))
         expected_output = table_format.convert_element(target_assembly)
         self.assert_output(result, expected_output)
 
@@ -124,7 +125,7 @@ class TestAssemblies(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, 
             ['get', 'assembly', '-e', 'default', '--id', self.test_case_props['assembly_A_id']]
         )
-        table_format = TableFormat(table=AssemblyTable())
+        table_format = TableFormat(table=Table(columns=default_columns))
         expected_output = table_format.convert_element(target_assembly)
         self.assert_output(result, expected_output)
 
@@ -185,7 +186,7 @@ class TestAssemblies(CLIIntegrationTest):
         self.assert_has_system_exit(result)
         expected_output = 'Usage: cli get assembly [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli get assembly --help\' for help.'
-        expected_output += '\n\nError: Do not use "NAME" argument when using the "--id" option'
+        expected_output += '\n\nError: Cannot use "--id" with "name" as they are mutually exclusive'
         self.assert_output(result, expected_output)
     
     def test_get_with_id_and_name_contains_fails(self):
@@ -195,7 +196,7 @@ class TestAssemblies(CLIIntegrationTest):
         self.assert_has_system_exit(result)
         expected_output = 'Usage: cli get assembly [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli get assembly --help\' for help.'
-        expected_output += '\n\nError: Do not use "--id" option when using the "--name-contains" option'
+        expected_output += '\n\nError: Cannot use "--name-contains" with "--id" as they are mutually exclusive'
         self.assert_output(result, expected_output)
     
     def test_get_with_id_and_topN_fails(self):
@@ -205,7 +206,7 @@ class TestAssemblies(CLIIntegrationTest):
         self.assert_has_system_exit(result)
         expected_output = 'Usage: cli get assembly [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli get assembly --help\' for help.'
-        expected_output += '\n\nError: Do not use "--id" option when using the "--topN" option'
+        expected_output += '\n\nError: Cannot use "--topN" with "--id" as they are mutually exclusive'
         self.assert_output(result, expected_output)
     
     def test_get_with_name_and_name_contains_fails(self):
@@ -215,7 +216,7 @@ class TestAssemblies(CLIIntegrationTest):
         self.assert_has_system_exit(result)
         expected_output = 'Usage: cli get assembly [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli get assembly --help\' for help.'
-        expected_output += '\n\nError: Do not use "NAME" argument when using the "--name-contains" option'
+        expected_output += '\n\nError: Cannot use "--name-contains" with "name" as they are mutually exclusive'
         self.assert_output(result, expected_output)
     
     def test_get_with_name_and_topN_fails(self):
@@ -225,7 +226,7 @@ class TestAssemblies(CLIIntegrationTest):
         self.assert_has_system_exit(result)
         expected_output = 'Usage: cli get assembly [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli get assembly --help\' for help.'
-        expected_output += '\n\nError: Do not use "NAME" argument when using the "--topN" option'
+        expected_output += '\n\nError: Cannot use "--topN" with "name" as they are mutually exclusive'
         self.assert_output(result, expected_output)
     
     def test_get_with_name_contains_and_topN_fails(self):
@@ -235,7 +236,7 @@ class TestAssemblies(CLIIntegrationTest):
         self.assert_has_system_exit(result)
         expected_output = 'Usage: cli get assembly [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli get assembly --help\' for help.'
-        expected_output += '\n\nError: Do not use "--name-contains" option when using the "--topN" option'
+        expected_output += '\n\nError: Cannot use "--topN" with "--name-contains" as they are mutually exclusive'
         self.assert_output(result, expected_output)
     
     def test_get_without_id_or_name_or_name_contains_or_topN_fails(self):
@@ -245,7 +246,7 @@ class TestAssemblies(CLIIntegrationTest):
         self.assert_has_system_exit(result)
         expected_output = 'Usage: cli get assembly [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli get assembly --help\' for help.'
-        expected_output += '\n\nError: Must set either "NAME" argument or "--id" option or "--name-contains" option or "--topN" option'
+        expected_output += '\n\nError: Must identify the target by specifying one parameter from ["name", "--id", "--name-contains", "--topN"] or by including one of the following attributes ["assemblyName", "assemblyId"] in the given object/file'
         self.assert_output(result, expected_output)
     
     def test_create_with_yaml_file(self):
@@ -318,8 +319,8 @@ class TestAssemblies(CLIIntegrationTest):
             DeleteAssemblyIntent(assembly_name=assembly_name)
         )
         self.tester.wait_until(self._build_check_process_success(self.tester), delete_process_id)
-
-    def test_create_with_file_and_set_fails(self):
+    
+    def test_create_with_file_and_set_merges(self):
         assembly_name = self.tester.exec_prepended_name('assembly-cmd-create-with-file-and-set')
         assembly = {
             'assemblyName': assembly_name,
@@ -335,13 +336,20 @@ class TestAssemblies(CLIIntegrationTest):
         create_result = self.cli_runner.invoke(cli, [
             'create', 'assembly', '-e', 'default', '-f', yml_file, '--set', 'intendedState=Inactive'
             ])
-        self.assert_has_system_exit(create_result)
-        expected_output = 'Usage: cli create assembly [OPTIONS]'
-        expected_output += '\nTry \'cli create assembly --help\' for help.'
-        expected_output += '\n\nError: Do not use "--set" option when using "-f, --file" option'
-        self.assert_output(create_result, expected_output)
+
+        self.assert_no_errors(create_result)
+        self.assertTrue(create_result.output.startswith('Accepted - Process: '))
+        process_id = create_result.output[len('Accepted - Process: ')-1:].strip()
+        self.tester.wait_until(self._build_check_process_success(self.tester), process_id)
+        #Get the Assembly and confirm the update
+        get_api_result = self.tester.default_client.assemblies.get_by_name(assembly_name)
+        self.assertEqual(get_api_result['state'], 'Inactive')
+        delete_process_id =  self.tester.default_client.assemblies.intent_delete(
+            DeleteAssemblyIntent(assembly_name=assembly_name)
+        )
+        self.tester.wait_until(self._build_check_process_success(self.tester), delete_process_id)
     
-    def test_create_with_file_and_prop_fails(self):
+    def test_create_with_file_and_prop_merges(self):
         assembly_name = self.tester.exec_prepended_name('assembly-cmd-create-with-file-and-prop')
         assembly = {
             'assemblyName': assembly_name,
@@ -355,13 +363,24 @@ class TestAssemblies(CLIIntegrationTest):
         }
         yml_file = self.tester.create_yaml_file('assembly-cmd-create-with-file-and-prop.yaml', assembly)
         create_result = self.cli_runner.invoke(cli, [
-            'create', 'assembly', '-e', 'default', '-f', yml_file, '--prop', 'resourceManager=AnotherBrent'
+            'create', 'assembly', '-e', 'default', '-f', yml_file, '--prop', 'dummyProp=B'
             ])
-        self.assert_has_system_exit(create_result)
-        expected_output = 'Usage: cli create assembly [OPTIONS]'
-        expected_output += '\nTry \'cli create assembly --help\' for help.'
-        expected_output += '\n\nError: Do not use "--prop" option when using "-f, --file" option'
-        self.assert_output(create_result, expected_output)
+        self.assert_no_errors(create_result)
+        self.assertTrue(create_result.output.startswith('Accepted - Process: '))
+        process_id = create_result.output[len('Accepted - Process: ')-1:].strip()
+        self.tester.wait_until(self._build_check_process_success(self.tester), process_id)
+        #Get the Assembly and confirm the update
+        get_api_result = self.tester.default_client.assemblies.get_by_name(assembly_name)
+        self.assertCountEqual(get_api_result['properties'], [
+            {'name': 'resourceManager', 'type': 'string', 'value': 'brent'},
+            {'name': 'deploymentLocation', 'type': 'string', 'value': self.test_case_props['deployment_location']['name']},
+            {'name': 'dummyProp', 'type': 'string', 'value': 'B'}
+        ])
+        delete_process_id =  self.tester.default_client.assemblies.intent_delete(
+            DeleteAssemblyIntent(assembly_name=assembly_name)
+        )
+        self.tester.wait_until(self._build_check_process_success(self.tester), delete_process_id)
+    
     
     def test_update_with_yaml_file(self):
         assembly_name = self.tester.exec_prepended_name('assembly-cmd-update-with-yaml')
@@ -464,7 +483,8 @@ class TestAssemblies(CLIIntegrationTest):
         )
         self.tester.wait_until(self._build_check_process_success(self.tester), delete_process_id)
     
-    def test_update_with_file_and_set_fails(self):
+    @unittest.skip("Currently can --set anything mutable on update")
+    def test_update_with_file_and_set_merges(self):
         assembly_name = self.tester.exec_prepended_name('assembly-cmd-update-with-file-and-set')
         assembly = {
             'assemblyName': assembly_name,
@@ -476,17 +496,28 @@ class TestAssemblies(CLIIntegrationTest):
                     'dummyProp': 'A'
                 }
         }
+        create_process_id = self.tester.default_client.assemblies.intent_create(assembly)
+        self.tester.wait_until(self._build_check_process_success(self.tester), create_process_id)
+        assembly['properties']['dummyProp'] = 'B'
         yml_file = self.tester.create_yaml_file('assembly-cmd-update-with-file-and-set.yaml', assembly)
         update_result = self.cli_runner.invoke(cli, [
-            'update', 'assembly', '-e', 'default', '-f', yml_file, '--set', 'intendedState=Inactive'
+            'update', 'assembly', '-e', 'default', '-f', yml_file, '--set', 'dummyProp=C'
             ])
-        self.assert_has_system_exit(update_result)
-        expected_output = 'Usage: cli update assembly [OPTIONS] [NAME]'
-        expected_output += '\nTry \'cli update assembly --help\' for help.'
-        expected_output += '\n\nError: Do not use "--set" option when using "-f, --file" option'
-        self.assert_output(update_result, expected_output)
+        update_process_id = update_result.output[len('Accepted - Process: ')-1:].strip()
+        self.tester.wait_until(self._build_check_process_success(self.tester), update_process_id)
+        #Get the Assembly and confirm the update
+        get_api_result = self.tester.default_client.assemblies.get_by_name(assembly_name)
+        self.assertCountEqual(get_api_result['properties'], [
+            {'name': 'resourceManager', 'type': 'string', 'value': 'brent'},
+            {'name': 'deploymentLocation', 'type': 'string', 'value': self.test_case_props['deployment_location']['name']},
+            {'name': 'dummyProp', 'type': 'string', 'value': 'C'}
+        ])
+        delete_process_id =  self.tester.default_client.assemblies.intent_delete(
+            DeleteAssemblyIntent(assembly_name=assembly_name)
+        )
+        self.tester.wait_until(self._build_check_process_success(self.tester), delete_process_id)
     
-    def test_update_with_file_and_prop_fails(self):
+    def test_update_with_file_and_prop_merges(self):
         assembly_name = self.tester.exec_prepended_name('assembly-cmd-update-with-file-and-prop')
         assembly = {
             'assemblyName': assembly_name,
@@ -498,15 +529,26 @@ class TestAssemblies(CLIIntegrationTest):
                     'dummyProp': 'A'
                 }
         }
-        yml_file = self.tester.create_yaml_file('assembly-cmd-update-with-file-and-prop.yaml', assembly)
+        create_process_id = self.tester.default_client.assemblies.intent_create(assembly)
+        self.tester.wait_until(self._build_check_process_success(self.tester), create_process_id)
+        assembly['properties']['dummyProp'] = 'B'
+        yml_file = self.tester.create_yaml_file('assembly-cmd-update-with-file-and-set.yaml', assembly)
         update_result = self.cli_runner.invoke(cli, [
-            'update', 'assembly', '-e', 'default', '-f', yml_file, '--prop', 'resourceManager=AnotherBrent'
+            'update', 'assembly', '-e', 'default', '-f', yml_file, '--prop', 'dummyProp=C'
             ])
-        self.assert_has_system_exit(update_result)
-        expected_output = 'Usage: cli update assembly [OPTIONS] [NAME]'
-        expected_output += '\nTry \'cli update assembly --help\' for help.'
-        expected_output += '\n\nError: Do not use "--prop" option when using "-f, --file" option'
-        self.assert_output(update_result, expected_output)
+        update_process_id = update_result.output[len('Accepted - Process: ')-1:].strip()
+        self.tester.wait_until(self._build_check_process_success(self.tester), update_process_id)
+        #Get the Assembly and confirm the update
+        get_api_result = self.tester.default_client.assemblies.get_by_name(assembly_name)
+        self.assertCountEqual(get_api_result['properties'], [
+            {'name': 'resourceManager', 'type': 'string', 'value': 'brent'},
+            {'name': 'deploymentLocation', 'type': 'string', 'value': self.test_case_props['deployment_location']['name']},
+            {'name': 'dummyProp', 'type': 'string', 'value': 'C'}
+        ])
+        delete_process_id =  self.tester.default_client.assemblies.intent_delete(
+            DeleteAssemblyIntent(assembly_name=assembly_name)
+        )
+        self.tester.wait_until(self._build_check_process_success(self.tester), delete_process_id)
     
     def test_delete_with_name(self):
         assembly_name = self.tester.exec_prepended_name('assembly-cmd-delete-with-name')
@@ -561,7 +603,7 @@ class TestAssemblies(CLIIntegrationTest):
         self.assert_has_system_exit(delete_result)
         expected_output = 'Usage: cli delete assembly [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli delete assembly --help\' for help.'
-        expected_output += '\n\nError: Do not use "NAME" argument when using "--id" option'
+        expected_output += '\n\nError: Cannot use "--id" with "name" as they are mutually exclusive'
         self.assert_output(delete_result, expected_output)
     
     def test_delete_with_yaml_file(self):
@@ -633,56 +675,8 @@ class TestAssemblies(CLIIntegrationTest):
         self.assertTrue(delete_result.output.startswith('Accepted - Process: '))
         delete_process_id = delete_result.output[len('Accepted - Process: ')-1:].strip()
         self.tester.wait_until(self._build_check_process_success(self.tester), delete_process_id)
-    
-    def test_delete_with_id_and_file_including_same_id(self):
-        assembly_name = self.tester.exec_prepended_name('assembly-cmd-delete-with-same-id-in-file')
-        assembly = {
-            'assemblyName': assembly_name,
-            'descriptorName': self.test_case_props['assembly_descriptor']['name'],
-            'intendedState': 'Active',
-            'properties': {
-                    'resourceManager': 'brent',
-                    'deploymentLocation': self.test_case_props['deployment_location']['name'],
-                    'dummyProp': 'A'
-                }
-        }
-        create_process_id = self.tester.default_client.assemblies.intent_create(assembly)
-        create_process = self.tester.default_client.processes.get(create_process_id)
-        assembly_id = create_process.get('assemblyId')
-        self.tester.wait_until(self._build_check_process_success(self.tester), create_process_id)
-        assembly['assemblyId'] = assembly_id
-        del assembly['assemblyName']
-        yml_file = self.tester.create_yaml_file('assembly-cmd-delete-with-same-id-in-file.yaml', assembly)
-        delete_result = self.cli_runner.invoke(cli, [
-            'delete', 'assembly', '-e', 'default', '-f', yml_file, '--id', assembly_id
-            ])
-        self.assertTrue(delete_result.output.startswith('Accepted - Process: '))
-        delete_process_id = delete_result.output[len('Accepted - Process: ')-1:].strip()
-        self.tester.wait_until(self._build_check_process_success(self.tester), delete_process_id)
-    
-    def test_delete_with_name_and_file_including_same_name(self):
-        assembly_name = self.tester.exec_prepended_name('assembly-cmd-delete-with-same-name-in-file')
-        assembly = {
-            'assemblyName': assembly_name,
-            'descriptorName': self.test_case_props['assembly_descriptor']['name'],
-            'intendedState': 'Active',
-            'properties': {
-                    'resourceManager': 'brent',
-                    'deploymentLocation': self.test_case_props['deployment_location']['name'],
-                    'dummyProp': 'A'
-                }
-        }
-        create_process_id = self.tester.default_client.assemblies.intent_create(assembly)
-        self.tester.wait_until(self._build_check_process_success(self.tester), create_process_id)
-        yml_file = self.tester.create_yaml_file('assembly-cmd-delete-with-same-name-in-file.yaml', assembly)
-        delete_result = self.cli_runner.invoke(cli, [
-            'delete', 'assembly', '-e', 'default', '-f', yml_file, assembly_name
-            ])
-        self.assertTrue(delete_result.output.startswith('Accepted - Process: '))
-        delete_process_id = delete_result.output[len('Accepted - Process: ')-1:].strip()
-        self.tester.wait_until(self._build_check_process_success(self.tester), delete_process_id)
-    
-    def test_delete_with_id_and_file_including_different_id_fails(self):
+
+    def test_delete_with_id_and_file_fails(self):
         assembly = {
             'assemblyId': '123',
             'descriptorName': self.test_case_props['assembly_descriptor']['name'],
@@ -693,17 +687,17 @@ class TestAssemblies(CLIIntegrationTest):
                     'dummyProp': 'A'
                 }
         }
-        yml_file = self.tester.create_yaml_file('assembly-cmd-delete-with-diff-id-in-file.yaml', assembly)
+        yml_file = self.tester.create_yaml_file('assembly-cmd-delete-id-and-file.yaml', assembly)
         delete_result = self.cli_runner.invoke(cli, [
             'delete', 'assembly', '-e', 'default', '-f', yml_file, '--id', 'SomeOtherId'
             ])
         self.assert_has_system_exit(delete_result)
         expected_output = 'Usage: cli delete assembly [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli delete assembly --help\' for help.'
-        expected_output += '\n\nError: Request includes "assemblyId" value of "123" but you have set the "--id" option value to a different value of "SomeOtherId" - use one or the other'
+        expected_output += '\n\nError: Cannot use "-f,--file" with "--id" as they are mutually exclusive'
         self.assert_output(delete_result, expected_output)
     
-    def test_delete_with_name_and_file_including_different_name_fails(self):
+    def test_delete_with_name_and_file(self):
         assembly = {
             'assemblyName': 'Test',
             'descriptorName': self.test_case_props['assembly_descriptor']['name'],
@@ -714,14 +708,14 @@ class TestAssemblies(CLIIntegrationTest):
                     'dummyProp': 'A'
                 }
         }
-        yml_file = self.tester.create_yaml_file('assembly-cmd-delete-with-diff-id-in-file.yaml', assembly)
+        yml_file = self.tester.create_yaml_file('assembly-cmd-delete-name-and-file.yaml', assembly)
         delete_result = self.cli_runner.invoke(cli, [
             'delete', 'assembly', '-e', 'default', '-f', yml_file, 'SomeOtherName'
             ])
         self.assert_has_system_exit(delete_result)
         expected_output = 'Usage: cli delete assembly [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli delete assembly --help\' for help.'
-        expected_output += '\n\nError: Request includes "assemblyName" value of "Test" but you have set the "NAME" argument value to a different value of "SomeOtherName" - use one or the other'
+        expected_output += '\n\nError: Cannot use "-f,--file" with "name" as they are mutually exclusive'
         self.assert_output(delete_result, expected_output)
     
     def test_changestate_with_name(self):
@@ -780,12 +774,12 @@ class TestAssemblies(CLIIntegrationTest):
     
     def test_changestate_with_name_and_id_fails(self):
         changestate_result = self.cli_runner.invoke(cli, [
-            'changestate', 'assembly', '-e', 'default', 'SomeName', '--id', 'SomeId'
+            'changestate', 'assembly', '-e', 'default', 'SomeName', '--id', 'SomeId', '--state', 'Active'
             ])
         self.assert_has_system_exit(changestate_result)
         expected_output = 'Usage: cli changestate assembly [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli changestate assembly --help\' for help.'
-        expected_output += '\n\nError: Do not use "NAME" argument when using "--id" option'
+        expected_output += '\n\nError: Cannot use "--id" with "name" as they are mutually exclusive'
         self.assert_output(changestate_result, expected_output)
     
     def test_changestate_with_yaml_file(self):
@@ -875,68 +869,8 @@ class TestAssemblies(CLIIntegrationTest):
         self.assertEqual(assembly['state'], 'Active')
         delete_process_id = self.tester.default_client.assemblies.intent_delete(DeleteAssemblyIntent(assembly_name=assembly_name))
         self.tester.wait_until(self._build_check_process_success(self.tester), delete_process_id)
-    
-    def test_changestate_with_id_and_file_including_same_id(self):
-        assembly_name = self.tester.exec_prepended_name('assembly-cmd-changestate-with-same-id-in-file')
-        assembly = {
-            'assemblyName': assembly_name,
-            'descriptorName': self.test_case_props['assembly_descriptor']['name'],
-            'intendedState': 'Inactive',
-            'properties': {
-                    'resourceManager': 'brent',
-                    'deploymentLocation': self.test_case_props['deployment_location']['name'],
-                    'dummyProp': 'A'
-                }
-        }
-        create_process_id = self.tester.default_client.assemblies.intent_create(assembly)
-        create_process = self.tester.default_client.processes.get(create_process_id)
-        assembly_id = create_process.get('assemblyId')
-        self.tester.wait_until(self._build_check_process_success(self.tester), create_process_id)
-        assembly['assemblyId'] = assembly_id
-        assembly['intendedState'] = 'Active'
-        del assembly['assemblyName']
-        yml_file = self.tester.create_yaml_file('assembly-cmd-changestate-with-same-id-in-file.yaml', assembly)
-        changestate_result = self.cli_runner.invoke(cli, [
-            'changestate', 'assembly', '-e', 'default', '-f', yml_file, '--id', assembly_id
-            ])
-        self.assert_no_errors(changestate_result)
-        self.assertTrue(changestate_result.output.startswith('Accepted - Process: '))
-        changestate_process_id = changestate_result.output[len('Accepted - Process: ')-1:].strip()
-        self.tester.wait_until(self._build_check_process_success(self.tester), changestate_process_id)
-        assembly = self.tester.default_client.assemblies.get_by_name(assembly_name)
-        self.assertEqual(assembly['state'], 'Active')
-        delete_process_id = self.tester.default_client.assemblies.intent_delete(DeleteAssemblyIntent(assembly_name=assembly_name))
-        self.tester.wait_until(self._build_check_process_success(self.tester), delete_process_id)
-    
-    def test_changestate_with_name_and_file_including_same_name(self):
-        assembly_name = self.tester.exec_prepended_name('assembly-cmd-changestate-with-same-name-in-file')
-        assembly = {
-            'assemblyName': assembly_name,
-            'descriptorName': self.test_case_props['assembly_descriptor']['name'],
-            'intendedState': 'Inactive',
-            'properties': {
-                    'resourceManager': 'brent',
-                    'deploymentLocation': self.test_case_props['deployment_location']['name'],
-                    'dummyProp': 'A'
-                }
-        }
-        create_process_id = self.tester.default_client.assemblies.intent_create(assembly)
-        self.tester.wait_until(self._build_check_process_success(self.tester), create_process_id)
-        assembly['intendedState'] = 'Active'
-        yml_file = self.tester.create_yaml_file('assembly-cmd-changestate-with-same-name-in-file.yaml', assembly)
-        changestate_result = self.cli_runner.invoke(cli, [
-            'changestate', 'assembly', '-e', 'default', '-f', yml_file, assembly_name
-            ])
-        self.assert_no_errors(changestate_result)
-        self.assertTrue(changestate_result.output.startswith('Accepted - Process: '))
-        changestate_process_id = changestate_result.output[len('Accepted - Process: ')-1:].strip()
-        self.tester.wait_until(self._build_check_process_success(self.tester), changestate_process_id)
-        assembly = self.tester.default_client.assemblies.get_by_name(assembly_name)
-        self.assertEqual(assembly['state'], 'Active')
-        delete_process_id = self.tester.default_client.assemblies.intent_delete(DeleteAssemblyIntent(assembly_name=assembly_name))
-        self.tester.wait_until(self._build_check_process_success(self.tester), delete_process_id)
-    
-    def test_changestate_with_id_and_file_including_different_id_fails(self):
+
+    def test_changestate_with_id_and_file_fails(self):
         assembly = {
             'assemblyId': '123',
             'descriptorName': self.test_case_props['assembly_descriptor']['name'],
@@ -947,17 +881,17 @@ class TestAssemblies(CLIIntegrationTest):
                     'dummyProp': 'A'
                 }
         }
-        yml_file = self.tester.create_yaml_file('assembly-cmd-changestate-with-diff-id-in-file.yaml', assembly)
+        yml_file = self.tester.create_yaml_file('assembly-cmd-changestate-id-and-file.yaml', assembly)
         changestate_result = self.cli_runner.invoke(cli, [
             'changestate', 'assembly', '-e', 'default', '-f', yml_file, '--id', 'SomeOtherId'
             ])
         self.assert_has_system_exit(changestate_result)
         expected_output = 'Usage: cli changestate assembly [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli changestate assembly --help\' for help.'
-        expected_output += '\n\nError: Request includes "assemblyId" value of "123" but you have set the "--id" option value to a different value of "SomeOtherId" - use one or the other'
+        expected_output += '\n\nError: Cannot use "-f,--file" with "--id" as they are mutually exclusive'
         self.assert_output(changestate_result, expected_output)
     
-    def test_changestate_with_name_and_file_including_different_name_fails(self):
+    def test_changestate_with_name_and_file_fails(self):
         assembly = {
             'assemblyName': 'Test',
             'descriptorName': self.test_case_props['assembly_descriptor']['name'],
@@ -968,64 +902,15 @@ class TestAssemblies(CLIIntegrationTest):
                     'dummyProp': 'A'
                 }
         }
-        yml_file = self.tester.create_yaml_file('assembly-cmd-changestate-with-diff-id-in-file.yaml', assembly)
+        yml_file = self.tester.create_yaml_file('assembly-cmd-changestate-id-and-file.yaml', assembly)
         changestate_result = self.cli_runner.invoke(cli, [
             'changestate', 'assembly', '-e', 'default', '-f', yml_file, 'SomeOtherName'
             ])
         self.assert_has_system_exit(changestate_result)
         expected_output = 'Usage: cli changestate assembly [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli changestate assembly --help\' for help.'
-        expected_output += '\n\nError: Request includes "assemblyName" value of "Test" but you have set the "NAME" argument value to a different value of "SomeOtherName" - use one or the other'
+        expected_output += '\n\nError: Cannot use "-f,--file" with "name" as they are mutually exclusive'
         self.assert_output(changestate_result, expected_output)
-    
-    def test_changestate_with_state_and_file_including_diff_state_fails(self):
-        assembly = {
-            'assemblyName': 'Test',
-            'descriptorName': self.test_case_props['assembly_descriptor']['name'],
-            'intendedState': 'Inactive',
-            'properties': {
-                    'resourceManager': 'brent',
-                    'deploymentLocation': self.test_case_props['deployment_location']['name'],
-                    'dummyProp': 'A'
-                }
-        }
-        yml_file = self.tester.create_yaml_file('assembly-cmd-changestate-with-diff-state-in-file.yaml', assembly)
-        changestate_result = self.cli_runner.invoke(cli, [
-            'changestate', 'assembly', '-e', 'default', '-f', yml_file, '--state', 'Active'
-            ])
-        self.assert_has_system_exit(changestate_result)
-        expected_output = 'Usage: cli changestate assembly [OPTIONS] [NAME]'
-        expected_output += '\nTry \'cli changestate assembly --help\' for help.'
-        expected_output += '\n\nError: Request includes "intendedState" value of "Inactive" but you have set the "--intended-state, --state" option value to a different value of "Active" - use one or the other'
-        self.assert_output(changestate_result, expected_output)
-    
-    def test_changestate_with_state_and_file_including_same_state(self):
-        assembly_name = self.tester.exec_prepended_name('assembly-cmd-changestate-with-same-state-in-file')
-        assembly = {
-            'assemblyName': assembly_name,
-            'descriptorName': self.test_case_props['assembly_descriptor']['name'],
-            'intendedState': 'Inactive',
-            'properties': {
-                    'resourceManager': 'brent',
-                    'deploymentLocation': self.test_case_props['deployment_location']['name'],
-                    'dummyProp': 'A'
-                }
-        }
-        create_process_id = self.tester.default_client.assemblies.intent_create(assembly)
-        self.tester.wait_until(self._build_check_process_success(self.tester), create_process_id)
-        assembly['intendedState'] = 'Active'
-        yml_file = self.tester.create_yaml_file('assembly-cmd-changestate-with-same-state-in-file.yaml', assembly)
-        changestate_result = self.cli_runner.invoke(cli, [
-            'changestate', 'assembly', '-e', 'default', '-f', yml_file, assembly_name, '--state', 'Active'
-            ])
-        self.assert_no_errors(changestate_result)
-        self.assertTrue(changestate_result.output.startswith('Accepted - Process: '))
-        changestate_process_id = changestate_result.output[len('Accepted - Process: ')-1:].strip()
-        self.tester.wait_until(self._build_check_process_success(self.tester), changestate_process_id)
-        assembly = self.tester.default_client.assemblies.get_by_name(assembly_name)
-        self.assertEqual(assembly['state'], 'Active')
-        delete_process_id = self.tester.default_client.assemblies.intent_delete(DeleteAssemblyIntent(assembly_name=assembly_name))
-        self.tester.wait_until(self._build_check_process_success(self.tester), delete_process_id)
         
     def test_changestate_with_no_state_fails(self):
         assembly = {

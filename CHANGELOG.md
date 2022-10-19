@@ -1,5 +1,22 @@
 # Change Log
 
+## [3.4.0](https://github.com/IBM/lmctl/tree/3.4.0) (2022-10-19)
+[Full Changelog](https://github.com/IBM/lmctl/compare/3.3.0...3.4.0)
+
+**Implemented Enhancements:**
+
+- Remove private rsa key from lmctl for netconf driver [\#143](https://github.com/IBM/lmctl/issues/143)
+- Support `--set` and `-f` option on create/update commands. Side effect from [\#148](https://github.com/IBM/lmctl/issues/148)
+- Improve URL parameters by preventing protocol "http" and use "https" as the default [\#153](https://github.com/IBM/lmctl/issues/153)
+
+**Fixed Bugs:**
+
+- Use Pydantic 1.10 or lower [\#156](https://github.com/IBM/lmctl/issues/156)
+
+**Internals:**
+
+- Internal CLI refactoring to improve efficiency of adding new commands [\#148](https://github.com/IBM/lmctl/issues/148)
+
 ## [3.3.0](https://github.com/IBM/lmctl/tree/3.3.0) (2022-06-09)
 [Full Changelog](https://github.com/IBM/lmctl/compare/3.2.2...3.3.0)
 

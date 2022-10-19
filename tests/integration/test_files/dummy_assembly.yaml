@@ -6,6 +6,8 @@ properties:
     type: string
   dummyProp:
     type: string
+  dummyIntProp:
+    type: integer
 composition: 
   A: 
     type: resource::[[ execution_id ]]-lmctl-dummy-[[ suffix ]]::1.0

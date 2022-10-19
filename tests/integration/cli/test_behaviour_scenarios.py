@@ -1,10 +1,10 @@
 from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict
 from lmctl.cli.entry import cli
-from lmctl.cli.format import TableFormat
+from lmctl.cli.format import TableFormat, Table
 from lmctl.client import TNCOClientHttpError
 from lmctl.client.models import CreateAssemblyIntent, DeleteAssemblyIntent
-from lmctl.cli.commands.targets.behaviour_scenarios import ScenarioTable
+from lmctl.cli.commands.behaviour_scenarios import default_columns
 import yaml
 import json
 import time
@@ -138,7 +138,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, [
             'get', 'scenario', self.test_case_props['scenario_A']['id'], '-e', 'default'
             ])
-        table_format = TableFormat(table=ScenarioTable())
+        table_format = TableFormat(table=Table(columns=default_columns))
         expected_output = table_format.convert_element(self.test_case_props['scenario_A'])
         self.assert_output(result, expected_output)
 
@@ -149,7 +149,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
         self.assert_has_system_exit(result)
         expected_output = 'Usage: cli get scenario [OPTIONS] [ID]'
         expected_output += '\nTry \'cli get scenario --help\' for help.'
-        expected_output += '\n\nError: Do not use "ID" argument when using the "--project" option'
+        expected_output += '\n\nError: Cannot use "--project" with "id" as they are mutually exclusive'
         self.assert_output(result, expected_output)
     
     def test_get_without_id_or_project_fails(self):
@@ -159,7 +159,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
         self.assert_has_system_exit(result)
         expected_output = 'Usage: cli get scenario [OPTIONS] [ID]'
         expected_output += '\nTry \'cli get scenario --help\' for help.'
-        expected_output += '\n\nError: Must set either "ID" argument or "--project" option'
+        expected_output += '\n\nError: Must identify the target by specifying one parameter from ["id", "--project"] or by including one of the following attributes ["id", "projectId"] in the given object/file'
         self.assert_output(result, expected_output)
 
     def test_create_with_yaml_file(self):
@@ -174,7 +174,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             'create', 'scenario', '-e', 'default', '-f', yml_file
             ])
         self.assertTrue(create_result.output.startswith('Created: '))
-        scenario_id = create_result.output[len('Created: ')-1:].strip()
+        scenario_id = create_result.output[len('Created: ')-1:create_result.output.index('(')].strip()
         api_get_result = self.tester.default_client.behaviour_scenarios.get(scenario_id)
         self.assertEqual(api_get_result['name'], scenario['name'])
         self.assertEqual(api_get_result['projectId'], scenario['projectId'])
@@ -193,7 +193,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             ])
         self.assert_no_errors(create_result)
         self.assertTrue(create_result.output.startswith('Created: '))
-        scenario_id = create_result.output[len('Created: ')-1:].strip()
+        scenario_id = create_result.output[len('Created: ')-1:create_result.output.index('(')].strip()
         api_get_result = self.tester.default_client.behaviour_scenarios.get(scenario_id)
         self.assertEqual(api_get_result['name'], scenario['name'])
         self.assertEqual(api_get_result['projectId'], scenario['projectId'])
@@ -210,7 +210,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             ])
         self.assert_no_errors(create_result)
         self.assertTrue(create_result.output.startswith('Created: '))
-        scenario_id = create_result.output[len('Created: ')-1:].strip()
+        scenario_id = create_result.output[len('Created: ')-1:create_result.output.index('(')].strip()
         time.sleep(0.2)
         api_get_result = self.tester.default_client.behaviour_scenarios.get(scenario_id)
         self.assertEqual(api_get_result['name'], scenario_name)
@@ -224,7 +224,8 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             'update', 'scenario', '-e', 'default', '-f', yml_file
             ])
         scenario_id = self.test_case_props['scenario_A']['id']
-        self.assert_output(update_result, f'Updated: {scenario_id}')
+        scenario_name = self.test_case_props['scenario_A']['name'] 
+        self.assert_output(update_result, f'Updated: {scenario_id} ({scenario_name})')
         time.sleep(0.2)
         api_get_result = self.tester.default_client.behaviour_scenarios.get(scenario_id)
         self.assertEqual(api_get_result['description'], 'Updated description for cmd testing with yaml')
@@ -236,31 +237,37 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             'update', 'scenario', '-e', 'default', '-f', json_file
             ])
         scenario_id = self.test_case_props['scenario_A']['id']
-        self.assert_output(update_result, f'Updated: {scenario_id}')
+        scenario_name = self.test_case_props['scenario_A']['name']
+        self.assert_output(update_result, f'Updated: {scenario_id} ({scenario_name})')
         time.sleep(0.2)
         api_get_result = self.tester.default_client.behaviour_scenarios.get(scenario_id)
         self.assertEqual(api_get_result['description'], 'Updated description for cmd testing with json')
 
     def test_update_with_set(self):
         scenario_id = self.test_case_props['scenario_A']['id']
+        scenario_name = self.test_case_props['scenario_A']['name']
         update_result = self.cli_runner.invoke(cli, [
             'update', 'scenario', '-e', 'default', scenario_id, '--set', 'description=Updated descriptor for cmd testing with --set'
             ])
-        self.assert_output(update_result, f'Updated: {scenario_id}')
+        self.assert_output(update_result, f'Updated: {scenario_id} ({scenario_name})')
         time.sleep(0.2)
         api_get_result = self.tester.default_client.behaviour_scenarios.get(scenario_id)
         self.assertEqual(api_get_result['description'], 'Updated descriptor for cmd testing with --set')
 
-    def test_update_with_name_and_file_fails(self):
-        yml_file = self.tester.create_yaml_file('scenario-cmd-update-with-name-and-file-fails.yaml', self.test_case_props['scenario_A'])
+    def test_update_with_id_and_file(self):
+        scenario_id = self.test_case_props['scenario_A']['id']
+        scenario_name = self.test_case_props['scenario_A']['name']
+        scenario = self.test_case_props['scenario_A'].copy()
+        scenario['description'] = 'Updated description for cmd testing with file'
+        yml_file = self.tester.create_yaml_file('scenario-cmd-update-with-name-and-file.yaml', scenario)
         update_result = self.cli_runner.invoke(cli, [
-            'update', 'scenario', '-e', 'default', 'SomeName', '-f', yml_file
+            'update', 'scenario', '-e', 'default', scenario_id, '-f', yml_file
             ])
-        self.assert_has_system_exit(update_result)
-        expected_output = 'Usage: cli update scenario [OPTIONS] [ID]'
-        expected_output += '\nTry \'cli update scenario --help\' for help.'
-        expected_output += '\n\nError: Do not use "ID" argument when using "-f, --file" option'
-        self.assert_output(update_result, expected_output)
+        self.assert_no_errors(update_result)
+        self.assert_output(update_result, f'Updated: {scenario_id} ({scenario_name})')
+        time.sleep(0.2)
+        api_get_result = self.tester.default_client.behaviour_scenarios.get(scenario_id)
+        self.assertEqual(api_get_result['description'], 'Updated description for cmd testing with file')
 
     def test_update_with_set_and_no_name_fails(self):
         update_result = self.cli_runner.invoke(cli, [
@@ -269,7 +276,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
         self.assert_has_system_exit(update_result)
         expected_output = 'Usage: cli update scenario [OPTIONS] [ID]'
         expected_output += '\nTry \'cli update scenario --help\' for help.'
-        expected_output += '\n\nError: Must set "ID" argument when no "-f, --file" option specified'
+        expected_output += '\n\nError: Must identify the target by specifying the "id" parameter or by including the "id" attribute in the given object/file'
         self.assert_output(update_result, expected_output)
 
     def test_delete_with_yaml_file(self):
@@ -284,7 +291,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             ])
         self.assert_no_errors(create_result)
         self.assertTrue(create_result.output.startswith('Created: '))
-        scenario_id = create_result.output[len('Created: ')-1:].strip()
+        scenario_id = create_result.output[len('Created: ')-1:create_result.output.index('(')].strip()
         scenario['id'] = scenario_id
         yml_file = self.tester.create_yaml_file('scenario-cmd-delete-with.yaml', scenario)
         delete_result = self.cli_runner.invoke(cli, [
@@ -296,7 +303,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             api_get_result = self.tester.default_client.behaviour_scenarios.get(scenario_id)
             self.fail('Scenario should have been deleted but it can still be found')
         except TNCOClientHttpError as e:
-            if e.status_code != 404:
+            if e.status_code != 404 and 'does not exist' not in e.detail_message: # Temp check on detail_message as API returns 500 for not found (bug)
                 self.fail(f'Retrieving the Scenario failed with an unexpected error: {str(e)}')
     
     def test_delete_with_json_file(self):
@@ -311,7 +318,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             ])
         self.assert_no_errors(create_result)
         self.assertTrue(create_result.output.startswith('Created: '))
-        scenario_id = create_result.output[len('Created: ')-1:].strip()
+        scenario_id = create_result.output[len('Created: ')-1:create_result.output.index('(')].strip()
         scenario['id'] = scenario_id
         json_file = self.tester.create_json_file('scenario-cmd-delete-with.json', scenario)
         delete_result = self.cli_runner.invoke(cli, [
@@ -323,7 +330,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             api_get_result = self.tester.default_client.behaviour_scenarios.get(scenario_id)
             self.fail('Scenario should have been deleted but it can still be found')
         except TNCOClientHttpError as e:
-            if e.status_code != 404:
+            if e.status_code != 404 and 'does not exist' not in e.detail_message: # Temp check on detail_message as API returns 500 for not found (bug)
                 self.fail(f'Retrieving the Scenario failed with an unexpected error: {str(e)}')
     
     def test_delete_with_id(self):
@@ -338,7 +345,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             ])
         self.assert_no_errors(create_result)
         self.assertTrue(create_result.output.startswith('Created: '))
-        scenario_id = create_result.output[len('Created: ')-1:].strip()
+        scenario_id = create_result.output[len('Created: ')-1:create_result.output.index('(')].strip()
         delete_result = self.cli_runner.invoke(cli, [
             'delete', 'scenario', '-e', 'default', scenario_id
             ])
@@ -348,7 +355,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             api_get_result = self.tester.default_client.behaviour_scenarios.get(scenario_id)
             self.fail('Scenario should have been deleted but it can still be found')
         except TNCOClientHttpError as e:
-            if e.status_code != 404:
+            if e.status_code != 404 and 'does not exist' not in e.detail_message: # Temp check on detail_message as API returns 500 for not found (bug)
                 self.fail(f'Retrieving the Scenario failed with an unexpected error: {str(e)}')
     
     def test_delete_with_no_name_or_file_fails(self):
@@ -358,7 +365,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
         self.assert_has_system_exit(delete_result)
         expected_output = 'Usage: cli delete scenario [OPTIONS] [ID]'
         expected_output += '\nTry \'cli delete scenario --help\' for help.'
-        expected_output += '\n\nError: Must set "ID" argument when no "-f, --file" option specified'
+        expected_output += '\n\nError: Must identify the target by specifying the "id" parameter or by including the "id" attribute in the given object/file'
         self.assert_output(delete_result, expected_output)
     
     def test_delete_with_ignore_missing(self):
@@ -366,7 +373,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             'delete', 'scenario', '-e', 'default', 'NonExistentObj', '--ignore-missing'
             ])
         self.assert_no_errors(delete_result)
-        self.assert_output(delete_result, f'No Scenario found with ID NonExistentObj (ignoring)')
+        self.assert_output(delete_result, f'(Ignored) Entity of type \'Scenario\' could not be found matching: id=NonExistentObj')
 
     def test_execute_with_scenario_id_and_file_fails(self):
         scenario_name = self.tester.exec_prepended_name('scenario-cmd-execute-with-id-and-file')
@@ -381,7 +388,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
         self.assert_has_system_exit(exec_result)
         expected_output = 'Usage: cli execute scenario [OPTIONS] [ID]'
         expected_output += '\nTry \'cli execute scenario --help\' for help.'
-        expected_output += '\n\nError: Do not use "ID" argument when using "-f, --file" option'
+        expected_output += '\n\nError: Cannot use "-f,--file" with "id" as they are mutually exclusive'
         self.assert_output(exec_result, expected_output)
 
     def test_execute_with_scenario_file_missing_id_fails(self):
@@ -397,7 +404,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
         self.assert_has_system_exit(exec_result)
         expected_output = 'Usage: cli execute scenario [OPTIONS] [ID]'
         expected_output += '\nTry \'cli execute scenario --help\' for help.'
-        expected_output += '\n\nError: Object from file does not contain an "id" attribute'
+        expected_output += '\n\nError: Must identify the target by specifying the "id" parameter or by including the "id" attribute in the given object/file'
         self.assert_output(exec_result, expected_output)
 
     def test_execute_with_missing_file_or_id_fails(self):
@@ -407,7 +414,7 @@ class TestBehaviourScenarios(CLIIntegrationTest):
         self.assert_has_system_exit(exec_result)
         expected_output = 'Usage: cli execute scenario [OPTIONS] [ID]'
         expected_output += '\nTry \'cli execute scenario --help\' for help.'
-        expected_output += '\n\nError: Must set "ID" argument when no "-f, --file" option specified'
+        expected_output += '\n\nError: Must identify the target by specifying the "id" parameter or by including the "id" attribute in the given object/file'
         self.assert_output(exec_result, expected_output)
 
     def test_execute_with_id(self):
@@ -415,8 +422,8 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             'execute', 'scenario', '-e', 'default', self.test_case_props['scenario_A']['id']
             ])
         self.assert_no_errors(exec_result)
-        self.assertTrue(exec_result.output.startswith('Created Scenario Execution: '))
-        exec_id = exec_result.output[len('Created Scenario Execution: ')-1:].strip()
+        self.assertTrue(exec_result.output.startswith('Accepted - Scenario Execution: '))
+        exec_id = exec_result.output[len('Accepted - Scenario Execution: ')-1:].strip()
         time.sleep(0.2)
         api_get_result = self.tester.default_client.behaviour_scenario_execs.get(exec_id)
         self.assertEqual(api_get_result['scenarioId'], self.test_case_props['scenario_A']['id'])
@@ -427,8 +434,8 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             'execute', 'scenario', '-e', 'default', '-f', json_file
             ])
         self.assert_no_errors(exec_result)
-        self.assertTrue(exec_result.output.startswith('Created Scenario Execution: '))
-        exec_id = exec_result.output[len('Created Scenario Execution: ')-1:].strip()
+        self.assertTrue(exec_result.output.startswith('Accepted - Scenario Execution: '))
+        exec_id = exec_result.output[len('Accepted - Scenario Execution: ')-1:].strip()
         time.sleep(0.5)
         api_get_result = self.tester.default_client.behaviour_scenario_execs.get(exec_id)
         self.assertEqual(api_get_result['scenarioId'], self.test_case_props['scenario_A']['id'])
@@ -439,8 +446,8 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             'execute', 'scenario', '-e', 'default', '-f', json_file
             ])
         self.assert_no_errors(exec_result)
-        self.assertTrue(exec_result.output.startswith('Created Scenario Execution: '))
-        exec_id = exec_result.output[len('Created Scenario Execution: ')-1:].strip()
+        self.assertTrue(exec_result.output.startswith('Accepted - Scenario Execution: '))
+        exec_id = exec_result.output[len('Accepted - Scenario Execution: ')-1:].strip()
         time.sleep(0.5)
         api_get_result = self.tester.default_client.behaviour_scenario_execs.get(exec_id)
         self.assertEqual(api_get_result['scenarioId'], self.test_case_props['scenario_B']['id'])
@@ -451,8 +458,8 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             'execute', 'scenario', '-e', 'default', self.test_case_props['input_scenario']['id'], '-r', yaml_req_file
             ])
         self.assert_no_errors(exec_result)
-        self.assertTrue(exec_result.output.startswith('Created Scenario Execution: '))
-        exec_id = exec_result.output[len('Created Scenario Execution: ')-1:].strip()
+        self.assertTrue(exec_result.output.startswith('Accepted - Scenario Execution: '))
+        exec_id = exec_result.output[len('Accepted - Scenario Execution: ')-1:].strip()
         time.sleep(0.5)
         api_get_result = self.tester.default_client.behaviour_scenario_execs.get(exec_id)
         self.assertEqual(api_get_result['scenarioId'], self.test_case_props['input_scenario']['id'])
@@ -464,8 +471,8 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             'execute', 'scenario', '-e', 'default', self.test_case_props['input_scenario']['id'], '-r', json_req_file
             ])
         self.assert_no_errors(exec_result)
-        self.assertTrue(exec_result.output.startswith('Created Scenario Execution: '))
-        exec_id = exec_result.output[len('Created Scenario Execution: ')-1:].strip()
+        self.assertTrue(exec_result.output.startswith('Accepted - Scenario Execution: '))
+        exec_id = exec_result.output[len('Accepted - Scenario Execution: ')-1:].strip()
         time.sleep(0.5)
         api_get_result = self.tester.default_client.behaviour_scenario_execs.get(exec_id)
         self.assertEqual(api_get_result['scenarioId'], self.test_case_props['input_scenario']['id'])
@@ -477,23 +484,26 @@ class TestBehaviourScenarios(CLIIntegrationTest):
             'execute', 'scenario', '-e', 'default', self.test_case_props['input_scenario']['id'], '--set', f'assemblyName={assembly_name}'
             ])
         self.assert_no_errors(exec_result)
-        self.assertTrue(exec_result.output.startswith('Created Scenario Execution: '))
-        exec_id = exec_result.output[len('Created Scenario Execution: ')-1:].strip()
+        self.assertTrue(exec_result.output.startswith('Accepted - Scenario Execution: '))
+        exec_id = exec_result.output[len('Accepted - Scenario Execution: ')-1:].strip()
         time.sleep(0.5)
         api_get_result = self.tester.default_client.behaviour_scenario_execs.get(exec_id)
         self.assertEqual(api_get_result['scenarioId'], self.test_case_props['input_scenario']['id'])
         self.tester.wait_until(self._check_exec_success, exec_id)
     
-    def test_execute_with_set_and_request_file_fails(self):
-        json_req_file = self.tester.create_json_file('scenario-cmd-execute-with-json-req-file', {'assemblyName': self.test_case_props['assembly_name']})
+    def test_execute_with_set_and_request_file_merges(self):
+        assembly_name = self.test_case_props['assembly_name']
+        json_req_file = self.tester.create_json_file('scenario-cmd-execute-with-json-req-file', {'assemblyName': 'SomeOtherAssembly'})
         exec_result = self.cli_runner.invoke(cli, [
-            'execute', 'scenario', self.test_case_props['input_scenario']['id'], '-e', 'default', '-r', json_req_file, '--set', 'assemblyName=someAssembly'
+            'execute', 'scenario', self.test_case_props['input_scenario']['id'], '-e', 'default', '-r', json_req_file, '--set', f'assemblyName={assembly_name}'
             ])
-        self.assert_has_system_exit(exec_result)
-        expected_output = 'Usage: cli execute scenario [OPTIONS] [ID]'
-        expected_output += '\nTry \'cli execute scenario --help\' for help.'
-        expected_output += '\n\nError: Do not use "--set" option when using "-r, --request-file" option'
-        self.assert_output(exec_result, expected_output)
+        self.assert_no_errors(exec_result)
+        self.assertTrue(exec_result.output.startswith('Accepted - Scenario Execution: '))
+        exec_id = exec_result.output[len('Accepted - Scenario Execution: ')-1:].strip()
+        time.sleep(0.5)
+        api_get_result = self.tester.default_client.behaviour_scenario_execs.get(exec_id)
+        self.assertEqual(api_get_result['scenarioId'], self.test_case_props['input_scenario']['id'])
+        self.tester.wait_until(self._check_exec_success, exec_id)
 
     def _check_exec_success(self, execution_id: str) -> bool:
         execution = self.tester.default_client.behaviour_scenario_execs.get(execution_id)

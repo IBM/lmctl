@@ -1,15 +1,105 @@
 import click
 import logging
+from .utils import TNCOCommandBuilder, Identity, Identifier
+from lmctl.client import TNCOClient
+from lmctl.cli.format import Column
+from lmctl.utils.certificates import read_certificate_file, fix_newlines_in_cert
+from typing import Dict, Any, Type
+
+logger = logging.getLogger(__name__)
+
+__all__ = (
+    'generate_resource_driver',
+    'create_resource_driver',
+    'delete_resource_driver',
+    'get_resource_driver',
+)
+
+tnco_builder = TNCOCommandBuilder(
+    singular='resourcedriver',
+    plural='resourcedrivers',
+    display_name='Resource Driver'
+)
+
+id_arg = Identifier.arg_and_attr('id')
+type_opt = Identifier(
+    param_name='driver_type',
+    obj_attribute='infrastructureType',
+    param_opts=['--type']
+)
+
+default_columns = [
+    Column('id', header='ID'),
+    Column('type', header='Type'),
+    Column('baseUri', header='Base URI')
+]
+
+@tnco_builder.make_generate_command()
+def generate_resource_driver():
+    return {
+            'type': 'example',
+            'baseUri': 'https://ansible-lifecycle-driver:8293', 
+            'certifcate': '<insert certificate as multi-line string here or use "--certifcate" option to provide file path to the target command>'
+        }
+
+@tnco_builder.make_create_command()
+@click.option('--certificate', type=click.Path(exists=True), help='Path to a file containing the public certificate of the resource driver')
+def create_resource_driver(tnco_client: TNCOClient, obj: Dict[str, Any], certificate: str = None):
+    if certificate is not None:
+        try:
+            obj['certificate'] = read_certificate_file(certificate)
+        except IOError as e:
+            raise RuntimeError(f'Error: reading certificate: {str(e)}') from e
+    elif 'certificate' in obj:
+        resource_driver['certificate'] = fix_newlines_in_cert(obj['certificate'])
+    resource_driver = tnco_client.resource_drivers.create(obj)
+    return resource_driver['id']
+
+@tnco_builder.make_get_command(
+    identifiers=[id_arg, type_opt],
+    identifier_required=True,
+    default_columns=default_columns
+)
+@click.argument(id_arg.param_name, required=False)
+@click.option(*type_opt.param_opts, type_opt.param_name, type=str, help='Type of driver to fetch')
+def get_resource_driver(tnco_client: TNCOClient, identity: Identity):
+    api = tnco_client.resource_drivers
+    if identity.identifier.param_name == id_arg.param_name:
+        driver_id = identity.value
+        return api.get(driver_id)
+    else:
+        driver_type = identity.value
+        return api.get_by_type(driver_type)
+
+@tnco_builder.make_delete_command(identifiers=[id_arg, type_opt])
+@click.argument(id_arg.param_name, required=False)
+@click.option(*type_opt.param_opts, type_opt.param_name, type=str, help='Type of driver to delete')
+def delete_resource_driver(tnco_client: TNCOClient, identity: Identity):
+    api = tnco_client.resource_drivers
+    driver_id = None
+    if identity.identifier.param_name == id_arg.param_name:
+        driver_id = identity.value
+        api.delete(driver_id)
+    else:
+        driver_type = identity.value
+        resource_driver = api.get_by_type(driver_type)
+        driver_id = resource_driver['id']
+        api.delete(driver_id)
+
+    return driver_id
+
+
+
+##### Deprecated 
 import lmctl.cli.ctlmgmt as ctlmgmt
 from lmctl.cli.safety_net import lm_driver_safety_net
 from lmctl.cli.format import determine_format_class, TableFormat
 from lmctl.utils.certificates import read_certificate_file
-from lmctl.cli.cmd_tags import deprecated_tag
 
 logger = logging.getLogger(__name__)
 
-@deprecated_tag
-@click.group(short_help='Use "lmctl create/get/delete resourcedriver"', help='deprecated in v3.0: Commands for managing Resource drivers (CP4NA orchestration 2.2+ only)')
+
+@click.group(hidden=True, short_help='Use "lmctl create/get/delete resourcedriver"', help='deprecated in v3.0: Commands for managing Resource drivers (CP4NA orchestration 2.2+ only)')
 def resourcedriver():
     logger.debug('resourcedriver')
 

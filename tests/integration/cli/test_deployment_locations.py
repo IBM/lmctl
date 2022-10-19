@@ -1,9 +1,9 @@
 from .cli_test_base import CLIIntegrationTest
 from typing import List, Any, Callable, Dict
 from lmctl.cli.entry import cli
-from lmctl.cli.format import TableFormat
+from lmctl.cli.format import TableFormat, Table
 from lmctl.client import TNCOClientHttpError
-from lmctl.cli.commands.targets.deployment_location import DeploymentLocationTable
+from lmctl.cli.commands.deployment_location import default_columns
 import yaml
 import json
 import time
@@ -97,7 +97,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, [
             'get', 'deploymentlocation', self.test_case_props['dl_A']['name'], '-e', 'default'
             ])
-        table_format = TableFormat(table=DeploymentLocationTable())
+        table_format = TableFormat(table=Table(columns=default_columns))
         expected_output = table_format.convert_element(self._build_deployment_location_output(self.test_case_props['dl_A']))
         self.assert_output(result, expected_output)
 
@@ -122,7 +122,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
         self.assert_has_system_exit(result)
         expected_output = 'Usage: cli get deploymentlocation [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli get deploymentlocation --help\' for help.'
-        expected_output += '\n\nError: Do not use "NAME" argument when using the "--name-contains" option'
+        expected_output += '\n\nError: Cannot use "--name-contains" with "name" as they are mutually exclusive'
         self.assert_output(result, expected_output)
 
     def test_create_with_yaml_file(self):
@@ -183,13 +183,13 @@ class TestDeploymentLocations(CLIIntegrationTest):
 
     def test_update_with_yaml_file(self):
         dl_file = self.tester.tmp_file('cmd_update_dl.yaml')
-        self.test_case_props['dl_A']['description'] = 'Updated description for cmd testing with yaml'
+        self.test_case_props['dl_B']['description'] = 'Updated description for cmd testing with yaml'
         with open(dl_file, 'w') as f:
-            f.write(yaml.safe_dump(self.test_case_props['dl_A']))
+            f.write(yaml.safe_dump(self.test_case_props['dl_B']))
         update_result = self.cli_runner.invoke(cli, [
             'update', 'deploymentlocation', '-e', 'default', '-f', dl_file
             ])
-        dl_name = self.test_case_props['dl_A']['name']
+        dl_name = self.test_case_props['dl_B']['name']
         self.assert_output(update_result, f'Updated: {dl_name}')
         ## Get the location to confirm it was updated
         time.sleep(1)
@@ -207,7 +207,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
         dl_name = self.test_case_props['dl_A']['name']
         self.assert_output(update_result, f'Updated: {dl_name}')
         ## Get the location to confirm it was updated
-        time.sleep(1)
+        time.sleep(1.5)
         api_get_result = self.tester.default_client.deployment_locations.get(dl_name)
         self.assertEqual(api_get_result['description'], 'Updated description for cmd testing with json')
  
@@ -218,23 +218,26 @@ class TestDeploymentLocations(CLIIntegrationTest):
             ])
         self.assert_output(update_result, f'Updated: {dl_name}')
         ## Get the location to confirm it was updated
-        time.sleep(1)
+        time.sleep(1.5)
         api_get_result = self.tester.default_client.deployment_locations.get(dl_name)
         self.assertEqual(api_get_result['description'], 'Updated descriptor for cmd testing with --set')
 
-    def test_update_with_name_and_file_fails(self):
-        dl_file = self.tester.render_template_file(self.tester.test_file('dummy_dl.json'), self.tester.tmp_file('dummy_dl.json'), suffix='cmds-update-with-name-and-file')
-        with open(dl_file, 'r') as f:
-            dl = json.loads(f.read())
-            dl_name = dl['name']
+    def test_update_with_name_and_file_merges(self):
+        dl_name = self.test_case_props['dl_A']['name']
+        dl_file = self.tester.tmp_file('cmd_update_dl_with_name_and_file.json')
+        dl = self.test_case_props['dl_A'].copy()
+        del dl['name']
+        dl['description'] = 'Update with file'
+        with open(dl_file, 'w') as f:
+            f.write(json.dumps(dl))
         update_result = self.cli_runner.invoke(cli, [
             'update', 'deploymentlocation', '-e', 'default', dl_name, '-f', dl_file
             ])
-        self.assert_has_system_exit(update_result)
-        expected_output = 'Usage: cli update deploymentlocation [OPTIONS] [NAME]'
-        expected_output += '\nTry \'cli update deploymentlocation --help\' for help.'
-        expected_output += '\n\nError: Do not use "NAME" argument when using "-f, --file" option'
-        self.assert_output(update_result, expected_output)
+        self.assert_output(update_result, f'Updated: {dl_name}')
+        ## Get the location to confirm it was updated
+        time.sleep(1.5)
+        api_get_result = self.tester.default_client.deployment_locations.get(dl_name)
+        self.assertEqual(api_get_result['description'], 'Update with file')
 
     def test_update_with_set_and_no_name_fails(self):
         update_result = self.cli_runner.invoke(cli, [
@@ -243,7 +246,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
         self.assert_has_system_exit(update_result)
         expected_output = 'Usage: cli update deploymentlocation [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli update deploymentlocation --help\' for help.'
-        expected_output += '\n\nError: Must set "NAME" argument when no "-f, --file" option specified'
+        expected_output += '\n\nError: Must identify the target by specifying the "name" parameter or by including the "name" attribute in the given object/file'
         self.assert_output(update_result, expected_output)
 
     def test_delete_with_yaml_file(self):
@@ -319,7 +322,7 @@ class TestDeploymentLocations(CLIIntegrationTest):
         self.assert_has_system_exit(delete_result)
         expected_output = 'Usage: cli delete deploymentlocation [OPTIONS] [NAME]'
         expected_output += '\nTry \'cli delete deploymentlocation --help\' for help.'
-        expected_output += '\n\nError: Must set "NAME" argument when no "-f, --file" option specified'
+        expected_output += '\n\nError: Must identify the target by specifying the "name" parameter or by including the "name" attribute in the given object/file'
         self.assert_output(delete_result, expected_output)
 
     def test_delete_with_ignore_missing(self):
@@ -327,4 +330,4 @@ class TestDeploymentLocations(CLIIntegrationTest):
             'delete', 'deploymentlocation', '-e', 'default', 'NonExistentObj', '--ignore-missing'
             ])
         self.assert_no_errors(delete_result)
-        self.assert_output(delete_result, f'No Deployment Location found with name NonExistentObj (ignoring)')
+        self.assert_output(delete_result, f'(Ignored) Could not find deployment location with id: NonExistentObj')

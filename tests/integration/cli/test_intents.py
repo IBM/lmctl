@@ -8,7 +8,7 @@ import os
 import json
 import time
 
-class TestClusters(CLIIntegrationTest):
+class TestIntents(CLIIntegrationTest):
   
     @classmethod
     def before_test_case(cls, tester):
@@ -126,11 +126,10 @@ class TestClusters(CLIIntegrationTest):
         self.assertEqual(process['intentType'], 'DeleteAssembly')
         self.tester.wait_until(self._build_check_process_success(self.tester), process_id)
 
-    def test_create_with_set_and_file_fails(self):
+    def test_create_with_set_and_file_merges(self):
         assembly_name = self.tester.exec_prepended_name('intent-cmd-create-with-set-and-file')
         intent = {
             'intentType': 'createAssembly',
-            'assemblyName': assembly_name,
             'descriptorName': self.test_case_props['assembly_descriptor']['name'],
             'intendedState': 'Active',
             'properties': {
@@ -139,15 +138,19 @@ class TestClusters(CLIIntegrationTest):
                     'dummyProp': 'A'
                 }
         }
-        json_file = self.tester.create_json_file('intent-cmd-create-with.json', intent)
+        json_file = self.tester.create_json_file('intent-cmd-create-with-set-and-file.json', intent)
         create_result = self.cli_runner.invoke(cli, [
-            'create', 'intent', '-e', 'default', '-f', json_file, '--set', 'assemblyName=SomeName'
+            'create', 'intent', '-e', 'default', '-f', json_file, '--set', f'assemblyName={assembly_name}'
             ])
-        self.assert_has_system_exit(create_result)
-        expected_output = 'Usage: cli create intent [OPTIONS]'
-        expected_output += '\nTry \'cli create intent --help\' for help.'
-        expected_output += '\n\nError: Do not use "--set" option when using "-f, --file" option'
-        self.assert_output(create_result, expected_output)
+        process_id = self._confirm_process_success(create_result)
+        process = self.tester.default_client.processes.get(process_id)
+        self.assertEqual(process['assemblyName'], assembly_name)
+        self.assertEqual(process['intentType'], 'CreateAssembly')
+        self.assertEqual(process['assemblyType'], self.test_case_props['assembly_descriptor']['name'])
+        self.assertEqual(process['assemblyProperties']['resourceManager'], 'brent')
+        self.assertEqual(process['assemblyProperties']['deploymentLocation'], self.test_case_props['deployment_location']['name'])
+        self.assertEqual(process['assemblyProperties']['dummyProp'], 'A')
+        self._delete_and_wait(assembly_name)
     
     def test_create_with_file_missing_intent_type_fails(self):
         assembly_name = self.tester.exec_prepended_name('intent-cmd-create-with-file-missing-intent')
@@ -168,7 +171,7 @@ class TestClusters(CLIIntegrationTest):
         self.assert_has_system_exit(create_result)
         expected_output = 'Usage: cli create intent [OPTIONS]'
         expected_output += '\nTry \'cli create intent --help\' for help.'
-        expected_output += '\n\nError: Content of file passed to "-f, --file" option must include "intentType" attribute'
+        expected_output += '\n\nError: Must include "intentType" in contents of "-f, --file" or with "--set intentType=<type>"'
         self.assert_output(create_result, expected_output)
     
     def test_create_with_set_missing_intent_type_fails(self):
@@ -179,6 +182,6 @@ class TestClusters(CLIIntegrationTest):
         self.assert_has_system_exit(create_result)
         expected_output = 'Usage: cli create intent [OPTIONS]'
         expected_output += '\nTry \'cli create intent --help\' for help.'
-        expected_output += '\n\nError: Must set "intentType" attribute e.g. "--set intentType=createAssembly"'
+        expected_output += '\n\nError: Must include "intentType" in contents of "-f, --file" or with "--set intentType=<type>"'
         self.assert_output(create_result, expected_output)
     

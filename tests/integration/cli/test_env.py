@@ -1,7 +1,7 @@
 from .cli_test_base import CLIIntegrationTest
 from lmctl.cli.entry import cli
-from lmctl.cli.format import TableFormat
-from lmctl.cli.commands.targets.env import EnvironmentTable, PingTable
+from lmctl.cli.format import TableFormat, Table
+from lmctl.cli.commands.env import default_columns, ping_table
 from lmctl.cli.controller import get_global_controller
 from lmctl.client import TestResults, TestResult, TNCOClientError
 from unittest.mock import patch
@@ -35,7 +35,7 @@ class TestEnvironments(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, 
             ['get', 'env']
         )
-        table_format = TableFormat(table=EnvironmentTable())
+        table_format = TableFormat(table=Table(columns=default_columns))
         ctl = get_global_controller()
         expected_output = table_format.convert_list(ctl.config.environments.values())
         self.assert_output(result, expected_output)
@@ -58,7 +58,7 @@ class TestEnvironments(CLIIntegrationTest):
         result = self.cli_runner.invoke(cli, 
             ['get', 'env', 'default']
         )
-        table_format = TableFormat(table=EnvironmentTable())
+        table_format = TableFormat(table=Table(columns=default_columns))
         ctl = get_global_controller()
         expected_output = table_format.convert_element(ctl.config.environments.get('default', None))
         self.assert_output(result, expected_output)
@@ -75,9 +75,9 @@ class TestEnvironments(CLIIntegrationTest):
             TestResult('Behaviour', error=None),
             TestResult('Resource Manager', error=None)
         ])
-        table_format = TableFormat(table=PingTable())
+        table_format = TableFormat(table=ping_table)
         address = ctl.config.environments.get('default').tnco.address
-        expected_output = f'Pinging CP4NA orchestration: {address}'
+        expected_output = f'Pinging CP4NA orchestration: default ({address})'
         expected_output += '\n'
         expected_output += table_format.convert_list(expected_results.tests)
         expected_output += '\nCP4NA orchestration tests passed! ✅'
@@ -99,9 +99,9 @@ class TestEnvironments(CLIIntegrationTest):
             TestResult('Behaviour', error=None),
             TestResult('Resource Manager', error=None)
         ])
-        table_format = TableFormat(table=PingTable())
+        table_format = TableFormat(table=ping_table)
         address = ctl.config.environments.get('default').tnco.address
-        expected_output = f'Pinging CP4NA orchestration: {address}'
+        expected_output = f'Pinging CP4NA orchestration: default ({address})'
         expected_output += '\n'
         expected_output += table_format.convert_list(expected_results.tests)
         expected_output += '\nCP4NA orchestration tests failed! ❌'
@@ -121,9 +121,9 @@ class TestEnvironments(CLIIntegrationTest):
             TestResult('Resource Manager', error=None),
             TestResult('Template Engine', error=None)
         ])
-        table_format = TableFormat(table=PingTable())
+        table_format = TableFormat(table=ping_table)
         address = ctl.config.environments.get('default').tnco.address
-        expected_output = f'Pinging CP4NA orchestration: {address}'
+        expected_output = f'Pinging CP4NA orchestration: default ({address})'
         expected_output += '\n'
         expected_output += table_format.convert_list(expected_results.tests)
         expected_output += '\nCP4NA tests passed! ✅'

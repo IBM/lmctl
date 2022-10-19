@@ -36,7 +36,7 @@ class TestConfigIO(unittest.TestCase):
         self.assertIsInstance(test_env, EnvironmentGroup)
         self.assertIsInstance(test_env.lm, TNCOEnvironment)
         self.assertEqual(test_env.lm.address, 'https://127.0.0.1:1111')
-        self.assertEqual(test_env.lm.auth_address, 'http://auth:4643')
+        self.assertEqual(test_env.lm.auth_address, 'https://auth:4643')
         self.assertEqual(test_env.lm.username, 'jack')
         self.assertEqual(test_env.lm.password, 'secret')
         self.assertEqual(test_env.lm.kami_address, 'https://127.0.0.1:34567')
@@ -78,7 +78,7 @@ class TestConfigIO(unittest.TestCase):
         self.assertIsInstance(test_env, EnvironmentGroup)
         self.assertIsInstance(test_env.lm, TNCOEnvironment)
         self.assertEqual(test_env.lm.address, 'https://127.0.0.1:1111')
-        self.assertEqual(test_env.lm.auth_address, 'http://auth:4643')
+        self.assertEqual(test_env.lm.auth_address, 'https://auth:4643')
         self.assertEqual(test_env.lm.username, 'jack')
         self.assertEqual(test_env.lm.password, 'secret')
         self.assertEqual(test_env.lm.kami_address, 'https://127.0.0.1:34567')
@@ -106,7 +106,7 @@ class TestConfigIO(unittest.TestCase):
         self.assertIsInstance(test_env, EnvironmentGroup)
         self.assertIsInstance(test_env.lm, TNCOEnvironment)
         self.assertEqual(test_env.lm.address, 'https://127.0.0.1:1111')
-        self.assertEqual(test_env.lm.auth_address, 'http://auth:4643')
+        self.assertEqual(test_env.lm.auth_address, 'https://auth:4643')
         self.assertEqual(test_env.lm.username, 'jack')
         self.assertEqual(test_env.lm.password, 'secret')
         self.assertEqual(test_env.lm.kami_address, 'https://127.0.0.1:34567')
@@ -135,7 +135,7 @@ class TestConfigIO(unittest.TestCase):
         self.assertEqual(lm_config.secure, True)
         self.assertEqual(lm_config.username, 'jack')
         self.assertEqual(lm_config.password, 'secret')
-        self.assertEqual(lm_config.auth_address, 'http://auth:32456')
+        self.assertEqual(lm_config.auth_address, 'https://auth:32456')
 
     def test_parse_tnco_using_tnco_key(self):
         config_io = ConfigIO()
@@ -150,7 +150,7 @@ class TestConfigIO(unittest.TestCase):
         self.assertEqual(lm_config.secure, True)
         self.assertEqual(lm_config.username, 'jack')
         self.assertEqual(lm_config.password, 'secret')
-        self.assertEqual(lm_config.auth_address, 'http://auth:32456')
+        self.assertEqual(lm_config.auth_address, 'https://auth:32456')
     
     def test_parse_tnco_using_alm_key(self):
         config_io = ConfigIO()
@@ -165,7 +165,7 @@ class TestConfigIO(unittest.TestCase):
         self.assertEqual(lm_config.secure, True)
         self.assertEqual(lm_config.username, 'jack')
         self.assertEqual(lm_config.password, 'secret')
-        self.assertEqual(lm_config.auth_address, 'http://auth:32456')
+        self.assertEqual(lm_config.auth_address, 'https://auth:32456')
     
     def test_parse_fail_when_lm_and_alm_used(self):
         config_dict = self.test_helper.read_yaml_file('lm-and-alm-key')
@@ -194,11 +194,11 @@ class TestConfigIO(unittest.TestCase):
         self.assertIsNotNone(test_group_config.tnco)
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
-        self.assertEqual(lm_config.address, 'http://test:32455')
+        self.assertEqual(lm_config.address, 'https://test:32455')
         self.assertEqual(lm_config.secure, True)
         self.assertEqual(lm_config.username, 'user')
         self.assertEqual(lm_config.password, 'secret')
-        self.assertEqual(lm_config.auth_address, 'http://auth:32456')
+        self.assertEqual(lm_config.auth_address, 'https://auth:32456')
 
     def test_parse_arm_in_parts(self):
         config_io = ConfigIO()

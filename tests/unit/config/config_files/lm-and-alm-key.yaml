@@ -5,11 +5,11 @@ environments:
       secure: True
       username: jack
       password: secret
-      auth_address: http://auth:32456
+      auth_address: https://auth:32456
     alm:
       address: https://127.0.0.1:1112
       secure: True
       username: jack
       password: secret
-      auth_address: http://auth:32456
+      auth_address: https://auth:32456
  
