@@ -44,12 +44,12 @@ class TNCOClientBuilder:
         self._auth = JwtTokenAuth(token=token)
         return self
 
-    def client_credentials_auth(self, client_id: str, client_secret: str) -> 'TNCOClientBuilder':
-        self._auth = ClientCredentialsAuth(client_id=client_id, client_secret=client_secret)
+    def client_credentials_auth(self, client_id: str, client_secret: str, scope: str = None , okta_authserver: str = None, okta_server: str = None) -> 'TNCOClientBuilder':
+        self._auth = ClientCredentialsAuth(client_id=client_id, client_secret=client_secret, scope=scope, okta_authserver=okta_authserver, okta_server=okta_server)
         return self
     
-    def user_pass_auth(self, username: str, password: str, client_id: str, client_secret: str) -> 'TNCOClientBuilder':
-        self._auth = UserPassAuth(username=username, password=password, client_id=client_id, client_secret=client_secret)
+    def user_pass_auth(self, username: str, password: str, client_id: str, client_secret: str, scope: str = None, okta_server: str = None) -> 'TNCOClientBuilder':
+        self._auth = UserPassAuth(username=username, password=password, client_id=client_id, client_secret=client_secret, scope=scope, okta_server=okta_server)
         return self
     
     def legacy_user_pass_auth(self, username: str, password: str, legacy_auth_address: str = None) -> 'TNCOClientBuilder':
