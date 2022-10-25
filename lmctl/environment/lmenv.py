@@ -206,17 +206,15 @@ class TNCOEnvironment:
                     # Using password auth
                     if self.client_id is not None:
                         if self.auth_mode == OKTA_MODE:
-                            builder.user_pass_auth(username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret, scope=self.scope, okta_server=self.auth_address)
+                            builder.okta_user_pass_auth(username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret, scope=self.scope, okta_server=self.auth_address)
                         else:
                             builder.user_pass_auth(username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret)
                     else:
                         # Legacy password auth
                         builder.legacy_user_pass_auth(username=self.username, password=self.password, legacy_auth_address=self.auth_address)
                 else:
-                    # print(self.auth_mode)
-                    # print("okta auth server",self.okta_authserver)
                     if self.auth_mode == OKTA_MODE:
-                        builder.client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret, scope=self.scope, okta_authserver=self.okta_authserver, okta_server=self.auth_address)
+                        builder.okta_client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret, scope=self.scope, okta_authserver=self.okta_authserver, okta_server=self.auth_address)
                     else:
                         builder.client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret)
 

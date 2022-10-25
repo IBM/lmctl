@@ -18,7 +18,52 @@ class AuthenticationAPI(TNCOAPI):
     def _build_client_basic_auth(self, client_id: str, client_secret: str) -> HTTPBasicAuth:
         return HTTPBasicAuth(client_id, client_secret)
 
-    def request_client_access(self, client_id: str, client_secret: str, scope: str = None, okta_authserver: str = None, okta_server: str = None) -> Dict:
+    def request_client_access(self, client_id: str, client_secret: str) -> Dict:
+        auth = self._build_client_basic_auth(client_id, client_secret)
+        body = {
+            'grant_type': 'client_credentials'
+        }
+
+        request = TNCOClientRequest(method='POST', endpoint=self.oauth_endpoint)\
+                        .disable_auth_token()\
+                        .add_form_data(body)\
+                        .add_auth_handler(auth)
+        auth_response = self.base_client.make_request_for_json(request)
+        return auth_response
+
+    def request_user_access(self, client_id: str, client_secret: str, username: str, password: str) -> Dict:
+        auth = self._build_client_basic_auth(client_id, client_secret)
+        body = {
+            'username': username,
+            'password': password,
+            'grant_type': 'password',
+        }
+        request = TNCOClientRequest(method='POST', endpoint=self.oauth_endpoint)\
+                        .disable_auth_token()\
+                        .add_form_data(body)\
+                        .add_auth_handler(auth)
+        auth_response = self.base_client.make_request_for_json(request)
+        return auth_response
+
+    def request_okta_user_access(self, client_id: str, client_secret: str, username: str, password: str, scope: str = None, okta_server: str = None) -> Dict:
+        auth = self._build_client_basic_auth(client_id, client_secret)
+        body = {
+            'username': username,
+            'password': password,
+            'grant_type': 'password',
+        }
+        if scope is not None:
+            body["scope"] = scope
+        request = TNCOClientRequest(method='POST', endpoint=self.okta_endpoint)\
+                        .disable_auth_token()\
+                        .add_form_data(body)\
+                        .add_auth_handler(auth)
+        if okta_server:
+            request.override_address = okta_server
+        auth_response = self.base_client.make_request_for_json(request)
+        return auth_response
+
+    def request_okta_access(self, client_id: str, client_secret: str, scope: str = None, okta_authserver: str = None, okta_server: str = None) -> Dict:
         auth = self._build_client_basic_auth(client_id, client_secret)
         body = {
             'grant_type': 'client_credentials'
@@ -26,30 +71,12 @@ class AuthenticationAPI(TNCOAPI):
         if scope is not None:
             body['scope'] = scope
 
-        request = TNCOClientRequest(method='POST', endpoint=self.okta_authserver_endpoint.format(okta_authserver) if okta_authserver is not None else self.oauth_endpoint)\
+        request = TNCOClientRequest(method='POST', endpoint=self.okta_authserver_endpoint.format(okta_authserver))\
                         .disable_auth_token()\
                         .add_form_data(body)\
                         .add_auth_handler(auth)
-        if okta_authserver:
-            request.override_address = okta_server
-        auth_response = self.base_client.make_request_for_json(request)
-        return auth_response
 
-    def request_user_access(self, client_id: str, client_secret: str, username: str, password: str, scope: str = None, okta_server: str = None) -> Dict:
-        auth = self._build_client_basic_auth(client_id, client_secret)
-        body = {
-            'username': username,
-            'password': password,
-            'grant_type': 'password',
-        }
-        if okta_server is not None:
-            body["scope"] = scope
-        request = TNCOClientRequest(method='POST', endpoint=self.okta_endpoint if okta_server is not None else self.oauth_endpoint)\
-                        .disable_auth_token()\
-                        .add_form_data(body)\
-                        .add_auth_handler(auth)
-        if okta_server:
-            request.override_address = okta_server
+        request.override_address = okta_server
         auth_response = self.base_client.make_request_for_json(request)
         return auth_response
 
