@@ -49,8 +49,8 @@ class TNCOClientBuilder:
         self._auth = ClientCredentialsAuth(client_id=client_id, client_secret=client_secret)
         return self
 
-    def okta_client_credentials_auth(self, client_id: str, client_secret: str, scope: str = None , okta_authserver: str = None, okta_server: str = None) -> 'TNCOClientBuilder':
-        self._auth = OktaClientCredentialsAuth(client_id=client_id, client_secret=client_secret, scope=scope, okta_authserver=okta_authserver, okta_server=okta_server)
+    def okta_client_credentials_auth(self, client_id: str, client_secret: str, scope: str = None , auth_server_id: str = None, okta_server: str = None) -> 'TNCOClientBuilder':
+        self._auth = OktaClientCredentialsAuth(client_id=client_id, client_secret=client_secret, scope=scope, auth_server_id=auth_server_id, okta_server=okta_server)
         return self
 
     def user_pass_auth(self, username: str, password: str, client_id: str, client_secret: str) -> 'TNCOClientBuilder':

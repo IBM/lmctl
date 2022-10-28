@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 @click.option('--client', 'client_id', default=None, help='Client ID')
 @click.option('--client-secret', default=None, help='Secret for the given Client ID')
 @click.option('--scope', default=None, help='scope for the given Client ID')
-@click.option('--okta_authserver', default=None, help='Okta backend authentication server for the given Client ID to generate okta auth API')
+@click.option('--auth-server-id', default=None, help='Okta backend authentication server for the given Client ID to generate okta auth API')
 @click.option('--token', default=None, help='Authenticate with a token instead of credentials')
 @click.option('--name', default='default', show_default=True, help='Name given to the environment saved in the configuration file')
 @click.option('--auth-address', default=None, help='Auth address required for username/password access (without client credentials). This is usually the Nimrod route in your environment.')
@@ -42,11 +42,12 @@ logger = logging.getLogger(__name__)
         ('client_id', '--client-id'),
         ('client_secret', '--client-secret'),
         ('auth_address', '--auth-address'),
+        ('auth-server-id', '--auth_server_id'),
         ('api-key', '--api-key'),
         ('is_zen', '--zen'),
     ]
 )
-def login(ctx: click.Context, address: str, username: str = None, pwd: str = None, api_key: str = None, client_id: str = None, client_secret: str = None, scope: str = None, okta_authserver: str = None,
+def login(ctx: click.Context, address: str, username: str = None, pwd: str = None, api_key: str = None, client_id: str = None, client_secret: str = None, scope: str = None, auth_server_id: str = None,
             token: str = None, name: str = None, auth_address: str = None, save_creds: bool = False, yes_to_prompts: bool = False, print_token: bool = False, is_zen: bool = False, is_okta: bool = False):
     # Support missing config file by pre-creating one
     path = find_config_location(ignore_not_found=True)
@@ -95,7 +96,7 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
             client_id=client_id,
             client_secret=client_secret,
             scope=scope,
-            okta_authserver=okta_authserver,
+            auth_server_id=auth_server_id,
             username=username,
             password=pwd,
             api_key=api_key,
@@ -147,8 +148,8 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
                 tnco_env_dict['api_key'] = api_key
             if scope is not None:
                 tnco_env_dict['scope'] = scope
-            if okta_authserver is not None:
-                tnco_env_dict['okta_authserver'] = okta_authserver
+            if auth_server_id is not None:
+                tnco_env_dict['auth_server_id'] = auth_server_id
         tnco_env = TNCOEnvironment(**tnco_env_dict)
 
         # Write
