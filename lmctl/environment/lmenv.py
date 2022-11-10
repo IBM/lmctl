@@ -96,8 +96,8 @@ class TNCOEnvironment:
     @classmethod
     def _validate_okta(cls, values):
         cls._validate_oauth(values)
-        if not values.get('username', None) and not values.get('auth_server_id', None):
-            raise ValueError(f'Secure TNCO environment must be configured with "auth_server_id" when using "auth_mode={OKTA_MODE}" and only "client_id" without "username". If the TNCO environment is not secure then set "secure" to False')
+        if not values.get('auth_server_id', None):
+            raise ValueError(f'Secure TNCO environment must be configured with "auth_server_id" when using "auth_mode={OKTA_MODE}". If the TNCO environment is not secure then set "secure" to False')
 
         if values.get('username', None) and not values.get('scope', None):
             raise ValueError(f'Secure TNCO environment cannot be configured with "scope" when using "auth_mode={OKTA_MODE}". If the TNCO environment is not secure then set "secure" to False')
@@ -206,7 +206,7 @@ class TNCOEnvironment:
                     # Using password auth
                     if self.client_id is not None:
                         if self.auth_mode == OKTA_MODE:
-                            builder.okta_user_pass_auth(username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret, scope=self.scope, okta_server=self.auth_address)
+                            builder.okta_user_pass_auth(username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret, scope=self.scope, auth_server_id=self.auth_server_id, okta_server=self.auth_address)
                         else:
                             builder.user_pass_auth(username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret)
                     else:

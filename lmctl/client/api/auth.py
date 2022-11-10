@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 class AuthenticationAPI(TNCOAPI):
     oauth_endpoint = 'oauth/token'
-    okta_endpoint = 'oauth2/v1/token'
     okta_authserver_endpoint = 'oauth2/{}/v1/token'
     legacy_login_endpoint = 'ui/api/login'
     older_legacy_login_endpoint = 'api/login'
@@ -45,7 +44,7 @@ class AuthenticationAPI(TNCOAPI):
         auth_response = self.base_client.make_request_for_json(request)
         return auth_response
 
-    def request_okta_user_access(self, client_id: str, client_secret: str, username: str, password: str, scope: str = None, okta_server: str = None) -> Dict:
+    def request_okta_user_access(self, client_id: str, client_secret: str, username: str, password: str, scope: str = None, auth_server_id: str = None, okta_server: str = None) -> Dict:
         auth = self._build_client_basic_auth(client_id, client_secret)
         body = {
             'username': username,
@@ -54,7 +53,7 @@ class AuthenticationAPI(TNCOAPI):
         }
         if scope is not None:
             body["scope"] = scope
-        request = TNCOClientRequest(method='POST', endpoint=self.okta_endpoint)\
+        request = TNCOClientRequest(method='POST', endpoint=self.okta_authserver_endpoint.format(auth_server_id))\
                         .disable_auth_token()\
                         .add_form_data(body)\
                         .add_auth_handler(auth)
