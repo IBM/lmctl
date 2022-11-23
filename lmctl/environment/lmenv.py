@@ -190,7 +190,9 @@ class TNCOEnvironment:
                                 client_secret=self.client_secret, 
                                 api_key=self.api_key,
                                 token=self.token,
-                                auth_mode=self.auth_mode
+                                auth_mode=self.auth_mode,
+                                scope=self.scope,
+                                auth_server_id=self.auth_server_id
                             )
     def build_client(self):
         builder = TNCOClientBuilder()
@@ -238,7 +240,7 @@ class TNCOEnvironment:
 
 class LmSessionConfig:
 
-    def __init__(self, env, username=None, password=None, client_id=None, client_secret=None, token=None, api_key=None, auth_mode=None):
+    def __init__(self, env, username=None, password=None, client_id=None, client_secret=None, token=None, api_key=None, auth_mode=None, scope=None, auth_server_id=None):
         self.env = env
         self.username = username
         self.password = password
@@ -247,6 +249,8 @@ class LmSessionConfig:
         self.api_key = api_key
         self.token = token
         self.auth_mode = auth_mode
+        self.scope = scope
+        self.auth_server_id = auth_server_id
 
     @property
     def is_using_oauth(self):
@@ -276,6 +280,8 @@ class LmSession:
         self.api_key = session_config.api_key
         self.token = session_config.token
         self.auth_mode = session_config.auth_mode
+        self.scope = session_config.scope
+        self.auth_server_id = session_config.auth_server_id
         self.__lm_security_ctrl = None
         self.__descriptor_driver = None
         self.__onboard_rm_driver = None
@@ -300,7 +306,9 @@ class LmSession:
                                                                     client_secret=self.client_secret,
                                                                     api_key=self.api_key,
                                                                     token=self.token,
-                                                                    auth_mode=self.auth_mode
+                                                                    auth_mode=self.auth_mode,
+                                                                    scope=self.scope,
+                                                                    auth_server_id=self.auth_server_id
                                                                 )
             return self.__lm_security_ctrl
         return None
