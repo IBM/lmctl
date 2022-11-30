@@ -3,7 +3,7 @@ import unittest.mock as mock
 import os
 from pydantic import ValidationError
 from lmctl.environment import TNCOEnvironment, LmSessionConfig, LmSession, ALLOW_ALL_SCHEMES_ENV_VAR
-from lmctl.client import TNCOClient, LegacyUserPassAuth, UserPassAuth, ClientCredentialsAuth, JwtTokenAuth, ZenAPIKeyAuth
+from lmctl.client import TNCOClient, LegacyUserPassAuth, UserPassAuth, ClientCredentialsAuth, JwtTokenAuth, ZenAPIKeyAuth, OktaUserPassAuth
 
 class TestTNCOEnvironment(unittest.TestCase):
     maxDiff = None
@@ -256,7 +256,27 @@ class TestTNCOEnvironment(unittest.TestCase):
         self.assertEqual(client.auth_type.password, 'secret')
         self.assertEqual(client.auth_type.client_id, 'TNCOClient')
         self.assertEqual(client.auth_type.client_secret, 'sosecret')
-    
+
+    def test_build_client_okta_user_pass_auth(self):
+        config = TNCOEnvironment(
+                         address='https://testing',
+                         secure=True,
+                         client_id='TNCOClient',
+                         client_secret='sosecret',
+                         username='user',
+                         password='secret',
+                         auth_mode='okta',
+                         auth_server_id='default',
+                         scope='test'
+                         )
+        client = config.build_client()
+        self.assertIsInstance(client, TNCOClient)
+        self.assertIsInstance(client.auth_type, OktaUserPassAuth)
+        self.assertEqual(client.auth_type.username, 'user')
+        self.assertEqual(client.auth_type.password, 'secret')
+        self.assertEqual(client.auth_type.client_id, 'TNCOClient')
+        self.assertEqual(client.auth_type.client_secret, 'sosecret')
+
     def test_build_client_credentials_auth(self):
         config = TNCOEnvironment(
                          address='https://testing',
@@ -361,6 +381,19 @@ class TestLmSession(unittest.TestCase):
         mock_client_builder.address.assert_called_once_with('https://auth:81')
         mock_client_builder.legacy_user_pass_auth.assert_not_called()
         mock_client_builder.user_pass_auth.assert_called_once_with(username='user', password='secret', client_id='UserClient', client_secret='c_secret')
+        mock_client_builder.client_credentials_auth.assert_not_called()
+        mock_client_builder.zen_api_key_auth.assert_not_called()
+
+    @mock.patch('lmctl.environment.lmenv.lm_drivers.security.TNCOClientBuilder')
+    def test_security_ctrl_builds_client_with_okta_user_pass_auth(self, mock_client_builder_init):
+        env = TNCOEnvironment(address='https://api:80', secure=True, username='user', password='secret', client_id='UserClient', client_secret='c_secret', auth_address='https://auth:81', scope='test', auth_server_id='default', auth_mode = 'okta')
+        session_config = env.create_session_config()
+        session = LmSession(session_config)
+        driver = session.descriptor_driver #Force LmSecurityCtrl to be created
+        mock_client_builder = mock_client_builder_init.return_value
+        mock_client_builder.address.assert_called_once_with('https://auth:81')
+        mock_client_builder.legacy_user_pass_auth.assert_not_called()
+        mock_client_builder.okta_user_pass_auth.assert_called_once_with(username='user', password='secret', client_id='UserClient', client_secret='c_secret', scope='test', auth_server_id='default', okta_server='https://auth:81')
         mock_client_builder.client_credentials_auth.assert_not_called()
         mock_client_builder.zen_api_key_auth.assert_not_called()
 

@@ -96,9 +96,16 @@ class TNCOEnvironment:
     @classmethod
     def _validate_okta(cls, values):
         cls._validate_oauth(values)
+        client_id = values.get('client_id', None)
+        username = values.get('username', None)
+        if not client_id and not username:
+            raise ValueError(f'Secure TNCO environment must be configured with either "client_id" or "username" property when using "auth_mode={OKTA_MODE}". If the TNCO environment is not secure then set "secure" to False')
+        # Currently api_key can only be used with Zen, so we perform an extra check to let the user know
+        api_key = values.get('api_key', None)
+        if api_key is not None:
+            raise ValueError(f'Secure TNCO environment cannot be configured with "api_key" when using "auth_mode={OKTA_MODE}". Use "client_id/client_secret" or "username/password" combination or set "auth_mode" to "{ZEN_AUTH_MODE}". If the TNCO environment is not secure then set "secure" to False')
         if not values.get('auth_server_id', None):
             raise ValueError(f'Secure TNCO environment must be configured with "auth_server_id" when using "auth_mode={OKTA_MODE}". If the TNCO environment is not secure then set "secure" to False')
-
         if values.get('username', None) and not values.get('scope', None):
             raise ValueError(f'Secure TNCO environment cannot be configured with "scope" when using "auth_mode={OKTA_MODE}". If the TNCO environment is not secure then set "secure" to False')
 
@@ -203,22 +210,30 @@ class TNCOEnvironment:
                 builder.zen_api_key_auth(username=self.username, api_key=self.api_key, zen_auth_address=self.auth_address)
             elif self.auth_mode == TOKEN_AUTH_MODE:
                 builder.token_auth(token=self.token)
+            elif self.auth_mode == OKTA_MODE:
+                if self.username is not None:
+                    # Using password auth
+                    if self.client_id is not None:
+                        builder.okta_user_pass_auth(username=self.username, password=self.password,
+                                                           client_id=self.client_id,
+                                                           client_secret=self.client_secret,
+                                                           scope=self.scope, auth_server_id=self.auth_server_id,
+                                                           okta_server=self.auth_address)
+                else:
+                    builder.okta_client_credentials_auth(client_id=self.client_id,
+                                                                client_secret=self.client_secret,
+                                                                scope=self.scope, auth_server_id=self.auth_server_id,
+                                                                okta_server=self.auth_address)
             else:
                 if self.username is not None:
                     # Using password auth
                     if self.client_id is not None:
-                        if self.auth_mode == OKTA_MODE:
-                            builder.okta_user_pass_auth(username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret, scope=self.scope, auth_server_id=self.auth_server_id, okta_server=self.auth_address)
-                        else:
-                            builder.user_pass_auth(username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret)
+                        builder.user_pass_auth(username=self.username, password=self.password, client_id=self.client_id, client_secret=self.client_secret)
                     else:
                         # Legacy password auth
                         builder.legacy_user_pass_auth(username=self.username, password=self.password, legacy_auth_address=self.auth_address)
                 else:
-                    if self.auth_mode == OKTA_MODE:
-                        builder.okta_client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret, scope=self.scope, auth_server_id=self.auth_server_id, okta_server=self.auth_address)
-                    else:
-                        builder.client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret)
+                    builder.client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret)
 
         return builder.build()
 
@@ -237,6 +252,10 @@ class TNCOEnvironment:
     @property
     def is_using_token_auth(self):
         return self.auth_mode.lower() == TOKEN_AUTH_MODE.lower()
+
+    @property
+    def is_using_okta_auth(self):
+        return self.auth_mode.lower() == OKTA_MODE.lower()
 
 class LmSessionConfig:
 
@@ -263,6 +282,11 @@ class LmSessionConfig:
     @property
     def is_using_token_auth(self):
         return self.auth_mode.lower() == TOKEN_AUTH_MODE.lower()
+
+    @property
+    def is_using_okta_auth(self):
+        print(f"auth mode =========================")
+        return self.auth_mode.lower() == OKTA_MODE.lower()
 
     def create(self):
         return LmSession(self)

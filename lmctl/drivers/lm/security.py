@@ -74,18 +74,24 @@ class LmSecurityCtrl:
             client_builder.zen_api_key_auth(username=self.__username, api_key=self.__api_key, zen_auth_address=self.__auth_address)
         elif self.__auth_mode.lower() == TOKEN_AUTH_MODE:
             client_builder.token_auth(token=self.__token)
+        elif self.__auth_mode == OKTA_MODE:
+            if self.__username is not None:
+                # Using password auth
+                if self.__client_id is not None:
+                    client_builder.okta_user_pass_auth(username=self.__username, password=self.__password,
+                                                       client_id=self.__client_id, client_secret=self.__client_secret,
+                                                       scope=self.__scope, auth_server_id=self.__auth_server_id,
+                                                       okta_server=self.__auth_address)
+            else:
+                client_builder.okta_client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret,
+                                                     scope=self.scope, auth_server_id=self.auth_server_id,
+                                                     okta_server=self.auth_address)
         else:
             #Oauth
             if self.__username is not None:
                 # Using password auth
                 if self.__client_id is not None:
-                    if self.__auth_mode == OKTA_MODE:
-                        client_builder.okta_user_pass_auth(username=self.__username, password=self.__password,
-                                                    client_id=self.__client_id, client_secret=self.__client_secret,
-                                                    scope=self.__scope, auth_server_id=self.__auth_server_id,
-                                                    okta_server=self.__auth_address)
-                    else:
-                        client_builder.user_pass_auth(username=self.__username, password=self.__password, client_id=self.__client_id,
+                    client_builder.user_pass_auth(username=self.__username, password=self.__password, client_id=self.__client_id,
                                                client_secret=self.__client_secret)
                 else:
                     # Legacy password auth

@@ -43,6 +43,7 @@ logger = logging.getLogger(__name__)
         ('client_secret', '--client-secret'),
         ('auth_address', '--auth-address'),
         ('auth-server-id', '--auth_server_id'),
+        ('scope', '--scope'),
         ('api-key', '--api-key'),
         ('is_zen', '--zen'),
     ]

@@ -62,7 +62,7 @@ class AuthenticationAPI(TNCOAPI):
         auth_response = self.base_client.make_request_for_json(request)
         return auth_response
 
-    def request_okta_access(self, client_id: str, client_secret: str, scope: str = None, auth_server_id: str = None, okta_server: str = None) -> Dict:
+    def request_okta_client_access(self, client_id: str, client_secret: str, scope: str = None, auth_server_id: str = None, okta_server: str = None) -> Dict:
         auth = self._build_client_basic_auth(client_id, client_secret)
         body = {
             'grant_type': 'client_credentials'

@@ -209,6 +209,59 @@ environments:
       #auth_mode: token 
 
       #token: enter-your-token
+
+      #####################################################
+      # Okta Authentication                              #
+      #####################################################
+     
+      # Indicate the environment is using oauth
+      #auth_mode: oauth 
+
+      #====================================#
+      # Oauth Option 1:                    #
+      # (Unoffical)TNCO Client credentials #
+      #=========================#
+
+      ## ID of the client credentials to authenticate with
+      #client_id: LmClient
+      
+      ## Secret for the above client
+      #client_secret: enter-your-secret
+
+      ## Authorization server's id of Okta server
+      #auth_server_id : default
+
+      #=========================#
+      # Oauth Option 2:         #
+      # TNCO User based access  #
+      #=========================#
+
+      ## ID of the client credentials with password scope authentication enabled
+      #client_id: LmClient
+
+      ## Secret for the above client
+      #client_secret: enter-your-secret
+
+      ## The username to authenticate with
+      #username: jack
+
+      ## The password for the above user
+      #password: enter-your-pass
+
+      ## Authorization server's id of Okta server
+      #auth_server_id : default
+      
+      ## Scopes you grant for Okta users
+      #scope: lmctl
+
+      #####################################################
+      # Token Authentication                              #
+      #####################################################
+     
+      # Indicate the environment is using token based auth
+      #auth_mode: token 
+
+      #token: enter-your-token
 ```
 
 ## Ansible RM
@@ -264,5 +317,15 @@ environments:
       address: https://app.lm:32443
       secure: true
       auth_address: https://ui.lm:32443
+      username: jack
+  okta:
+    tnco:
+      address: https://Na4d.example
+      auth_address: https://dev.okta.com
+      auth_mode: okta
+      auth_server_id: default
+      client_id: LmClient
+      scope: lmctl
+      secure: true
       username: jack
 ```
