@@ -82,6 +82,8 @@ class LmSecurityCtrl:
                                                        client_id=self.__client_id, client_secret=self.__client_secret,
                                                        scope=self.__scope, auth_server_id=self.__auth_server_id,
                                                        okta_server=self.__auth_address)
+                else:
+                    raise ValueError('TNCO environment cannot be configured without "client_id" property')
             else:
                 client_builder.okta_client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret,
                                                      scope=self.scope, auth_server_id=self.auth_server_id,

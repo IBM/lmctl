@@ -219,7 +219,7 @@ environments:
 
       #====================================#
       # Oauth Option 1:                    #
-      # (Unoffical)TNCO Client credentials #
+      # (Unoffical)Okta Client credentials #
       #=========================#
 
       ## ID of the client credentials to authenticate with
@@ -233,7 +233,7 @@ environments:
 
       #=========================#
       # Oauth Option 2:         #
-      # TNCO User based access  #
+      # Okta User based access  #
       #=========================#
 
       ## ID of the client credentials with password scope authentication enabled

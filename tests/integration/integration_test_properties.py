@@ -32,7 +32,7 @@ class AuthTesting:
             user_pass=UserPassAuth(**user_pass) if user_pass is not None else None,
             legacy_user_pass=LegacyUserPassAuth(**legacy_user_pass) if legacy_user_pass is not None else None,
             token_auth=JwtTokenAuth(**token_auth) if token_auth is not None else None,
-            okta_user_pass_auth=OktaUserPassAuth(**okta_user_pass_auth)
+            okta_user_pass_auth=OktaUserPassAuth(**okta_user_pass_auth) if okta_user_pass_auth is not None else None
         )
 
 class IntegrationTestProperties:

@@ -95,7 +95,6 @@ class TNCOEnvironment:
 
     @classmethod
     def _validate_okta(cls, values):
-        cls._validate_oauth(values)
         client_id = values.get('client_id', None)
         username = values.get('username', None)
         if not client_id and not username:
@@ -107,7 +106,7 @@ class TNCOEnvironment:
         if not values.get('auth_server_id', None):
             raise ValueError(f'Secure TNCO environment must be configured with "auth_server_id" when using "auth_mode={OKTA_MODE}". If the TNCO environment is not secure then set "secure" to False')
         if values.get('username', None) and not values.get('scope', None):
-            raise ValueError(f'Secure TNCO environment cannot be configured with "scope" when using "auth_mode={OKTA_MODE}". If the TNCO environment is not secure then set "secure" to False')
+            raise ValueError(f'Secure TNCO environment must be set with "scope" when using "auth_mode={OKTA_MODE}" with usename. If the TNCO environment is not secure then set "secure" to False')
 
         return values
 
@@ -219,6 +218,8 @@ class TNCOEnvironment:
                                                            client_secret=self.client_secret,
                                                            scope=self.scope, auth_server_id=self.auth_server_id,
                                                            okta_server=self.auth_address)
+                    else:
+                        raise ValueError('TNCO environment cannot be configured without "client_id" property')
                 else:
                     builder.okta_client_credentials_auth(client_id=self.client_id,
                                                                 client_secret=self.client_secret,
