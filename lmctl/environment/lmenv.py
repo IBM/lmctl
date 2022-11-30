@@ -95,7 +95,6 @@ class TNCOEnvironment:
 
     @classmethod
     def _validate_okta(cls, values):
-        cls._validate_oauth(values)
         client_id = values.get('client_id', None)
         username = values.get('username', None)
         if not client_id and not username:
