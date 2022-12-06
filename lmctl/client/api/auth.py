@@ -35,7 +35,7 @@ class AuthenticationAPI(TNCOAPI):
         body = {
             'username': username,
             'password': password,
-            'grant_type': 'password',
+            'grant_type': 'password'
         }
         request = TNCOClientRequest(method='POST', endpoint=self.oauth_endpoint)\
                         .disable_auth_token()\
@@ -49,7 +49,7 @@ class AuthenticationAPI(TNCOAPI):
         body = {
             'username': username,
             'password': password,
-            'grant_type': 'password',
+            'grant_type': 'password'
         }
         if scope is not None:
             body["scope"] = scope
