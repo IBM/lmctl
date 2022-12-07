@@ -219,7 +219,7 @@ environments:
 
       #====================================#
       # Oauth Option 1:                    #
-      # (Unoffical)Okta Client credentials #
+      # (Unofficial)Okta Client credentials #
       #=========================#
 
       ## ID of the client credentials to authenticate with

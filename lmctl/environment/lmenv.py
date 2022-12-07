@@ -286,7 +286,6 @@ class LmSessionConfig:
 
     @property
     def is_using_okta_auth(self):
-        print(f"auth mode =========================")
         return self.auth_mode.lower() == OKTA_MODE.lower()
 
     def create(self):
