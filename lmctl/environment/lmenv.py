@@ -219,7 +219,7 @@ class TNCOEnvironment:
                                                            scope=self.scope, auth_server_id=self.auth_server_id,
                                                            okta_server=self.auth_address)
                     else:
-                        raise ValueError('TNCO environment cannot be configured without "client_id" property')
+                        raise ValueError(f'TNCO environment cannot be configured without a client_id when using auth_mode={OKTA_MODE}')
                 else:
                     builder.okta_client_credentials_auth(client_id=self.client_id,
                                                                 client_secret=self.client_secret,
