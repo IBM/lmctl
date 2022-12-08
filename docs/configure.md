@@ -214,25 +214,11 @@ environments:
       # Okta Authentication                              #
       #####################################################
      
-      # Indicate the environment is using oauth
-      #auth_mode: oauth 
-
-      #====================================#
-      # Oauth Option 1:                    #
-      # (Unofficial)Okta Client credentials #
-      #=========================#
-
-      ## ID of the client credentials to authenticate with
-      #client_id: LmClient
-      
-      ## Secret for the above client
-      #client_secret: enter-your-secret
-
-      ## Authorization server's id of Okta server
-      #auth_server_id : default
+      # Indicate the environment is using okta
+      #auth_mode: okta 
 
       #=========================#
-      # Oauth Option 2:         #
+      # Okta Option 1:         #
       # Okta User based access  #
       #=========================#
 
