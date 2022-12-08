@@ -1,5 +1,6 @@
 from .client_credentials_auth import ClientCredentialsAuth
-from .pass_auth import UserPassAuth, LegacyUserPassAuth
+from .okta_client_credentials_auth import OktaClientCredentialsAuth
+from .pass_auth import UserPassAuth, LegacyUserPassAuth, OktaUserPassAuth
 from .zen_auth import ZenAPIKeyAuth
 from .token_auth import JwtTokenAuth
 from .client import TNCOClient
@@ -47,11 +48,19 @@ class TNCOClientBuilder:
     def client_credentials_auth(self, client_id: str, client_secret: str) -> 'TNCOClientBuilder':
         self._auth = ClientCredentialsAuth(client_id=client_id, client_secret=client_secret)
         return self
-    
+
+    def okta_client_credentials_auth(self, client_id: str, client_secret: str, scope: str = None , auth_server_id: str = None, okta_server: str = None) -> 'TNCOClientBuilder':
+        self._auth = OktaClientCredentialsAuth(client_id=client_id, client_secret=client_secret, scope=scope, auth_server_id=auth_server_id, okta_server=okta_server)
+        return self
+
     def user_pass_auth(self, username: str, password: str, client_id: str, client_secret: str) -> 'TNCOClientBuilder':
         self._auth = UserPassAuth(username=username, password=password, client_id=client_id, client_secret=client_secret)
         return self
-    
+
+    def okta_user_pass_auth(self, username: str, password: str, client_id: str, client_secret: str, scope: str = None, auth_server_id: str = None, okta_server: str = None) -> 'TNCOClientBuilder':
+        self._auth = OktaUserPassAuth(username=username, password=password, client_id=client_id, client_secret=client_secret, scope=scope, auth_server_id=auth_server_id, okta_server=okta_server)
+        return self
+
     def legacy_user_pass_auth(self, username: str, password: str, legacy_auth_address: str = None) -> 'TNCOClientBuilder':
         self._auth = LegacyUserPassAuth(username=username, password=password, legacy_auth_address=legacy_auth_address)
         return self
