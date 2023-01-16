@@ -228,16 +228,12 @@ lmctl login PROD_API_GATEWAY --auth-address PROD_UI_ADDRESS --username almadmin 
 Only one environment is considered "active", which makes it the default. However, most commands allow you to specify an environment by name. Run the following commands and check out the address reported in the output:
 
 ```
-# Ping dev
 lmctl ping env dev
 
-# Ping test
 lmctl ping env test
 
-# Ping prod
 lmctl ping env prod
 
-# Ping active env (last logged in)
 lmctl ping env
 ```
 
@@ -246,7 +242,6 @@ You can switch the active environment at any time with `lmctl use`:
 ```
 lmctl use env dev
 
-# Ping active env (will use "dev")
 lmctl ping env
 ```
 
