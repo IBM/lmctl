@@ -181,7 +181,8 @@ Eventually your access token will expire, resulting in authentication errors whe
 Run `lmctl login`, changing the values to valid parameters for your environment:
 
 ```
-lmctl login $API_GATEWAY --okta --client <Client> --client-secret <secret> -u <user> -p <password> --scope <scope>  --auth-address https://<okta server endpoint> --auth-server-id <auth_server_id>```
+lmctl login $API_GATEWAY --okta --client <Client> --client-secret <secret> -u <user> -p <password> --scope <scope>  --auth-address https://<okta server endpoint> --auth-server-id <auth_server_id>
+```
 
 > You may omit the `--password` option and LMCTL will prompt for this as hidden input instead.
 
