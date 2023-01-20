@@ -87,7 +87,9 @@ accepted_process_prefix = 'Accepted'
 
 help_suffix = f'''\
 For example:
-\n\nHeal using {tnco_builder.display_name} ID: lmctl retry {tnco_builder.singular} 6ad3327e-79df-464f-af48-3283f871584d
+\n\nRetry process using {tnco_builder.display_name} ID: lmctl retry {tnco_builder.singular} 6ad3327e-79df-464f-af48-3283f871584d
+\n\nCancel process using {tnco_builder.display_name} ID: lmctl cancel {tnco_builder.singular} 6ad3327e-79df-464f-af48-3283f871584d
+\n\nRollback process using {tnco_builder.display_name} ID: lmctl rollback {tnco_builder.singular} 6ad3327e-79df-464f-af48-3283f871584d
 '''
 
 id_opt = Identifier(
