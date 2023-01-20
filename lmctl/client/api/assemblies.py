@@ -67,6 +67,15 @@ class AssembliesAPI(TNCOAPI):
     def intent_heal(self, intent_obj: Union[Dict, HealAssemblyIntent]) -> str:
         return self._intent_request_impl('healAssembly', intent_obj)
 
+    def intent_retry(self, intent_obj: Union[Dict, HealAssemblyIntent]) -> str:
+        return self._intent_request_impl('retry', intent_obj)
+
+    def intent_rollback(self, intent_obj: Union[Dict, HealAssemblyIntent]) -> str:
+        return self._intent_request_impl('rollback', intent_obj)
+
+    def intent_cancel(self, intent_obj: Union[Dict, HealAssemblyIntent]) -> str:
+        return self._intent_request_impl('cancel', intent_obj)
+
     def intent_adopt(self, intent_obj: Union[Dict, AdoptAssemblyIntent]) -> str:
         return self._intent_request_impl('adoptAssembly', intent_obj)   
 
@@ -81,10 +90,13 @@ class AssembliesAPI(TNCOAPI):
                                                                         HealAssemblyIntent, 
                                                                         ScaleAssemblyIntent,
                                                                         UpgradeAssemblyIntent]) -> str:
+        process_intents = ["retry", "rollback", "cancel"]
         endpoint = self.intent_endpoint(intent_name)
         if isinstance(intent_obj, Intent):
             intent_obj_data = intent_obj.to_dict()
         else:
             intent_obj_data = intent_obj
         request = TNCOClientRequest(method='POST', endpoint=endpoint).add_json_body(intent_obj_data)
+        if intent_name in process_intents:
+            return self._exec_request(request)
         return self._exec_request_and_get_location_header(request)

@@ -52,6 +52,14 @@ def get():
 def heal():
     pass
 
+@action_group(help='Retry Assembly components')
+def retry():
+    pass
+
+@action_group(help='Rollback Assembly components')
+def rollback():
+    pass
+
 @action_group(help='Test connection to environments')
 def ping():
     pass
