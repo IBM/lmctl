@@ -3,11 +3,13 @@ from typing import List, Dict, Union
 from lmctl.client.exceptions import TNCOClientError
 from lmctl.client.models import (CreateAssemblyIntent, UpgradeAssemblyIntent, ChangeAssemblyStateIntent, 
                                     DeleteAssemblyIntent, ScaleAssemblyIntent, HealAssemblyIntent,
-                                    AdoptAssemblyIntent, CreateOrUpgradeAssemblyIntent, Intent)
+                                    AdoptAssemblyIntent, CreateOrUpgradeAssemblyIntent,
+                                    RollbackAssemblyIntent, CancelAssemblyIntent, RetryAssemblyIntent, Intent)
 
 from lmctl.client.client_request import TNCOClientRequest
 from .tnco_api_base import TNCOAPI
 from lmctl.client.utils import build_relative_endpoint, read_response_location_header
+
 
 class AssembliesAPI(TNCOAPI):
     topology_endpoint = 'api/topology/assemblies'
@@ -53,6 +55,7 @@ class AssembliesAPI(TNCOAPI):
         return self._intent_request_impl('createOrUpgradeAssembly', intent_obj)
 
     def intent_delete(self, intent_obj: Union[Dict, DeleteAssemblyIntent]) -> str:
+        print(intent_obj)
         return self._intent_request_impl('deleteAssembly', intent_obj)
 
     def intent_change_state(self, intent_obj: Union[Dict, ChangeAssemblyStateIntent]) -> str:
@@ -67,13 +70,13 @@ class AssembliesAPI(TNCOAPI):
     def intent_heal(self, intent_obj: Union[Dict, HealAssemblyIntent]) -> str:
         return self._intent_request_impl('healAssembly', intent_obj)
 
-    def intent_retry(self, intent_obj: Union[Dict, HealAssemblyIntent]) -> str:
+    def intent_retry(self, intent_obj: Union[Dict, RetryAssemblyIntent]) -> str:
         return self._intent_request_impl('retry', intent_obj)
 
-    def intent_rollback(self, intent_obj: Union[Dict, HealAssemblyIntent]) -> str:
+    def intent_rollback(self, intent_obj: Union[Dict, RollbackAssemblyIntent]) -> str:
         return self._intent_request_impl('rollback', intent_obj)
 
-    def intent_cancel(self, intent_obj: Union[Dict, HealAssemblyIntent]) -> str:
+    def intent_cancel(self, intent_obj: Union[Dict, CancelAssemblyIntent]) -> str:
         return self._intent_request_impl('cancel', intent_obj)
 
     def intent_adopt(self, intent_obj: Union[Dict, AdoptAssemblyIntent]) -> str:

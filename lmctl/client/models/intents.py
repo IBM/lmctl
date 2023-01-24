@@ -94,6 +94,33 @@ class DeleteAssemblyIntent(ExistingAssemblyIntent):
         return (isinstance(other, DeleteAssemblyIntent) and self.assembly_name==other.assembly_name
             and self.assembly_id==other.assembly_id)
 
+class RetryAssemblyIntent(ExistingAssemblyIntent):
+
+    def __init__(self, assembly_id: str = None):
+        super().__init__(assembly_id=assembly_id)
+
+    def to_dict(self) -> Dict:
+        obj = super().to_dict()
+        return obj
+
+class RollbackAssemblyIntent(ExistingAssemblyIntent):
+
+    def __init__(self, assembly_id: str = None):
+        super().__init__(assembly_id=assembly_id)
+
+    def to_dict(self) -> Dict:
+        obj = super().to_dict()
+        return obj
+
+class CancelAssemblyIntent(ExistingAssemblyIntent):
+
+    def __init__(self, assembly_id: str = None):
+        super().__init__(assembly_id=assembly_id)
+
+    def to_dict(self) -> Dict:
+        obj = super().to_dict()
+        return obj
+
 class HealAssemblyIntent(ExistingAssemblyIntent):
 
     def __init__(self, assembly_id: str = None, assembly_name: str = None, 
