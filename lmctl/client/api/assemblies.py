@@ -10,6 +10,7 @@ from lmctl.client.client_request import TNCOClientRequest
 from .tnco_api_base import TNCOAPI
 from lmctl.client.utils import build_relative_endpoint, read_response_location_header
 
+INTENTS_WITHOUT_LOCATION_HEADER = ["retry", "rollback", "cancel"]
 
 class AssembliesAPI(TNCOAPI):
     topology_endpoint = 'api/topology/assemblies'
@@ -42,7 +43,10 @@ class AssembliesAPI(TNCOAPI):
                                                         DeleteAssemblyIntent, 
                                                         HealAssemblyIntent, 
                                                         ScaleAssemblyIntent,
-                                                        UpgradeAssemblyIntent]) -> str:
+                                                        UpgradeAssemblyIntent,
+                                                        RetryAssemblyIntent,
+                                                        CancelAssemblyIntent,
+                                                        RollbackAssemblyIntent]) -> str:
         return self._intent_request_impl(intent_name, intent_obj)
 
     def intent_create(self, intent_obj: Union[Dict, CreateAssemblyIntent]) -> str:
@@ -55,7 +59,6 @@ class AssembliesAPI(TNCOAPI):
         return self._intent_request_impl('createOrUpgradeAssembly', intent_obj)
 
     def intent_delete(self, intent_obj: Union[Dict, DeleteAssemblyIntent]) -> str:
-        print(intent_obj)
         return self._intent_request_impl('deleteAssembly', intent_obj)
 
     def intent_change_state(self, intent_obj: Union[Dict, ChangeAssemblyStateIntent]) -> str:
@@ -93,13 +96,12 @@ class AssembliesAPI(TNCOAPI):
                                                                         HealAssemblyIntent, 
                                                                         ScaleAssemblyIntent,
                                                                         UpgradeAssemblyIntent]) -> str:
-        process_intents = ["retry", "rollback", "cancel"]
         endpoint = self.intent_endpoint(intent_name)
         if isinstance(intent_obj, Intent):
             intent_obj_data = intent_obj.to_dict()
         else:
             intent_obj_data = intent_obj
         request = TNCOClientRequest(method='POST', endpoint=endpoint).add_json_body(intent_obj_data)
-        if intent_name in process_intents:
+        if intent_name in INTENTS_WITHOUT_LOCATION_HEADER:
             return self._exec_request(request)
         return self._exec_request_and_get_location_header(request)

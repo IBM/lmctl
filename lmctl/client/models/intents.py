@@ -94,31 +94,37 @@ class DeleteAssemblyIntent(ExistingAssemblyIntent):
         return (isinstance(other, DeleteAssemblyIntent) and self.assembly_name==other.assembly_name
             and self.assembly_id==other.assembly_id)
 
-class RetryAssemblyIntent(ExistingAssemblyIntent):
+class RetryAssemblyIntent():
 
-    def __init__(self, assembly_id: str = None):
-        super().__init__(assembly_id=assembly_id)
+    def __init__(self, process_id: str = None):
+        self.process_id = process_id
 
     def to_dict(self) -> Dict:
-        obj = super().to_dict()
+        obj = {}
+        if self.process_id is not None:
+            obj['process_id'] = self.process_id
         return obj
 
-class RollbackAssemblyIntent(ExistingAssemblyIntent):
+class RollbackAssemblyIntent():
 
-    def __init__(self, assembly_id: str = None):
-        super().__init__(assembly_id=assembly_id)
+    def __init__(self, process_id: str = None):
+        self.process_id = process_id
 
     def to_dict(self) -> Dict:
-        obj = super().to_dict()
+        obj = {}
+        if self.process_id is not None:
+            obj['process_id'] = self.process_id
         return obj
 
-class CancelAssemblyIntent(ExistingAssemblyIntent):
+class CancelAssemblyIntent():
 
-    def __init__(self, assembly_id: str = None):
-        super().__init__(assembly_id=assembly_id)
+    def __init__(self, process_id: str = None):
+        self.process_id = process_id
 
     def to_dict(self) -> Dict:
-        obj = super().to_dict()
+        obj = {}
+        if self.process_id is not None:
+            obj['process_id'] = self.process_id
         return obj
 
 class HealAssemblyIntent(ExistingAssemblyIntent):

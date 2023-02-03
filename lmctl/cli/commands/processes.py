@@ -90,21 +90,16 @@ For example:
 \n\nRetry process using {tnco_builder.display_name} ID: lmctl retry {tnco_builder.singular} 6ad3327e-79df-464f-af48-3283f871584d
 '''
 
-id_opt = Identifier(
-    param_name='process_id',
-    obj_attribute='brokenComponentId',
-    param_opts=['process-id']
-)
-
 @tnco_builder.make_general_command(
     group=retry,
     short_help=f'Request an intent to retry a {tnco_builder.display_name}',
     help_prefix=f'Request an intent to retry a {tnco_builder.display_name}',
-    identifiers=[id_opt],
+    identifiers=[id_arg],
     help_suffix=retry_help_suffix,
-    pass_file_content=False
+    pass_file_content=False,
+    allow_file_input=False
 )
-@click.argument(*id_opt.param_opts,
+@click.argument(id_arg.param_name,
                required=True)
 @pass_io
 def retry_process(
@@ -128,11 +123,12 @@ For example:
     group=rollback,
     short_help=f'Request an intent to rollback a {tnco_builder.display_name}',
     help_prefix=f'Request an intent to rollback a {tnco_builder.display_name}',
-    identifiers=[id_opt],
+    identifiers=[id_arg],
     help_suffix=rollback_help_suffix,
-    pass_file_content=False
+    pass_file_content=False,
+    allow_file_input=False
 )
-@click.argument(*id_opt.param_opts,
+@click.argument(id_arg.param_name,
                required=True)
 @pass_io
 def rollback_process(
@@ -155,11 +151,12 @@ For example:
     group=cancel,
     short_help=f'Request an intent to cancel a {tnco_builder.display_name}',
     help_prefix=f'Request an intent to cancel a {tnco_builder.display_name}',
-    identifiers=[id_opt],
+    identifiers=[id_arg],
     help_suffix=cancel_help_suffix,
-    pass_file_content=False
+    pass_file_content=False,
+    allow_file_input=False
 )
-@click.argument(*id_opt.param_opts,
+@click.argument(id_arg.param_name,
                required=True)
 @pass_io
 def cancel_process(
