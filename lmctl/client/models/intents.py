@@ -94,10 +94,14 @@ class DeleteAssemblyIntent(ExistingAssemblyIntent):
         return (isinstance(other, DeleteAssemblyIntent) and self.assembly_name==other.assembly_name
             and self.assembly_id==other.assembly_id)
 
-class RetryAssemblyIntent():
+class RetryAssemblyIntent(Intent):
 
     def __init__(self, process_id: str = None):
         self.process_id = process_id
+
+    def set_process_id(self, process_id : str):
+        self.process_id = process_id
+        return self
 
     def to_dict(self) -> Dict:
         obj = {}
@@ -105,10 +109,14 @@ class RetryAssemblyIntent():
             obj['process_id'] = self.process_id
         return obj
 
-class RollbackAssemblyIntent():
+class RollbackAssemblyIntent(Intent):
 
     def __init__(self, process_id: str = None):
         self.process_id = process_id
+
+    def set_process_id(self, process_id : str):
+        self.process_id = process_id
+        return self
 
     def to_dict(self) -> Dict:
         obj = {}
@@ -116,10 +124,14 @@ class RollbackAssemblyIntent():
             obj['process_id'] = self.process_id
         return obj
 
-class CancelAssemblyIntent():
+class CancelAssemblyIntent(Intent):
 
     def __init__(self, process_id: str = None):
         self.process_id = process_id
+
+    def set_process_id(self, process_id : str):
+        self.process_id = process_id
+        return self
 
     def to_dict(self) -> Dict:
         obj = {}

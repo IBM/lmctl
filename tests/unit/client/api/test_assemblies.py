@@ -4,7 +4,8 @@ from unittest.mock import patch, MagicMock
 from lmctl.client.api import AssembliesAPI
 from lmctl.client.models import (CreateAssemblyIntent, UpgradeAssemblyIntent, ChangeAssemblyStateIntent, 
                                     DeleteAssemblyIntent, ScaleAssemblyIntent, HealAssemblyIntent,
-                                    AdoptAssemblyIntent, CreateOrUpgradeAssemblyIntent)
+                                    AdoptAssemblyIntent, CreateOrUpgradeAssemblyIntent, CancelAssemblyIntent,
+                                    RetryAssemblyIntent, RollbackAssemblyIntent)
 from lmctl.client.client_request import TNCOClientRequest
 
 class TestAssembliesAPI(unittest.TestCase):
@@ -238,3 +239,75 @@ class TestAssembliesAPI(unittest.TestCase):
         response = self.assemblies.intent_adopt(intent)
         self.assertEqual(response, '123')
         self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/intent/adoptAssembly', headers={'Content-Type': 'application/json'}, body=json.dumps(intent)))
+
+    def test_intent_cancel(self):
+        mock_response = MagicMock(status_code=200)
+        self.mock_client.make_request.return_value = mock_response
+        intent = CancelAssemblyIntent(process_id='8475f402-cb6f-4ef1-a379-77c7e20cdf72')
+        response = self.assemblies.intent_cancel(intent)
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST',
+                                                        endpoint='api/intent/cancel',
+                                                        headers={'Content-Type': 'application/json'},
+                                                        body=json.dumps({
+                                                            'process_id': '8475f402-cb6f-4ef1-a379-77c7e20cdf72'
+                                                        })))
+
+    def test_intent_cancel_with_dict(self):
+        mock_response = MagicMock(status_code=200)
+        self.mock_client.make_request.return_value = mock_response
+        intent = {'process_id' : '8475f402-cb6f-4ef1-a379-77c7e20cdf72'}
+        response = self.assemblies.intent_cancel(intent)
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST',
+                                                        endpoint='api/intent/cancel',
+                                                        headers={'Content-Type': 'application/json'},
+                                                        body=json.dumps({
+                                                            'process_id': '8475f402-cb6f-4ef1-a379-77c7e20cdf72'
+                                                        })))
+
+    def test_intent_retry(self):
+        mock_response = MagicMock(status_code=200)
+        self.mock_client.make_request.return_value = mock_response
+        intent = RetryAssemblyIntent(process_id='8475f402-cb6f-4ef1-a379-77c7e20cdf72')
+        response = self.assemblies.intent_retry(intent)
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST',
+                                                        endpoint='api/intent/retry',
+                                                        headers={'Content-Type': 'application/json'},
+                                                        body=json.dumps({
+                                                            'process_id': '8475f402-cb6f-4ef1-a379-77c7e20cdf72'
+                                                        })))
+
+    def test_intent_retry_with_dict(self):
+        mock_response = MagicMock(status_code=200)
+        self.mock_client.make_request.return_value = mock_response
+        intent = {'process_id' : '8475f402-cb6f-4ef1-a379-77c7e20cdf72'}
+        response = self.assemblies.intent_retry(intent)
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST',
+                                                        endpoint='api/intent/retry',
+                                                        headers={'Content-Type': 'application/json'},
+                                                        body=json.dumps({
+                                                            'process_id': '8475f402-cb6f-4ef1-a379-77c7e20cdf72'
+                                                        })))
+
+    def test_intent_rollback(self):
+        mock_response = MagicMock(status_code=200)
+        self.mock_client.make_request.return_value = mock_response
+        intent = RollbackAssemblyIntent(process_id='8475f402-cb6f-4ef1-a379-77c7e20cdf72')
+        response = self.assemblies.intent_rollback(intent)
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST',
+                                                        endpoint='api/intent/rollback',
+                                                        headers={'Content-Type': 'application/json'},
+                                                        body=json.dumps({
+                                                            'process_id': '8475f402-cb6f-4ef1-a379-77c7e20cdf72'
+                                                        })))
+
+    def test_intent_rollback_with_dict(self):
+        mock_response = MagicMock(status_code=200)
+        self.mock_client.make_request.return_value = mock_response
+        intent = {'process_id' : '8475f402-cb6f-4ef1-a379-77c7e20cdf72'}
+        response = self.assemblies.intent_rollback(intent)
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST',
+                                                        endpoint='api/intent/rollback',
+                                                        headers={'Content-Type': 'application/json'},
+                                                        body=json.dumps({
+                                                            'process_id': '8475f402-cb6f-4ef1-a379-77c7e20cdf72'
+                                                        })))
