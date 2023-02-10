@@ -48,6 +48,14 @@ class TestIntentCommands(command_testing.CommandTestCase):
             }
         ), self.config_path)
 
+    def tearDown(self):
+        super().tearDown()
+
+        if os.path.exists(self.tmp_dir):
+            shutil.rmtree(self.tmp_dir)
+        if self.orig_lm_config is not None:
+            os.environ['LMCONFIG'] = self.orig_lm_config
+
     def test_cancel_intent(self):
         result = self.runner.invoke(process_cmds.cancel, ['process', '8475f402-cb6f-4ef1-a379-77c7e20cdf72'])
         self.assert_no_errors(result)
