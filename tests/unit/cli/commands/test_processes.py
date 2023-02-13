@@ -10,7 +10,7 @@ from lmctl.environment import EnvironmentGroup, TNCOEnvironment
 import lmctl.cli.commands.processes as process_cmds
 
 
-class TestIntentCommands(command_testing.CommandTestCase):
+class TestProcessCommands(command_testing.CommandTestCase):
 
     def setUp(self):
         super().setUp()
