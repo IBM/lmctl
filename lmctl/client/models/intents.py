@@ -97,7 +97,7 @@ class DeleteAssemblyIntent(ExistingAssemblyIntent):
 class RetryAssemblyIntent(Intent):
 
     def __init__(self, process_id: str = None):
-        if process_id == None or process_id == "":
+        if process_id == None or len(process_id.strip()) == 0:
             raise ValueError("Process id can not be None or empty")
         self.process_id = process_id
 
@@ -114,7 +114,7 @@ class RetryAssemblyIntent(Intent):
 class RollbackAssemblyIntent(Intent):
 
     def __init__(self, process_id: str = None):
-        if process_id == None or process_id == "":
+        if process_id == None or len(process_id.strip()) == 0:
             raise ValueError("Process id can not be None or empty")
         self.process_id = process_id
 
@@ -131,7 +131,7 @@ class RollbackAssemblyIntent(Intent):
 class CancelAssemblyIntent(Intent):
 
     def __init__(self, process_id: str = None):
-        if process_id == None or process_id == "":
+        if process_id == None or len(process_id.strip()) == 0:
             raise ValueError("Process id can not be None or empty")
         self.process_id = process_id
 
