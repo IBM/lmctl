@@ -94,6 +94,58 @@ class DeleteAssemblyIntent(ExistingAssemblyIntent):
         return (isinstance(other, DeleteAssemblyIntent) and self.assembly_name==other.assembly_name
             and self.assembly_id==other.assembly_id)
 
+class RetryAssemblyIntent(Intent):
+
+    def __init__(self, process_id: str = None):
+        if process_id == None or len(process_id.strip()) == 0:
+            raise ValueError("Process id can not be None or empty")
+        self.process_id = process_id
+
+    def set_process_id(self, process_id : str):
+        self.process_id = process_id
+        return self
+
+    def to_dict(self) -> Dict:
+        obj = {}
+        if self.process_id is not None:
+            obj['process_id'] = self.process_id
+        return obj
+
+class RollbackAssemblyIntent(Intent):
+
+    def __init__(self, process_id: str = None):
+        if process_id == None or len(process_id.strip()) == 0:
+            raise ValueError("Process id can not be None or empty")
+        self.process_id = process_id
+
+    def set_process_id(self, process_id : str):
+        self.process_id = process_id
+        return self
+
+    def to_dict(self) -> Dict:
+        obj = {}
+        if self.process_id is not None:
+            obj['process_id'] = self.process_id
+        return obj
+
+class CancelAssemblyIntent(Intent):
+
+    def __init__(self, process_id: str = None):
+        if process_id == None or len(process_id.strip()) == 0:
+            raise ValueError("Process id can not be None or empty")
+        self.process_id = process_id
+
+    def set_process_id(self, process_id : str):
+        print("Not found")
+        self.process_id = process_id
+        return self
+
+    def to_dict(self) -> Dict:
+        obj = {}
+        if self.process_id is not None:
+            obj['process_id'] = self.process_id
+        return obj
+
 class HealAssemblyIntent(ExistingAssemblyIntent):
 
     def __init__(self, assembly_id: str = None, assembly_name: str = None, 
