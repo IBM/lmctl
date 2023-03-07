@@ -169,26 +169,7 @@ class Pkg:
     def extract(self, target_directory):
         if tarfile.is_tarfile(self.path):
             with tarfile.open(self.path, mode='r:gz') as pkg_tar:
-                def is_within_directory(directory, target):
-                    
-                    abs_directory = os.path.abspath(directory)
-                    abs_target = os.path.abspath(target)
-                
-                    prefix = os.path.commonprefix([abs_directory, abs_target])
-                    
-                    return prefix == abs_directory
-                
-                def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
-                
-                    for member in tar.getmembers():
-                        member_path = os.path.join(path, member.name)
-                        if not is_within_directory(path, member_path):
-                            raise Exception("Attempted Path Traversal in Tar File")
-                
-                    tar.extractall(path, members, numeric_owner=numeric_owner) 
-                    
-                
-                safe_extract(pkg_tar, target_directory)
+                files.safely_extract_tar(pkg_tar, target_directory)
         elif zipfile.is_zipfile(self.path):
             with zipfile.ZipFile(self.path, mode='r') as pkg_csar:
                 pkg_csar.extractall(target_directory)
@@ -210,26 +191,7 @@ class Pkg:
         content_tgz = pkg_tree.deprecated_content_tgz_path
         if os.path.exists(content_tgz):
             with tarfile.open(content_tgz, mode='r:gz') as content_tar:
-                def is_within_directory(directory, target):
-                    
-                    abs_directory = os.path.abspath(directory)
-                    abs_target = os.path.abspath(target)
-                
-                    prefix = os.path.commonprefix([abs_directory, abs_target])
-                    
-                    return prefix == abs_directory
-                
-                def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
-                
-                    for member in tar.getmembers():
-                        member_path = os.path.join(path, member.name)
-                        if not is_within_directory(path, member_path):
-                            raise Exception("Attempted Path Traversal in Tar File")
-                
-                    tar.extractall(path, members, numeric_owner=numeric_owner) 
-                    
-                
-                safe_extract(content_tar, pkg_tree.root_path)
+                files.safely_extract_tar(content_tar, pkg_tree.root_path)
             return pkg_tree
         # Nested content directory (deprecated), move the pkgmeta file into this directory and load the project from there
         elif os.path.exists(pkg_tree.deprecated_content_path):
