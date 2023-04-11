@@ -13,3 +13,6 @@ class ObjectgroupsAPI(TNCOAPI):
 
     def query(self, **query_params) -> List:
         return self._get_json(self.endpoint, query_params=query_params)
+
+    def all(self) -> List:
+        return self._all()
