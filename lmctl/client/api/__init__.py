@@ -8,8 +8,8 @@ from .deployment_locations import DeploymentLocationAPI
 from .descriptors import DescriptorsAPI
 from .descriptor_templates import DescriptorTemplatesAPI
 from .lifecycle_drivers import LifecycleDriversAPI
-from .objectgroups import ObjectgroupsAPI
-from .permissiontype import PermissionTypeAPI
+from .object_groups import ObjectgroupsAPI
+from .permission_type import PermissionTypeAPI
 from .processes import ProcessesAPI
 from .resource_drivers import ResourceDriversAPI
 from .resource_packages import ResourcePackagesAPI
