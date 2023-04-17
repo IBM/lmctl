@@ -55,7 +55,7 @@ def report_dict_to_list(orig: Dict) -> List:
         new_list.append(new_item)
     return new_list
 
-@tnco_builder.make_create_command(print_result=False)
+@tnco_builder.make_create_command(print_result=False, hidden=True)
 @output_format_option(default_columns=default_report_columns)
 @click.option('--print-report', default=False, 
                                 show_default=True, 
@@ -82,7 +82,7 @@ def create_resource_manager(tnco_client: TNCOClient, obj: Dict[str, Any], io: IO
     else:
         io.print(f'Created: {name}')
 
-@tnco_builder.make_update_command(identifiers=[name], print_result=False)
+@tnco_builder.make_update_command(identifiers=[name], print_result=False, hidden=True)
 @click.argument(name.param_name, required=False)
 @output_format_option(default_columns=default_report_columns)
 @click.option('--print-report', default=False, 
@@ -119,7 +119,8 @@ def update_resource_manager(tnco_client: TNCOClient, identity: Identity, obj: Di
 @tnco_builder.make_get_command(
     identifiers=[name],
     identifier_required=False,
-    default_columns=default_columns
+    default_columns=default_columns, 
+    hidden=True
 )
 @click.argument(name.param_name, required=False)
 def get_resource_manager(tnco_client: TNCOClient, identity: Identity):
@@ -130,7 +131,7 @@ def get_resource_manager(tnco_client: TNCOClient, identity: Identity):
         resource_manager_name = identity.value
         return api.get(resource_manager_name)
 
-@tnco_builder.make_delete_command(identifiers=[name])
+@tnco_builder.make_delete_command(identifiers=[name], hidden=True)
 @click.argument(name.param_name, required=False)
 def delete_resource_manager(tnco_client: TNCOClient, identity: Identity):
     api = tnco_client.resource_managers
