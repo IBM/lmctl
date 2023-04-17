@@ -142,7 +142,38 @@ class TestLogin(CLIIntegrationTest):
         self.assertIsNone(tnco.password)
         self.assertIsNotNone(tnco.token)
         self.assertTrue(tnco.is_using_token_auth)
-    
+
+    def test_login_with_okta_username_password_and_client(self):
+        if not self.tester.get_default_env().tnco.is_using_okta_auth:
+            self.skipTest('auth_mode != okta')
+            return
+        client_id = self.tester.test_properties.auth_testing.okta_user_pass_auth.client_id
+        client_secret = self.tester.test_properties.auth_testing.okta_user_pass_auth.client_secret
+        username = self.tester.test_properties.auth_testing.okta_user_pass_auth.username
+        password = self.tester.test_properties.auth_testing.okta_user_pass_auth.password
+        auth_server_id = self.tester.test_properties.auth_testing.okta_user_pass_auth.auth_server_id
+        auth_address = self.tester.test_properties.auth_testing.okta_user_pass_auth.okta_server
+        scope = self.tester.test_properties.auth_testing.okta_user_pass_auth.scope
+        existing_tnco = self.tester.config.environments.get('default').tnco
+        address = existing_tnco.address
+        result = self.cli_runner.invoke(cli, ['login', address, '--okta', '--auth-address', auth_address, '--auth-server-id', auth_server_id, '--scope', scope, '--username', username, '--password', password, '--client', client_id, '--client-secret', client_secret, '--name', 'env6'])
+        self.assert_no_errors(result)
+        expected_output = 'Login success'
+        expected_output += f'\nUpdating config at: {self.tester.config_path}'
+        self.assert_output(result, expected_output)
+
+        config = self.tester.read_latest_copy_of_config()
+        self.assertEqual(config.active_environment, 'env6')
+        self.assertIn('env6', config.environments)
+        tnco = config.environments['env6'].tnco
+        self.assertEqual(tnco.address, existing_tnco.address)
+        self.assertIsNone(tnco.client_id)
+        self.assertIsNone(tnco.client_secret)
+        self.assertIsNone(tnco.username)
+        self.assertIsNone(tnco.password)
+        self.assertIsNotNone(tnco.token)
+        self.assertTrue(tnco.is_using_token_auth)
+
     def test_login_with_username_password_and_client_save_creds(self):
         if not self.tester.get_default_env().tnco.is_using_oauth:
             self.skipTest('auth_mode != oauth')

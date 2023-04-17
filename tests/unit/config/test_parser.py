@@ -19,7 +19,7 @@ environments:
       protocol: https
       auth_host: auth
       auth_port: 4643
-      auth_protocol: http
+      auth_protocol: https
       username: jack
       password: secret
       kami_port: 34567
@@ -28,7 +28,7 @@ environments:
       default:
         host: default
         port: 8765
-        protocol: http
+        protocol: https
   test2:
     arm:
       first:
@@ -55,10 +55,10 @@ ADDRESS_BASED_CONFIG = """\
 environments:
   test:
     lm:
-      address: http://some.lm.example.com
+      address: https://some.lm.example.com
     arm:
       default:
-        address: http://some.arm.example.com
+        address: https://some.arm.example.com
 """
 class TestConfigParser(unittest.TestCase):
     maxDiff = None
@@ -86,7 +86,7 @@ class TestConfigParser(unittest.TestCase):
         self.assertIsInstance(test_env, EnvironmentGroup)
         self.assertIsInstance(test_env.lm, TNCOEnvironment)
         self.assertEqual(test_env.lm.address, 'https://127.0.0.1:1111')
-        self.assertEqual(test_env.lm.auth_address, 'http://auth:4643')
+        self.assertEqual(test_env.lm.auth_address, 'https://auth:4643')
         self.assertEqual(test_env.lm.username, 'jack')
         self.assertEqual(test_env.lm.password, 'secret')
         self.assertEqual(test_env.lm.kami_address, 'https://127.0.0.1:34567')
@@ -94,7 +94,7 @@ class TestConfigParser(unittest.TestCase):
         self.assertEqual(len(arms_config), 1)
         default_arm_config = arms_config['default']
         self.assertIsInstance(default_arm_config, ArmEnvironment)
-        self.assertEqual(default_arm_config.address, 'http://default:8765')
+        self.assertEqual(default_arm_config.address, 'https://default:8765')
         self.assertIn('test2', config.environments)
         test2_env = config.environments['test2']
         arms_config = test2_env.arms
@@ -132,13 +132,13 @@ class TestConfigParser(unittest.TestCase):
                 'lm': {
                     'host': 'test',
                     'port': 32455,
-                    'protocol': 'http',
+                    'protocol': 'https',
                     'secure': True,
                     'username': 'user',
                     'password': 'secret', 
                     'auth_host': 'auth',
                     'auth_port': 32456,
-                    'auth_protocol': 'http'
+                    'auth_protocol': 'https'
                 }
             }
           }
@@ -149,11 +149,11 @@ class TestConfigParser(unittest.TestCase):
         self.assertIsNotNone(test_group_config.tnco)
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
-        self.assertEqual(lm_config.address, 'http://test:32455')
+        self.assertEqual(lm_config.address, 'https://test:32455')
         self.assertEqual(lm_config.secure, True)
         self.assertEqual(lm_config.username, 'user')
         self.assertEqual(lm_config.password, 'secret')
-        self.assertEqual(lm_config.auth_address, 'http://auth:32456')
+        self.assertEqual(lm_config.auth_address, 'https://auth:32456')
 
     def test_parse_tnco_key(self):
         valid_config = {
@@ -163,13 +163,13 @@ class TestConfigParser(unittest.TestCase):
                 'tnco': {
                     'host': 'test',
                     'port': 32455,
-                    'protocol': 'http',
+                    'protocol': 'https',
                     'secure': True,
                     'username': 'user',
                     'password': 'secret', 
                     'auth_host': 'auth',
                     'auth_port': 32456,
-                    'auth_protocol': 'http'
+                    'auth_protocol': 'https'
                 }
             }
           }
@@ -180,11 +180,11 @@ class TestConfigParser(unittest.TestCase):
         self.assertIsNotNone(test_group_config.tnco)
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
-        self.assertEqual(lm_config.address, 'http://test:32455')
+        self.assertEqual(lm_config.address, 'https://test:32455')
         self.assertEqual(lm_config.secure, True)
         self.assertEqual(lm_config.username, 'user')
         self.assertEqual(lm_config.password, 'secret')
-        self.assertEqual(lm_config.auth_address, 'http://auth:32456')
+        self.assertEqual(lm_config.auth_address, 'https://auth:32456')
 
     def test_parse_fail_when_lm_and_alm_used(self):
         invalid_config = {
@@ -234,11 +234,11 @@ class TestConfigParser(unittest.TestCase):
             'test': {
                 'description': 'a test group',
                 'alm': {
-                    'address': 'http://test:32455',
+                    'address': 'https://test:32455',
                     'secure': True,
                     'username': 'user',
                     'password': 'secret', 
-                    'auth_address': 'http://auth:32456'
+                    'auth_address': 'https://auth:32456'
                 }
             }
           }
@@ -250,11 +250,11 @@ class TestConfigParser(unittest.TestCase):
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
         
-        self.assertEqual(lm_config.address, 'http://test:32455')
+        self.assertEqual(lm_config.address, 'https://test:32455')
         self.assertEqual(lm_config.secure, True)
         self.assertEqual(lm_config.username, 'user')
         self.assertEqual(lm_config.password, 'secret')
-        self.assertEqual(lm_config.auth_address, 'http://auth:32456')
+        self.assertEqual(lm_config.auth_address, 'https://auth:32456')
         
     def test_parse_lm_parts(self):
         valid_config = {
@@ -264,13 +264,13 @@ class TestConfigParser(unittest.TestCase):
                 'alm': {
                     'host': 'test',
                     'port': 32455,
-                    'protocol': 'http',
+                    'protocol': 'https',
                     'secure': True,
                     'username': 'user',
                     'password': 'secret', 
                     'auth_host': 'auth',
                     'auth_port': 32456,
-                    'auth_protocol': 'http'
+                    'auth_protocol': 'https'
                 }
             }
           }
@@ -282,11 +282,11 @@ class TestConfigParser(unittest.TestCase):
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
         
-        self.assertEqual(lm_config.address, 'http://test:32455')
+        self.assertEqual(lm_config.address, 'https://test:32455')
         self.assertEqual(lm_config.secure, True)
         self.assertEqual(lm_config.username, 'user')
         self.assertEqual(lm_config.password, 'secret')
-        self.assertEqual(lm_config.auth_address, 'http://auth:32456')
+        self.assertEqual(lm_config.auth_address, 'https://auth:32456')
 
     def test_parse_lm_kami_address_as_parts(self):
         valid_config = {
@@ -294,7 +294,7 @@ class TestConfigParser(unittest.TestCase):
             'test': {
                 'description': 'a test group',
                 'alm': {
-                    'address': 'http://test:32455',
+                    'address': 'https://test:32455',
                     'kami_protocol': 'https',
                     'kami_port': '12345'
                 }
@@ -308,7 +308,7 @@ class TestConfigParser(unittest.TestCase):
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
         
-        self.assertEqual(lm_config.address, 'http://test:32455')
+        self.assertEqual(lm_config.address, 'https://test:32455')
         self.assertEqual(lm_config.kami_address, 'https://test:12345')
         
     def test_parse_lm_kami_address(self):
@@ -317,8 +317,8 @@ class TestConfigParser(unittest.TestCase):
             'test': {
                 'description': 'a test group',
                 'alm': {
-                    'address': 'http://test:32455',
-                    'kami_address': 'http://kami:12345'
+                    'address': 'https://test:32455',
+                    'kami_address': 'https://kami:12345'
                 }
             }
           }
@@ -330,8 +330,8 @@ class TestConfigParser(unittest.TestCase):
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
         
-        self.assertEqual(lm_config.address, 'http://test:32455')
-        self.assertEqual(lm_config.kami_address, 'http://kami:12345')
+        self.assertEqual(lm_config.address, 'https://test:32455')
+        self.assertEqual(lm_config.kami_address, 'https://kami:12345')
         
     def test_parse_lm_defaults(self):
         valid_config = {
@@ -392,7 +392,8 @@ class TestConfigParser(unittest.TestCase):
                     'ip_address': 'test',
                     'username': 'user',
                     'auth_address': 'auth',
-                    'secure_port': False
+                    'secure_port': False,
+                    'protocol': 'https'
                 }
             }
           }
@@ -404,11 +405,11 @@ class TestConfigParser(unittest.TestCase):
         lm_config = test_group_config.tnco
         self.assertIsInstance(lm_config, TNCOEnvironment)
         
-        self.assertEqual(lm_config.address, 'http://test')
+        self.assertEqual(lm_config.address, 'https://test')
         self.assertEqual(lm_config.secure, False)
         self.assertEqual(lm_config.username, 'user')
         self.assertEqual(lm_config.password, None)
-        self.assertEqual(lm_config.auth_address, 'auth')
+        self.assertEqual(lm_config.auth_address, 'https://auth')
 
     def test_parse_arm_address(self):
         valid_config = {
@@ -417,7 +418,7 @@ class TestConfigParser(unittest.TestCase):
                 'description': 'a test group',
                 'arm': {
                     'first': {
-                        'address': 'http://test:1111'
+                        'address': 'https://test:1111'
                     },
                     'second': {
                         'address': 'https://test:2222'
@@ -434,7 +435,7 @@ class TestConfigParser(unittest.TestCase):
         self.assertIn('first', arms_config)
         first_arm_config = arms_config['first']
         self.assertIsInstance(first_arm_config, ArmEnvironment)
-        self.assertEqual(first_arm_config.address, 'http://test:1111')
+        self.assertEqual(first_arm_config.address, 'https://test:1111')
         self.assertIn('second', arms_config)
         second_arm_config = arms_config['second']
         self.assertIsInstance(second_arm_config, ArmEnvironment)
@@ -449,14 +450,14 @@ class TestConfigParser(unittest.TestCase):
                     'first': {
                         'host': 'test',
                         'port': 1,
-                        'protocol': 'http',
-                        'onboarding_addr': 'http://onboard'
+                        'protocol': 'https',
+                        'onboarding_addr': 'https://onboard'
                     },
                     'second': {
                         'host': 'test2',
                         'port': 2,
                         'protocol': 'https',
-                        'onboarding_addr': 'http://onboard2'
+                        'onboarding_addr': 'https://onboard2'
                     }
                 }
             }
@@ -470,13 +471,13 @@ class TestConfigParser(unittest.TestCase):
         self.assertIn('first', arms_config)
         first_arm_config = arms_config['first']
         self.assertIsInstance(first_arm_config, ArmEnvironment)
-        self.assertEqual(first_arm_config.address, 'http://test:1')
-        self.assertEqual(first_arm_config.onboarding_addr, 'http://onboard')
+        self.assertEqual(first_arm_config.address, 'https://test:1')
+        self.assertEqual(first_arm_config.onboarding_addr, 'https://onboard')
         self.assertIn('second', arms_config)
         second_arm_config = arms_config['second']
         self.assertIsInstance(second_arm_config, ArmEnvironment)
         self.assertEqual(second_arm_config.address, 'https://test2:2')
-        self.assertEqual(second_arm_config.onboarding_addr, 'http://onboard2')
+        self.assertEqual(second_arm_config.onboarding_addr, 'https://onboard2')
        
     def test_parse_arm_defaults(self):
         valid_config = {

@@ -1,4 +1,6 @@
 import lmctl.drivers.lm as lm_drivers
+import logging
+import os
 
 from typing import Union, Optional
 from .common import build_address
@@ -8,12 +10,19 @@ from pydantic import constr, root_validator
 
 from lmctl.utils.jwt import decode_jwt
 from lmctl.utils.dcutils.dc_capture import recordattrs
-from lmctl.client import TNCOClientBuilder, TOKEN_AUTH_MODE, ZEN_AUTH_MODE, OAUTH_MODE
+from lmctl.client import TNCOClientBuilder, TOKEN_AUTH_MODE, ZEN_AUTH_MODE, OAUTH_MODE, OKTA_MODE
+
+logger = logging.getLogger(__name__)
+
+ALLOW_ALL_SCHEMES_ENV_VAR = 'LMCTL_ALLOW_ALL_SCHEMES'
+
+HTTP_PROTOCOL = 'http'
+HTTPS_PROTOCOL = 'https'
 
 DEFAULT_KAMI_PORT = '31289'
-DEFAULT_KAMI_PROTOCOL = 'http'
+DEFAULT_KAMI_PROTOCOL = HTTP_PROTOCOL
 DEFAULT_BRENT_NAME = 'brent'
-DEFAULT_PROTOCOL = 'https'
+DEFAULT_PROTOCOL = HTTPS_PROTOCOL
 DEFAULT_SECURE = False
 
 @recordattrs
@@ -25,7 +34,9 @@ class TNCOEnvironment:
 
     client_id: Optional[str] = None
     client_secret: Optional[str] = None
-    username: Optional[str] = None 
+    scope: Optional[str] = None
+    auth_server_id: Optional[str] = None
+    username: Optional[str] = None
     password: Optional[str] = None
     api_key: Optional[str] = None
     token: Optional[str] = None
@@ -61,6 +72,8 @@ class TNCOEnvironment:
                 values = cls._validate_oauth(values)
             elif auth_mode.lower() == ZEN_AUTH_MODE:
                 values = cls._validate_zen(values)
+            elif auth_mode.lower() == OKTA_MODE:
+                values = cls._validate_okta(values)
             elif auth_mode.lower() == TOKEN_AUTH_MODE:
                 pass
             else:
@@ -80,6 +93,23 @@ class TNCOEnvironment:
         api_key = values.get('api_key', None)
         if api_key is not None:
             raise ValueError(f'Secure TNCO environment cannot be configured with "api_key" when using "auth_mode={OAUTH_MODE}". Use "client_id/client_secret" or "username/password" combination or set "auth_mode" to "{ZEN_AUTH_MODE}". If the TNCO environment is not secure then set "secure" to False')
+        return values
+
+    @classmethod
+    def _validate_okta(cls, values):
+        client_id = values.get('client_id', None)
+        username = values.get('username', None)
+        if not client_id and not username:
+            raise ValueError(f'Secure TNCO environment must be configured with either "client_id" or "username" property when using "auth_mode={OKTA_MODE}". If the TNCO environment is not secure then set "secure" to False')
+        # Currently api_key can only be used with Zen, so we perform an extra check to let the user know
+        api_key = values.get('api_key', None)
+        if api_key is not None:
+            raise ValueError(f'Secure TNCO environment cannot be configured with "api_key" when using "auth_mode={OKTA_MODE}". Use "client_id/client_secret" or "username/password" combination or set "auth_mode" to "{ZEN_AUTH_MODE}". If the TNCO environment is not secure then set "secure" to False')
+        if not values.get('auth_server_id', None):
+            raise ValueError(f'Secure TNCO environment must be configured with "auth_server_id" when using "auth_mode={OKTA_MODE}". If the TNCO environment is not secure then set "secure" to False')
+        if values.get('username', None) and not values.get('scope', None):
+            raise ValueError(f'Secure TNCO environment must be set with "scope" when using "auth_mode={OKTA_MODE}" with usename. If the TNCO environment is not secure then set "secure" to False')
+
         return values
 
     @classmethod
@@ -108,7 +138,9 @@ class TNCOEnvironment:
             port = values.get('port', None)
             path = values.get('path', None)
             address = build_address(host, protocol=protocol, port=port, path=path)
-            values['address'] = address
+
+        address = cls._finalise_address(address)
+        values['address'] = address
 
         # Auth host
         auth_address = values.get('auth_address', None)
@@ -116,13 +148,16 @@ class TNCOEnvironment:
             auth_host = values.get('auth_host', None)
             auth_host = auth_host.strip() if auth_host is not None else None
             if not auth_host:
-                values['auth_address'] = address
+                auth_address = address
             else:
                 auth_protocol = values.get('auth_protocol', values.get('protocol', DEFAULT_PROTOCOL))
                 auth_port = values.get('auth_port', None)
                 auth_path = values.get('auth_path', None)
-                auth_address = build_address(auth_host, protocol=auth_protocol, port=auth_port)
-                values['auth_address'] = auth_address
+                auth_address = build_address(auth_host, protocol=auth_protocol, port=auth_port, path=auth_path)
+
+        if auth_address is not None:
+            auth_address = cls._finalise_address(auth_address)
+            values['auth_address'] = auth_address
 
         # Kami Address
         kami_address = values.get('kami_address', None)
@@ -139,6 +174,21 @@ class TNCOEnvironment:
             values['kami_address'] = kami_address
 
         return values
+    
+    @classmethod
+    def _finalise_address(cls, address):
+        final_address = address
+        parsed_url = urlparse(final_address)
+
+        if parsed_url.scheme is None or len(parsed_url.scheme.strip()) == 0:
+            logger.debug(f'Adding "{HTTPS_PROTOCOL}://" to {final_address}')
+            final_address = f'{HTTPS_PROTOCOL}://{final_address}'
+        elif parsed_url.scheme != HTTPS_PROTOCOL:
+            allow_all_schemes = os.environ.get(ALLOW_ALL_SCHEMES_ENV_VAR, None)
+            if allow_all_schemes is None or allow_all_schemes.lower() != 'true':
+                raise ValueError(f'Use of "{parsed_url.scheme}" scheme is not encouraged by lmctl, use "{HTTPS_PROTOCOL}" instead ({address})')
+
+        return final_address
 
     def create_session_config(self):
         return LmSessionConfig(self, 
@@ -148,7 +198,9 @@ class TNCOEnvironment:
                                 client_secret=self.client_secret, 
                                 api_key=self.api_key,
                                 token=self.token,
-                                auth_mode=self.auth_mode
+                                auth_mode=self.auth_mode,
+                                scope=self.scope,
+                                auth_server_id=self.auth_server_id
                             )
     def build_client(self):
         builder = TNCOClientBuilder()
@@ -159,6 +211,22 @@ class TNCOEnvironment:
                 builder.zen_api_key_auth(username=self.username, api_key=self.api_key, zen_auth_address=self.auth_address)
             elif self.auth_mode == TOKEN_AUTH_MODE:
                 builder.token_auth(token=self.token)
+            elif self.auth_mode == OKTA_MODE:
+                if self.username is not None:
+                    # Using password auth
+                    if self.client_id is not None:
+                        builder.okta_user_pass_auth(username=self.username, password=self.password,
+                                                           client_id=self.client_id,
+                                                           client_secret=self.client_secret,
+                                                           scope=self.scope, auth_server_id=self.auth_server_id,
+                                                           okta_server=self.auth_address)
+                    else:
+                        raise ValueError(f'TNCO environment cannot be configured without a client_id when using auth_mode={OKTA_MODE}')
+                else:
+                    builder.okta_client_credentials_auth(client_id=self.client_id,
+                                                                client_secret=self.client_secret,
+                                                                scope=self.scope, auth_server_id=self.auth_server_id,
+                                                                okta_server=self.auth_address)
             else:
                 if self.username is not None:
                     # Using password auth
@@ -169,6 +237,7 @@ class TNCOEnvironment:
                         builder.legacy_user_pass_auth(username=self.username, password=self.password, legacy_auth_address=self.auth_address)
                 else:
                     builder.client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret)
+
         return builder.build()
 
     @property
@@ -207,10 +276,13 @@ class TNCOEnvironment:
 
             return user_str
 
+    @property
+    def is_using_okta_auth(self):
+        return self.auth_mode.lower() == OKTA_MODE.lower()
 
 class LmSessionConfig:
 
-    def __init__(self, env, username=None, password=None, client_id=None, client_secret=None, token=None, api_key=None, auth_mode=None):
+    def __init__(self, env, username=None, password=None, client_id=None, client_secret=None, token=None, api_key=None, auth_mode=None, scope=None, auth_server_id=None):
         self.env = env
         self.username = username
         self.password = password
@@ -219,6 +291,8 @@ class LmSessionConfig:
         self.api_key = api_key
         self.token = token
         self.auth_mode = auth_mode
+        self.scope = scope
+        self.auth_server_id = auth_server_id
 
     @property
     def is_using_oauth(self):
@@ -231,6 +305,10 @@ class LmSessionConfig:
     @property
     def is_using_token_auth(self):
         return self.auth_mode.lower() == TOKEN_AUTH_MODE.lower()
+
+    @property
+    def is_using_okta_auth(self):
+        return self.auth_mode.lower() == OKTA_MODE.lower()
 
     def create(self):
         return LmSession(self)
@@ -248,6 +326,8 @@ class LmSession:
         self.api_key = session_config.api_key
         self.token = session_config.token
         self.auth_mode = session_config.auth_mode
+        self.scope = session_config.scope
+        self.auth_server_id = session_config.auth_server_id
         self.__lm_security_ctrl = None
         self.__descriptor_driver = None
         self.__onboard_rm_driver = None
@@ -272,7 +352,9 @@ class LmSession:
                                                                     client_secret=self.client_secret,
                                                                     api_key=self.api_key,
                                                                     token=self.token,
-                                                                    auth_mode=self.auth_mode
+                                                                    auth_mode=self.auth_mode,
+                                                                    scope=self.scope,
+                                                                    auth_server_id=self.auth_server_id
                                                                 )
             return self.__lm_security_ctrl
         return None

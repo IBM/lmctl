@@ -4,7 +4,7 @@ from .client_builder import TNCOClientBuilder
 from .auth_type import AuthType
 from .auth_tracker import AuthTracker
 from .client_credentials_auth import ClientCredentialsAuth
-from .pass_auth import UserPassAuth, LegacyUserPassAuth
+from .pass_auth import UserPassAuth, LegacyUserPassAuth, OktaUserPassAuth
 from .zen_auth import ZenAPIKeyAuth
 from .token_auth import JwtTokenAuth
 from .error_capture import TNCOErrorCapture, tnco_error_capture

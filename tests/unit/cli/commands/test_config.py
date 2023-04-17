@@ -10,7 +10,7 @@ test_config = '''\
 environments:
   default:
     tnco: 
-      address: http://example
+      address: https://example
       secure: True
       client_id: Tester
 '''

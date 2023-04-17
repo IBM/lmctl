@@ -1,12 +1,16 @@
 import click
-from .utils import TNCOCommandBuilder, Identity, Identifier
-from .actions import get
+from .utils import TNCOCommandBuilder, Identity, Identifier, pass_io
+from .actions import get, retry, rollback, cancel
 from lmctl.client import TNCOClient
 from lmctl.cli.format import Column
 from typing import List
+from lmctl.cli.io import IOController
 
 __all__ = (
     'get_process',
+    'retry_process',
+    'rollback_process',
+    'cancel_process',
 )
 
 tnco_builder = TNCOCommandBuilder(
@@ -78,3 +82,90 @@ def get_process(
     if limit is not None:
         query_params['limit'] = limit
     return api.query(**query_params)
+
+accepted_process_prefix = 'Accepted -'
+
+retry_help_suffix = f'''\
+For example:
+\n\nRetry process using {tnco_builder.display_name} ID: lmctl retry {tnco_builder.singular} 6ad3327e-79df-464f-af48-3283f871584d
+'''
+
+@tnco_builder.make_general_command(
+    group=retry,
+    short_help=f'Request an intent to retry a {tnco_builder.display_name}',
+    help_prefix=f'Request an intent to retry a {tnco_builder.display_name}',
+    identifiers=[id_arg],
+    help_suffix=retry_help_suffix,
+    pass_file_content=False,
+    allow_file_input=False
+)
+@click.argument(id_arg.param_name,
+               required=True)
+@pass_io
+def retry_process(
+        tnco_client: TNCOClient,
+        io: IOController,
+        identity: Identity,
+        ):
+
+    obj = {}
+    obj["processId"] = identity.value
+    response = tnco_client.assemblies.intent_retry(obj)
+    io.print(f'{accepted_process_prefix} Retry request for process: {identity.value}')
+    return
+
+rollback_help_suffix = f'''\
+For example:
+\n\nRollback process using {tnco_builder.display_name} ID: lmctl rollback {tnco_builder.singular} 6ad3327e-79df-464f-af48-3283f871584d
+'''
+
+@tnco_builder.make_general_command(
+    group=rollback,
+    short_help=f'Request an intent to rollback a {tnco_builder.display_name}',
+    help_prefix=f'Request an intent to rollback a {tnco_builder.display_name}',
+    identifiers=[id_arg],
+    help_suffix=rollback_help_suffix,
+    pass_file_content=False,
+    allow_file_input=False
+)
+@click.argument(id_arg.param_name,
+               required=True)
+@pass_io
+def rollback_process(
+        tnco_client: TNCOClient,
+        io: IOController,
+        identity: Identity,
+        ):
+    obj = {}
+    obj["processId"] = identity.value
+    response = tnco_client.assemblies.intent_rollback(obj)
+    io.print(f'{accepted_process_prefix} Rollback request for process: {identity.value}')
+    return
+
+cancel_help_suffix = f'''\
+For example:
+\n\nCancel process using {tnco_builder.display_name} ID: lmctl cancel {tnco_builder.singular} 6ad3327e-79df-464f-af48-3283f871584d
+'''
+
+@tnco_builder.make_general_command(
+    group=cancel,
+    short_help=f'Request an intent to cancel a {tnco_builder.display_name}',
+    help_prefix=f'Request an intent to cancel a {tnco_builder.display_name}',
+    identifiers=[id_arg],
+    help_suffix=cancel_help_suffix,
+    pass_file_content=False,
+    allow_file_input=False
+)
+@click.argument(id_arg.param_name,
+               required=True)
+@pass_io
+def cancel_process(
+        tnco_client: TNCOClient,
+        io: IOController,
+        identity: Identity,
+        ):
+    obj = {}
+    obj["processId"] = identity.value
+    response = tnco_client.assemblies.intent_cancel(obj)
+    io.print(f'{accepted_process_prefix} Cancel request for process: {identity.value}')
+    return
