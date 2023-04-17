@@ -69,3 +69,22 @@ def safe_file_name(unsafe_filename):
     if len(safe_filename) > filename_size_limit:
         logger.info("Filename over file name limit {0}, truncating characters. Filename may no longer be unique".format(filename_size_limit))
     return safe_filename[:filename_size_limit]
+
+def is_in_directory(subject, target_dir):
+    absolute_target_dir = os.path.abspath(target_dir)
+    absolute_subject = os.path.abspath(subject)
+    common_prefix = os.path.commonprefix([absolute_subject, absolute_target_dir])
+    return common_prefix == absolute_target_dir
+
+def safely_extract_tar(tar, target_path='.', *extract_args, **extract_kwargs):
+    for member in tar.getmembers():
+        ## Where the extracted file will end up
+        anticipated_member_path = os.path.join(target_path, member.name)
+        
+        ## Verify the file will end up in the target directory
+        ## The target file path should have the same prefix as the target directory, 
+        ## as it should be the target directory, otherwise the file is being extracted to a different directory
+        if not is_in_directory(anticipated_member_path, target_path):
+            raise ValueError(f'TAR contains a file which attempts to traverse to a path outside of the target extraction path: {member.name}')
+        
+    tar.extractall(target_path, *extract_args, **extract_kwargs) 
