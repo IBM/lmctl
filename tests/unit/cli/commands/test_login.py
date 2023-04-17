@@ -32,10 +32,10 @@ class TestLoginCommands(command_testing.CommandTestCase):
         self.orig_lm_config = os.environ.get('LMCONFIG')
         os.environ['LMCONFIG'] = self.config_path
 
-        self.global_config_patcher = patch('lmctl.cli.controller.get_global_config_with_path')
-        self.mock_get_global_config = self.global_config_patcher.start()
-        self.addCleanup(self.global_config_patcher.stop)
-        self.mock_get_global_config.return_value = (Config(), self.config_path)
+        self.config_patcher = patch('lmctl.cli.controller.get_config_with_path')
+        self.mock_get_config = self.config_patcher.start()
+        self.addCleanup(self.config_patcher.stop)
+        self.mock_get_config.return_value = (Config(), self.config_path)
 
     
     def tearDown(self):
@@ -425,7 +425,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
                 'testenv': {}
             }
         }
-        self.mock_get_global_config.return_value = (Config(environments={'testenv': EnvironmentGroup('testenv')}), self.config_path)
+        self.mock_get_config.return_value = (Config(environments={'testenv': EnvironmentGroup('testenv')}), self.config_path)
 
         result = self.runner.invoke(login, ['https://mock.example.com', '--token', '123', '--name', 'testenv'], input='n')
         self.assert_has_system_exit(result)

@@ -22,6 +22,7 @@ We recommend referring to these when learning the commands. If you find they are
 - [logdir](logdir.md)
 - [ping env](ping-env.md)
 - [use env](use-env.md)
+- [whoami](whoami.md)
 
 # Action Commands
 

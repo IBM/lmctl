@@ -1,7 +1,7 @@
 import click
 import logging
 from lmctl.cli.io import IOController
-from lmctl.config import get_global_config_with_path, Config, ConfigError
+from lmctl.config import get_config_with_path, Config, ConfigError
 from lmctl.environment import EnvironmentGroup
 from .safety_net import safety_net, tnco_client_safety_net
 
@@ -95,7 +95,7 @@ def get_global_controller(override_config_path: str = None) -> CLIController:
     global global_controller
     if global_controller is None:
         try:
-            config, config_path = get_global_config_with_path(override_config_path=override_config_path)
+            config, config_path = get_config_with_path(override_config_path=override_config_path)
             global_controller = CLIController(config, config_path)
         except ConfigError as e:
             IOController().print_error(f'Error: Failed to load configuration - {e}')

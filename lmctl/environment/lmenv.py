@@ -5,10 +5,12 @@ import os
 from typing import Union, Optional
 from .common import build_address
 from urllib.parse import urlparse
-from lmctl.client import TNCOClientBuilder, TOKEN_AUTH_MODE, ZEN_AUTH_MODE, OAUTH_MODE, OKTA_MODE
 from pydantic.dataclasses import dataclass
 from pydantic import constr, root_validator
+
+from lmctl.utils.jwt import decode_jwt
 from lmctl.utils.dcutils.dc_capture import recordattrs
+from lmctl.client import TNCOClientBuilder, TOKEN_AUTH_MODE, ZEN_AUTH_MODE, OAUTH_MODE, OKTA_MODE
 
 logger = logging.getLogger(__name__)
 
@@ -253,6 +255,26 @@ class TNCOEnvironment:
     @property
     def is_using_token_auth(self):
         return self.auth_mode.lower() == TOKEN_AUTH_MODE.lower()
+
+    def summarise_user(self) -> str:
+        if self.token is not None and len(self.token.strip()) > 0:
+            try:
+                decoded_token = decode_jwt(self.token)
+                return decoded_token.get('username', '<No user on token>')
+            except ValueError as e:
+                return '<Invalid Token>'
+        else:
+            user_str = ''
+            if self.username is not None and len(self.username.strip()) > 0:
+                user_str += self.username
+            if self.client_id is not None and len(self.client_id.strip()) > 0:
+                client_str = f'{self.client_id} (Client)'
+                if len(user_str) > 0:
+                    user_str += f', {client_str}'
+                else:
+                    user_str = client_str
+
+            return user_str
 
     @property
     def is_using_okta_auth(self):

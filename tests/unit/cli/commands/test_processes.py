@@ -30,7 +30,7 @@ class TestProcessCommands(command_testing.CommandTestCase):
         self.orig_lm_config = os.environ.get('LMCONFIG')
         os.environ['LMCONFIG'] = self.config_path
 
-        self.global_config_patcher = patch('lmctl.cli.controller.get_global_config_with_path')
+        self.global_config_patcher = patch('lmctl.cli.controller.get_config_with_path')
         self.mock_get_global_config = self.global_config_patcher.start()
         self.addCleanup(self.global_config_patcher.stop)
         self.mock_get_global_config.return_value = (Config(

@@ -32,6 +32,7 @@ default_columns = [
     Column('description', header='Description'),
     Column('cp4na', header='CP4NA', accessor=lambda x: x.tnco.address if x.tnco else None),
     Column('auth', header='Auth', accessor=lambda x: x.tnco.auth_mode if x.tnco else None),
+    Column('user', header='User', accessor=lambda x: x.tnco.summarise_user() if x.tnco else None),
 ]
 
 ping_table = Table(columns=[
