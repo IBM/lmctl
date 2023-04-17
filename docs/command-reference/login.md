@@ -27,7 +27,7 @@ lmctl login [OPTIONS] ADDRESS
 | `--client-secret`          | Secret used for authenticating the client given on `client`   | -                             | --client-secret secret |
 | `--token` | Authenticate with a token instead of credentials    | -                         | --token eyJhbGciOiJIUzI1NiIsInR5cCI6.....8enat7Ao       |
 | `--zen` | Indicate that the Zen authentication method should be used (must provide --api-key) | False | --zen |
-| `--okta` | Indicate that the Okta authentication method should be used | False | --okta |
+| `--okta` | Indicate that the Okta authentication method should be used (Note: only supported in Okta enviroments where the Resource Owner Password flow is approved) | False | --okta |
 | `--name` | Name given to the environment saved in the configuration file | default | --name dev |
 | `--auth-address` | Auth address required for username/password access (without client credentials). This is usually the Nimrod route in your environment. When `--zen` is provided, this should be the address for the Zen authorization API. When `--okta` is provided, this should be the address for the Okta authentication server's endpoint | - | --auth-address https://cp4na-o-nimrod.example.com |
 | `--auth-server-id` | Authorization server's id of Okta server. This is usually the backend authorization server Okta server is using when `--okta` is provided. | - | --auth-server-id default |
@@ -71,6 +71,8 @@ lmctl login https://cp4na-o-ishtar.example.com --zen --auth-address https://cpd-
 ```
 
 ### Combination 6: Login with Okta username/password and client credentials
+
+> Note: only supported in Okta enviroments where the Resource Owner Password flow is approved
 
 ```
 lmctl login https://cp4na-o-ishtar.example.com --okta --client Client --client-secret secret -u username -p password --scope lmctl  --auth-address https://example.okta.com --auth-server-id default

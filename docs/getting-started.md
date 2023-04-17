@@ -174,36 +174,6 @@ If the output of this command ends with `CP4NA orchestration tests passed! ✅` 
 
 Eventually your access token will expire, resulting in authentication errors when using lmctl. When this occurs, run `login` again to reauthenticate OR check out the [Automatic Reauthentication](#automatic-reauthentication) section below to save your credentials in the lmctl config file so lmctl may automatically re-authenticate you when the token expires.
 
-## Okta Authentication
-
-> For any environment where Okta authentication is used
-
-Run `lmctl login`, changing the values to valid parameters for your environment:
-
-```
-lmctl login $API_GATEWAY --okta --client <Client> --client-secret <secret> -u <user> -p <password> --scope <scope>  --auth-address https://<okta server endpoint> --auth-server-id <auth_server_id>
-```
-
-> You may omit the `--password` option and LMCTL will prompt for this as hidden input instead.
-
-You should see output similar to:
-
-```
-Login success
-Updating config at: /home/myuser/.lmctl/config.yaml
-```
-
-You can test access is ready using `ping`:
-
-```
-lmctl ping env
-```
-
-If the output of this command ends with `CP4NA orchestration tests passed! ✅` then you're ready to go. 
-
-Eventually your access token will expire, resulting in authentication errors when using lmctl. When this occurs, run `login` again to reauthenticate OR check out the [Automatic Reauthentication](#automatic-reauthentication) section below to save your credentials in the lmctl config file so lmctl may automatically re-authenticate you when the token expires.
-
-
 ## Automatic Reauthentication
 
 On login success, the resulting access token is saved in the config file, rather than the username/password. Tokens are often short lived, meaning you will have to re-run `login` when it expires.
