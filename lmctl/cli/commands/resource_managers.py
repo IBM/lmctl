@@ -119,7 +119,8 @@ def update_resource_manager(tnco_client: TNCOClient, identity: Identity, obj: Di
 @tnco_builder.make_get_command(
     identifiers=[name],
     identifier_required=False,
-    default_columns=default_columns
+    default_columns=default_columns, 
+    hidden=True
 )
 @click.argument(name.param_name, required=False)
 def get_resource_manager(tnco_client: TNCOClient, identity: Identity):
