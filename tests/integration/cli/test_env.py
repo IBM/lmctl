@@ -54,7 +54,7 @@ class TestEnvironments(CLIIntegrationTest):
         loaded_output = json.loads(result.output)
         self.assertIn('tnco', loaded_output)
         
-    def test_get_all_as_table(self):
+    def test_get_by_name_as_table(self):
         result = self.cli_runner.invoke(cli, 
             ['get', 'env', 'default']
         )

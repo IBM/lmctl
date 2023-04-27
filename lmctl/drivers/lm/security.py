@@ -5,7 +5,8 @@ import time
 from .base import LmDriver
 # Temporarily use new client to control auth in order to support client_credential authentication
 # Eventually this class and all classes in the drivers section will be replaced by the new client
-from lmctl.client import TNCOClientBuilder, TNCOClient, AuthTracker, ZEN_AUTH_MODE, TOKEN_AUTH_MODE, OAUTH_MODE
+from lmctl.client import TNCOClientBuilder, TNCOClient, AuthTracker, ZEN_AUTH_MODE, TOKEN_AUTH_MODE, OAUTH_MODE, \
+    OKTA_MODE
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +41,7 @@ class LmSecurityCtrl:
     Manages authentication with a target CP4NA orchestration environment 
     """
 
-    def __init__(self, auth_address, username=None, password=None, client_id=None, client_secret=None, token=None, api_key=None, auth_mode=None):
+    def __init__(self, auth_address, username=None, password=None, client_id=None, client_secret=None, token=None, api_key=None, auth_mode=None, scope=None, auth_server_id=None):
         """
         Constructs a new instance of controller for a target CP4NA orchestration environment and target user
 
@@ -63,6 +64,8 @@ class LmSecurityCtrl:
         self.__token = token
         self.__auth_mode = auth_mode
         self.__auth_tracker = AuthTracker()
+        self.__scope = scope
+        self.__auth_server_id = auth_server_id
         # Using the new client authentication methods in the "legacy" driver so we only need to maintain one impl
         # Eventually this LmSecurityCtrl will be removed, once we switch all of the "lmctl project" functionality to use the new client
         client_builder = TNCOClientBuilder()
@@ -71,12 +74,27 @@ class LmSecurityCtrl:
             client_builder.zen_api_key_auth(username=self.__username, api_key=self.__api_key, zen_auth_address=self.__auth_address)
         elif self.__auth_mode.lower() == TOKEN_AUTH_MODE:
             client_builder.token_auth(token=self.__token)
+        elif self.__auth_mode == OKTA_MODE:
+            if self.__username is not None:
+                # Using password auth
+                if self.__client_id is not None:
+                    client_builder.okta_user_pass_auth(username=self.__username, password=self.__password,
+                                                       client_id=self.__client_id, client_secret=self.__client_secret,
+                                                       scope=self.__scope, auth_server_id=self.__auth_server_id,
+                                                       okta_server=self.__auth_address)
+                else:
+                    raise ValueError(f'TNCO environment cannot be configured without a client_id when using auth_mode={OKTA_MODE}')
+            else:
+                client_builder.okta_client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret,
+                                                     scope=self.scope, auth_server_id=self.auth_server_id,
+                                                     okta_server=self.auth_address)
         else:
             #Oauth
             if self.__username is not None:
                 # Using password auth
                 if self.__client_id is not None:
-                    client_builder.user_pass_auth(username=self.__username, password=self.__password, client_id=self.__client_id, client_secret=self.__client_secret)
+                    client_builder.user_pass_auth(username=self.__username, password=self.__password, client_id=self.__client_id,
+                                               client_secret=self.__client_secret)
                 else:
                     # Legacy password auth
                     client_builder.legacy_user_pass_auth(username=self.__username, password=self.__password, legacy_auth_address=self.__auth_address)

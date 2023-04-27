@@ -225,4 +225,6 @@ lmctl ping env
 
 You can read more about the configuration options available with LMCTL in the [configure](configure.md) section of this documentation.
 
+To learn more about creating Assembly/Resource projects, including how to integrate a project with an existing Assembly you have developed using the designer user interface, check out the [projects](projects/overview.md) section of this documentation.
+
 Otherwise, check out the [Command Reference](command-reference/index.md) to learn more about the commands LMCTL provides.

@@ -32,6 +32,7 @@ cli.add_command(lmctl_commands.lifecycledriver_group, tags=[DEPRECATED_TAG])
 cli.add_command(lmctl_commands.vimdriver_group, tags=[DEPRECATED_TAG]) 
 cli.add_command(lmctl_commands.login_cmd, tags=[SETTINGS_TAG])
 cli.add_command(lmctl_commands.logdir_cmd, tags=[SETTINGS_TAG])
+cli.add_command(lmctl_commands.whoami_cmd, tags=[SETTINGS_TAG])
 
 ACTION_EXTRA_TAGS = {
     'use': [SETTINGS_TAG],

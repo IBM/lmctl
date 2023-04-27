@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
+from lmctl.utils.jwt import decode_jwt
 import logging
 import time
-import jwt
 import os
 
 logger = logging.getLogger(__name__)
@@ -12,12 +12,6 @@ class AuthTracker:
         self.current_access_token = None
         self.time_of_auth = None # Datetime obj of when we're authenticated
         self._time_of_expiry = None # Datetime obj of when the current token expires
-        tmp_jwt_algo = os.environ.get('LM_JWT_ALGO', None)
-        if tmp_jwt_algo is None or len(tmp_jwt_algo.strip()) == 0:
-            tmp_jwt_algo = ['HS256', 'HS384', 'HS512']
-        else:
-            tmp_jwt_algo = tmp_jwt_algo.split(',')
-        self.jwt_algorithms = tmp_jwt_algo
 
     @property
     def has_access_expired(self):
@@ -47,10 +41,7 @@ class AuthTracker:
             self._time_of_expiry = self._get_expires_time_from_jwt(self.current_access_token)
 
     def _get_expires_time_from_jwt(self, token):
-        try:
-            jwt_content = jwt.decode(token, options={'verify_signature': False, 'verify_aud': False}, algorithms=self.jwt_algorithms)
-        except jwt.DecodeError as e:
-            raise ValueError(f'Could not parse JWT token. Decoding error: {str(e)}') from e
+        jwt_content = decode_jwt(token)
         exp = jwt_content.get('exp')
         if exp is None:
             raise ValueError('Expected "exp" in token content')

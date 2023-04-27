@@ -1,5 +1,19 @@
 # Change Log
 
+## [3.5.0](https://github.com/IBM/lmctl/tree/3.5.0) (2023-04-27)
+[Full Changelog](https://github.com/IBM/lmctl/compare/3.4.0...3.5.0)
+
+**Implemented Enhancements:**
+
+- Hide and deprecate resource manager commands [\#151](https://github.com/IBM/lmctl/issues/151)
+- Command for showing current user or current token [\#154](https://github.com/IBM/lmctl/issues/154)
+- Add support for Okta oauth2 integration (Resource Password Flow only) [\#160](https://github.com/IBM/lmctl/issues/160)
+- Add commands in LMCTL to retry, rollback and cancel intent process [\#163](https://github.com/IBM/lmctl/issues/163)
+
+**Fixed Bugs:**
+
+- CVE-2007-4559 Directory traversal vulnerability in the extract and extractall functions in the tarfile module in Python allows user-assisted remote attackers to overwrite arbitrary files [\#168](https://github.com/IBM/lmctl/issues/168)
+
 ## [3.4.0](https://github.com/IBM/lmctl/tree/3.4.0) (2022-10-19)
 [Full Changelog](https://github.com/IBM/lmctl/compare/3.3.0...3.4.0)
 

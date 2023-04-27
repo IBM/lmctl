@@ -3,11 +3,14 @@ from typing import List, Dict, Union
 from lmctl.client.exceptions import TNCOClientError
 from lmctl.client.models import (CreateAssemblyIntent, UpgradeAssemblyIntent, ChangeAssemblyStateIntent, 
                                     DeleteAssemblyIntent, ScaleAssemblyIntent, HealAssemblyIntent,
-                                    AdoptAssemblyIntent, CreateOrUpgradeAssemblyIntent, Intent)
+                                    AdoptAssemblyIntent, CreateOrUpgradeAssemblyIntent,
+                                    RollbackAssemblyIntent, CancelAssemblyIntent, RetryAssemblyIntent, Intent)
 
 from lmctl.client.client_request import TNCOClientRequest
 from .tnco_api_base import TNCOAPI
 from lmctl.client.utils import build_relative_endpoint, read_response_location_header
+
+INTENTS_WITHOUT_LOCATION_HEADER = ["retry", "rollback", "cancel"]
 
 class AssembliesAPI(TNCOAPI):
     topology_endpoint = 'api/topology/assemblies'
@@ -40,7 +43,10 @@ class AssembliesAPI(TNCOAPI):
                                                         DeleteAssemblyIntent, 
                                                         HealAssemblyIntent, 
                                                         ScaleAssemblyIntent,
-                                                        UpgradeAssemblyIntent]) -> str:
+                                                        UpgradeAssemblyIntent,
+                                                        RetryAssemblyIntent,
+                                                        CancelAssemblyIntent,
+                                                        RollbackAssemblyIntent]) -> str:
         return self._intent_request_impl(intent_name, intent_obj)
 
     def intent_create(self, intent_obj: Union[Dict, CreateAssemblyIntent]) -> str:
@@ -67,6 +73,15 @@ class AssembliesAPI(TNCOAPI):
     def intent_heal(self, intent_obj: Union[Dict, HealAssemblyIntent]) -> str:
         return self._intent_request_impl('healAssembly', intent_obj)
 
+    def intent_retry(self, intent_obj: Union[Dict, RetryAssemblyIntent]) -> str:
+        return self._intent_request_impl('retry', intent_obj)
+
+    def intent_rollback(self, intent_obj: Union[Dict, RollbackAssemblyIntent]) -> str:
+        return self._intent_request_impl('rollback', intent_obj)
+
+    def intent_cancel(self, intent_obj: Union[Dict, CancelAssemblyIntent]) -> str:
+        return self._intent_request_impl('cancel', intent_obj)
+
     def intent_adopt(self, intent_obj: Union[Dict, AdoptAssemblyIntent]) -> str:
         return self._intent_request_impl('adoptAssembly', intent_obj)   
 
@@ -87,4 +102,6 @@ class AssembliesAPI(TNCOAPI):
         else:
             intent_obj_data = intent_obj
         request = TNCOClientRequest(method='POST', endpoint=endpoint).add_json_body(intent_obj_data)
+        if intent_name in INTENTS_WITHOUT_LOCATION_HEADER:
+            return self._exec_request(request)
         return self._exec_request_and_get_location_header(request)

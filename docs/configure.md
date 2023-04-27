@@ -209,6 +209,15 @@ environments:
       #auth_mode: token 
 
       #token: enter-your-token
+
+      #####################################################
+      # Token Authentication                              #
+      #####################################################
+     
+      # Indicate the environment is using token based auth
+      #auth_mode: token 
+
+      #token: enter-your-token
 ```
 
 ## Ansible RM
