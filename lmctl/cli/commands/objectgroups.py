@@ -15,7 +15,7 @@ from ..arguments import set_param_option
 tnco_builder = TNCOCommandBuilder(
     singular='objectgroup',
     plural='objectgroups',
-    display_name='Objectgroups'
+    display_name='Object Groups'
 )
 
 id_arg = Identifier(param_name='id')
@@ -24,8 +24,7 @@ default_columns = [
     Column('id', header='ID'),
     Column('name', header='Name'),
     Column('description', header='Description'),
-    Column('isDefault', header='Is Default'),
-    # Column('objectgroup', header='Object Group', accessor=lambda x: x.get('name') + ' (' + x.get('id') + ')'),
+    Column('isDefault', header='Default'),
 ]
 
 @tnco_builder.make_get_command(
@@ -35,7 +34,7 @@ default_columns = [
     allow_file_input=False
 )
 @click.argument(id_arg.param_name, required=False)
-@click.option('--permission', help=f'Get the list of object groups to those the user has permission on.')
+@click.option('--permission', help=f'Filter the list of object groups to those the user has the specified permission on.')
 def get_objectgroup(
         tnco_client: TNCOClient,
         identity: Identity,
