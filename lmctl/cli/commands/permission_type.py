@@ -7,7 +7,7 @@ from typing import List
 from lmctl.cli.io import IOController
 
 __all__ = (
-    'get_permissiontype',
+    'get_permission_types',
 )
 
 from ..arguments import set_param_option
@@ -15,7 +15,7 @@ from ..arguments import set_param_option
 tnco_builder = TNCOCommandBuilder(
     singular='permissiontype',
     plural='permissiontypes',
-    display_name='PermissionType'
+    display_name='Permission Type'
 )
 
 id_arg = Identifier(param_name='id')
@@ -32,11 +32,11 @@ default_columns = [
     allow_file_input=False
 )
 @click.argument(id_arg.param_name, required=False)
-def get_permissiontype(
+def get_permission_types(
         tnco_client: TNCOClient,
         identity: Identity,
     ):
-    api = tnco_client.permission_type
+    api = tnco_client.permission_types
     if identity is not None:
         return api.get(identity.value)
     return api.query()

@@ -2,7 +2,7 @@ from typing import List, Dict
 from .tnco_api_base import TNCOAPI
 from lmctl.client.client_request import TNCOClientRequest
 
-class ObjectgroupsAPI(TNCOAPI):
+class ObjectGroupsAPI(TNCOAPI):
     endpoint = 'api/v1/object-groups'
 
     def get(self, id: str, shallow: bool = None) -> Dict:
