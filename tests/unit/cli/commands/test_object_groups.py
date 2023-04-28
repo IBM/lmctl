@@ -50,18 +50,19 @@ class TestProcessCommands(command_testing.CommandTestCase):
             os.environ['LMCONFIG'] = self.orig_lm_config
 
 
-    @mock.patch('lmctl.client.api.object_groups.ObjectgroupsAPI.query')
+    @mock.patch('lmctl.client.api.object_groups.ObjectGroupsAPI.query')
     def test_get_with_defaults(self, mocked_query):
         mocked_query.return_value = [{'id': '59799459-0067-4901-8265-a173196d3928', 'name': 'Domain1', 'description': 'Orchestration for Domain 1', 'isDefault': False}]
         result = self.runner.invoke(cli, [ 'get', 'objectgroups'])
         self.assert_no_errors(result)
-        expected_output = '| ID                                   | Name    | Description                | Is Default   |'
-        expected_output += '\n|--------------------------------------+---------+----------------------------+--------------|'
-        expected_output += '\n| 59799459-0067-4901-8265-a173196d3928 | Domain1 | Orchestration for Domain 1 | False        |'
+        expected_output = '| ID                                   | Name    | Description                | Default   |'
+        expected_output += '\n|--------------------------------------+---------+----------------------------+-----------|'
+        expected_output += '\n| 59799459-0067-4901-8265-a173196d3928 | Domain1 | Orchestration for Domain 1 | False     |'
         self.assert_no_errors(result)
         self.assert_output(result, expected_output)
 
-    @mock.patch('lmctl.client.api.permission_type.PermissionTypeAPI.query')
+
+    @mock.patch('lmctl.client.api.permission_type.PermissionTypesAPI.query')
     def test_get_with_permission_type(self, mocked_query):
         mocked_query.return_value = [{
                                         'name': 'OBJECTGROUP_READ',

@@ -1,16 +1,17 @@
 config:
   environments:
     default:
-      tnco: 
-        address:
-        secure: True
+      tnco:
+        address: https://cp4na-o-ishtar-lifecycle-manager.apps.haynes-4.cp.fyre.ibm.com
+        api_key: 3WT3yotoDeAws0AAx6pR7LKvwdyfVcTNMZIIzix9
+        auth_address: https://cpd-lifecycle-manager.apps.haynes-4.cp.fyre.ibm.com/icp4d-api/v1/authorize
         auth_mode: zen
-        username: almadmin
-        api_key: 
+        secure: true
+        username: admin
 auth_testing:
   zen_api_key:
-    username: almadmin
-    api_key: 
+    username: admin
+    api_key: 3WT3yotoDeAws0AAx6pR7LKvwdyfVcTNMZIIzix9
   # Pre-Zen
   # Credentials used in Auth testing (set all 3 to valid credentials)
   #auth_mode: oauth
