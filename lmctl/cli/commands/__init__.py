@@ -30,4 +30,4 @@ from .permission_type import *
 from .resourcedriver import *
 from .resource_managers import *
 from .resource_packages import *
-from .objectgroups import *
+from .object_groups import *

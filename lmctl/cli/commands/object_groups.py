@@ -7,7 +7,7 @@ from typing import List
 from lmctl.cli.io import IOController
 
 __all__ = (
-    'get_objectgroup',
+    'get_object_group',
 )
 
 from ..arguments import set_param_option
@@ -35,7 +35,7 @@ default_columns = [
 )
 @click.argument(id_arg.param_name, required=False)
 @click.option('--permission', help=f'Filter the list of object groups to those the user has the specified permission on.')
-def get_objectgroup(
+def get_object_group(
         tnco_client: TNCOClient,
         identity: Identity,
         permission: str,
