@@ -10,7 +10,7 @@ from lmctl.cli.entry import cli
 from lmctl.config import Config
 from lmctl.environment import EnvironmentGroup, TNCOEnvironment
 
-class TestPermissionTypes(command_testing.CommandTestCase):
+class TestPermissionTypesCommands(command_testing.CommandTestCase):
 
     def setUp(self):
         super().setUp()
