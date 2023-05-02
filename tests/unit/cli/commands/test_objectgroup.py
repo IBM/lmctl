@@ -61,6 +61,28 @@ class TestObjectGroupCommands(command_testing.CommandTestCase):
         self.assert_no_errors(result)
         self.assert_output(result, expected_output)
 
+    @mock.patch('lmctl.client.api.object_groups.ObjectGroupsAPI.get')
+    def test_get_with_id(self, mocked_query):
+        mocked_query.return_value = [{'id': '59799459-0067-4901-8265-a173196d3928', 'name': 'Domain1', 'description': 'Orchestration for Domain 1', 'isDefault': False}]
+        result = self.runner.invoke(cli, [ 'get', 'objectgroups', '59799459-0067-4901-8265-a173196d3928'])
+        self.assert_no_errors(result)
+        expected_output = '| ID                                   | Name    | Description                | Default   |'
+        expected_output += '\n|--------------------------------------+---------+----------------------------+-----------|'
+        expected_output += '\n| 59799459-0067-4901-8265-a173196d3928 | Domain1 | Orchestration for Domain 1 | False     |'
+        self.assert_no_errors(result)
+        self.assert_output(result, expected_output)
+
+    @mock.patch('lmctl.client.api.object_groups.ObjectGroupsAPI.query')
+    def test_get_with_permission(self, mocked_query):
+        mocked_query.return_value = [{'id': '59799459-0067-4901-8265-a173196d3928', 'name': 'Domain1', 'description': 'Orchestration for Domain 1', 'isDefault': False}]
+        result = self.runner.invoke(cli, [ 'get', 'objectgroups','--permission', 'SPINFAUTO_WRITE'])
+        self.assert_no_errors(result)
+        expected_output = '| ID                                   | Name    | Description                | Default   |'
+        expected_output += '\n|--------------------------------------+---------+----------------------------+-----------|'
+        expected_output += '\n| 59799459-0067-4901-8265-a173196d3928 | Domain1 | Orchestration for Domain 1 | False     |'
+        self.assert_no_errors(result)
+        self.assert_output(result, expected_output)
+
     @mock.patch('lmctl.client.api.object_groups.ObjectGroupsAPI.query')
     def test_get_with_yaml(self, mocked_query):
         mocked_query.return_value = [{'id': '59799459-0067-4901-8265-a173196d3928', 'name': 'Domain1', 'description': 'Orchestration for Domain 1', 'isDefault': False}]

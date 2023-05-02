@@ -7,7 +7,7 @@ import shutil
 from unittest.mock import patch
 from lmctl.cli.controller import clear_global_controller
 from lmctl.cli.entry import cli
-from lmctl.config import Config
+from lmctl.config import ConfigFinder, Config
 from lmctl.environment import EnvironmentGroup, TNCOEnvironment
 
 class TestPermissionTypesCommands(command_testing.CommandTestCase):

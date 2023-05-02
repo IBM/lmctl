@@ -18,8 +18,13 @@ tnco_builder = TNCOCommandBuilder(
     display_name='Object Groups'
 )
 
-id_arg = Identifier(param_name='id')
+id_arg = Identifier.arg_and_attr('id')
 
+permission_type_opt = Identifier(
+    param_name='permission',
+    obj_attribute='permission',
+    param_opts=['--permission']
+)
 default_columns = [
     Column('id', header='ID'),
     Column('name', header='Name'),
@@ -28,22 +33,20 @@ default_columns = [
 ]
 
 @tnco_builder.make_get_command(
-    identifiers=[id_arg],
+    identifiers=[id_arg, permission_type_opt],
     identifier_required=False,
-    default_columns=default_columns,
-    allow_file_input=False
+    default_columns=default_columns
 )
 @click.argument(id_arg.param_name, required=False)
-@click.option('--permission', help=f'Filter the list of object groups to those the user has the specified permission on.')
+@click.option(*permission_type_opt.param_opts, required=False, help='Retrieve all Object Group/Groups which has a given Id/Permission')
 def get_object_group(
         tnco_client: TNCOClient,
-        identity: Identity,
-        permission: str,
+        identity: Identity
     ):
     api = tnco_client.object_groups
-    if identity is not None:
-        return api.get(identity.value)
-    elif permission is not None:
-        query_param ={ "permission" : permission}
+    if identity is not None and identity.identifier.param_name == permission_type_opt.param_name:
+        query_param ={ "permission" : identity.value}
         return api.query(**query_param)
+    elif identity is not None:
+        return api.get(identity.value)
     return api.query()
