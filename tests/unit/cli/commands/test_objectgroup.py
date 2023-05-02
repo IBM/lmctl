@@ -10,7 +10,7 @@ from lmctl.cli.entry import cli
 from lmctl.config import Config
 from lmctl.environment import EnvironmentGroup, TNCOEnvironment
 
-class TestObjectGroupsCommands(command_testing.CommandTestCase):
+class TestObjectGroupCommands(command_testing.CommandTestCase):
 
     def setUp(self):
         super().setUp()

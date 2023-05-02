@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 from lmctl.client.api import ObjectGroupsAPI
 from lmctl.client.client_request import TNCOClientRequest
 
-class TestObjectgroupsAPI(unittest.TestCase):
+class TestObjectGroupAPI(unittest.TestCase):
 
     def setUp(self):
         self.mock_client = MagicMock()
