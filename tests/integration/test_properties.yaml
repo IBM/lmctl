@@ -1,16 +1,16 @@
 config:
   environments:
     default:
-      tnco: 
+      tnco:
         address:
         secure: True
         auth_mode: zen
         username: almadmin
-        api_key: 
+        api_key:
 auth_testing:
   zen_api_key:
     username: almadmin
-    api_key: 
+    api_key:
   # Pre-Zen
   # Credentials used in Auth testing (set all 3 to valid credentials)
   #auth_mode: oauth

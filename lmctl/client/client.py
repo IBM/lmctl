@@ -180,7 +180,15 @@ class TNCOClient:
     @property
     def processes(self) -> ProcessesAPI:
         return ProcessesAPI(self)
-    
+
+    @property
+    def object_groups(self) -> ObjectGroupsAPI:
+        return ObjectGroupsAPI(self)
+
+    @property
+    def permission_types(self) -> ObjectGroupsAPI:
+        return PermissionTypesAPI(self)
+
     @property
     def resource_drivers(self) -> ResourceDriversAPI:
         return ResourceDriversAPI(self)

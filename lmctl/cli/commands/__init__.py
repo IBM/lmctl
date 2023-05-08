@@ -26,6 +26,8 @@ from .env import *
 from .infrastructure_key import *
 from .intents import *
 from .processes import *
+from .permission_type import *
 from .resourcedriver import *
 from .resource_managers import *
 from .resource_packages import *
+from .object_groups import *
