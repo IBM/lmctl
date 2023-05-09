@@ -89,3 +89,35 @@ class TestObjectGroupsCommands(command_testing.CommandTestCase):
         expected_output += '\n| 59799459-0067-4901-8265-a173196d3928 | Domain1 | Orchestration for Domain 1 | False     |'
         self.assert_no_errors(result)
         self.assert_output(result, expected_output)
+
+
+    @mock.patch('lmctl.client.api.object_groups.ObjectGroupsAPI.query')
+    def test_get_with_yaml(self, mocked_query):
+        mocked_query.return_value = [{'id': '59799459-0067-4901-8265-a173196d3928', 'name': 'Domain1', 'description': 'Orchestration for Domain 1', 'isDefault': False}]
+        result = self.runner.invoke(cli, [ 'get', 'objectgroups', '-o', 'yaml'])
+        self.assert_no_errors(result)
+        expected_output = 'items:'
+        expected_output += '\n- id: 59799459-0067-4901-8265-a173196d3928'
+        expected_output += '\n  name: Domain1'
+        expected_output += '\n  description: Orchestration for Domain 1'
+        expected_output += '\n  isDefault: false'
+        expected_output += '\n'
+        self.assert_no_errors(result)
+        self.assert_output(result, expected_output)
+
+    @mock.patch('lmctl.client.api.object_groups.ObjectGroupsAPI.query')
+    def test_get_with_json(self, mocked_query):
+        mocked_query.return_value = [{'id': '59799459-0067-4901-8265-a173196d3928', 'name': 'Domain1', 'description': 'Orchestration for Domain 1', 'isDefault': False}]
+        result = self.runner.invoke(cli, [ 'get', 'objectgroups', '-o', 'json'])
+        self.assert_no_errors(result)
+        expected_output = '{'
+        expected_output += '\n  "items": ['
+        expected_output += '\n    {'
+        expected_output += '\n      "id": "59799459-0067-4901-8265-a173196d3928",'
+        expected_output += '\n      "name": "Domain1",'
+        expected_output += '\n      "description": "Orchestration for Domain 1",'
+        expected_output += '\n      "isDefault": false'
+        expected_output += '\n    }'
+        expected_output += '\n  ]'
+        expected_output += '\n}'
+        self.assert_no_errors(result)
