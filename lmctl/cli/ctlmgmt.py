@@ -50,13 +50,14 @@ def get_active_environment(ctl):
             return env_group
     return None
 
-def create_lm_session(environment_group_name = None, lm_pwd=None, config_path=None, lm_client_secret=None, lm_token=None):
+def create_lm_session(environment_group_name = None, lm_pwd=None, config_path=None, lm_client_secret=None, lm_token=None, object_group_id=None):
     warnings.warn('create_lm_session is deprecated as the LmSession class is deprecated, replaced with a new TNCOClient. Use get_global_controller from lmctl.cli.controller then use build_client', DeprecationWarning)
     env_group = get_environment_group(environment_group_name, config_path)
     if not env_group.has_lm:
         output.printer.error('Error: CP4NA orchestration environment not configured on group: {0}'.format(environment_group_name))
     lm = env_group.tnco
-    lm_session_config = lm.create_session_config()
+    lm_session_config = lm.create_session_config(object_group_id)
+
     if lm.secure:
         if lm_session_config.is_using_zen_auth:
             if lm_session_config.username is not None:

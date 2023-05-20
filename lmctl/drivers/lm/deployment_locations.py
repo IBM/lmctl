@@ -22,20 +22,26 @@ class LmDeploymentLocationDriver(LmDriver):
     def __location_by_id_api(self, location_id):
         return '{0}/api/deploymentLocations/{1}'.format(self.lm_base, location_id)
 
-    def get_locations(self):
+    def get_locations(self, object_group_id=None):
         url = self.__locations_api()
+        params = None
+        if(object_group_id != None):
+            params = { "objectGroupId" : object_group_id}
         headers = self._configure_access_headers()
-        response = requests.get(url, headers=headers, verify=False)
+        response = requests.get(url, params=params, headers=headers, verify=False)
         if response.status_code == 200:
             locations = response.json()
             return locations
         else:
             self._raise_unexpected_status_exception(response)
 
-    def get_locations_by_name(self, deployment_location_name):
+    def get_locations_by_name(self, deployment_location_name, object_group_id):
+        params = None
+        if(object_group_id != None):
+            params = { "objectGroupId" : object_group_id}
         url = self.__location_by_name_api(deployment_location_name)
         headers = self._configure_access_headers()
-        response = requests.get(url, headers=headers, verify=False)
+        response = requests.get(url, params=params, headers=headers, verify=False)
         if response.status_code == 200:
             locations = response.json()
             return locations

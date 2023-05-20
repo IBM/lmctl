@@ -41,6 +41,7 @@ class TNCOEnvironment:
     api_key: Optional[str] = None
     token: Optional[str] = None
     auth_mode: Optional[str] = OAUTH_MODE
+    object_group_id: Optional[str] = None
 
     host: Optional[str] = None
     port: Optional[Union[str,int]] = None
@@ -190,7 +191,8 @@ class TNCOEnvironment:
 
         return final_address
 
-    def create_session_config(self):
+    def create_session_config(self, objectgroupid=None):
+        print(objectgroupid)
         return LmSessionConfig(self, 
                                 username=self.username, 
                                 password=self.password, 
@@ -200,7 +202,8 @@ class TNCOEnvironment:
                                 token=self.token,
                                 auth_mode=self.auth_mode,
                                 scope=self.scope,
-                                auth_server_id=self.auth_server_id
+                                auth_server_id=self.auth_server_id,
+                                object_group_id=objectgroupid
                             )
     def build_client(self):
         builder = TNCOClientBuilder()
@@ -282,7 +285,7 @@ class TNCOEnvironment:
 
 class LmSessionConfig:
 
-    def __init__(self, env, username=None, password=None, client_id=None, client_secret=None, token=None, api_key=None, auth_mode=None, scope=None, auth_server_id=None):
+    def __init__(self, env, username=None, password=None, client_id=None, client_secret=None, token=None, api_key=None, auth_mode=None, scope=None, auth_server_id=None, object_group_id=None):
         self.env = env
         self.username = username
         self.password = password
@@ -293,6 +296,7 @@ class LmSessionConfig:
         self.auth_mode = auth_mode
         self.scope = scope
         self.auth_server_id = auth_server_id
+        self.object_group_id = object_group_id
 
     @property
     def is_using_oauth(self):
@@ -328,6 +332,7 @@ class LmSession:
         self.auth_mode = session_config.auth_mode
         self.scope = session_config.scope
         self.auth_server_id = session_config.auth_server_id
+        self.object_group_id = session_config.object_group_id
         self.__lm_security_ctrl = None
         self.__descriptor_driver = None
         self.__onboard_rm_driver = None

@@ -7,10 +7,10 @@ from lmctl.client.utils import build_relative_endpoint
 class ResourcePackagesAPI(TNCOAPI):
     endpoint = 'api/resource-manager/resource-packages'
 
-    def create(self, resource_pkg_path: Union[str,Path]) -> str:
+    def create(self, resource_pkg_path: Union[str,Path], object_group_id: str=None) -> str:
         with open(resource_pkg_path, 'rb') as resource_pkg:
             files = {'file': resource_pkg}
-            request = TNCOClientRequest(method='POST', endpoint=self.endpoint).add_files(files)
+            request = TNCOClientRequest(method='POST', endpoint=f"{self.endpoint}?objectGroupId={object_group_id}" if object_group_id is not None else self.endpoint ).add_files(files)
             return self._exec_request_and_get_location_header(request)
 
     def update(self, resource_name: str, resource_pkg_path: Union[str,Path]):

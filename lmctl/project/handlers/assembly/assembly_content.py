@@ -122,7 +122,7 @@ class AssemblyContentHandler(handlers_api.PkgContentHandler):
             descriptor_driver.update_descriptor(descriptor_name, descriptor_yml_str)
         else:
             journal.event('Not found, creating Descriptor {0}'.format(descriptor_name))
-            descriptor_driver.create_descriptor(descriptor_yml_str)
+            descriptor_driver.create_descriptor(descriptor_yml_str, object_group_id=None)
         env_sessions.mark_lm_updated()
         return descriptor_name
 
@@ -144,7 +144,7 @@ class AssemblyContentHandler(handlers_api.PkgContentHandler):
                 descriptor_template_driver.update_descriptor_template(descriptor_name, descriptor_yml_str)
             else:
                 journal.event('Not found, creating Descriptor Template {0}'.format(descriptor_name))
-                descriptor_template_driver.create_descriptor_template(descriptor_yml_str)
+                descriptor_template_driver.create_descriptor_template(descriptor_yml_str, object_group_id=lm_session.object_group_id)
 
     def __push_service_behaviour(self, journal, env_sessions, project_id):
         lm_session = env_sessions.lm

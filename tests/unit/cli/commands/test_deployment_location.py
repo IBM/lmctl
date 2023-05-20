@@ -31,7 +31,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\n|--------------------------------------+--------+-------------------+----------------------+---------------|'
         expected_output += '\n| {0} | testdl | rm123             |                      |               |'.format(expected_id)
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None, None)
         mock_dl_driver = self.mock_create_lm_session.return_value.deployment_location_driver
         mock_dl_driver.add_location.assert_called_once_with({'name': 'testdl', 'description': None, 'resourceManager': 'rm123', 'infrastructureType': None, 'infrastructureSpecificProperties': {}})
 
@@ -45,7 +45,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\n|--------------------------------------+--------+-------------------+----------------------+---------------|'
         expected_output += '\n| {0} | testdl | rm123             | Openstack            | test location |'.format(expected_id)
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None, None)
         mock_dl_driver = self.mock_create_lm_session.return_value.deployment_location_driver
         mock_dl_driver.add_location.assert_called_once_with({'name': 'testdl', 'description': 'test location', 'resourceManager': 'rm123', 'infrastructureType': 'Openstack', 'infrastructureSpecificProperties': {}})
 
@@ -67,7 +67,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
             expected_output += '\n|--------------------------------------+--------+-------------------+----------------------+---------------|'
             expected_output += '\n| {0} | testdl | rm123             |                      |               |'.format(expected_id)
             self.assert_output(result, expected_output)
-            self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+            self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None, None)
             mock_dl_driver = self.mock_create_lm_session.return_value.deployment_location_driver
             mock_dl_driver.add_location.assert_called_once_with({'name': 'testdl', 'description': None, 'resourceManager': 'rm123', 'infrastructureType': None, 'infrastructureSpecificProperties': properties_dict})
         finally:
@@ -92,7 +92,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
             expected_output += '\n|--------------------------------------+--------+-------------------+----------------------+---------------|'
             expected_output += '\n| {0} | testdl | rm123             |                      |               |'.format(expected_id)
             self.assert_output(result, expected_output)
-            self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+            self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None, None)
             mock_dl_driver = self.mock_create_lm_session.return_value.deployment_location_driver
             mock_dl_driver.add_location.assert_called_once_with({'name': 'testdl', 'description': None, 'resourceManager': 'rm123', 'infrastructureType': None, 'infrastructureSpecificProperties': properties_dict})
         finally:
@@ -109,7 +109,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\n|--------------------------------------+--------+-------------------+----------------------+---------------|'
         expected_output += '\n| {0} | testdl | rm123             |                      |               |'.format(expected_id)
         self.assertTrue(expected_output in result.output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, 'my/config/file')
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, 'my/config/file', None)
 
     def test_add_with_pwd(self):
         result = self.runner.invoke(deployment_cmds.add, ['TestEnv', 'testdl', '--rm', 'rm123', '--pwd', 'secret'])
@@ -121,7 +121,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\n|--------------------------------------+--------+-------------------+----------------------+---------------|'
         expected_output += '\n| {0} | testdl | rm123             |                      |               |'.format(expected_id)
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', 'secret', None)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', 'secret', None, None)
 
     def test_add_with_output_json_format(self):
         result = self.runner.invoke(deployment_cmds.add, ['TestEnv', 'testdl', '--rm', 'rm123', '-f', 'json'])
@@ -138,7 +138,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\n  \"id\": \"{0}\"'.format(expected_id)
         expected_output += '\n}'
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None, None)
 
     def test_add_with_output_yaml_format(self):
         result = self.runner.invoke(deployment_cmds.add, ['TestEnv', 'testdl', '--rm', 'rm123', '-f', 'yaml'])
@@ -153,7 +153,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\ninfrastructureSpecificProperties: {}'
         expected_output += '\nid: {0}\n'.format(expected_id)
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None, None)
 
     def test_add_handles_lm_driver_error(self):
         self.mock_create_lm_session.return_value.deployment_location_driver.add_location.side_effect = lm_drivers.LmDriverException('Mocked error')
@@ -171,7 +171,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output = 'Deleting deployment location: {0}...'.format(dl_id)
         expected_output += '\nDeleted deployment location: {0}'.format(dl_id)
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None, None)
         mock_dl_driver = self.mock_create_lm_session.return_value.deployment_location_driver
         mock_dl_driver.get_locations_by_name.assert_called_once_with(dl_name)
         mock_dl_driver.delete_location.assert_called_once_with(dl_id)
@@ -185,7 +185,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output = 'Deleting deployment location: {0}...'.format(dl_id)
         expected_output += '\nDeleted deployment location: {0}'.format(dl_id)
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, 'my/config/file')
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, 'my/config/file', None)
 
     def test_delete_with_pwd(self):
         dl_id = '123'
@@ -196,7 +196,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output = 'Deleting deployment location: {0}...'.format(dl_id)
         expected_output += '\nDeleted deployment location: {0}'.format(dl_id)
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', 'secret', None)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', 'secret', None, None)
 
     def test_delete_handles_lm_driver_error(self):
         result = self.runner.invoke(deployment_cmds.delete, ['TestEnv', 'SomeDl'])
@@ -214,7 +214,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\n|--------------------------------------+--------+-------------------+----------------------+---------------|'
         expected_output += '\n| {0} | testdl | rm123             |                      |               |'.format(dl_id)
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None, None)
         mock_dl_driver = self.mock_create_lm_session.return_value.deployment_location_driver
         mock_dl_driver.get_locations_by_name.assert_called_once_with(dl_name)
 
@@ -228,7 +228,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\n|--------------------------------------+--------+-------------------+----------------------+---------------|'
         expected_output += '\n| {0} | testdl | rm123             |                      |               |'.format(dl_id)
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, 'my/config/file')
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, 'my/config/file', None)
 
     def test_get_with_pwd(self):
         dl_id = 'f801fa73-6278-42f0-b5d3-a0fe40675327'
@@ -247,7 +247,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         self.assert_has_system_exit(result)
         expected_output = 'Error: No deployment location with name: SomeDl'
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None, None)
     
     def test_get_with_output_json_format(self):
         dl_id = 'f801fa73-6278-42f0-b5d3-a0fe40675327'
@@ -261,7 +261,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\n  \"resourceManager\": \"rm123\"'
         expected_output += '\n}'
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None, None)
 
     def test_get_with_output_yaml_format(self):
         dl_id = 'f801fa73-6278-42f0-b5d3-a0fe40675327'
@@ -273,7 +273,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\nname: {0}'.format(dl_name)
         expected_output += '\nresourceManager: rm123\n'
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None, None)
 
     def test_list_with_defaults(self):
         dl_A_id = 'f801fa73-6278-42f0-b5d3-a0fe40675327'
@@ -289,7 +289,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\n| f801fa73-6278-42f0-b5d3-a0fe40675327 | testdl_a | rm123             |                      |               |'
         expected_output += '\n| c502bc73-6278-42e0-a5e3-a0fe40674754 | testdl_b | rm123             |                      |               |'
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None, None)
         mock_dl_driver = self.mock_create_lm_session.return_value.deployment_location_driver
         mock_dl_driver.get_locations.assert_called_once()
     
@@ -303,7 +303,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\n|--------------------------------------+--------+-------------------+----------------------+---------------|'
         expected_output += '\n| {0} | testdl | rm123             |                      |               |'.format(dl_id)
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, 'my/config/file')
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, 'my/config/file', None)
 
     def test_get_with_pwd(self):
         dl_id = 'f801fa73-6278-42f0-b5d3-a0fe40675327'
@@ -315,7 +315,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\n|--------------------------------------+--------+-------------------+----------------------+---------------|'
         expected_output += '\n| {0} | testdl | rm123             |                      |               |'.format(dl_id)
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', 'secret', None)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', 'secret', None, None)
 
     def test_list_with_output_json_format(self):
         dl_A_id = 'f801fa73-6278-42f0-b5d3-a0fe40675327'
@@ -341,7 +341,7 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\n  ]'
         expected_output += '\n}'
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None, None)
     
     def test_list_with_output_yaml_format(self):
         dl_A_id = 'f801fa73-6278-42f0-b5d3-a0fe40675327'
@@ -360,4 +360,4 @@ class TestDeploymentLocationCommands(command_testing.CommandTestCase):
         expected_output += '\n  name: {0}'.format(dl_B_name)
         expected_output += '\n  resourceManager: rm123\n'
         self.assert_output(result, expected_output)
-        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None)
+        self.mock_create_lm_session.assert_called_once_with('TestEnv', None, None, None)

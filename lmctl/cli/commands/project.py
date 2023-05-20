@@ -100,11 +100,12 @@ def build(project_path, autocorrect):
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources must be provided')
 @click.option('--pwd', '--api-key', default=None, help='password/api_key used for authenticating with CP4NA orchestration. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
-def push(project_path, environment, config, armname, pwd, autocorrect):
+@click.option('--objectgroupid', default=None, help='create the new location in the specified object group')
+def push(project_path, environment, config, armname, pwd, autocorrect, objectgroupid):
     """Push an Assembly/Resource project"""
     logger.debug('Pushing project at: {0}'.format(project_path))
     project = lifecycle_cli.open_project(project_path)
-    env_sessions = lifecycle_cli.build_sessions_for_project(project.config, environment, pwd, armname, config)
+    env_sessions = lifecycle_cli.build_sessions_for_project(project.config, environment, pwd, armname, config, object_group_id=objectgroupid)
     controller = lifecycle_cli.ExecutionController(PUSH_HEADER)
     controller.start('{0} at {1}'.format(project.config.name, project_path))
     build_result = exec_build(controller, project, allow_autocorrect=autocorrect)

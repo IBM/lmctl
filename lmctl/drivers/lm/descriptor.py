@@ -39,8 +39,10 @@ class LmDescriptorDriver(LmDriver):
         else:
             self._raise_unexpected_status_exception(response)
 
-    def create_descriptor(self, descriptor_content):
+    def create_descriptor(self, descriptor_content, object_group_id=None):
         url = '{0}/api/catalog/descriptors'.format(self.lm_base)
+        if object_group_id is not None:
+            url = f"{url}?objectGroupId={object_group_id}"
         headers = {
             'Content-Type': 'application/yaml'
         }
