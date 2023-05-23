@@ -27,10 +27,9 @@ name_arg = Identifier.arg_and_attr('name')
             The package for an LMCTL package can be extracted to find the Resource Package with zip/tar, depending on the chosen package format for your project'''
 )
 @click.option('-f','--file', 'file_path',  required=True, type=click.Path(exists=True), help='Path to Resource Package zip/tar')
-@click.option('--objectgroupid', default=None, help='create the new location in the specified object group')
 @pass_io
-def create_resource_package(tnco_client: TNCOClient, file_path: str, io: IOController, objectgroupid: str=None):
-    resource_name = tnco_client.resource_packages.create(file_path, objectgroupid)
+def create_resource_package(tnco_client: TNCOClient, file_path: str, io: IOController):
+    resource_name = tnco_client.resource_packages.create(file_path)
     io.print(f'Created from package: {resource_name}')
 
 @tnco_builder.make_general_command(

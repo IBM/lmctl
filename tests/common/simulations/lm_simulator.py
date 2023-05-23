@@ -515,12 +515,11 @@ class SimulatedLm:
 
 class SimulatedLmSession(LmSession):
 
-    def __init__(self, lm_sim, object_group_id=None):
+    def __init__(self, lm_sim):
         self.env = LmEnvironment('LmSim', 'sim')
         self.username = None
         self.password = None
         self.sim = lm_sim
-        self.object_group_id = object_group_id
         self.__descriptor_driver = MagicMock()
         self.__descriptor_driver_sim = SimDescriptorDriver(self.sim)
         self.__descriptor_template_driver = MagicMock()
@@ -761,7 +760,7 @@ class SimDescriptorDriver:
         except Exception as e:
             raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
 
-    def create_descriptor(self, descriptor_content, object_group_id=None):
+    def create_descriptor(self, descriptor_content):
         try:
             self.sim_lm.add_descriptor(descriptor_content)
         except Exception as e:
@@ -795,7 +794,7 @@ class SimDescriptorTemplateDriver:
         except Exception as e:
             raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
 
-    def create_descriptor_template(self, descriptor_content,  object_group_id=None):
+    def create_descriptor_template(self, descriptor_content):
         try:
             self.sim_lm.add_descriptor_template(descriptor_content)
         except Exception as e:
@@ -940,7 +939,7 @@ class SimResourcePkgDriver:
         finally:
             shutil.rmtree(tmp_dir)
 
-    def onboard_package(self, resource_pkg_path, object_group_id=None):
+    def onboard_package(self, resource_pkg_path):
         package_name = self.__get_resource_type_name(resource_pkg_path)
         try:
             self.sim_lm.add_resource_package(package_name, resource_pkg_path)
@@ -982,7 +981,7 @@ class SimDeploymentLocationDriver:
     def __init__(self, sim_lm):
         self.sim_lm = sim_lm
 
-    def get_locations(self, object_group_id=None):
+    def get_locations(self):
         try:
             return self.sim_lm.get_deployment_locations()
         except Exception as e:

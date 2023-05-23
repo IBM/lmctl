@@ -15,10 +15,8 @@ class LmResourcePkgDriver(LmDriver):
     def __package_api(self, resource_type_name):
         return '{0}/{1}'.format(self.__packages_api(), resource_type_name)
 
-    def onboard_package(self, resource_pkg_path, object_group_id=None):
+    def onboard_package(self, resource_pkg_path):
         url = self.__packages_api()
-        if object_group_id is not None:
-            url = f"{url}?objectGroupId={object_group_id}"
         headers = self._configure_access_headers()
         with open(resource_pkg_path, 'rb') as resource_pkg:
             files = {'file': resource_pkg}

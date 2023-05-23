@@ -103,5 +103,5 @@ class BrentContentHandlerDelegate(handlers_api.ResourceContentHandlerDelegate):
             journal.event('No package named {0} found'.format(descriptor_name))
         res_pkg_path = self.tree.gen_resource_package_file_path(self.meta.full_name)
         journal.event('Pushing {0} (version: {1}) Resource package to Brent: {2} ({3})'.format(self.meta.full_name, self.meta.version, lm_session.env.name, lm_session.env.address))
-        pkg_driver.onboard_package(res_pkg_path, object_group_id=env_sessions.lm.object_group_id)
+        pkg_driver.onboard_package(res_pkg_path)
         env_sessions.mark_brent_updated()

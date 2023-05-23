@@ -9,11 +9,8 @@ class DescriptorsAPI(TNCOAPI):
     endpoint = 'api/catalog/descriptors'
     id_attr = 'name'
 
-    def create(self, descriptor: Dict, objectgroupid: str=None):
-        query_params = {}
-        if(objectgroupid != None):
-            query_params["objectGroupId"]= objectgroupid
-        request = TNCOClientRequest(method='POST', endpoint=self.endpoint).add_yaml_body(descriptor).add_query_params(query_params)
+    def create(self, descriptor: Dict):
+        request = TNCOClientRequest(method='POST', endpoint=self.endpoint).add_yaml_body(descriptor)
         request.override_address = getattr(self, 'override_address') if hasattr(self, 'override_address') else None
         self._exec_request(request)
 
@@ -29,12 +26,10 @@ class DescriptorsAPI(TNCOAPI):
         request.override_address = getattr(self, 'override_address') if hasattr(self, 'override_address') else None
         self._exec_request(request)
 
-    def get(self, name: str, effective: bool = None, objectgroupid: str=None) -> Dict:
+    def get(self, name: str, effective: bool = None) -> Dict:
         query_params = {}
         if effective is not None:
             query_params['effective'] = effective
-        if(objectgroupid != None):
-            query_params["objectGroupId"]= objectgroupid
         request = TNCOClientRequest(
                         method='GET',
                         endpoint=build_relative_endpoint(base_endpoint=self.endpoint, id_value=name)

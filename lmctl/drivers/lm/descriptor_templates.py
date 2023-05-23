@@ -41,13 +41,11 @@ class LmDescriptorTemplatesDriver(LmDriver):
         else:
             self._raise_unexpected_status_exception(response)
 
-    def create_descriptor_template(self, descriptor_content, object_group_id=None):
+    def create_descriptor_template(self, descriptor_content):
         url = '{0}/{1}'.format(self.lm_base, self.TEMPLATES_API)
         headers = {
             'Content-Type': 'application/yaml'
         }
-        if object_group_id is not None:
-            url = f"{url}?objectGroupId={object_group_id}"
         headers = self._configure_access_headers(headers)
         response = requests.post(url, headers=headers, data=descriptor_content, verify=False)
         if response.status_code == 201:

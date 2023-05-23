@@ -139,11 +139,10 @@ def format_dl_list(output_format, dl_list):
 @click.option('--config', default=None, help='configuration file')
 @click.option('--pwd', '--api-key', default=None, help='password/api_key used for authenticating with CP4NA orchestration. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
-@click.option('--objectgroupid', default=None, help='create the new location in the specified object group')
-def list_locations(environment, config, pwd, objectgroupid, output_format):
+def list_locations(environment, config, pwd, output_format):
     dl_driver = get_dl_driver(environment, config, pwd)
     with lm_driver_safety_net():
-        dl_list = dl_driver.get_locations(object_group_id=objectgroupid)
+        dl_list = dl_driver.get_locations()
     result = format_dl_list(output_format, dl_list)
     click.echo(result)
 
@@ -157,17 +156,14 @@ def list_locations(environment, config, pwd, objectgroupid, output_format):
 @click.option('-d', '--description', help='description of the Deployment Location')
 @click.option('-p', '--properties', help='path to yaml/json file containing properties for the Deployment Location')
 @click.option('-f', '--format', 'output_format', default='table', help='format of output [table, yaml, json]')
-@click.option('--objectgroupid', default=None, help='create the new location in the specified object group')
-def add(environment, name, config, pwd, rm, infrastructure_type, objectgroupid, description, properties, output_format):
-    dl_driver = get_dl_driver(environment, config, pwd, objectgroupid)
+def add(environment, name, config, pwd, rm, infrastructure_type, description, properties, output_format):
+    dl_driver = get_dl_driver(environment, config, pwd)
     new_dl = {
         'name': name,
         'description': description,
         'resourceManager': rm,
         'infrastructureType': infrastructure_type
     }
-    if objectgroupid is not None:
-        new_dl['objectGroupId'] = objectgroupid
     if properties is not None:
         loaded_properties = load_properties_file(properties)
         new_dl['infrastructureSpecificProperties'] = loaded_properties
@@ -235,6 +231,6 @@ def load_properties_file(properties_file):
         exit(1)
     return data
 
-def get_dl_driver(environment_name, config_path, pwd, object_group_id=None):
-    lm_session = ctlmgmt.create_lm_session(environment_name, pwd, config_path, object_group_id)
+def get_dl_driver(environment_name, config_path, pwd):
+    lm_session = ctlmgmt.create_lm_session(environment_name, pwd, config_path)
     return lm_session.deployment_location_driver

@@ -18,8 +18,8 @@ PASSED = 'PASSED'
 PASSED_WITH_WARNINGS = 'PASSED (with warnings)'
 
 
-def build_sessions_for_project(project_config, environment_name, lm_pwd=None, arm_name=None, config_path=None, object_group_id=None):
-    lm_session = ctlmgmt.create_lm_session(environment_name, lm_pwd, config_path, object_group_id=object_group_id)
+def build_sessions_for_project(project_config, environment_name, lm_pwd=None, arm_name=None, config_path=None):
+    lm_session = ctlmgmt.create_lm_session(environment_name, lm_pwd, config_path)
     if __has_arm_projects(project_config) and arm_name is not None:
         arm_session = ctlmgmt.create_arm_session(arm_name, environment_name, config_path)
     else:
@@ -35,8 +35,8 @@ def __has_arm_projects(config):
             return True
     return False
 
-def build_sessions_for_pkg(pkg_meta, environment_name, lm_pwd=None, arm_name=None, config_path=None, object_group_id=None):
-    lm_session = ctlmgmt.create_lm_session(environment_name, lm_pwd, config_path, object_group_id=object_group_id)
+def build_sessions_for_pkg(pkg_meta, environment_name, lm_pwd=None, arm_name=None, config_path=None):
+    lm_session = ctlmgmt.create_lm_session(environment_name, lm_pwd, config_path)
     if __has_arm_content(pkg_meta) and arm_name is not None:
         arm_session = ctlmgmt.create_arm_session(arm_name, environment_name, config_path)
     else:

@@ -37,11 +37,9 @@ class EtsiPackageMgmtDriver(LmDriver):
         headers['Content-Type'] = content_type
         return headers
 
-    def onboard_package(self, package_id, resource_pkg_path, object_group_id=None):
+    def onboard_package(self, package_id, resource_pkg_path):
         self.__create_package(package_id)
         url = self.__packages_api_package_content(package_id)
-        if object_group_id is not None:
-            url = f"{url}?objectGroupId={object_group_id}"
         headers = self.__configure_headers('application/zip')
         with open(resource_pkg_path, 'rb') as resource_pkg:
             response = requests.put(url, headers=headers, data=resource_pkg, verify=False)
@@ -50,11 +48,9 @@ class EtsiPackageMgmtDriver(LmDriver):
             else:
                 self._raise_unexpected_status_exception(response)
 
-    def onboard_nsd_package(self, package_id, resource_pkg_path, object_group_id):
+    def onboard_nsd_package(self, package_id, resource_pkg_path):
         self.__create_nsd_package_entry(package_id)
         url = self.__nsd_api_package_content(package_id)
-        if object_group_id is not None:
-            url = f"{url}?objectGroupId={object_group_id}"
         headers = self.__configure_headers('application/zip')
         with open(resource_pkg_path, 'rb') as resource_pkg:
             response = requests.put(url, headers=headers, data=resource_pkg, verify=False)

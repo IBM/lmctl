@@ -45,9 +45,8 @@ def generate_descriptor():
         }
 
 @tnco_builder.make_create_command()
-@click.option('--objectgroupid', default=None, help='create the new location in the specified object group')
-def create_descriptor(tnco_client: TNCOClient, obj: Dict[str, Any], objectgroupid: str):
-    tnco_client.descriptors.create(obj, objectgroupid)
+def create_descriptor(tnco_client: TNCOClient, obj: Dict[str, Any]):
+    tnco_client.descriptors.create(obj)
     descriptor_name = obj['name']
     return descriptor_name
 
@@ -71,14 +70,13 @@ def update_descriptor(tnco_client: TNCOClient, identity: Identity, obj: Dict[str
 )
 @click.argument(name.param_name, required=False)
 @click.option('--effective', is_flag=True, show_default=True, help=f'Get effective version of a {tnco_builder.display_name}, which includes all inherited properties (can only be used when retrieving a single {tnco_builder.display_name} by name)')
-@click.option('--objectgroupid', default=None, help='create the new location in the specified object group')
-def get_descriptor(tnco_client: TNCOClient, identity: Identity, effective: bool, objectgroupid: str):
+def get_descriptor(tnco_client: TNCOClient, identity: Identity, effective: bool):
     if identity is None and effective is True:
         raise click.UsageError(f'Cannot use "--effective" option when retrieving all {tnco_builder.display_name}s (which means the {name.param_name} argument was omitted)', ctx=click.get_current_context())
     api = tnco_client.descriptors
     if identity is not None:
         descriptor_name = identity.value
-        return api.get(descriptor_name, effective=effective, objectgroupid=objectgroupid)
+        return api.get(descriptor_name, effective=effective)
     else:
         return api.all()
 
