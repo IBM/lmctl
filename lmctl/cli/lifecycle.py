@@ -258,7 +258,6 @@ class ExecutionController:
         printer.print_warning(warning)
 
     def execute(self, exec_func, *args):
-        print(exec_func, args)
         try:
             response = exec_func(*args)
         except project_sources.BuildValidationError as e:
