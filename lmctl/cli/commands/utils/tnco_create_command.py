@@ -1,9 +1,9 @@
-import click
 from typing import Dict, Any
 from .tnco_env_command import TNCOEnvironmentCommand
 from .obj_utils import shallow_merge_objs
+from .constraints import mutually_exclusive
 from lmctl.cli.controller import get_global_controller
-from lmctl.cli.arguments import FileInputOption, SetParamOption
+from lmctl.cli.arguments import FileInputOption, SetParamOption, ObjectGroupOption, ObjectGroupIDOption
 
 __all__ = (
     'TNCOCreateCommand',
@@ -23,9 +23,13 @@ class TNCOCreateCommand(TNCOEnvironmentCommand):
         super().__init__(*args, **kwargs)
         self.params.append(FileInputOption())
         self.params.append(SetParamOption())
+        self.params.append(ObjectGroupOption())
+        self.params.append(ObjectGroupIDOption())
 
         self.create_behaviour = self.callback
         self.callback = self._callback
+
+        self.callback = mutually_exclusive([('object_group', '-o, --object-group'), ('object_group_id', '-oid, --object-group-id')])(self.callback)
 
     def _callback(self, 
                     *args, 
@@ -35,11 +39,16 @@ class TNCOCreateCommand(TNCOEnvironmentCommand):
                     token: str = None,
                     file_content: Dict[str, Any] = None,
                     set_values: Dict[str, Any] = None,
+                    object_group: str = None,
+                    object_group_id: str = None,
                     **kwargs):
         tnco_client = self._get_tnco_client(environment_name, pwd, client_secret, token)
         obj = shallow_merge_objs(file_content, set_values)
 
-        result = self.create_behaviour(*args, tnco_client=tnco_client, obj=obj, **kwargs)
+        if object_group is not None:
+            object_group_id = tnco_client.object_groups.get_by_name(object_group)['id']
+
+        result = self.create_behaviour(*args, tnco_client=tnco_client, obj=obj, object_group_id=object_group_id, **kwargs)
 
         if self.print_result:
             io = get_global_controller().io

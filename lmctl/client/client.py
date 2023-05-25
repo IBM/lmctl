@@ -77,7 +77,7 @@ class TNCOClient:
             
         request_kwargs = {}
         if request.query_params is not None and len(request.query_params) > 0:
-            request_kwargs['params'] = request.query_params
+            request_kwargs['params'] = {k:v for k,v in request.query_params.items()}
 
         if request.body is not None:
             request_kwargs['data'] = request.body
@@ -87,6 +87,19 @@ class TNCOClient:
         request_kwargs['headers'] = {}
         if request.headers is not None:
             request_kwargs['headers'].update(request.headers)
+
+        if request.object_group_id_param is not None:
+            if 'params' not in request_kwargs:
+                request_kwargs['params'] = {}
+            request_kwargs['params']['objectGroupId'] = request.object_group_id
+        elif request.object_group_id_body is None:
+            if 'data' not in request_kwargs:
+                request_kwargs['data'] = {}
+            if isinstance(request_kwargs['data'], dict):
+                request_kwargs['data']['objectGroupId'] = request.object_group_id_body
+            else:
+                body_type = type(request_kwargs['data'])
+                raise ValueError(f'Cannot add object_group_id_body to body because existing body is not a dictionary. Existing body is of type {body_type}')
 
         # Log before adding sensitive data
         logger.debug(f'CP4NA orchestration request: Method={request.method}, URL={url}, Request Kwargs={request_kwargs}')

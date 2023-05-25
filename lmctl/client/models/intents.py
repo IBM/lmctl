@@ -32,32 +32,37 @@ class ExistingAssemblyIntent(Intent):
 class CreateAssemblyIntent(Intent):
         
     def __init__(self, assembly_name: str = None, descriptor_name: str = None, 
-                        intended_state: str = None, properties: Dict = None):
+                        intended_state: str = None, properties: Dict = None, object_group_id: str = None):
         self.assembly_name = assembly_name
         self.descriptor_name = descriptor_name
         self.intended_state = intended_state
         self.properties = properties or {}
+        self.object_group_id = object_group_id
     
-    def set_assembly_name(self, assembly_name: str):
+    def set_assembly_name(self, assembly_name: str) -> 'CreateAssemblyIntent':
         self.assembly_name = assembly_name
         return self
 
-    def set_descriptor_name(self, descriptor_name: str):
+    def set_descriptor_name(self, descriptor_name: str) -> 'CreateAssemblyIntent':
         self.descriptor_name = descriptor_name
         return self
 
-    def set_intended_state(self, intended_state: str):
+    def set_intended_state(self, intended_state: str) -> 'CreateAssemblyIntent':
         self.intended_state = intended_state
         return self
     
-    def set_properties(self, properties: Dict):
+    def set_properties(self, properties: Dict) -> 'CreateAssemblyIntent':
         self.properties = properties
         return self
 
-    def set_property(self, name: str, value: str):
+    def set_property(self, name: str, value: str) -> 'CreateAssemblyIntent':
         if self.properties is None:
             self.properties = {}
         self.properties[name] = value
+        return self
+    
+    def set_object_group_id(self, object_group_id: str) -> 'CreateAssemblyIntent':
+        self.object_group_id = object_group_id
         return self
 
     def to_dict(self) -> Dict:
@@ -70,6 +75,8 @@ class CreateAssemblyIntent(Intent):
             obj['properties'] = self.properties
         if self.intended_state is not None:
             obj['intendedState'] = self.intended_state
+        if self.object_group_id is not None:
+            obj['objectGroupId'] = self.object_group_id
         return obj
 
 class ChangeAssemblyStateIntent(ExistingAssemblyIntent):
@@ -236,43 +243,49 @@ class CreateOrUpgradeAssemblyIntent(Intent):
         
     def __init__(self, assembly_name: str = None, descriptor_name: str = None, 
                         intended_state: str = None, properties: Dict = None,
-                        tags: Dict = None):
+                        tags: Dict = None, object_group_id: str = None):
         self.assembly_name = assembly_name
         self.descriptor_name = descriptor_name
         self.intended_state = intended_state
         self.properties = properties or {}
         self.tags = tags or {}
+        self.object_group_id = object_group_id
     
-    def set_assembly_name(self, assembly_name: str):
+    
+    def set_assembly_name(self, assembly_name: str) -> 'CreateOrUpgradeAssemblyIntent':
         self.assembly_name = assembly_name
         return self
 
-    def set_descriptor_name(self, descriptor_name: str):
+    def set_descriptor_name(self, descriptor_name: str) -> 'CreateOrUpgradeAssemblyIntent':
         self.descriptor_name = descriptor_name
         return self
 
-    def set_intended_state(self, intended_state: str):
+    def set_intended_state(self, intended_state: str) -> 'CreateOrUpgradeAssemblyIntent':
         self.intended_state = intended_state
         return self
     
-    def set_properties(self, properties: Dict):
+    def set_properties(self, properties: Dict) -> 'CreateOrUpgradeAssemblyIntent':
         self.properties = properties
         return self
 
-    def set_property(self, name: str, value: str):
+    def set_property(self, name: str, value: str) -> 'CreateOrUpgradeAssemblyIntent':
         if self.properties is None:
             self.properties = {}
         self.properties[name] = value
         return self
 
-    def set_tags(self, tags: Dict):
+    def set_tags(self, tags: Dict) -> 'CreateOrUpgradeAssemblyIntent':
         self.tags = tags
         return self
 
-    def set_tag(self, name: str, value: str):
+    def set_tag(self, name: str, value: str) -> 'CreateOrUpgradeAssemblyIntent':
         if self.tags is None:
             self.tags = {}
         self.tags[name] = value
+        return self
+    
+    def set_object_group_id(self, object_group_id: str) -> 'CreateOrUpgradeAssemblyIntent':
+        self.object_group_id = object_group_id
         return self
 
     def to_dict(self) -> Dict:
@@ -287,6 +300,8 @@ class CreateOrUpgradeAssemblyIntent(Intent):
             obj['tags'] = self.tags
         if self.intended_state is not None:
             obj['intendedState'] = self.intended_state
+        if self.object_group_id is not None:
+            obj['objectGroupId'] = self.object_group_id
         return obj
 
     def __str__(self):
@@ -295,50 +310,56 @@ class CreateOrUpgradeAssemblyIntent(Intent):
             f"descriptor_name={self.descriptor_name}, "
             f"intended_state={self.intended_state}, "
             f"properties={self.properties}, "
-            f"tags={self.tags}"
+            f"tags={self.tags}, "
+            f"object_group_id={self.object_group_id}"
         )
 
     def __eq__(self, other):
         return (isinstance(other, CreateOrUpgradeAssemblyIntent) and self.assembly_name==other.assembly_name
             and self.descriptor_name==other.descriptor_name and self.intended_state==other.intended_state
-            and self.properties==other.properties)
+            and self.properties==other.properties and self.object_group_id==other.object_group_id)
             
 
 class AdoptAssemblyIntent(Intent):
 
     def __init__(self, assembly_name: str = None, descriptor_name: str = None,
-            properties: Dict = None, clusters: Dict = None):
+            properties: Dict = None, clusters: Dict = None, object_group_id: str = None):
         self.assembly_name = assembly_name
         self.descriptor_name = descriptor_name
         self.properties = properties or {}
         self.clusters = clusters or {}
+        self.object_group_id = object_group_id
 
-    def set_assembly_name(self, assembly_name: str):
+    def set_assembly_name(self, assembly_name: str) -> 'AdoptAssemblyIntent':
         self.assembly_name = assembly_name
         return self
 
-    def set_descriptor_name(self, descriptor_name: str):
+    def set_descriptor_name(self, descriptor_name: str) -> 'AdoptAssemblyIntent':
         self.descriptor_name = descriptor_name
         return self
     
-    def set_properties(self, properties: Dict):
+    def set_properties(self, properties: Dict) -> 'AdoptAssemblyIntent':
         self.properties = properties
         return self
 
-    def set_property(self, name: str, value: str):
+    def set_property(self, name: str, value: str) -> 'AdoptAssemblyIntent':
         if self.properties is None:
             self.properties = {}
         self.properties[name] = value
         return self
 
-    def set_clusters(self, clusters: Dict):
+    def set_clusters(self, clusters: Dict) -> 'AdoptAssemblyIntent':
         self.clusters = clusters
         return self
     
-    def set_cluster(self, name: str, value: int):
+    def set_cluster(self, name: str, value: int) -> 'AdoptAssemblyIntent':
         if self.clusters is None:
             self.clusters = {}
         self.clusters[name] = value
+        return self
+    
+    def set_object_group_id(self, object_group_id: str) -> 'AdoptAssemblyIntent':
+        self.object_group_id = object_group_id
         return self
 
     def to_dict(self) -> Dict:
@@ -351,4 +372,6 @@ class AdoptAssemblyIntent(Intent):
             obj['properties'] = self.properties
         if self.clusters is not None:
             obj['clusters'] = self.clusters
+        if self.object_group_id is not None:
+            obj['objectGroupId'] = self.object_group_id
         return obj

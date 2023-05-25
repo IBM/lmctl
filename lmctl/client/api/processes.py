@@ -11,5 +11,5 @@ class ProcessesAPI(TNCOAPI):
             query_params['shallow'] = shallow
         return self._get(id_value=id, query_params=query_params)
 
-    def query(self, **query_params) -> List:
-        return self._get_json(self.endpoint, query_params=query_params)
+    def query(self, object_group_id: str = None, **query_params) -> List:
+        return self._get_json(self.endpoint, query_params=query_params, object_group_id=object_group_id)

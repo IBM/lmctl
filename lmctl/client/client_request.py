@@ -18,6 +18,8 @@ class TNCOClientRequest:
     override_address: str = None
     inject_current_auth: bool = True
     additional_auth_handler: AuthBase = None
+    object_group_id_param: str = None
+    object_group_id_body: str = None
 
     def add_headers(self, headers: Dict[str, Any]) -> 'TNCOClientRequest':
         self.headers.update(headers)
@@ -25,6 +27,14 @@ class TNCOClientRequest:
     
     def add_query_params(self, query_params: Dict[str, Any]) -> 'TNCOClientRequest':
         self.query_params.update(query_params)
+        return self
+    
+    def add_object_group_id_param(self, object_group_id: str) -> 'TNCOClientRequest':
+        self.object_group_id_param = object_group_id
+        return self
+    
+    def add_object_group_id_body(self, object_group_id: str) -> 'TNCOClientRequest':
+        self.object_group_id_body = object_group_id
         return self
 
     def _set_body(self, body: Any) -> 'TNCOClientRequest':
@@ -62,7 +72,7 @@ class TNCOClientRequest:
         return self
 
     @staticmethod
-    def build_request_for_json(endpoint: str, method: str = 'GET', query_params: Dict[str, Any] = None):
+    def build_request_for_json(endpoint: str, method: str = 'GET', query_params: Dict[str, Any] = None, object_group_id: str = None):
         if query_params is None:
             query_params = dict()
         return TNCOClientRequest(
@@ -71,5 +81,6 @@ class TNCOClientRequest:
             headers={
                 'Accept': 'application/json'
             },
-            query_params=query_params
+            query_params=query_params,
+            object_group_id_param=object_group_id
         )
