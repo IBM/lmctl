@@ -17,6 +17,13 @@ class TestDescriptorsAPI(unittest.TestCase):
         self.assertEqual(response, [{'name': 'assembly::Test::1.0'}])
         self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='GET', endpoint='api/catalog/descriptors', headers={'Accept': 'application/yaml,application/json'}))
 
+    def test_all_with_object_group_id(self):
+        mock_response = '- name: assembly::Test::1.0'
+        self.mock_client.make_request.return_value = MagicMock(text=mock_response)
+        response = self.descriptors.all(object_group_id='123-456')
+        self.assertEqual(response, [{'name': 'assembly::Test::1.0'}])
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='GET', endpoint='api/catalog/descriptors', headers={'Accept': 'application/yaml,application/json'}, object_group_id_param='123-456'))
+
     def test_get(self):
         mock_response = 'name: assembly::Test::1.0'
         self.mock_client.make_request.return_value = MagicMock(text=mock_response)
@@ -36,6 +43,12 @@ class TestDescriptorsAPI(unittest.TestCase):
         response = self.descriptors.create(obj)
         self.assertIsNone(response)
         self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/catalog/descriptors', body=yaml.safe_dump(obj), headers={'Content-Type': 'application/yaml'}))
+
+    def test_create_with_object_group_id(self):
+        obj = {'name': 'assembly::Test::1.0'}
+        response = self.descriptors.create(obj, object_group_id='123-456')
+        self.assertIsNone(response)
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/catalog/descriptors', body=yaml.safe_dump(obj), headers={'Content-Type': 'application/yaml'}, object_group_id_param='123-456'))
 
     def test_update(self):
         obj = {'name': 'assembly::Test::1.0'}

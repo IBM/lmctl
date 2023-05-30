@@ -27,13 +27,27 @@ class TestAssembliesAPI(unittest.TestCase):
         response = self.assemblies.get_by_name('Test')
         self.assertEqual(response, mock_response[0])
         self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/topology/assemblies', query_params={'name': 'Test'}))
-   
+    
+    def test_get_by_name_with_object_group_id(self):
+        mock_response = [{'id': '123', 'name': 'Test'}]
+        self.mock_client.make_request.return_value.json.return_value = mock_response
+        response = self.assemblies.get_by_name('Test', object_group_id='123-456')
+        self.assertEqual(response, mock_response[0])
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/topology/assemblies', query_params={'name': 'Test'}, object_group_id='123-456'))
+    
     def test_get_topN(self):
         mock_response = [{'id': '123', 'name': 'Test'}]
         self.mock_client.make_request.return_value.json.return_value = mock_response
         response = self.assemblies.get_topN()
         self.assertEqual(response, mock_response)
         self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/topology/assemblies'))
+    
+    def test_get_topN_with_object_group_id(self):
+        mock_response = [{'id': '123', 'name': 'Test'}]
+        self.mock_client.make_request.return_value.json.return_value = mock_response
+        response = self.assemblies.get_topN(object_group_id='123-456')
+        self.assertEqual(response, mock_response)
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/topology/assemblies', object_group_id='123-456'))
     
     def test_all_with_name(self):
         mock_response = [{'id': '123', 'name': 'Test'}]
@@ -42,12 +56,26 @@ class TestAssembliesAPI(unittest.TestCase):
         self.assertEqual(response, mock_response)
         self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/topology/assemblies', query_params={'name': 'Test'}))
    
+    def test_all_with_name_with_object_group_id(self):
+        mock_response = [{'id': '123', 'name': 'Test'}]
+        self.mock_client.make_request.return_value.json.return_value = mock_response
+        response = self.assemblies.all_with_name('Test', object_group_id='123-456')
+        self.assertEqual(response, mock_response)
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/topology/assemblies', query_params={'name': 'Test'}, object_group_id='123-456'))
+   
     def test_all_with_name_containing(self):
         mock_response = [{'id': '123', 'name': 'Test'}]
         self.mock_client.make_request.return_value.json.return_value = mock_response
         response = self.assemblies.all_with_name_containing('Test')
         self.assertEqual(response, mock_response)
         self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/topology/assemblies', query_params={'nameContains': 'Test'}))
+
+    def test_all_with_name_containing_with_object_group_id(self):
+        mock_response = [{'id': '123', 'name': 'Test'}]
+        self.mock_client.make_request.return_value.json.return_value = mock_response
+        response = self.assemblies.all_with_name_containing('Test', object_group_id='123-456')
+        self.assertEqual(response, mock_response)
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/topology/assemblies', query_params={'nameContains': 'Test'}, object_group_id='123-456'))
 
     def test_intent(self):
         mock_response = MagicMock(headers={'Location': '/api/processes/123'})
@@ -72,6 +100,24 @@ class TestAssembliesAPI(unittest.TestCase):
                                                                 'properties': {},
                                                                 'intendedState': 'Active'
                                                             })))
+        
+    def test_intent_create_with_object_group_id(self):
+        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        self.mock_client.make_request.return_value = mock_response
+        intent = CreateAssemblyIntent(descriptor_name='assembly::Test::1.0', assembly_name='Test', intended_state='Active') 
+        response = self.assemblies.intent_create(intent, object_group_id='123-456')
+        self.assertEqual(response, '123')
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', 
+                                                            endpoint='api/intent/createAssembly', 
+                                                            headers={'Content-Type': 'application/json'}, 
+                                                            body=json.dumps({
+                                                                'assemblyName': 'Test', 
+                                                                'descriptorName': 'assembly::Test::1.0', 
+                                                                'properties': {},
+                                                                'intendedState': 'Active'
+                                                            }),
+                                                            object_group_id_body='123-456'
+                                                        ))
 
     def test_intent_create_with_dict(self):
         mock_response = MagicMock(headers={'Location': '/api/processes/123'})
@@ -111,6 +157,39 @@ class TestAssembliesAPI(unittest.TestCase):
                                                                 },
                                                                 'intendedState': 'Active',
                                                             })))
+        
+    def test_intent_create_or_upgrade_with_object_group_id(self):
+        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        self.mock_client.make_request.return_value = mock_response
+        intent = CreateOrUpgradeAssemblyIntent(descriptor_name='assembly::Test::1.0', assembly_name='Test', intended_state='Active',
+            tags={
+                'tag1': 'value1',
+                'tag2': 'value2'
+            },
+            properties={
+                'prop1': 'val1',
+                'prop2': 'val2'
+            })
+        response = self.assemblies.intent_create_or_upgrade(intent, object_group_id='123-456')
+        self.assertEqual(response, '123')
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', 
+                                                            endpoint='api/intent/createOrUpgradeAssembly', 
+                                                            headers={'Content-Type': 'application/json'}, 
+                                                            body=json.dumps({
+                                                                'assemblyName': 'Test', 
+                                                                'descriptorName': 'assembly::Test::1.0', 
+                                                                'properties': {
+                                                                    'prop1': 'val1',
+                                                                    'prop2': 'val2'
+                                                                },
+                                                                'tags': {
+                                                                    'tag1': 'value1',
+                                                                    'tag2': 'value2'
+                                                                },
+                                                                'intendedState': 'Active',
+                                                            }),
+                                                            object_group_id_body='123-456'
+                                                        ))
 
     def test_intent_upgrade(self):
         mock_response = MagicMock(headers={'Location': '/api/processes/123'})
@@ -231,6 +310,24 @@ class TestAssembliesAPI(unittest.TestCase):
                                                             'properties': {},
                                                             'clusters': {'B': 1,}
                                                         })))
+    
+    def test_intent_adopt_with_object_group_id(self):
+        mock_response = MagicMock(headers={'Location': '/api/processes/123'})
+        self.mock_client.make_request.return_value = mock_response
+        intent = AdoptAssemblyIntent(assembly_name='Test', descriptor_name='assembly::Test::1.0', clusters={'B': 1})
+        response = self.assemblies.intent_adopt(intent, object_group_id='123-456')
+        self.assertEqual(response, '123')
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', 
+                                                        endpoint='api/intent/adoptAssembly', 
+                                                        headers={'Content-Type': 'application/json'}, 
+                                                        body=json.dumps({
+                                                            'assemblyName': 'Test',
+                                                            'descriptorName': 'assembly::Test::1.0',
+                                                            'properties': {},
+                                                            'clusters': {'B': 1,}
+                                                        }),
+                                                        object_group_id_body='123-456'
+                                                    ))
     
     def test_intent_adopt_with_dict(self):
         mock_response = MagicMock(headers={'Location': '/api/processes/123'})

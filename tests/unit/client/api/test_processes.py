@@ -29,3 +29,10 @@ class TestProcessesAPI(unittest.TestCase):
         response = self.processes.query(assemblyName='Abc', intentTypes='healAssembly')
         self.assertEqual(response, mock_response)
         self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/processes', query_params={'assemblyName': 'Abc', 'intentTypes': 'healAssembly'}))
+
+    def test_query_with_object_group_id(self):
+        mock_response = [{'id': '123'}, {'id': '456'}]
+        self.mock_client.make_request.return_value.json.return_value = mock_response
+        response = self.processes.query(object_group_id='123-456', assemblyName='Abc', intentTypes='healAssembly')
+        self.assertEqual(response, mock_response)
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/processes', query_params={'assemblyName': 'Abc', 'intentTypes': 'healAssembly'}, object_group_id='123-456'))

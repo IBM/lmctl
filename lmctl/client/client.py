@@ -91,8 +91,8 @@ class TNCOClient:
         if request.object_group_id_param is not None:
             if 'params' not in request_kwargs:
                 request_kwargs['params'] = {}
-            request_kwargs['params']['objectGroupId'] = request.object_group_id
-        elif request.object_group_id_body is None:
+            request_kwargs['params']['objectGroupId'] = request.object_group_id_param
+        elif request.object_group_id_body is not None:
             if 'data' not in request_kwargs:
                 request_kwargs['data'] = {}
             if isinstance(request_kwargs['data'], dict):

@@ -19,5 +19,5 @@ class DeploymentLocationAPI(TNCOAPI):
     def delete(self, id: str):
         self._delete(id_value=id)
 
-    def all_with_name(self, name: str, object_group_id: str = None)) -> List:
+    def all_with_name(self, name: str, object_group_id: str = None) -> List:
         return self._get_json(self.endpoint, query_params={'name': name}, object_group_id=object_group_id)

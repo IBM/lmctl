@@ -39,5 +39,5 @@ class TestTNCOClientRequest(unittest.TestCase):
             method='GET',
             headers={'Accept': 'application/json'},
             query_params={'Testing': True},
-            object_group_id='123'
+            object_group_id_param='123'
         ))

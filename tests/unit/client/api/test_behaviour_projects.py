@@ -16,6 +16,13 @@ class TestBehaviourProjectsAPI(unittest.TestCase):
         response = self.behaviour_projects.all()
         self.assertEqual(response, all_objects)
         self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/behaviour/projects'))
+    
+    def test_all_with_object_group_id(self):
+        all_objects = [{'id': 'Test', 'name': 'Test'}]
+        self.mock_client.make_request.return_value.json.return_value = all_objects
+        response = self.behaviour_projects.all(object_group_id='123')
+        self.assertEqual(response, all_objects)
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest.build_request_for_json(method='GET', endpoint='api/behaviour/projects', object_group_id='123'))
 
     def test_get(self):
         mock_response = {'id': 'Test', 'name': 'Test'}
@@ -32,6 +39,15 @@ class TestBehaviourProjectsAPI(unittest.TestCase):
         response = self.behaviour_projects.create(test_obj)
         self.assertEqual(response, {'id': '123', 'name': 'Test'})
         self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/behaviour/projects', headers={'Content-Type': 'application/json'}, body=body))
+
+    def test_create_with_object_group_id(self):
+        test_obj = {'name': 'Test'}
+        body = json.dumps(test_obj)
+        mock_response = MagicMock(headers={'Location': '/api/behaviour/projects/123'})
+        self.mock_client.make_request.return_value = mock_response
+        response = self.behaviour_projects.create(test_obj, object_group_id='123-456')
+        self.assertEqual(response, {'id': '123', 'name': 'Test'})
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/behaviour/projects', headers={'Content-Type': 'application/json'}, body=body, object_group_id_body='123-456'))
 
     def test_update(self):
         test_obj = {'id': '123', 'name': 'Test'}
