@@ -8,7 +8,8 @@ Table of contents:
   - [What attributes can I include in a file or with --set?](#what-attributes-can-i-include-in-a-file-or-with---set?)
   - [--object-group and --object-group-id options](#--object-group-and---object-group-id-options)
 - [Common Get Options](#common-get-options)
-  - [-f as reference](#-f-as-reference)
+  - [-f as reference](#-f-as-reference)  
+  - [--object-group and --object-group-id options](#--object-group-and---object-group-id-options-on-get)
 - [Common Delete Options](#common-delete-options)
   - [--ignore-missing](#--ignore-missing)
 
@@ -212,6 +213,20 @@ lmctl delete assembly -e dev-env -f my-assembly.yaml
 ```
 
 The file is parsed to resolve the name of the Assembly to delete.
+
+## --object-group and --object-group-id options on get
+
+These options allow you to filter list results by object group. They cannot be used when retrieving an individual object by ID, name or other primary identifier. 
+
+For example, the following is allowed, to retrieve a list of descriptor in the `mygroup` object group:
+
+```
+lmctl get descriptor --og mygroup
+```
+
+The `--og, --object-group` option accepts the name of an object group. This option is the most convenient however, as the REST APIs expect the ID of an object group, using this option will result in an API call to retrieve the object group with the given name first, in order to determine the ID. 
+
+The `--ogid, --object-group-id` option accepts the ID of an object group and therefore does not result in any additional API calls.
 
 # Common Delete Options
 
