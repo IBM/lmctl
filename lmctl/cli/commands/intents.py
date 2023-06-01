@@ -22,7 +22,7 @@ tnco_builder = TNCOCommandBuilder(
 @click.option('--type', 'intent_type', required=False, default='createAssembly', show_default=True, help='The type of intent to generate. Known options: createAssembly, upgradeAssembly, adoptAssembly, changeAssemblyState, healAssembly, scaleOutAssembly, scaleInAssembly')
 def generate_intent(intent_type: str):
     intent = {
-        'type': intent_type,
+        'intentType': intent_type,
         'assemblyName': 'example',
     }
     if intent_type in ['createAssembly', 'upgradeAssembly', 'adoptAssembly']:
