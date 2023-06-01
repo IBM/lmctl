@@ -51,8 +51,8 @@ accepted_process_prefix = 'Accepted - Process: '
 @tnco_builder.make_generate_command()
 def generate_assembly():
     return {
-            'name': 'example',
-            'assemblyName': 'assembly::example::1.0',
+            'assemblyName': 'example',
+            'descriptorName': 'assembly::example::1.0',
             'intendedState': 'Active',
             'properties': {
                 'examplePropA': 'exampleValue'
