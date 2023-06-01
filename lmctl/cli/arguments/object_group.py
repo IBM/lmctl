@@ -5,17 +5,31 @@ __all__ = (
     'ObjectGroupOption',
     'ObjectGroupIDOption',
     'object_group_option',
-    'object_group_id_option'
+    'object_group_id_option',
+    'OBJECT_GROUP_PARAM_NAME',
+    'OBJECT_GROUP_PARAM_OPTS',
+    'OBJECT_GROUP_PARAM_OPTS_STR',
+    'OBJECT_GROUP_ID_PARAM_NAME',
+    'OBJECT_GROUP_ID_PARAM_OPTS',
+    'OBJECT_GROUP_ID_PARAM_OPTS_STR'
 )
 
-default_param_decls = ['--og', '--object-group', 'object_group']
-default_id_param_decls = ['--ogid', '--object-group-id', 'object_group_id']
+OBJECT_GROUP_PARAM_NAME = 'object_group_name'
+OBJECT_GROUP_PARAM_OPTS = ['--og', '--object-group']
+OBJECT_GROUP_PARAM_OPTS_STR = ','.join(OBJECT_GROUP_PARAM_OPTS)
+
+OBJECT_GROUP_ID_PARAM_NAME = 'object_group_id'
+OBJECT_GROUP_ID_PARAM_OPTS = ['--ogid', '--object-group-id']
+OBJECT_GROUP_ID_PARAM_OPTS_STR = ','.join(OBJECT_GROUP_ID_PARAM_OPTS)
+
+default_param_decls = [*OBJECT_GROUP_PARAM_OPTS, OBJECT_GROUP_PARAM_NAME]
+default_id_param_decls = [*OBJECT_GROUP_ID_PARAM_OPTS, OBJECT_GROUP_ID_PARAM_NAME]
 
 class ObjectGroupOption(click.Option):
 
     def __init__(self, 
             param_decls: Sequence[str] = default_param_decls,
-            help: str = 'Object Group to perform the request in', 
+            help: str = 'Name of the Object Group to perform the request in', 
             **kwargs
         ):
         

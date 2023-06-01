@@ -59,5 +59,5 @@ class EtsiNsContentHandler(assembly_api.AssemblyContentHandler):
             errors.append(ValidationViolation(msg))        
 
 
-    def push_content(self, journal, env_sessions):
+    def push_content(self, journal, env_sessions, push_options):
         raise NotImplementedError('This method (push_content) is not implemented')

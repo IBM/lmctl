@@ -15,12 +15,15 @@ class LmResourcePkgDriver(LmDriver):
     def __package_api(self, resource_type_name):
         return '{0}/{1}'.format(self.__packages_api(), resource_type_name)
 
-    def onboard_package(self, resource_pkg_path):
+    def onboard_package(self, resource_pkg_path, object_group_id = None):
         url = self.__packages_api()
         headers = self._configure_access_headers()
+        params = {}
+        if object_group_id is not None:
+            params['objectGroupId'] = object_group_id
         with open(resource_pkg_path, 'rb') as resource_pkg:
             files = {'file': resource_pkg}
-            response = requests.post(url, headers=headers, files=files, verify=False)
+            response = requests.post(url, headers=headers, files=files, params=params, verify=False)
             if response.status_code == 201:
                 return True
             else:

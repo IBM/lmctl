@@ -143,7 +143,6 @@ class CancelAssemblyIntent(Intent):
         self.process_id = process_id
 
     def set_process_id(self, process_id : str):
-        print("Not found")
         self.process_id = process_id
         return self
 

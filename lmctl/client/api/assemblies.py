@@ -23,8 +23,8 @@ class AssembliesAPI(TNCOAPI):
     def get_topN(self, object_group_id: str = None) -> List:
         return self._get_json(self.topology_endpoint, object_group_id=object_group_id)
 
-    def get_by_name(self, name: str, object_group_id: str = None) -> Dict:
-        result = self.all_with_name(name, object_group_id=object_group_id)
+    def get_by_name(self, name: str) -> Dict:
+        result = self.all_with_name(name)
         if len(result) == 0:
             raise TNCOClientError(f'No Assembly found with name matching "{name}"')
         else:

@@ -116,7 +116,7 @@ class TestTNCOClient(unittest.TestCase):
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_with_object_group_id_body(self, requests_session_builder):
         client = TNCOClient('https://test.example.com', use_sessions=True)
-        client.make_request(TNCOClientRequest(method='POST', endpoint='api/test', object_group_id_body='123'))
+        client.make_request(TNCOClientRequest(method='POST', endpoint='api/test', body={}, object_group_id_body='123'))
         mock_session = self._get_requests_session(requests_session_builder)
         mock_session.request.assert_called_with(method='POST', url='https://test.example.com/api/test', data={'objectGroupId': '123'}, headers={}, verify=False)
 

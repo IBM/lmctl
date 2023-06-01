@@ -89,7 +89,7 @@ class BrentContentHandlerDelegate(handlers_api.ResourceContentHandlerDelegate):
             journal.event('Descriptor {0} not found'.format(descriptor_name))
         return descriptor_name, descriptor_version
 
-    def push_content(self, journal, env_sessions):
+    def push_content(self, journal, env_sessions, push_options):
         descriptor_name, descriptor_version = self.__clear_existing_descriptor(journal, env_sessions)
         self.__push_res_pkg(journal, env_sessions, descriptor_name)
 

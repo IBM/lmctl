@@ -105,5 +105,5 @@ class EtsiVnfContentHandler(resource_api.ResourceContentHandler):
                 full_path = os.path.join(root, filename)
                 res_pkg.write(full_path, arcname=os.path.join(included_item['alias'], full_path[rootlen:]))
 
-    def push_content(self, journal, env_sessions):
+    def push_content(self, journal, env_sessions, push_options):
         raise NotImplementedError('This method (push_content) is not implemented')

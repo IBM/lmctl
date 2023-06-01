@@ -33,28 +33,25 @@ class TestSharedInfrastructureKeysAPI(unittest.TestCase):
 
     def test_create(self):
         test_obj = {'name': 'Test'}
-        body = json.dumps(test_obj)
         mock_response = MagicMock(headers={'Location': '/api/resource-manager/infrastructure-keys/shared/Test'})
         self.mock_client.make_request.return_value = mock_response
         response = self.inf_keys.create(test_obj)
         self.assertEqual(response, {'name': 'Test'})
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/resource-manager/infrastructure-keys/shared', headers={'Content-Type': 'application/json'}, body=body))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/resource-manager/infrastructure-keys/shared', headers={'Content-Type': 'application/json'}, body={'name': 'Test'}))
     
     def test_create_with_object_group_id(self):
         test_obj = {'name': 'Test'}
-        body = json.dumps(test_obj)
         mock_response = MagicMock(headers={'Location': '/api/resource-manager/infrastructure-keys/shared/Test'})
         self.mock_client.make_request.return_value = mock_response
         response = self.inf_keys.create(test_obj, object_group_id='123-456')
         self.assertEqual(response, {'name': 'Test'})
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/resource-manager/infrastructure-keys/shared', headers={'Content-Type': 'application/json'}, body=body, object_group_id_body='123-456'))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/resource-manager/infrastructure-keys/shared', headers={'Content-Type': 'application/json'}, body={'name': 'Test'}, object_group_id_body='123-456'))
 
     def test_update(self):
         test_obj = {'id': '123', 'name': 'Test'}
-        body = json.dumps(test_obj)
         response = self.inf_keys.update(test_obj)
         self.assertIsNone(response)
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='PUT', endpoint='api/resource-manager/infrastructure-keys/shared/Test', headers={'Content-Type': 'application/json'}, body=body))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='PUT', endpoint='api/resource-manager/infrastructure-keys/shared/Test', headers={'Content-Type': 'application/json'}, body={'id': '123', 'name': 'Test'}))
 
     def test_delete(self):
         response = self.inf_keys.delete('Test')

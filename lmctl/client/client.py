@@ -5,12 +5,13 @@ from .auth_tracker import AuthTracker
 from .error_capture import tnco_error_capture
 from .client_test_result import TestResult, TestResults
 from .client_request import TNCOClientRequest
+from .utils import convert_dict_to_yaml, convert_dict_to_json
 
 from lmctl.utils.trace_ctx import trace_ctx
 
 import requests
 import logging
-from typing import Dict
+from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +70,15 @@ class TNCOClient:
         if inject_current_auth:
             self._add_auth_headers(headers=headers)
         return headers
-
+    
+    def _convert_body(self, body: Any, headers: Dict[str, Any]):
+        if headers.get('Content-Type', None) == 'application/json':
+            body = convert_dict_to_json(body)
+        elif headers.get('Content-Type', None) == 'application/yaml':
+            body = convert_dict_to_yaml(body)
+        
+        return body
+    
     def make_request(self, request: TNCOClientRequest) -> requests.Response:
         url = request.override_address if request.override_address else self.address
         if request.endpoint is not None:
@@ -79,11 +88,6 @@ class TNCOClient:
         if request.query_params is not None and len(request.query_params) > 0:
             request_kwargs['params'] = {k:v for k,v in request.query_params.items()}
 
-        if request.body is not None:
-            request_kwargs['data'] = request.body
-        if request.files is not None and len(request.files) > 0:
-            request_kwargs['files'] = request.files
-
         request_kwargs['headers'] = {}
         if request.headers is not None:
             request_kwargs['headers'].update(request.headers)
@@ -92,14 +96,11 @@ class TNCOClient:
             if 'params' not in request_kwargs:
                 request_kwargs['params'] = {}
             request_kwargs['params']['objectGroupId'] = request.object_group_id_param
-        elif request.object_group_id_body is not None:
-            if 'data' not in request_kwargs:
-                request_kwargs['data'] = {}
-            if isinstance(request_kwargs['data'], dict):
-                request_kwargs['data']['objectGroupId'] = request.object_group_id_body
-            else:
-                body_type = type(request_kwargs['data'])
-                raise ValueError(f'Cannot add object_group_id_body to body because existing body is not a dictionary. Existing body is of type {body_type}')
+
+        if request.body is not None:
+            request_kwargs['data'] = self._convert_body(request.body, request_kwargs['headers'])
+        if request.files is not None and len(request.files) > 0:
+            request_kwargs['files'] = request.files
 
         # Log before adding sensitive data
         logger.debug(f'CP4NA orchestration request: Method={request.method}, URL={url}, Request Kwargs={request_kwargs}')

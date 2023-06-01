@@ -26,12 +26,11 @@ class TestLifecycleDriversAPI(unittest.TestCase):
 
     def test_create(self):
         test_obj = {'type': 'Ansible'}
-        body = json.dumps(test_obj)
         mock_response = MagicMock(headers={'Location': '/api/resource-manager/lifecycle-drivers/123'})
         self.mock_client.make_request.return_value = mock_response
         response = self.resource_drivers.create(test_obj)
         self.assertEqual(response, {'id': '123', 'type': 'Ansible'})
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/resource-manager/lifecycle-drivers', headers={'Content-Type': 'application/json'}, body=body))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/resource-manager/lifecycle-drivers', headers={'Content-Type': 'application/json'}, body={'type': 'Ansible'}))
 
     def test_delete(self):
         response = self.resource_drivers.delete('123')
