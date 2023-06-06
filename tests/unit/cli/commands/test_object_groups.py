@@ -17,13 +17,6 @@ class TestObjectGroupsCommands(command_testing.CommandTestCase):
 
         clear_global_controller()
 
-        # self.tnco_env_client_patcher = patch('lmctl.environment.lmenv.TNCOClientBuilder')
-        # self.mock_tnco_client_builder_class = self.tnco_env_client_patcher.start()
-        # self.addCleanup(self.tnco_env_client_patcher.stop)
-        # self.mock_tnco_client_builder = self.mock_tnco_client_builder_class.return_value
-        # self.mock_tnco_client = self.mock_tnco_client_builder.build.return_value
-        # self.mock_tnco_client.get_access_token.return_value = '123'
-
         # Setup Config Path location
         self.tmp_dir = tempfile.mkdtemp(prefix='lmctl-test')
         self.config_path = os.path.join(self.tmp_dir, 'lmctl-config.yaml')
