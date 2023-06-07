@@ -68,6 +68,6 @@ def object_group_id_option(*args, **kwargs):
     def decorator(f):
         param_decls = args
         if len(param_decls) == 0:
-            param_decls = default_param_decls
+            param_decls = default_id_param_decls
         return click.option(*param_decls, cls=ObjectGroupIDOption, **kwargs)(f)
     return decorator
