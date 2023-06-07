@@ -23,7 +23,7 @@ id_arg = Identifier.arg_and_attr('id')
 permission_type_opt = Identifier(
     param_name='permission',
     obj_attribute='permission',
-    param_opts=['--permission']
+    param_opts=['-p', '--permission']
 )
 default_columns = [
     Column('id', header='ID'),
