@@ -138,11 +138,11 @@ class BrentContentHandlerDelegate(handlers_api.ResourceContentHandlerDelegate):
             journal.event('Descriptor {0} not found'.format(descriptor_name))
         return descriptor_name, descriptor_version
 
-    def push_content(self, journal, env_sessions):
+    def push_content(self, journal, env_sessions, push_options):
         descriptor_name, descriptor_version = self.__clear_existing_descriptor(journal, env_sessions)
-        self.__push_res_pkg(journal, env_sessions, descriptor_name)
+        self.__push_res_pkg(journal, env_sessions, descriptor_name, push_options)
 
-    def __push_res_pkg(self, journal, env_sessions, descriptor_name):
+    def __push_res_pkg(self, journal, env_sessions, descriptor_name, push_options):
         lm_session = env_sessions.lm
         pkg_driver = lm_session.resource_pkg_driver
         journal.event('Removing any existing Resource package named {0} (version: {1}) from Brent: {2} ({3})'.format(descriptor_name, self.meta.version, lm_session.env.name, lm_session.env.address))
@@ -152,5 +152,5 @@ class BrentContentHandlerDelegate(handlers_api.ResourceContentHandlerDelegate):
             journal.event('No package named {0} found'.format(descriptor_name))
         res_pkg_path = self.tree.gen_resource_package_file_path(self.meta.full_name)
         journal.event('Pushing {0} (version: {1}) Resource package to Brent: {2} ({3})'.format(self.meta.full_name, self.meta.version, lm_session.env.name, lm_session.env.address))
-        pkg_driver.onboard_package(res_pkg_path)
+        pkg_driver.onboard_package(res_pkg_path, object_group_id=push_options.object_group_id)
         env_sessions.mark_brent_updated()

@@ -23,7 +23,7 @@ class TestPushAssemblyPkgs(ProjectSimTestCase):
         result = pkg.push(env_sessions, push_options)
         self.assertIsInstance(result, PkgContent)
         lm_session.descriptor_driver.get_descriptor.assert_called_once_with('assembly::basic::1.0')
-        lm_session.descriptor_driver.create_descriptor.assert_called_once_with('name: assembly::basic::1.0\ndescription: basic_assembly\n')
+        lm_session.descriptor_driver.create_descriptor.assert_called_once_with('name: assembly::basic::1.0\ndescription: basic_assembly\n', object_group_id=None)
 
     def test_push_updates_descriptors_if_exists(self):
         pkg_sim = self.simlab.simulate_pkg_assembly_basic()
@@ -301,6 +301,18 @@ class TestPushAssemblyPkgs(ProjectSimTestCase):
             })
         ])
 
+    def test_push_with_object_group_id(self):
+        pkg_sim = self.simlab.simulate_pkg_assembly_basic()
+        pkg = Pkg(pkg_sim.path)
+        push_options = PushOptions(object_group_id='123')
+        lm_sim = self.simlab.simulate_lm()
+        lm_session = lm_sim.as_mocked_session()
+        env_sessions = EnvironmentSessions(lm_session)
+        result = pkg.push(env_sessions, push_options)
+        self.assertIsInstance(result, PkgContent)
+        lm_session.descriptor_driver.get_descriptor.assert_called_once_with('assembly::basic::1.0')
+        lm_session.descriptor_driver.create_descriptor.assert_called_once_with('name: assembly::basic::1.0\ndescription: basic_assembly\n', object_group_id='123')
+
 
 class TestPushAssemblyPkgsSubcontent(ProjectSimTestCase):
 
@@ -315,8 +327,8 @@ class TestPushAssemblyPkgsSubcontent(ProjectSimTestCase):
         self.assertIsInstance(result, PkgContent)
         lm_session.descriptor_driver.get_descriptor.assert_has_calls([call('assembly::sub_basic-contains_basic::1.0'), call('assembly::contains_basic::1.0')])
         lm_session.descriptor_driver.create_descriptor.assert_has_calls([
-            call('name: assembly::sub_basic-contains_basic::1.0\ndescription: descriptor\n'),
-            call('name: assembly::contains_basic::1.0\ndescription: basic_assembly\n')])
+            call('name: assembly::sub_basic-contains_basic::1.0\ndescription: descriptor\n', object_group_id=None),
+            call('name: assembly::contains_basic::1.0\ndescription: basic_assembly\n', object_group_id=None)])
 
     def test_push_updates_descriptors_if_exists(self):
         pkg_sim = self.simlab.simulate_pkg_assembly_contains_assembly_basic()

@@ -5,3 +5,4 @@ from .set_param import *
 from .ignore_missing import *
 from .tnco_secrets import *
 from .output_file import *
+from .object_group import *

@@ -4,7 +4,9 @@ import shutil
 import os
 import lmctl.cli.lifecycle as lifecycle_cli
 import lmctl.project.package.core as pkgs
+from lmctl.cli.controller import get_global_controller
 from lmctl.cli.format import determine_format_class
+from .utils.object_groups import object_group_options
 
 logger = logging.getLogger(__name__)
 
@@ -24,15 +26,19 @@ PUSH_HEADER = 'Push'
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources to must be provided')
 @click.option('--pwd', '--api-key', default=None, help='password/api_key used for authenticating with CP4NA orchestration. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
-def push(package, environment, config, armname, pwd, autocorrect):
+@object_group_options()
+def push(package, environment, config, armname, pwd, autocorrect, object_group_name = None, object_group_id = None):
     """Pushes an existing Assembly/Resource package to a target CP4NA orchestration (and ARM) environment"""
     logger.debug('Pushing package at: {0}'.format(package))
     pkg, pkg_content = lifecycle_cli.get_pkg_and_open(package)
     try:
         env_sessions = lifecycle_cli.build_sessions_for_pkg(pkg_content.meta, environment, pwd, armname, config)
+        ctl = get_global_controller(override_config_path=config)
+        tnco_client = ctl.get_tnco_client(environment_group_name=environment, input_pwd=pwd)
+        object_group_id = lifecycle_cli.resolve_object_group(tnco_client, object_group_id, object_group_name)
         controller = lifecycle_cli.ExecutionController(PUSH_HEADER)
         controller.start(package)
-        exec_push(controller, pkg, env_sessions, allow_autocorrect=autocorrect)
+        exec_push(controller, pkg, env_sessions, allow_autocorrect=autocorrect, object_group_id=object_group_id)
     finally:
         cleanup_pkg(pkg_content)
     controller.finalise()
@@ -63,8 +69,9 @@ def format_inspection_report(output_format, inspection_report):
     result = formatter.convert_element(inspection_report_tpl)
     return result
 
-def exec_push(controller, pkg, env_sessions, allow_autocorrect=False):
+def exec_push(controller, pkg, env_sessions, allow_autocorrect=False, object_group_id=None):
     push_options = pkgs.PushOptions()
+    push_options.object_group_id = object_group_id
     push_options.allow_autocorrect = allow_autocorrect
     push_options.journal_consumer = controller.consumer
     return controller.execute(pkg.push, env_sessions, push_options)

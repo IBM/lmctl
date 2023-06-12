@@ -760,7 +760,7 @@ class SimDescriptorDriver:
         except Exception as e:
             raise lm_drivers.LmDriverException('Error: {0}'.format(str(e))) from e
 
-    def create_descriptor(self, descriptor_content):
+    def create_descriptor(self, descriptor_content, object_group_id = None):
         try:
             self.sim_lm.add_descriptor(descriptor_content)
         except Exception as e:
@@ -939,7 +939,7 @@ class SimResourcePkgDriver:
         finally:
             shutil.rmtree(tmp_dir)
 
-    def onboard_package(self, resource_pkg_path):
+    def onboard_package(self, resource_pkg_path, object_group_id = None):
         package_name = self.__get_resource_type_name(resource_pkg_path)
         try:
             self.sim_lm.add_resource_package(package_name, resource_pkg_path)

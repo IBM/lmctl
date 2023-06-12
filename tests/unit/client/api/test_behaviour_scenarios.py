@@ -26,19 +26,17 @@ class TestBehaviourScenariosAPI(unittest.TestCase):
 
     def test_create(self):
         test_obj = {'name': 'Test'}
-        body = json.dumps(test_obj)
         mock_response = MagicMock(headers={'Location': '/api/behaviour/scenarios/123'})
         self.mock_client.make_request.return_value = mock_response
         response = self.behaviour_scenarios.create(test_obj)
         self.assertEqual(response, {'id': '123', 'name': 'Test'})
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/behaviour/scenarios', headers={'Content-Type': 'application/json'}, body=body))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/behaviour/scenarios', headers={'Content-Type': 'application/json'}, body={'name': 'Test'}))
 
     def test_update(self):
         test_obj = {'id': '123', 'name': 'Test'}
-        body = json.dumps(test_obj)
         response = self.behaviour_scenarios.update(test_obj)
         self.assertIsNone(response)
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='PUT', endpoint='api/behaviour/scenarios/123', headers={'Content-Type': 'application/json'}, body=body))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='PUT', endpoint='api/behaviour/scenarios/123', headers={'Content-Type': 'application/json'}, body={'id': '123', 'name': 'Test'}))
 
     def test_delete(self):
         response = self.behaviour_scenarios.delete('123')

@@ -9,8 +9,10 @@ class DescriptorsAPI(TNCOAPI):
     endpoint = 'api/catalog/descriptors'
     id_attr = 'name'
 
-    def create(self, descriptor: Dict):
+    def create(self, descriptor: Dict, object_group_id: str = None):
         request = TNCOClientRequest(method='POST', endpoint=self.endpoint).add_yaml_body(descriptor)
+        if object_group_id is not None:
+            request.add_object_group_id_param(object_group_id)
         request.override_address = getattr(self, 'override_address') if hasattr(self, 'override_address') else None
         self._exec_request(request)
 
@@ -38,11 +40,13 @@ class DescriptorsAPI(TNCOAPI):
         request.override_address = getattr(self, 'override_address') if hasattr(self, 'override_address') else None
         return self._exec_request_and_parse_yaml(request)
 
-    def all(self) -> List:
+    def all(self, object_group_id: str = None) -> List:
         request = TNCOClientRequest(
                         method='GET',
                         endpoint=self.endpoint,
                     ).add_headers({'Accept': 'application/yaml,application/json'})
+        if object_group_id is not None:
+            request.add_object_group_id_param(object_group_id)
         request.override_address = getattr(self, 'override_address') if hasattr(self, 'override_address') else None
         return self._exec_request_and_parse_yaml(request)
 

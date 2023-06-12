@@ -1,11 +1,11 @@
-import click
 from typing import Dict, Any, Sequence, Tuple
 from .identifier import Identifier, determine_identifier, strip_identifiers
 from .tnco_env_command import TNCOEnvironmentCommand
 from .constraints import mutually_exclusive
-from lmctl.cli.controller import get_global_controller
-from lmctl.cli.arguments import FileInputOption, OutputFormatOption
-from lmctl.cli.format import Column, OutputFormat
+from lmctl.cli.arguments import (
+    FileInputOption, ObjectGroupOption, ObjectGroupIDOption, 
+    OBJECT_GROUP_PARAM_NAME, OBJECT_GROUP_ID_PARAM_NAME, OBJECT_GROUP_PARAM_OPTS_STR, OBJECT_GROUP_ID_PARAM_OPTS_STR
+)
 
 __all__ = (
     'TNCOGeneralCommand',
@@ -23,7 +23,8 @@ class TNCOGeneralCommand(TNCOEnvironmentCommand):
                 help_suffix: str = None, 
                 allow_file_input: bool = True, 
                 file_mutually_exclusive_with_identifiers: bool = True,
-                pass_file_content: bool = False,
+                pass_file_content: bool = False, 
+                allow_object_group: bool = False, 
                 **kwargs
             ):
         self.type_display_name = type_display_name
@@ -34,12 +35,16 @@ class TNCOGeneralCommand(TNCOEnvironmentCommand):
         self.additional_identifiers = additional_identifiers or {}
         self.allow_file_input = allow_file_input
         self.pass_file_content = pass_file_content
+        self.allow_object_group = allow_object_group
         if 'help' not in kwargs or kwargs['help'] is None:
             kwargs['help'] = self._build_help()
         super().__init__(*args, **kwargs)
         if allow_file_input:
             file_input_option = FileInputOption()
             self.params.append(file_input_option)
+        if self.allow_object_group:
+            self.params.append(ObjectGroupOption())
+            self.params.append(ObjectGroupIDOption())
 
         self.behaviour = self.callback
         self.callback = self._callback
@@ -57,6 +62,10 @@ class TNCOGeneralCommand(TNCOEnvironmentCommand):
                 if file_mutually_exclusive_with_identifiers and allow_file_input:
                     exclusive_params.append((file_input_option.name, ','.join(file_input_option.opts)))
                 self.callback = mutually_exclusive(*exclusive_params)(self.callback)
+        
+        if self.allow_object_group:
+            self.callback = mutually_exclusive((OBJECT_GROUP_PARAM_NAME, OBJECT_GROUP_PARAM_OPTS_STR), (OBJECT_GROUP_ID_PARAM_NAME, OBJECT_GROUP_ID_PARAM_OPTS_STR))(self.callback)
+
 
     def _callback(self, 
                     *args, 
@@ -65,6 +74,8 @@ class TNCOGeneralCommand(TNCOEnvironmentCommand):
                     client_secret: str = None,
                     token: str = None,
                     file_content: Dict[str, Any] = None,
+                    object_group_name: str = None,
+                    object_group_id: str = None,
                     **kwargs):
         if len(self.identifiers) > 0:
             identity = determine_identifier(self.identifiers, required=self.identifier_required, file_content=file_content, **kwargs)
@@ -85,6 +96,12 @@ class TNCOGeneralCommand(TNCOEnvironmentCommand):
         if len(self.identifiers) > 0:
             # Add to kwargs at the end so "identity" is not stripped by accident
             stripped_kwargs['identity'] = identity
+
+        if self.allow_object_group:
+            if object_group_name is not None:
+                stripped_kwargs['object_group_id'] = tnco_client.object_groups.get_by_name(object_group_name)['id']
+            else:
+                stripped_kwargs['object_group_id'] = object_group_id
 
         result = self.behaviour(*args, tnco_client=tnco_client, **stripped_kwargs)
 

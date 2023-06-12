@@ -24,12 +24,13 @@ name_arg = Identifier.arg_and_attr('name')
     short_help=f'Upload a {tnco_builder.display_name}',
     help=f'''Upload {tnco_builder.display_name}\
             \n\nNOTE: Resource Packages are not synonymous with LMCTL project packages, even when the project contains a Resource.
-            The package for an LMCTL package can be extracted to find the Resource Package with zip/tar, depending on the chosen package format for your project'''
+            The package for an LMCTL package can be extracted to find the Resource Package with zip/tar, depending on the chosen package format for your project''',
+    allow_object_group=True,
 )
 @click.option('-f','--file', 'file_path',  required=True, type=click.Path(exists=True), help='Path to Resource Package zip/tar')
 @pass_io
-def create_resource_package(tnco_client: TNCOClient, file_path: str, io: IOController):
-    resource_name = tnco_client.resource_packages.create(file_path)
+def create_resource_package(tnco_client: TNCOClient, file_path: str, io: IOController, object_group_id: str = None):
+    resource_name = tnco_client.resource_packages.create(file_path, object_group_id=object_group_id)
     io.print(f'Created from package: {resource_name}')
 
 @tnco_builder.make_general_command(

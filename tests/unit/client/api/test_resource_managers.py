@@ -26,23 +26,21 @@ class TestResourceManagersAPI(unittest.TestCase):
 
     def test_create(self):
         test_obj = {'name': 'Test'}
-        body = json.dumps(test_obj)
         mock_response = MagicMock(headers={'Location': '/api/resource-managers/123'})
         mock_onboarding_report = {'resourceManagerOperation': 'ADD'}
         mock_response.json.return_value = mock_onboarding_report
         self.mock_client.make_request.return_value = mock_response
         response = self.resource_managers.create(test_obj)
         self.assertEqual(response, mock_onboarding_report)
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/resource-managers', headers={'Content-Type': 'application/json'}, body=body))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/resource-managers', headers={'Content-Type': 'application/json'}, body={'name': 'Test'}))
 
     def test_update(self):
         test_obj = {'name': 'Test'}
-        body = json.dumps(test_obj)
         mock_onboarding_report = {'resourceManagerOperation': 'UPDATE'}
         self.mock_client.make_request.return_value.json.return_value = mock_onboarding_report
         response = self.resource_managers.update(test_obj)
         self.assertEqual(response, mock_onboarding_report)
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='PUT', endpoint='api/resource-managers/Test', headers={'Content-Type': 'application/json'}, body=body))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='PUT', endpoint='api/resource-managers/Test', headers={'Content-Type': 'application/json'}, body={'name': 'Test'}))
 
     def test_delete(self):
         response = self.resource_managers.delete('Test')

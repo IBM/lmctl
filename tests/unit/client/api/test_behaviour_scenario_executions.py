@@ -15,21 +15,21 @@ class TestBehaviourScenarioExecutionsAPI(unittest.TestCase):
         self.mock_client.make_request.return_value = mock_response
         response = self.behaviour_scenario_execs.execute(scenario_id='Test')
         self.assertEqual(response, '789')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/behaviour/executions', headers={'Content-Type': 'application/json'}, body=json.dumps({'scenarioId': 'Test'})))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/behaviour/executions', headers={'Content-Type': 'application/json'}, body={'scenarioId': 'Test'}))
     
     def test_execute_with_scenario_id_and_request(self):
         mock_response = MagicMock(headers={'Location': '/api/behaviour/executions/789'})
         self.mock_client.make_request.return_value = mock_response
         response = self.behaviour_scenario_execs.execute(scenario_id='Test', execution_request={'assemblyId': 'assemblyA'})
         self.assertEqual(response, '789')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/behaviour/executions', headers={'Content-Type': 'application/json'}, body=json.dumps({'assemblyId': 'assemblyA', 'scenarioId': 'Test'})))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/behaviour/executions', headers={'Content-Type': 'application/json'}, body={'assemblyId': 'assemblyA', 'scenarioId': 'Test'}))
     
     def test_execute_with_request(self):
         mock_response = MagicMock(headers={'Location': '/api/behaviour/executions/789'})
         self.mock_client.make_request.return_value = mock_response
         response = self.behaviour_scenario_execs.execute(execution_request={'assemblyId': 'assemblyA', 'scenarioId': 'scenarioA'})
         self.assertEqual(response, '789')
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/behaviour/executions', headers={'Content-Type': 'application/json'}, body=json.dumps({'assemblyId': 'assemblyA', 'scenarioId': 'scenarioA'})))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/behaviour/executions', headers={'Content-Type': 'application/json'}, body={'assemblyId': 'assemblyA', 'scenarioId': 'scenarioA'}))
 
     def test_cancel(self):
         mock_response = {'success': True}

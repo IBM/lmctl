@@ -7,6 +7,8 @@ import lmctl.project.source.core as project_sources
 import lmctl.project.source.creator as creator
 import lmctl.project.types as project_types
 import lmctl.files as files
+from lmctl.cli.controller import get_global_controller
+from .utils.object_groups import object_group_options
 
 
 logger = logging.getLogger(__name__)
@@ -48,8 +50,9 @@ def exec_build(controller, project, allow_autocorrect=False):
     return build_result
 
 
-def exec_push(controller, pkg, env_sessions):
+def exec_push(controller, pkg, env_sessions, object_group_id = None):
     push_options = pkgs.PushOptions()
+    push_options.object_group_id = object_group_id
     push_options.journal_consumer = controller.consumer
     return controller.execute(pkg.push, env_sessions, push_options)
 
@@ -100,15 +103,20 @@ def build(project_path, autocorrect):
 @click.option('--armname', default='defaultrm', help='if using ansible-rm packaging the name of ARM to upload Resources must be provided')
 @click.option('--pwd', '--api-key', default=None, help='password/api_key used for authenticating with CP4NA orchestration. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
-def push(project_path, environment, config, armname, pwd, autocorrect):
+@object_group_options()
+def push(project_path, environment, config, armname, pwd, autocorrect, object_group_name = None, object_group_id = None):
     """Push an Assembly/Resource project"""
     logger.debug('Pushing project at: {0}'.format(project_path))
     project = lifecycle_cli.open_project(project_path)
     env_sessions = lifecycle_cli.build_sessions_for_project(project.config, environment, pwd, armname, config)
+    ctl = get_global_controller(override_config_path=config)
+    tnco_client = ctl.get_tnco_client(environment_group_name=environment, input_pwd=pwd)
+    object_group_id = lifecycle_cli.resolve_object_group(tnco_client, object_group_id, object_group_name)
+    
     controller = lifecycle_cli.ExecutionController(PUSH_HEADER)
     controller.start('{0} at {1}'.format(project.config.name, project_path))
     build_result = exec_build(controller, project, allow_autocorrect=autocorrect)
-    exec_push(controller, build_result.pkg, env_sessions)
+    exec_push(controller, build_result.pkg, env_sessions, object_group_id=object_group_id)
     controller.finalise()
 
 def __parse_tests_option(tests):
@@ -126,15 +134,20 @@ def __parse_tests_option(tests):
 @click.option('--tests', default=None, help='specify comma separated list of individual tests to execute')
 @click.option('--pwd', '--api-key', default=None, help='password/api_key used for authenticating with CP4NA orchestration. Only required if the environment is secure and a username has been included in your configuration file with no password (api_key when using auth_mode=zen)')
 @click.option('--autocorrect', default=False, is_flag=True, help='allow validation warnings and errors to be autocorrected if supported')
-def test(project_path, environment, config, armname, tests, pwd, autocorrect):
+@object_group_options()
+def test(project_path, environment, config, armname, tests, pwd, autocorrect, object_group_name = None, object_group_id = None):
     """Builds, pushes and runs the tests of an Assembly/Resource project on a target CP4NA orchestration (and ARM) environment"""
     logger.debug('Testing project at: {0}'.format(project_path))
     project = lifecycle_cli.open_project(project_path)
     env_sessions = lifecycle_cli.build_sessions_for_project(project.config, environment, pwd, armname, config)
+    ctl = get_global_controller(override_config_path=config)
+    tnco_client = ctl.get_tnco_client(environment_group_name=environment, input_pwd=pwd)
+    object_group_id = lifecycle_cli.resolve_object_group(tnco_client, object_group_id, object_group_name)
+    
     controller = lifecycle_cli.ExecutionController(TEST_HEADER)
     controller.start('{0} at {1}'.format(project.config.name, project_path))
     build_result = exec_build(controller, project, allow_autocorrect=autocorrect)
-    pkg_content = exec_push(controller, build_result.pkg, env_sessions)
+    pkg_content = exec_push(controller, build_result.pkg, env_sessions, object_group_id=object_group_id)
     exec_test(controller, pkg_content, env_sessions, __parse_tests_option(tests))
     controller.finalise()
 

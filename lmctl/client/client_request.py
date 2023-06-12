@@ -2,7 +2,8 @@ from pydantic.dataclasses import dataclass
 from typing import Any, Dict
 from dataclasses import field
 from requests.auth import AuthBase
-from .utils import convert_dict_to_yaml, convert_dict_to_json
+
+import copy
 
 class ValidationConfig:
     arbitrary_types_allowed = True
@@ -18,6 +19,12 @@ class TNCOClientRequest:
     override_address: str = None
     inject_current_auth: bool = True
     additional_auth_handler: AuthBase = None
+    object_group_id_param: str = None
+    object_group_id_body: str = None
+
+    def __post_init__(self):
+        if self.object_group_id_body is not None:
+            self.add_object_group_id_body(self.object_group_id_body)
 
     def add_headers(self, headers: Dict[str, Any]) -> 'TNCOClientRequest':
         self.headers.update(headers)
@@ -26,26 +33,39 @@ class TNCOClientRequest:
     def add_query_params(self, query_params: Dict[str, Any]) -> 'TNCOClientRequest':
         self.query_params.update(query_params)
         return self
+    
+    def add_object_group_id_param(self, object_group_id: str) -> 'TNCOClientRequest':
+        self.object_group_id_param = object_group_id
+        return self
+    
+    def add_object_group_id_body(self, object_group_id: str) -> 'TNCOClientRequest':
+        if self.body is None:
+            raise ValueError('Cannot add object_group_id to body as body has not been set')
+        self.object_group_id_body = object_group_id
+        if isinstance(self.body, dict):
+            self.body['objectGroupId'] = object_group_id
+        else:
+            body_type = type(self.body)
+            raise ValueError(f'Cannot add object_group_id to body as body is not a dictionary. Existing body is of type {body_type}')
+        return self
 
     def _set_body(self, body: Any) -> 'TNCOClientRequest':
         if self.body is not None:
             raise ValueError('Body already configured on request')
         self.body = body
-    
+
     def add_json_body(self, data_dict: Dict) -> 'TNCOClientRequest':
-        json_data = convert_dict_to_json(data_dict)
-        self._set_body(json_data)
+        self._set_body(copy.deepcopy(data_dict))
         self.add_headers({'Content-Type': 'application/json'})
         return self
 
     def add_yaml_body(self, data_dict: Dict) -> 'TNCOClientRequest':
-        yaml_data = convert_dict_to_yaml(data_dict)
-        self._set_body(yaml_data)
+        self._set_body(copy.deepcopy(data_dict))
         self.add_headers({'Content-Type': 'application/yaml'})
         return self
 
     def add_form_data(self, form_dict: Dict[str, Any]) -> 'TNCOClientRequest':
-        self._set_body(form_dict)
+        self._set_body(copy.deepcopy(form_dict))
         self.add_headers({'Content-Type': 'application/x-www-form-urlencoded'})
         return self
 
@@ -62,7 +82,7 @@ class TNCOClientRequest:
         return self
 
     @staticmethod
-    def build_request_for_json(endpoint: str, method: str = 'GET', query_params: Dict[str, Any] = None):
+    def build_request_for_json(endpoint: str, method: str = 'GET', query_params: Dict[str, Any] = None, object_group_id: str = None):
         if query_params is None:
             query_params = dict()
         return TNCOClientRequest(
@@ -71,5 +91,6 @@ class TNCOClientRequest:
             headers={
                 'Accept': 'application/json'
             },
-            query_params=query_params
+            query_params=query_params,
+            object_group_id_param=object_group_id
         )

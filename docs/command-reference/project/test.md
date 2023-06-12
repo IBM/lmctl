@@ -26,3 +26,5 @@ lmctl project test [OPTIONS] ENVIRONMENT
 | `--armname` | if an Ansible RM Resource is included, this must be set with the name of ARM to push to                                              | defaultrm                     | --armname edgerm                         |
 | `--tests`   | Specify individual tests to execute                                                                                                  | '\*' (all tests)              | --armname edgerm                         |
 | `--autocorrect` | allow validation warnings and errors to be autocorrected if supported (each warning/error will inform you if this is possible) | False | --autocorrect |
+| `--og`, `--object-group` | Name of the Object Group to perform the request in  | -                     | --og mygroup                         |
+| `--ogid`, `--object-group-id` | ID of the Object Group to perform the request in | -                     | --ogid 73a4db24-0f3a-4d3e-8699-9c37de17823e              |

@@ -9,9 +9,10 @@ class EtsiPushProcessError(Exception):
 
 class EtsiPushProcess:
 
-    def __init__(self, pkg, pkg_meta, journal, env_sessions, push_workspace):
+    def __init__(self, pkg, pkg_meta, options, journal, env_sessions, push_workspace):
         self.pkg = pkg
         self.pkg_meta = pkg_meta
+        self.options = options
         self.journal = journal
         self.env_sessions = env_sessions
         self.push_workspace = push_workspace        
@@ -31,7 +32,7 @@ class EtsiPushProcess:
                 pkg_driver.delete_nsd_package(descriptor_name)
             except lm_drivers.NotFoundException:
                 self.journal.event('No package named {0} found'.format(descriptor_name))            
-            pkg_driver.onboard_nsd_package(descriptor_name, self.pkg.path)
+            pkg_driver.onboard_nsd_package(descriptor_name, self.pkg.path, object_group_id=self.options.object_group_id)
         elif (self.pkg_meta.is_etsi_vnf_content()):
             descriptor_path = etsi_vnf_handler_api.EtsiVnfPkgContentTree(self.push_workspace).definitions_descriptor_file_path
             descriptor, descriptor_yml_str = descriptors.DescriptorParser().read_from_file_with_raw(descriptor_path)
@@ -42,6 +43,6 @@ class EtsiPushProcess:
                 pkg_driver.delete_package(descriptor_name)
             except lm_drivers.NotFoundException:
                 self.journal.event('No package named {0} found'.format(descriptor_name))
-            pkg_driver.onboard_package(descriptor_name, self.pkg.path)
+            pkg_driver.onboard_package(descriptor_name, self.pkg.path, object_group_id=self.options.object_group_id)
         else:
             raise EtsiPushProcessError('Not an ETSI package, Not pushing.')

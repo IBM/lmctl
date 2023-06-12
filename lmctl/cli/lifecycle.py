@@ -10,13 +10,13 @@ import logging
 from lmctl.project.sessions import EnvironmentSessions, EnvironmentSelectionError
 from lmctl.project.types import ANSIBLE_RM_TYPES
 from lmctl.client import TNCOClientError
+from .controller import get_global_controller
 
 logger = logging.getLogger(__name__)
 
 FAILED = 'FAILED'
 PASSED = 'PASSED'
 PASSED_WITH_WARNINGS = 'PASSED (with warnings)'
-
 
 def build_sessions_for_project(project_config, environment_name, lm_pwd=None, arm_name=None, config_path=None):
     lm_session = ctlmgmt.create_lm_session(environment_name, lm_pwd, config_path)
@@ -76,6 +76,12 @@ def open_pkg(pkg_path):
         printer.print_text('Error: {0}'.format(str(e)))
         logger.exception(str(e))
         exit(1)
+
+def resolve_object_group(tnco_client, object_group_id = None, object_group_name = None):
+    if object_group_id is not None:
+        return object_group_id
+    if object_group_name is not None:
+        return tnco_client.object_groups.get_by_name(object_group_name)['id']
 
 class Banner:
 

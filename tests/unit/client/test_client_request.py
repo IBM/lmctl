@@ -32,3 +32,12 @@ class TestTNCOClientRequest(unittest.TestCase):
             headers={'Accept': 'application/json'},
             query_params={'Testing': True}
         ))
+
+        request = TNCOClientRequest.build_request_for_json(endpoint='api/test', query_params={'Testing': True}, object_group_id='123')
+        self.assertEqual(request, TNCOClientRequest(
+            endpoint='api/test',
+            method='GET',
+            headers={'Accept': 'application/json'},
+            query_params={'Testing': True},
+            object_group_id_param='123'
+        ))

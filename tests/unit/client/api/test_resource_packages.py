@@ -19,6 +19,15 @@ class TestResourcePackagesAPI(unittest.TestCase):
         self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/resource-manager/resource-packages', files={'file': mock_file.return_value}))
     
     @patch("builtins.open", new_callable=mock_open, read_data="data")
+    def test_create_with_object_group_id(self, mock_file):
+        mock_response = MagicMock(headers={'Location': '/api/resource-manager/resource-packages/123'})
+        self.mock_client.make_request.return_value = mock_response
+        response = self.resource_packages.create('/some/test/file', object_group_id='123-456')
+        self.assertEqual(response, '123')
+        mock_file.assert_called_with('/some/test/file', 'rb')
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/resource-manager/resource-packages', files={'file': mock_file.return_value}, object_group_id_param='123-456'))
+    
+    @patch("builtins.open", new_callable=mock_open, read_data="data")
     def test_update(self, mock_file):
         response = self.resource_packages.update('Test', '/some/test/file')
         self.assertIsNone(response)
