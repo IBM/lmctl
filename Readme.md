@@ -29,7 +29,7 @@ cd ./lmctl
 
 # Virtual env recommended 
 python3 -m virtualenv env
-source env/bin/active
+source env/bin/activate
 
 python3 -m pip install .
 ```
