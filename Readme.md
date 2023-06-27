@@ -26,6 +26,7 @@ python3 -m pip install lmctl
 ```
 git clone git@github.com:IBM/lmctl.git
 cd ./lmctl
+git checkout develop
 
 # Virtual env recommended 
 python3 -m virtualenv env
