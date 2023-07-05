@@ -8,6 +8,7 @@ python:
 - '3.7'
 - '3.8'
 - '3.9'
+- '3.10'
 install:
 - pip install -U importlib_metadata # Workaround issues on Python3.7 (for travis only) - https://travis-ci.community/t/build-error-for-python-3-7-on-two-different-projects/12895
 - pip install .
