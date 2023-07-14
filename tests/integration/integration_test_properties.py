@@ -1,7 +1,8 @@
 from lmctl.client.client_credentials_auth import ClientCredentialsAuth
-from lmctl.client.pass_auth import UserPassAuth, LegacyUserPassAuth, OktaUserPassAuth
+from lmctl.client.pass_auth import UserPassAuth, LegacyUserPassAuth
 from lmctl.client.zen_auth import ZenAPIKeyAuth
 from lmctl.client.token_auth import JwtTokenAuth
+from lmctl.client.okta_auth import OktaUserPassAuth
 from typing import Dict
 
 class AuthTesting:

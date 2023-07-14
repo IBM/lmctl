@@ -41,66 +41,19 @@ class LmSecurityCtrl:
     Manages authentication with a target CP4NA orchestration environment 
     """
 
-    def __init__(self, auth_address, username=None, password=None, client_id=None, client_secret=None, token=None, api_key=None, auth_mode=None, scope=None, auth_server_id=None):
+    def __init__(self, env):
         """
         Constructs a new instance of controller for a target CP4NA orchestration environment and target user
 
         Args:
-            auth_address (str): the base URL of the target CP4NA orchestration environment for authentication. May be a Zen endpoint if auth_mode is Zen e.g. http://ui.lm:32080
-            username (str): the username to authenticate as
-            password (str): the password for the specified username
-            client_id (str): the client_id to authenticate as
-            client_secret (str): the client_secret for the specified client_id
-            api_key (str): API key used for Zen based auth
-            token (str): Token used for authentication
-            auth_mode (str): Determines if we're using Zen or Oauth
+            env (TNCOEnvironment): the target CP4NA orchestration environment for authentication
         """
-        self.__auth_address = auth_address
-        self.__username = username
-        self.__password = password
-        self.__client_id = client_id
-        self.__client_secret = client_secret
-        self.__api_key = api_key
-        self.__token = token
-        self.__auth_mode = auth_mode
+        self.__env = env
         self.__auth_tracker = AuthTracker()
-        self.__scope = scope
-        self.__auth_server_id = auth_server_id
         # Using the new client authentication methods in the "legacy" driver so we only need to maintain one impl
         # Eventually this LmSecurityCtrl will be removed, once we switch all of the "lmctl project" functionality to use the new client
-        client_builder = TNCOClientBuilder()
-        client_builder.address(self.__auth_address)
-        if self.__auth_mode.lower() == ZEN_AUTH_MODE:
-            client_builder.zen_api_key_auth(username=self.__username, api_key=self.__api_key, zen_auth_address=self.__auth_address)
-        elif self.__auth_mode.lower() == TOKEN_AUTH_MODE:
-            client_builder.token_auth(token=self.__token)
-        elif self.__auth_mode == OKTA_MODE:
-            if self.__username is not None:
-                # Using password auth
-                if self.__client_id is not None:
-                    client_builder.okta_user_pass_auth(username=self.__username, password=self.__password,
-                                                       client_id=self.__client_id, client_secret=self.__client_secret,
-                                                       scope=self.__scope, auth_server_id=self.__auth_server_id,
-                                                       okta_server=self.__auth_address)
-                else:
-                    raise ValueError(f'TNCO environment cannot be configured without a client_id when using auth_mode={OKTA_MODE}')
-            else:
-                client_builder.okta_client_credentials_auth(client_id=self.client_id, client_secret=self.client_secret,
-                                                     scope=self.scope, auth_server_id=self.auth_server_id,
-                                                     okta_server=self.auth_address)
-        else:
-            #Oauth
-            if self.__username is not None:
-                # Using password auth
-                if self.__client_id is not None:
-                    client_builder.user_pass_auth(username=self.__username, password=self.__password, client_id=self.__client_id,
-                                               client_secret=self.__client_secret)
-                else:
-                    # Legacy password auth
-                    client_builder.legacy_user_pass_auth(username=self.__username, password=self.__password, legacy_auth_address=self.__auth_address)
-            else:
-                client_builder.client_credentials_auth(client_id=self.__client_id, client_secret=self.__client_secret)
-        self.__client = client_builder.build()
+
+        self.__client = self.__env.build_client()
 
     def get_access_token(self):
         """

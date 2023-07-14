@@ -1,6 +1,6 @@
 from .client_credentials_auth import ClientCredentialsAuth
-from .okta_client_credentials_auth import OktaClientCredentialsAuth
-from .pass_auth import UserPassAuth, LegacyUserPassAuth, OktaUserPassAuth
+from .okta_auth import OktaClientCredentialsAuth, OktaUserPassAuth
+from .pass_auth import UserPassAuth, LegacyUserPassAuth
 from .zen_auth import ZenAPIKeyAuth
 from .token_auth import JwtTokenAuth
 from .client import TNCOClient

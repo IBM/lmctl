@@ -1,6 +1,8 @@
 from typing import Dict
 from .auth_type import AuthType
 
+DEFAULT_CP_AUTH_ENDPOINT = 'icp4d-api/v1/authorize'
+
 class ZenAPIKeyAuth(AuthType):
 
     def __init__(self, username: str, api_key: str, zen_auth_address: str = None):
