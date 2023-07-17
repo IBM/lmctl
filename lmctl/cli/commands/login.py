@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 @click.option('--token', default=None, help=f'Authenticate with a token instead of credentials')
 @click.option('--auth-address', default=None, help=f'Alternative address used for authentication request for some user based login flows')
 @click.option('--name', default='default', show_default=True, help='Name given to the environment saved in the configuration file')
-@click.option('--save-creds', is_flag=True, default=False, show_default=True, help='Save the credentials instead of the token. This allows lmctl to re-authenticate later without requiring a login but your passwords will be stored as plain text in the configuration file')
+@click.option('--save-creds', is_flag=True, default=False, show_default=True, help='Not recommended - but an option to save the credentials instead of the token. This allows lmctl to re-authenticate later without requiring a login. Your credentials will be stored as plain text in the configuration file!')
 @click.option('--print', 'print_token', is_flag=True, default=False, help='Print the access token rather than saving it')
 @click.option('-y', 'yes_to_prompts', is_flag=True, default=False, show_default=True, help='Force command to accept all confirmation prompts e.g. to override existing environment with the same name')
 @click.option('--zen', 'is_zen', is_flag=True, default=False, help=f'Indicates Cloud Pak API key to be provided')
@@ -66,6 +66,8 @@ def login(ctx: click.Context, address: str, auth_mode: str = None, username: str
             f.write('environments: {}')
 
     ctl = get_global_controller(override_config_path=path)
+
+    _print_warnings(ctl, path, save_creds, pwd, api_key, client_secret)
 
     if token is None and client_id is None and username is None:
         # No credentials passed, must prompt
@@ -187,3 +189,20 @@ def _prompt_if_not_set(ctl: CLIController, name: str, value: str = None, secret:
     if value is None:
         value = ctl.io.prompt(name, hide_input=secret, default='')
     return value
+
+def _print_warnings(ctl: CLIController, path, save_creds, password, api_key, client_secret):
+    
+    if save_creds:
+        ctl.io.print_warning(f'WARNING: using "--save-creds" is not recommended as credentials will be stored in plain text file {path}')
+
+    if password:
+        ctl.io.print_warning(f'WARNING: specfiying the "--password" option may leak the value to your terminal history '\
+                             'and should be used with caution. Omit this option and you will be prompted to safely enter the value instead')
+
+    if api_key:
+        ctl.io.print_warning(f'WARNING: specfiying the "--api-key" option may leak the value to your terminal history '\
+                             'and should be used with caution. Omit this option and you will be prompted to safely enter the value instead')
+         
+    if client_secret:
+        ctl.io.print_warning(f'WARNING: specfiying the "--client-secret" option may leak the value to your terminal history '\
+                             'and should be used with caution. Omit this option and you will be prompted to safely enter the value instead')

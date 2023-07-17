@@ -18,7 +18,10 @@ class IOController:
         return click.confirm(*args, **kwargs)
 
     def print_error(self, text):
-        self.__print(text, err=True)
+        self.__print(click.style(text, fg='red'), err=True)
+
+    def print_warning(self, text):
+        self.__print(click.style(text, fg='yellow', bold=True))
 
     def print(self, text):
         self.__print(text)
