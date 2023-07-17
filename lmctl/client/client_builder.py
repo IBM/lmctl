@@ -37,8 +37,12 @@ class TNCOClientBuilder:
         self._auth = auth
         return self
         
-    def zen_api_key_auth(self, username: str, api_key: str, zen_auth_address: str = None) -> 'TNCOClientBuilder':
-        self._auth = ZenAPIKeyAuth(username=username, api_key=api_key, zen_auth_address=zen_auth_address)
+    def zen_api_key_auth(self, username: str, api_key: str, zen_auth_address: str = None, override_auth_endpoint: str = None) -> 'TNCOClientBuilder':
+        self._auth = ZenAPIKeyAuth(username=username, api_key=api_key, zen_auth_address=zen_auth_address, override_auth_endpoint=override_auth_endpoint)
+        return self
+    
+    def cloudpak_api_key_auth(self, username: str, api_key: str, zen_auth_address: str = None, override_auth_endpoint: str = None) -> 'TNCOClientBuilder':
+        self._auth = ZenAPIKeyAuth(username=username, api_key=api_key, zen_auth_address=zen_auth_address, override_auth_endpoint=override_auth_endpoint)
         return self
 
     def token_auth(self, token: str) -> 'TNCOClientBuilder':

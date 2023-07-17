@@ -4,6 +4,32 @@ import requests
 from typing import Dict
 from lmctl.client.exceptions import TNCOClientError
 
+def clean_address(address: str) -> str:
+    if address is not None:
+        while address.endswith('/'):
+            address = address[:-1]
+    return address
+
+def clean_path(path: str) -> str:
+    if path is not None:
+        while path.startswith('/'):
+            path = path[1]
+    return path
+
+def choose_first_not_none(*args):
+    for arg in args:
+        if arg is not None:
+            return arg
+
+def append_endpoint(address: str, endpoint: str):
+    while address.endswith('/'):
+        address = address[:-1]
+    
+    if endpoint.startswith('/'):
+        return address + endpoint
+    else:
+        return address + '/' + endpoint
+
 def convert_dict_to_yaml(data_dict: Dict):
     return yaml.safe_dump(data_dict)
 

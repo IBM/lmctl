@@ -132,12 +132,12 @@ class TestTNCOEnvironment(unittest.TestCase):
         self.assertIsNone(env.client_id)
 
     def test_init_with_addresses_as_parts(self):
-        env = TNCOEnvironment(host='test', port=80, protocol='https', path='gateway', secure=True, username='user', password='secret', auth_host='auth', auth_port=81, auth_protocol='https')
+        env = TNCOEnvironment(host='testing.example.com', port=4567, protocol='https', path='gateway', secure=True, username='user', password='secret', auth_host='auth.example.com', auth_port=81, auth_protocol='https')
         
-        self.assertEqual(env.address, 'https://testing.example.com/gateway')
-        self.assertEqual(env.auth_address, 'https://testing.example.com')
-        self.assertEqual(env.get_usable_address(), 'https://testing.example.com/gateway')
-        self.assertEqual(env.get_usable_oauth_legacy_user_address(), 'https://testing.example.com')
+        self.assertEqual(env.address, 'https://testing.example.com:4567/gateway')
+        self.assertEqual(env.auth_address, 'https://auth.example.com:81')
+        self.assertEqual(env.get_usable_address(), 'https://testing.example.com:4567/gateway')
+        self.assertEqual(env.get_usable_oauth_legacy_user_address(), 'https://auth.example.com:81')
 
     def test_init_address_from_parts(self):
         env = TNCOEnvironment(host='testing.example.com')
@@ -175,12 +175,12 @@ class TestTNCOEnvironment(unittest.TestCase):
         self.assertEqual(env.kami_address, 'http://test:31289')
 
     def test_init_kami_address_override_port(self):
-        env = TNCOEnvironment(address='https://testing.example.com80', kami_port=5678)
-        self.assertEqual(env.kami_address, 'http://test:5678')
+        env = TNCOEnvironment(address='https://testing.example.com:80', kami_port=5678)
+        self.assertEqual(env.kami_address, 'http://testing.example.com:5678')
 
     def test_init_kami_address_override_protocol(self):
-        env = TNCOEnvironment(address='https://testing.example.com80', kami_protocol='https')
-        self.assertEqual(env.kami_address, 'https://test:31289')
+        env = TNCOEnvironment(address='https://testing.example.com:80', kami_protocol='https')
+        self.assertEqual(env.kami_address, 'https://testing.example.com:31289')
 
     ## http vs https tests ##
 
@@ -348,7 +348,7 @@ class TestTNCOEnvironment(unittest.TestCase):
     def test_validate_oauth_legacy_mode_without_username_fails(self):
         with self.assertRaises(ValueError) as context:
             TNCOEnvironment(address='testing.example.com', auth_mode=OAUTH_LEGACY_USER_MODE).validate()
-        self.assertEqual(str(context.exception), 'Invalid CP4NA environment - must configure "username" when using "auth_mode=legacy-user"')
+        self.assertEqual(str(context.exception), 'Invalid CP4NA environment - must configure "username" when using "auth_mode=user-login"')
 
     def test_validate_oauth_legacy_without_auth_address(self):
         env = TNCOEnvironment(address='testing.example.com', auth_mode=OAUTH_LEGACY_USER_MODE, username='test')
@@ -396,7 +396,7 @@ class TestTNCOEnvironment(unittest.TestCase):
         env.validate()
         self.assertIsNone(env.cp_front_door_address)
         self.assertEqual(env.auth_address, 'auth.example.com')
-        self.assertEqual(env.get_usable_cp_front_door_address(), 'https://auth.example.com')
+        self.assertIsNone(env.get_usable_cp_front_door_address())
 
     def test_validate_cp_api_key_auth_mode(self):
         env = TNCOEnvironment(address='testing.example.com', auth_mode=CP_API_KEY_AUTH_MODE, username='Zenny', api_key='12345', auth_address='zen.example.com/auth')
@@ -438,7 +438,7 @@ class TestTNCOEnvironment(unittest.TestCase):
         env.validate()
         self.assertIsNone(env.cp_front_door_address)
         self.assertEqual(env.auth_address, 'auth.example.com')
-        self.assertEqual(env.get_usable_cp_front_door_address(), 'https://auth.example.com')
+        self.assertIsNone(env.get_usable_cp_front_door_address())
 
     def test_validate_token_auth(self):
         env = TNCOEnvironment(address='testing.example.com', auth_mode=TOKEN_AUTH_MODE, token='123')
@@ -450,6 +450,12 @@ class TestTNCOEnvironment(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             TNCOEnvironment(address='testing.example.com', auth_mode=TOKEN_AUTH_MODE).validate()
         self.assertEqual(str(context.exception), 'Invalid CP4NA environment - must configure "token" when using "auth_mode=token"')
+    
+    def test_validate_token_auth_without_token_set_allow_no_token(self):
+        env = TNCOEnvironment(address='testing.example.com', auth_mode=TOKEN_AUTH_MODE)
+        env.validate(allow_no_token=True)
+        self.assertEqual(env.auth_mode, TOKEN_AUTH_MODE)
+        self.assertIsNone(env.token)
 
     def test_validate_okta_mode(self):
         env = TNCOEnvironment(address='testing.example.com', auth_mode=OKTA_MODE, client_id='client', client_secret='secret', auth_server_id='server', scope='test')
@@ -665,7 +671,7 @@ class TestTNCOEnvironment(unittest.TestCase):
         env = TNCOEnvironment(address='testing.example.com', auth_mode=OAUTH_LEGACY_USER_MODE, password='pass')
         with self.assertRaises(ValueError) as ctx:
             env.build_client()
-        self.assertEqual(str(ctx.exception), 'Invalid CP4NA environment - must configure "username" when using "auth_mode=legacy-user"')
+        self.assertEqual(str(ctx.exception), 'Invalid CP4NA environment - must configure "username" when using "auth_mode=user-login"')
 
     def test_build_client_with_okta_mode_and_username_and_client_id_uses_okta_user_auth(self):
         env = TNCOEnvironment(address='testing.example.com', auth_mode=OKTA_MODE,
@@ -840,21 +846,12 @@ class TestTNCOEnvironment(unittest.TestCase):
         self.assertEqual(client.auth_type.username, 'user')
         self.assertEqual(client.auth_type.api_key, '123')
         self.assertEqual(client.auth_type.zen_auth_address, 'https://auth.example.com')
+        self.assertIsNone(client.auth_type.override_auth_endpoint)
     
     def test_build_client_with_zen_mode_with_cp_front_door_address_already_containing_protocol(self):
         env = TNCOEnvironment(address='testing.example.com', auth_mode=ZEN_AUTH_MODE, username='user', api_key='123', cp_front_door_address='https://auth.example.com')
         client = env.build_client()
         self.assertEqual(client.auth_type.zen_auth_address, 'https://auth.example.com')
-
-    def test_build_client_with_zen_mode_using_cp_front_door_address_strips_known_api_endpoint(self):
-        env = TNCOEnvironment(address='testing.example.com', auth_mode=ZEN_AUTH_MODE, username='user', api_key='123', cp_front_door_address='auth.example.com/icp4d-api/v1/authorize')
-        client = env.build_client()
-        self.assertEqual(client.auth_type.zen_auth_address, 'https://auth.example.com')
-
-    def test_build_client_with_zen_mode_using_cp_front_door_address_keeps_unknown_api_endpoint(self):
-        env = TNCOEnvironment(address='testing.example.com', auth_mode=ZEN_AUTH_MODE, username='user', api_key='123', cp_front_door_address='auth.example.com/additional/path')
-        client = env.build_client()
-        self.assertEqual(client.auth_type.zen_auth_address, 'https://auth.example.com/additional/path')
 
     def test_build_client_with_zen_mode_using_auth_address(self):
         env = TNCOEnvironment(address='testing.example.com', auth_mode=ZEN_AUTH_MODE, username='user', api_key='123', auth_address='auth.example.com')
@@ -868,16 +865,6 @@ class TestTNCOEnvironment(unittest.TestCase):
         env = TNCOEnvironment(address='testing.example.com', auth_mode=ZEN_AUTH_MODE, username='user', api_key='123', auth_address='https://auth.example.com')
         client = env.build_client()
         self.assertEqual(client.auth_type.zen_auth_address, 'https://auth.example.com')
-
-    def test_build_client_with_zen_mode_using_auth_address_strips_known_api_endpoint(self):
-        env = TNCOEnvironment(address='testing.example.com', auth_mode=ZEN_AUTH_MODE, username='user', api_key='123', auth_address='auth.example.com/icp4d-api/v1/authorize')
-        client = env.build_client()
-        self.assertEqual(client.auth_type.zen_auth_address, 'https://auth.example.com')
-
-    def test_build_client_with_zen_mode_using_auth_address_keeps_unknown_api_endpoint(self):
-        env = TNCOEnvironment(address='testing.example.com', auth_mode=ZEN_AUTH_MODE, username='user', api_key='123', auth_address='auth.example.com/additional/path')
-        client = env.build_client()
-        self.assertEqual(client.auth_type.zen_auth_address, 'https://auth.example.com/additional/path')
 
     def test_build_client_with_zen_mode_without_auth_address_or_cp_front_door_address(self):
         env = TNCOEnvironment(address='testing.example.com', auth_mode=ZEN_AUTH_MODE, username='user', api_key='123')
@@ -900,21 +887,12 @@ class TestTNCOEnvironment(unittest.TestCase):
         self.assertEqual(client.auth_type.username, 'user')
         self.assertEqual(client.auth_type.api_key, '123')
         self.assertEqual(client.auth_type.zen_auth_address, 'https://auth.example.com')
+        self.assertIsNone(client.auth_type.override_auth_endpoint)
 
     def test_build_client_with_cp_api_key_mode_with_cp_front_door_address_already_containing_protocol(self):
         env = TNCOEnvironment(address='testing.example.com', auth_mode=CP_API_KEY_AUTH_MODE, username='user', api_key='123', cp_front_door_address='https://auth.example.com')
         client = env.build_client()
         self.assertEqual(client.auth_type.zen_auth_address, 'https://auth.example.com')
-
-    def test_build_client_with_cp_api_key_mode_using_cp_front_door_address_strips_known_api_endpoint(self):
-        env = TNCOEnvironment(address='testing.example.com', auth_mode=CP_API_KEY_AUTH_MODE, username='user', api_key='123', cp_front_door_address='auth.example.com/icp4d-api/v1/authorize')
-        client = env.build_client()
-        self.assertEqual(client.auth_type.zen_auth_address, 'https://auth.example.com')
-
-    def test_build_client_with_cp_api_key_modeusing_cp_front_door_address_keeps_unknown_api_endpoint(self):
-        env = TNCOEnvironment(address='testing.example.com', auth_mode=CP_API_KEY_AUTH_MODE, username='user', api_key='123', cp_front_door_address='auth.example.com/additional/path')
-        client = env.build_client()
-        self.assertEqual(client.auth_type.zen_auth_address, 'https://auth.example.com/additional/path')
 
     def test_build_client_with_cp_api_key_mode_using_auth_address(self):
         env = TNCOEnvironment(address='testing.example.com', auth_mode=CP_API_KEY_AUTH_MODE, username='user', api_key='123', auth_address='auth.example.com')
@@ -929,16 +907,6 @@ class TestTNCOEnvironment(unittest.TestCase):
         client = env.build_client()
         self.assertEqual(client.auth_type.zen_auth_address, 'https://auth.example.com')
 
-    def test_build_client_with_cp_api_key_mode_using_auth_address_strips_known_api_endpoint(self):
-        env = TNCOEnvironment(address='testing.example.com', auth_mode=CP_API_KEY_AUTH_MODE, username='user', api_key='123', auth_address='auth.example.com/icp4d-api/v1/authorize')
-        client = env.build_client()
-        self.assertEqual(client.auth_type.zen_auth_address, 'https://auth.example.com')
-
-    def test_build_client_with_cp_api_key_mode_using_auth_address_keeps_unknown_api_endpoint(self):
-        env = TNCOEnvironment(address='testing.example.com', auth_mode=CP_API_KEY_AUTH_MODE, username='user', api_key='123', auth_address='auth.example.com/additional/path')
-        client = env.build_client()
-        self.assertEqual(client.auth_type.zen_auth_address, 'https://auth.example.com/additional/path')
-
     def test_build_client_with_cp_api_key_mode_without_auth_address_or_cp_front_door_address(self):
         env = TNCOEnvironment(address='testing.example.com', auth_mode=CP_API_KEY_AUTH_MODE, username='user', api_key='123')
         client = env.build_client()
@@ -952,6 +920,15 @@ class TestTNCOEnvironment(unittest.TestCase):
         with self.assertRaises(ValueError) as ctx:
             env.build_client()
         self.assertEqual(str(ctx.exception), 'Invalid CP4NA environment - must configure "username" when using "auth_mode=cp-api-key"')
+
+    def test_build_client_with_cp_api_key_mode_and_cp_auth_endpoint(self):
+        env = TNCOEnvironment(address='testing.example.com', auth_mode=CP_API_KEY_AUTH_MODE, username='user', api_key='123', cp_auth_endpoint='v2/auth')
+        client = env.build_client()
+        self.assertIsInstance(client.auth_type, ZenAPIKeyAuth)
+        self.assertEqual(client.auth_type.username, 'user')
+        self.assertEqual(client.auth_type.api_key, '123')
+        self.assertIsNone(client.auth_type.zen_auth_address)
+        self.assertEqual(client.auth_type.override_auth_endpoint, 'v2/auth')
 
     def test_build_client_with_token_mode(self):
         env = TNCOEnvironment(address='testing.example.com', auth_mode=TOKEN_AUTH_MODE, token='123')
@@ -1035,7 +1012,7 @@ class TestLmSession(unittest.TestCase):
         driver = session.descriptor_driver #Force LmSecurityCtrl to be created
         mock_client_builder = mock_client_builder_init.return_value 
         mock_client_builder.address.assert_called_once_with('https://testing.example.com')
-        mock_client_builder.zen_api_key_auth.assert_called_once_with(username='user', api_key='123', zen_auth_address='https://zen.example.com')
+        mock_client_builder.zen_api_key_auth.assert_called_once_with(username='user', api_key='123', zen_auth_address='https://zen.example.com', override_auth_endpoint=None)
 
     @mock.patch('lmctl.environment.lmenv.lm_drivers.LmDescriptorDriver')
     def test_descriptor_driver(self, descriptor_driver_init):

@@ -12,7 +12,7 @@ class TestUserPassAuth(unittest.TestCase):
 
 class TestLegacyUserPassAuth(unittest.TestCase):
 
-    def test_handle(self):
+    def test_handle_without_legacy_address(self):
         auth = LegacyUserPassAuth('jack', 'pass123')
         client = MagicMock()
         auth.handle(client)

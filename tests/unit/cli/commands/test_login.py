@@ -435,7 +435,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
         result = self.runner.invoke(login, ['https://mock.example.com', '--auth-address', 'https://auth.example.com', '--zen', '--username', 'TestUser'], input='TestApiKey')
         self.assert_no_errors(result)
         self.mock_tnco_client_builder.address.assert_called_once_with('https://mock.example.com')
-        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='https://auth.example.com')
+        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='https://auth.example.com', override_auth_endpoint=None)
 
         self.mock_write_config.assert_called_once_with(Config(
             active_environment='default',
@@ -456,7 +456,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
         result = self.runner.invoke(login, ['https://mock.example.com', '--auth-address', 'https://auth.example.com', '--zen', '--username', 'TestUser', '--save-creds'], input='TestApiKey')
         self.assert_no_errors(result)
         self.mock_tnco_client_builder.address.assert_called_once_with('https://mock.example.com')
-        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='https://auth.example.com')
+        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='https://auth.example.com', override_auth_endpoint=None)
 
         self.mock_write_config.assert_called_once_with(Config(
             active_environment='default',
@@ -468,8 +468,8 @@ class TestLoginCommands(command_testing.CommandTestCase):
                         secure=True,
                         username='TestUser',
                         api_key='TestApiKey',
-                        auth_mode='zen',
-                        auth_address='https://auth.example.com'
+                        auth_mode='cp-api-key',
+                        cp_front_door_address='https://auth.example.com'
                     )
                 )
             }
@@ -479,7 +479,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
         result = self.runner.invoke(login, ['https://mock.example.com', '--auth-address', 'https://auth.example.com', '--zen', '--username', 'TestUser', '--print'], input='TestApiKey')
         self.assert_no_errors(result)
         self.mock_tnco_client_builder.address.assert_called_once_with('https://mock.example.com')
-        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='https://auth.example.com')
+        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='https://auth.example.com', override_auth_endpoint=None)
 
         # Output will include prompt inputs so grab last line
         self.assertEqual(result.output.splitlines()[-1], '123')
@@ -489,7 +489,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
         result = self.runner.invoke(login, ['https://mock.example.com', '--auth-address', 'https://auth.example.com', '--zen', '--username', 'TestUser', '--api-key', 'TestApiKey'])
         self.assert_no_errors(result)
         self.mock_tnco_client_builder.address.assert_called_once_with('https://mock.example.com')
-        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='https://auth.example.com')
+        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='https://auth.example.com', override_auth_endpoint=None)
 
         self.mock_write_config.assert_called_once_with(Config(
             active_environment='default',
@@ -510,7 +510,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
         result = self.runner.invoke(login, ['https://mock.example.com', '--auth-address', 'https://auth.example.com', '--zen', '--username', 'TestUser', '--api-key', 'TestApiKey', '--save-creds'])
         self.assert_no_errors(result)
         self.mock_tnco_client_builder.address.assert_called_once_with('https://mock.example.com')
-        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='https://auth.example.com')
+        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='https://auth.example.com', override_auth_endpoint=None)
 
         self.mock_write_config.assert_called_once_with(Config(
             active_environment='default',
@@ -522,8 +522,8 @@ class TestLoginCommands(command_testing.CommandTestCase):
                         secure=True,
                         username='TestUser',
                         api_key='TestApiKey',
-                        auth_mode='zen',
-                        auth_address='https://auth.example.com'
+                        auth_mode='cp-api-key',
+                        cp_front_door_address='https://auth.example.com'
                     )
                 )
             }
@@ -534,7 +534,7 @@ class TestLoginCommands(command_testing.CommandTestCase):
         result = self.runner.invoke(login, ['https://mock.example.com', '--auth-address', 'https://auth.example.com', '--zen', '--username', 'TestUser', '--api-key', 'TestApiKey', '--print'])
         self.assert_no_errors(result)
         self.mock_tnco_client_builder.address.assert_called_once_with('https://mock.example.com')
-        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='https://auth.example.com')
+        self.mock_tnco_client_builder.zen_api_key_auth.assert_called_once_with(username='TestUser', api_key='TestApiKey', zen_auth_address='https://auth.example.com', override_auth_endpoint=None)
 
         # Output will include prompt inputs so grab last line
         self.assertEqual(result.output.splitlines()[-1], '123')

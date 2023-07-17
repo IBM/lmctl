@@ -1,7 +1,7 @@
 import click
 from lmctl.cli.controller import get_global_controller
 from lmctl.cli.commands.utils import mutually_exclusive_group
-from lmctl.client.constants import TOKEN_AUTH_MODE
+from lmctl.environment import TOKEN_AUTH_MODE
 
 @click.command(short_help='Show information about the active environment', help='Show information about the active environment')
 @click.pass_context

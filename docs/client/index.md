@@ -9,7 +9,7 @@ To use LMCTL in your code, [install it with pip](../install.md) then start impor
 ```python
 from lmctl.client import client_builder
 
-cp4na_client = client_builder().address('https://cp4na-ishtar.example.com').client_credentials_auth('LmClient', 'admin').build()
+cp4na_client = client_builder().address('cp4na-ishtar.example.com').client_credentials_auth('LmClient', 'admin').build()
 ```
 
 For details on how to include LMCTL as a dependency, so it can be installed for all users of your project/application see [Add LMCTL to Python project](add-to-python-project.md)
@@ -21,23 +21,23 @@ A CP4NA client can be configured in a number of ways. The recommended way is to 
 ```python
 from lmctl.client import client_builder
 
-cp4na_client = client_builder().address('https://cp4na-ishtar.example.com').client_credentials_auth('LmClient', 'admin').build()
+cp4na_client = client_builder().address('cp4na-ishtar.example.com').client_credentials_auth('LmClient', 'admin').build()
 ```
 
 This builder provides methods to configure the following types of authentication:
 
 ```python
 # Zen Authentication (CP4NA 2.2+ on OCP)
-cp4na_client = client_builder().address('https://cp4na-ishtar.example.com').zen_api_key_auth(username='MyUser', api_key='MyKey', zen_auth_address='https:/cpd-lifecycle-manager.apps.example.com//icp4d-api/v1/authorize').build()
+cp4na_client = client_builder().address('cp4na-ishtar.example.com').cloudpak_api_key_auth(username='MyUser', api_key='MyKey', cp_front_door_address='cpd-lifecycle-manager.apps.example.com').build()
 
-# Client Credentials (environments without Zen)
-cp4na_client = client_builder().address('https://cp4na-ishtar.example.com').client_credentials_auth(client_id='LmClient', client_secret='admin').build()
+# Client Credentials (non-Cloud Pak environments)
+cp4na_client = client_builder().address('cp4na-ishtar.example.com').client_credentials_auth(client_id='LmClient', client_secret='admin').build()
 
-# UI Username/Password (environments without Zen)
-cp4na_client = client_builder().address('https://cp4na-ishtar.example.com').legacy_user_pass_auth(username='almadmin', password='mypass', legacy_auth_address='https://cp4na-nimrod.example.com').build()
+# UI Username/Password (non-Cloud Pak environments)
+cp4na_client = client_builder().address('cp4na-ishtar.example.com').legacy_user_pass_auth(username='almadmin', password='mypass', legacy_auth_address='cp4na-nimrod.example.com').build()
 
-# Client based Username/Password (environments without Zen)
-cp4na_client = client_builder().address('https://cp4na-ishtar.example.com').legacy_user_pass_auth(client_id='LmClient', client_secret='admin', username='almadmin', password='mypass').build()
+# Client based Username/Password (non-Cloud Pak environments)
+cp4na_client = client_builder().address('cp4na-ishtar.example.com').legacy_user_pass_auth(client_id='LmClient', client_secret='admin', username='almadmin', password='mypass').build()
 
 ```
 

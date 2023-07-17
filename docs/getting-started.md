@@ -76,51 +76,65 @@ Access the `help` section of LMCTL with:
 lmctl --help
 ```
 
-# Login to Cloud Pak for Network Automation
+# Configure Access 
 
 LMCTL requires credentials to access the orchestration component of your Cloud Pak for Network Automation (CP4NA) environment. 
 
-The most efficient method of configuring LMCTL is to use the `lmctl login` with the API gateway (Ishtar Route) address for your environment. On most OCP installations, this can be retrieved with:
+The most efficient method of configuring LMCTL is to use the `lmctl login` command with the access credentials of your environment.
+
+This command will perform the following:
+
+- Authenticate and obtain an access token for the target environment using the provided credentials
+- Create an LMCTL configuration file at `~/.lmctl/config.yaml`, if one does not already exist
+- Save the environments address(es) and access token to this configuration file with an environment name of `default` or a name of your choosing.
+- Make this environment the "active" choice, which makes it the default used on most commands
+
+> Check out the [login command documentation](command-reference/login.md) to view more detailed information about this command.
+
+The credentials necessary for access depend on the configuration and version of the target environment.
+
+- [Getting Started with LMCTL](#getting-started-with-lmctl)
+- [Prepare Python 3](#prepare-python-3)
+- [Install LMCTL](#install-lmctl)
+- [Configure Access](#configure-access)
+  - [Login to Cloud Pak for Network Automation](#login-to-cloud-pak-for-network-automation)
+  - [Login to other environments](#login-to-other-environments)
+  - [Multiple Environments](#multiple-environments)
+  - [Next Steps](#next-steps)
+
+## Login to Cloud Pak for Network Automation
+
+You will need the address of the API gateway (Ishtar Route) for your environment. On most OCP installations, this can be retrieved with:
 
 ```
 API_GATEWAY=https://$(oc get route cp4na-o-ishtar -o jsonpath='{.spec.host}')
 ```
 
-The `login` command will perform the following:
-
-- Authenticate and obtain an access token for the target environment using the provided credentials
-- Create an LMCTL configuration file at `~/.lmctl/config.yaml`, if one does not already exist
-- Save the environments address(es) and access token to this configuration file with an environment name of `default`.
-- Make this environment the "active" choice, which makes it the default used on most commands
-
-The credentials for your environment may be provided in a few different combinations but the most convenient methods are described below:
-
-- [CP4NA 2.2+ on OCP with Zen](#zen-authentication)
-- [CP4NA on Kubernetes with Oauth](#oauth-authentication)
-
-Check out the [login command documentation](command-reference/login.md) to view more detailed information on each combination.
-
-## Zen Authentication
-
-> CP4NA 2.2+ on OCP only
-
-You will need to provide the Zen authorization address. On most OCP installations, this can be retrieved with:
+You will also need the Cloud Pak front door address. On most OCP installations, this can be retrieved with:
 
 ```
-ZEN_AUTH_ADDRESS=$(oc get orchestration default -o jsonpath='{.status.uiendpoints.orchestration}')/icp4d-api/v1/authorize
+CP_FRONT_DOOR=$(oc get orchestration default -o jsonpath='{.status.uiendpoints.orchestration}')
 ```
 
-You'll also need to obtain an API key for your Zen user. This can retrieved by visiting the CP4NA UI (address returned by `oc get orchestration default -o jsonpath='{.status.uiendpoints.orchestration}'`) and logging in with with your Zen username and password.
+You'll also need to obtain an API key for your Cloud Pak user. This can retrieved by visiting the CP4NA graphical user interface (`CP_FRONT_DOOR`) and logging in with with your username and password.
 
 Access `Profile and Settings` from the user menu icon located in the top right section of the navigation header. From the profile page you can generate your API key by clicking on the `API Key` link in the top right and then `Generate new key`. 
 
-![Zen API Key](images/zen-api-key.png)
+![Cloud Pak API Key](images/zen-api-key.png)
 
 You may be warned that generating a new key will invalidate any previous keys. Either use your existing key (if known) or click `Generate` to create a new one. Make a copy of this key and use it to login with lmctl:
 
 ```
-lmctl login $API_GATEWAY --zen --auth-address $ZEN_AUTH_ADDRESS --username admin --api-key FdpmmyFIIslv0s3eN9tCTKeYAt3457pnmrTZacvo
+lmctl login $API_GATEWAY --zen --auth-address $CP_FRONT_DOOR --username your-username 
 ```
+
+You will be prompted for your API key. Enter your key and hit enter. As the API key is a sensitive value, it will be hidden from the command line:
+
+```
+API Key []: 
+```
+
+> Note: if you need to login from an environment which cannot support prompts then the API key can be provided with the `--api-key` option instead. Note, caution is advised as this may make the API key visible in your command history.
 
 You should see output similar to:
 
@@ -137,54 +151,11 @@ lmctl ping env
 
 If the output of this command ends with `CP4NA orchestration tests passed! ✅` then you're ready to go. 
 
-Eventually your access token will expire, resulting in authentication errors when using lmctl. When this occurs, run `login` again to reauthenticate OR check out the [Automation Reauthentication](#automatic-reauthentication) section below to save your credentials in your config file so lmctl may automatically re-authenticate when the token expires.
+Eventually your access token will expire, resulting in authentication errors when using lmctl. When this occurs, run `login` again to reauthenticate.
 
-## Oauth Authentication
+## Login to other environments
 
-> For any environment where Zen authentication is not used
-
-First, try logging in with the same username and password you use to access the CP4NA orchestration user interface (UI). You will need to provide the UI address (Nimrod Route) for your environment. On most OCP installations, this can be retrieved with:
-
-```
-UI_ADDRESS=https://$(oc get route cp4na-o-nimrod -o jsonpath='{.spec.host}')
-```
-
-Run `lmctl login`, changing the `--username` and `--password` values to valid credentials for your environment:
-
-```
-lmctl login $API_GATEWAY --auth-address $UI_ADDRESS --username almadmin --password password
-```
-
-> You may omit the `--password` option and LMCTL will prompt for this as hidden input instead.
-
-You should see output similar to:
-
-```
-Login success
-Updating config at: /home/myuser/.lmctl/config.yaml
-```
-
-You can test access is ready using `ping`:
-
-```
-lmctl ping env
-```
-
-If the output of this command ends with `CP4NA orchestration tests passed! ✅` then you're ready to go. 
-
-Eventually your access token will expire, resulting in authentication errors when using lmctl. When this occurs, run `login` again to reauthenticate OR check out the [Automatic Reauthentication](#automatic-reauthentication) section below to save your credentials in the lmctl config file so lmctl may automatically re-authenticate you when the token expires.
-
-## Automatic Reauthentication
-
-On login success, the resulting access token is saved in the config file, rather than the username/password. Tokens are often short lived, meaning you will have to re-run `login` when it expires.
-
-Alternatively, you may choose to save the credentials in the config file (plain text), by adding `--save-creds` to the login command. This allows LMCTL to re-authenticate on your behalf:
-
-```
-lmctl login $API_GATEWAY --auth-address $UI_ADDRESS --username almadmin --password password --save-creds
-```
-
-Check the difference in the configuration by running `lmctl get config` before and after this command. 
+If your environment is not a Cloud Pak instance then you may need to use an [alternative authentication mechanism](auth-modes/index.md).
 
 ## Multiple Environments 
 

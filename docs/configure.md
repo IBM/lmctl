@@ -3,14 +3,16 @@
 LMCTL configuration is written as a YAML formatted file and can exist anywhere on the local file system. By default, LMCTL checks for a file at `<home directory>/.lmctl/config.yaml`, however you may configure an alternative location by setting the `LMCONFIG` environment variable to the intended path.
 
 Table of contents:
-- [Initialise configuration file](#initialise-new-configuration-file)
+- [LMCTL Command Line Configuration](#lmctl-command-line-configuration)
+  - [Initialise configuration file](#initialise-configuration-file)
 - [Environment Groups](#environment-groups)
   - [CP4NA orchestration Configuration](#cp4na-orchestration-configuration)
   - [Ansible RM](#ansible-rm)
+- [Complete Configuration Example](#complete-configuration-example)
 
 ## Initialise configuration file
 
-> If you use `lmctl login` then you can skip this section
+> It is recommended that you use the `lmctl login` command instead of manually creating the configuration file. If you use the login command you can skip this section.
 
 To initialise a new configuration file, at the default location, run the following:
 
@@ -55,15 +57,15 @@ lmctl get config
 
 LMCTL can be used to access one or more CP4NA orchestration and/or Resource Manager (RM) instances. To do so, it must be configured with access addresses and credentials.
 
-As any single TNCO environment may have many related RMs, the individual instances are described together in an environment group.
+As any single CP4NA orchestration environment may have many related RMs, the individual instances are described together in an environment group.
 
-> Note: TNCO comes with a built-in Resource Manager, which you do not need to add access address/credentials for.
+> Note: CP4NA orchestration comes with a built-in Resource Manager, which you do not need to add access address/credentials for.
 
 Each group has:
 
 - a name used to identify it in commands
 - a description for informative use
-- a single TNCO instance
+- a single CP4NA orchestration instance (known as TNCO)
 - zero to many RM instances (if using the Ansible RM)
 
 Each environment group should be included in the LMCTL configuration file as a key object under `environments`.
@@ -113,17 +115,18 @@ lmctl use env prod
 
 ## CP4NA orchestration Configuration
 
-The TNCO environment in a group must be provided under the key `tnco`, `lm` or `alm` with the following properties:
+This section gives an overview of the configuration properties of LMCTL. It is e xpected most users do not need to read through this section as it is more efficient to use "lmctl login" to configure an environment, rather than modifying properties in a file. 
+
+The CP4NA environment in a group must be provided under the key `tnco`, `lm` or `alm` with the following properties:
 
 ```
 environments:
-  example:
+  simple_example:
     description: a short example environment
     tnco:
-      address: https://app.lm:32443
-      secure: true
-      username: jack
-      password:
+      address: ishtar-route.ocp.example.com
+      token: <your-access-token>
+  
   example_with_details:
     description: an example environment
     tnco:
@@ -131,34 +134,48 @@ environments:
       #  General    #
       ###############
       
-      ## The full HTTP(s) address used to access the API gateway (Ishtar route) of your TNCO instance
-      address: https://ishtar-route.ocp.example.com
+      ## The full address used to access the API gateway (Ishtar route) of your CP4NA instance.
+      ## HTTPs is assumed by default so it's not necessary to include the protocol
+      address: ishtar-route.ocp.example.com
 
-      ## Set to true if TNCO is secure and requires authentication to use the APIs
-      secure: True
 
       #####################################################################
-      #  Zen Authentication                                               #
-      #  Required if "secure" is true and not using Oauth or Token #
+      # Token Authentication (recommended auth mode for all environments) #
+      #####################################################################
+     
+      ## Indicate the environment is using token based auth
+      auth_mode: token 
+
+      ## Use "lmctl login" to obtain a token by entering your username/password/api-key for the environment
+      token: enter-your-access-token
+
+      #####################################################################
+      #  Cloud Pak Authentication                                         #
+      #  Required unless specifying a Token                               #
       #####################################################################
       
-      # Indicate environment is using Zen
-      auth_mode: zen
+      ## Indicate environment is using the auth mode for Cloud Paks
+      ## "cp-api-key" is a rename of the "zen" value previously used here. Using the value "zen" is still supported but will eventually be removed
+      #auth_mode: cp-api-key 
       
-      ## The full HTTP(s) address and path used to access the Zen authentication APIs E.g. https://<hostname>/icp4d-api/v1/authorize
-      auth_address: https://cpd-lifecycle-manager.apps.example.com/icp4d-api/v1/authorize
+      ## The full address used to access the Cloud Pak front door 
+      ## It is no longer necessary to add the "icp4d-api/v1/authorize" endpoint here
+      #auth_address: cpd-lifecycle-manager.apps.example.com
 
       ## The username to authenticate with
-      username: example-user
+      #username: example-user
 
-      ## The API key for the above user
+      ## The API key for the above user - it is not recommended to specify this in a file as it is stored in plain text.
+      ## You can omit this value and each command call will prompt you for it instead.
+      ## Alternatively use "lmctl login" to login once and store an access token instead (auth_mode: token). Only the token is held in plain text.
+      ## The token will eventually expire and you will need to login again
       #api_key: enter-your-api-key
 
       #####################################################
-      # Oauth Authentication                              #
+      # Oauth Authentication (non-CP4NA environments)     #
       #####################################################
      
-      # Indicate the environment is using oauth
+      ## Indicate the environment is using oauth
       #auth_mode: oauth 
 
       #=========================#
@@ -170,6 +187,9 @@ environments:
       #client_id: LmClient
       
       ## Secret for the above client
+      ## You can omit this value and each command call will prompt you for it instead.
+      ## Alternatively use "lmctl login" to login once and store an access token instead (auth_mode: token). Only the token is held in plain text.
+      ## The token will eventually expire and you will need to login again
       #client_secret: enter-your-secret
 
       #=========================#
@@ -187,6 +207,9 @@ environments:
       #username: jack
 
       ## The password for the above user
+      ## You can omit this value and each command call will prompt you for it instead.
+      ## Alternatively use "lmctl login" to login once and store an access token instead (auth_mode: token). Only the token is held in plain text.
+      ## The token will eventually expire and you will need to login again
       #password: enter-your-pass
       
       #=================================#
@@ -199,25 +222,14 @@ environments:
       #username: jack
       
       ## The password for the above user
+      ## You can omit this value and each command call will prompt you for it instead.
+      ## Alternatively use "lmctl login" to login once and store an access token instead (auth_mode: token). Only the token is held in plain text.
+      ## The token will eventually expire and you will need to login again
       #password: enter-your-pass
+      
+      ## GUI address required to support this method of authentication
+      #auth_address: nimrod-route.ocp.example.com
 
-      #####################################################
-      # Token Authentication                              #
-      #####################################################
-     
-      # Indicate the environment is using token based auth
-      #auth_mode: token 
-
-      #token: enter-your-token
-
-      #####################################################
-      # Token Authentication                              #
-      #####################################################
-     
-      # Indicate the environment is using token based auth
-      #auth_mode: token 
-
-      #token: enter-your-token
 ```
 
 ## Ansible RM
@@ -264,14 +276,11 @@ environments:
     description: a local dev environment
     tnco:
       address: https://192.168.100.50:32443
-      secure: true
-      client_id: LmClient
-      username: jack
+      client_id: admin
   testing:
     description: an example test environment
     tnco:
-      address: https://app.lm:32443
-      secure: true
-      auth_address: https://ui.lm:32443
+      address: 192.168.100.50:32443
+      auth_address: 192.168.100.50:32444
       username: jack
 ```

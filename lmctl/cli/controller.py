@@ -43,42 +43,77 @@ class CLIController:
             else:
                 return env_group
         return None
- 
-    def get_tnco_client(self, environment_group_name: str = None, input_pwd: str = None, input_client_secret: str = None, input_token: str = None) -> 'TNCOClient':
+    
+    def get_tnco_env(self, environment_group_name: str = None, input_pwd: str = None, input_client_secret: str = None, input_token: str = None) -> 'TNCOEnvironment':
         env_group = self.get_environment_group(environment_group_name)
         if not env_group.has_tnco:
             self.io.print_error(f'Error: CP4NA orchestration environment not configured on group: {environment_group_name}')
             exit(1)
         tnco = env_group.tnco
-        if tnco.secure:
-            if tnco.is_using_zen_auth:
-                if tnco.username is not None:
-                    if input_pwd is not None and len(input_pwd.strip()) > 0:
-                        tnco.api_key = input_pwd
-                    elif tnco.api_key is None:
-                        prompt_pwd = self.io.prompt(f'Please enter API key for TNCO (ALM) user {tnco.username}', hide_input=True, default='')
-                        tnco.api_key = prompt_pwd
-            elif tnco.is_using_token_auth:
-                if input_token is not None and len(input_token.strip()) > 0:
-                    tnco.token = input_token
-                elif tnco.token is None:
-                    prompt_token = self.io.prompt(f'Please enter token for CP4NA orchestration', hide_input=True, default='')
-                    tnco.token = prompt_token
-            else:
-                if tnco.client_id is not None:
-                    if tnco.client_secret is None:
-                        if input_client_secret is not None and len(input_client_secret.strip()) > 0:
-                            tnco.client_secret = input_client_secret
-                        elif tnco.client_secret is None:
-                            prompt_secret = self.io.prompt(f'Please enter secret for CP4NA orchestration client {tnco.client_id}', hide_input=True, default='')
-                            tnco.client_secret = prompt_secret
-                if tnco.username is not None:
-                    if input_pwd is not None and len(input_pwd.strip()) > 0:
-                        tnco.password = input_pwd
-                    elif tnco.password is None:
-                        prompt_pwd = self.io.prompt(f'Please enter password for CP4NA orchestration user {tnco.username}', hide_input=True, default='')
-                        tnco.password = prompt_pwd
+        if tnco.is_using_cp_api_key_auth():
+            self._configure_api_key_or_prompt(tnco, input_pwd)
+    
+        elif tnco.is_using_token_auth():
+            self._configure_token_or_prompt(tnco, input_token)
+    
+        elif tnco.is_using_okta_client_auth():
+                self._configure_client_or_prompt(tnco, input_client_secret)
+        
+        elif tnco.is_using_okta_user_auth():
+                self._configure_client_or_prompt(tnco, input_client_secret)
+                self._confgure_user_or_prompt(tnco, input_pwd)
+        
+        elif tnco.is_using_oauth_client_auth():
+            self._configure_client_or_prompt(tnco, input_client_secret)
+        
+        elif tnco.is_using_oauth_user_auth():
+            self._configure_client_or_prompt(tnco, input_client_secret)
+            self._confgure_user_or_prompt(tnco, input_pwd)
+
+        elif tnco.is_using_oauth_legacy_user_auth():
+            self._confgure_user_or_prompt(tnco, input_pwd)
+
+        return tnco
+ 
+    def get_tnco_client(self, environment_group_name: str = None, input_pwd: str = None, input_client_secret: str = None, input_token: str = None) -> 'TNCOClient':
+        tnco = self.get_tnco_env(environment_group_name, input_pwd, input_client_secret, input_token)
         return tnco.build_client()
+    
+    def _configure_token_or_prompt(self, tnco, input_token: str):
+        if input_token is not None and len(input_token.strip()) > 0:
+            # If token provided then use it (override the existing token from the environment)
+            tnco.token = input_token
+        elif tnco.token is None:
+            # If no token was provided and there is no value set in the environment then prompt for it
+            prompt_token = self.io.prompt(f'Please enter access token for CP4NA orchestration', hide_input=True, default='')
+            tnco.token = prompt_token
+    
+    def _configure_api_key_or_prompt(self, tnco, input_api_key: str):
+        if input_api_key is not None and len(input_api_key.strip()) > 0:
+            # If api_key provided then use it (override the existing api_key from the environment)
+            tnco.api_key = input_api_key
+        elif tnco.api_key is None or len(tnco.api_key.strip()) == 0:
+            # If no api_key was provided and there is no value set in the environment then prompt for it
+            prompt_key = self.io.prompt(f'Please enter API key for CP4NA orchestration user {tnco.username}', hide_input=True, default='')
+            tnco.api_key = prompt_key
+
+    def _configure_client_or_prompt(self, tnco, input_client_secret: str):
+        if input_client_secret is not None and len(input_client_secret.strip()) > 0:
+            # If client secret provided then use it (override the existing secret from the environment)
+            tnco.client_secret = input_client_secret
+        elif tnco.client_secret is None or len(tnco.client_secret.strip()) == 0:
+            # If no client secret was provided and there is no value set in the environment then prompt for it
+            prompt_secret = self.io.prompt(f'Please enter secret for CP4NA orchestration client {tnco.client_id}', hide_input=True, default='')
+            tnco.client_secret = prompt_secret
+    
+    def _confgure_user_or_prompt(self, tnco, input_pwd: str):
+        if input_pwd is not None and len(input_pwd.strip()) > 0:
+            # If password provided then use it (override the existing password from the environment)
+            tnco.password = input_pwd
+        elif tnco.password is None or len(tnco.password.strip()) == 0:
+            # If no password was provided and there is no value set in the environment then prompt for it
+            prompt_pwd = self.io.prompt(f'Please enter password for CP4NA orchestration user {tnco.username}', hide_input=True, default='')
+            tnco.password = prompt_pwd
 
     def create_arm_session(self, arm_name: str, environment_group_name: str = None):
         env_group = self.get_environment_group(environment_group_name)

@@ -7,7 +7,7 @@ In all examples, it is assumed we have already created a CP4NA client:
 ```python
 from lmctl.client import client_builder
 
-cp4na_client = client_builder().address('https://cp4na-ishtar.example.com').client_credentials_auth('LmClient', 'admin').build()
+cp4na_client = client_builder().address('cp4na-ishtar.example.com').client_credentials_auth('LmClient', 'admin').build()
 ``` 
 
 ## Create an Assembly

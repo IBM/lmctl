@@ -355,7 +355,7 @@ class TestConfigParser(unittest.TestCase):
         self.assertEqual(lm_config.secure, False)
         self.assertEqual(lm_config.username, None)
         self.assertEqual(lm_config.password, None)
-        self.assertEqual(lm_config.auth_address, 'https://test')
+        self.assertIsNone(lm_config.auth_address)
         
     def test_parse_lm_auth_defaults(self):
         valid_config = {
@@ -381,7 +381,7 @@ class TestConfigParser(unittest.TestCase):
         self.assertEqual(lm_config.secure, True)
         self.assertEqual(lm_config.username, 'user')
         self.assertEqual(lm_config.password, None)
-        self.assertEqual(lm_config.auth_address, 'https://test')
+        self.assertIsNone(lm_config.auth_address)
 
     def test_parse_lm_deprecated_properties(self):
         valid_config = {
@@ -391,7 +391,7 @@ class TestConfigParser(unittest.TestCase):
                 'alm': {
                     'ip_address': 'test',
                     'username': 'user',
-                    'auth_address': 'auth',
+                    'auth_address': 'auth.example.com',
                     'secure_port': False,
                     'protocol': 'https'
                 }
@@ -409,7 +409,7 @@ class TestConfigParser(unittest.TestCase):
         self.assertEqual(lm_config.secure, False)
         self.assertEqual(lm_config.username, 'user')
         self.assertEqual(lm_config.password, None)
-        self.assertEqual(lm_config.auth_address, 'https://auth')
+        self.assertEqual(lm_config.auth_address, 'auth.example.com')
 
     def test_parse_arm_address(self):
         valid_config = {
@@ -584,7 +584,6 @@ class TestConfigParser(unittest.TestCase):
             'test': {
                 'description': 'a test group',
                 'alm': {
-                    'host': 'test',
                     'secure': True
                 }
             }
@@ -592,7 +591,7 @@ class TestConfigParser(unittest.TestCase):
         }
         with self.assertRaises(ConfigError) as context:
             ConfigParser().from_dict(invalid_config)
-        self.assertEqual(str(context.exception), 'Config error: 1 validation error for ParsingModel[Config]\n__root__ -> environments -> test -> tnco -> __root__\n  Secure TNCO environment must be configured with either "client_id" or "username" property when using "auth_mode=oauth". If the TNCO environment is not secure then set "secure" to False (type=value_error)')
+        self.assertEqual(str(context.exception), 'Config error: 1 validation error for ParsingModel[Config]\n__root__ -> environments -> test -> tnco -> __root__\n  Invalid CP4NA environment - must specify "address" or "host" property (type=value_error)')
 
     def test_parse_invalid_arm(self):
         invalid_config = {

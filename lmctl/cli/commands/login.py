@@ -2,38 +2,31 @@ import click
 import os
 import logging
 from pydantic import ValidationError
-from lmctl.client import TOKEN_AUTH_MODE, OAUTH_MODE, ZEN_AUTH_MODE, OKTA_MODE
 from lmctl.config import find_config_location, write_config
-from lmctl.environment import TNCOEnvironment, EnvironmentGroup
+from lmctl.environment import (TNCOEnvironment, EnvironmentGroup, TOKEN_AUTH_MODE, CP_API_KEY_AUTH_MODE,
+                               OAUTH_MODE,  OKTA_MODE)
 from lmctl.cli.controller import get_global_controller, CLIController
 from lmctl.cli.commands.utils import mutually_exclusive_group
 
 logger = logging.getLogger(__name__)
-@click.command(short_help='Authenticate and optionally save credentials', help='''\
-    Authenticates with an environment and save the access token in your lmctl config file for subsequent use. 
-    \n\nA single use token is obtained using the credentials and this token is persisted in the lmctl config file, instead of your credentials. Once the token has expired, you will no longer be able to access this environment and will need to call "login" again.
-    \n\nTo avoid leaking your credentials in your command history it is recommended that you exclude "--client-secret", "--password" and "--api-key" from your command. You will be prompted for these where appropriate.
-    \n\nUsing "--save-creds" will persist the credentials in the lmctl config file instead, which will allow lmctl to reauthenticate on your behalf when the current access token expires. This is discouraged as the config file is plain text and easily accessed on your environment.
-    \n\nYou can check the contents of your local lmctl config file at any time with "lmctl get config"
-    '''
-)
+@click.command(short_help='Authenticate and optionally save credentials')
 @click.pass_context
 @click.argument('address')
-@click.option('-u', '--username', default=None, help='Username')
-@click.option('-p', '--pwd', '--password', default=None, help='Password for the given user')
-@click.option('--api-key', default=None, help='API Key for the given user (when using "--zen")')
-@click.option('--client', 'client_id', default=None, help='Client ID')
-@click.option('--client-secret', default=None, help='Secret for the given Client ID')
-@click.option('--scope', default=None, help='scope for the given Client ID')
-@click.option('--auth-server-id', default=None, help='Okta backend authentication server for the given Client ID to generate okta auth API')
-@click.option('--token', default=None, help='Authenticate with a token instead of credentials')
+@click.option('-u', '--username', default=None, help=f'Username')
+@click.option('-p', '--pwd', '--password', default=None, help=f'Password for the given user. Omit this option to be prompted for the value instead')
+@click.option('--api-key', default=None, help=f'API Key for the given user')
+@click.option('--client', 'client_id', default=None, help=f'Client ID')
+@click.option('--client-secret', default=None, help=f'Secret for the given Client ID')
+@click.option('--scope', default=None, help=f'Scope for the given Client ID')
+@click.option('--auth-server-id', default=None, help=f'Okta backend authentication server for the given Client ID to generate okta auth API')
+@click.option('--token', default=None, help=f'Authenticate with a token instead of credentials')
+@click.option('--auth-address', default=None, help=f'Alternative address used for authentication request for some user based login flows')
 @click.option('--name', default='default', show_default=True, help='Name given to the environment saved in the configuration file')
-@click.option('--auth-address', default=None, help='Auth address required for username/password access (without client credentials). This is usually the Nimrod route in your environment.')
 @click.option('--save-creds', is_flag=True, default=False, show_default=True, help='Save the credentials instead of the token. This allows lmctl to re-authenticate later without requiring a login but your passwords will be stored as plain text in the configuration file')
 @click.option('--print', 'print_token', is_flag=True, default=False, help='Print the access token rather than saving it')
 @click.option('-y', 'yes_to_prompts', is_flag=True, default=False, show_default=True, help='Force command to accept all confirmation prompts e.g. to override existing environment with the same name')
-@click.option('--zen', 'is_zen', is_flag=True, default=False, help='Indicate that the Zen authentication method should be used (must provide --api-key)')
-@click.option('--okta', 'is_okta', is_flag=True, default=False, help='Indicate that the okta authentication method should be used')
+@click.option('--zen', 'is_zen', is_flag=True, default=False, help=f'Indicates Cloud Pak API key to be provided')
+@click.option('--okta', 'is_okta', is_flag=True, default=False, help=f'Indiciates Okta user to be provided')
 @mutually_exclusive_group(
     ('token', '--token'),
     mutex_with=[
@@ -46,10 +39,26 @@ logger = logging.getLogger(__name__)
         ('scope', '--scope'),
         ('api-key', '--api-key'),
         ('is_zen', '--zen'),
+        ('is_okta', '--okta'),
     ]
 )
-def login(ctx: click.Context, address: str, username: str = None, pwd: str = None, api_key: str = None, client_id: str = None, client_secret: str = None, scope: str = None, auth_server_id: str = None,
+def login(ctx: click.Context, address: str, auth_mode: str = None, username: str = None, pwd: str = None, api_key: str = None, client_id: str = None, client_secret: str = None, scope: str = None, auth_server_id: str = None,
             token: str = None, name: str = None, auth_address: str = None, save_creds: bool = False, yes_to_prompts: bool = False, print_token: bool = False, is_zen: bool = False, is_okta: bool = False):
+    """
+    Authenticates with an environment and save the access token in your lmctl config file for subsequent use. 
+    
+    A single use token is obtained using the credentials and this token is persisted in the lmctl config file, instead of your credentials. 
+    Once the token has expired, you will no longer be able to access this environment and will need to call "login" again.
+    
+    To avoid leaking your credentials in your command history it is recommended that you exclude "--client-secret", "--password" and "--api-key" from your command. 
+    You will be prompted for these where appropriate.
+    
+    Using "--save-creds" will persist the credentials in the lmctl config file instead, which will allow lmctl to reauthenticate on your behalf when the current access token expires. 
+    This is discouraged as the config file is plain text and easily accessed on your environment.
+    
+    You can check the contents of your local lmctl config file at any time with "lmctl get config"
+    """
+    
     # Support missing config file by pre-creating one
     path = find_config_location(ignore_not_found=True)
     if not os.path.exists(path):
@@ -61,7 +70,7 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
     if token is None and client_id is None and username is None:
         # No credentials passed, must prompt
         if is_zen:
-            auth_address = _prompt_if_not_set(ctl, 'Auth Address', auth_address)
+            auth_address = _prompt_if_not_set(ctl, 'Cloud Pak Front Door Address (cpd)', auth_address)
             username = _prompt_if_not_set(ctl, 'Username', username)
             api_key = _prompt_if_not_set(ctl, 'API Key', api_key, secret=True)
         else:
@@ -83,10 +92,14 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
                 pwd = _prompt_if_not_set(ctl, 'Password', pwd, secret=True)
 
     auth_mode = OAUTH_MODE
+    cp_front_door_address = None
+    
     if token is not None:
         auth_mode = TOKEN_AUTH_MODE
     elif is_zen:
-        auth_mode = ZEN_AUTH_MODE
+        auth_mode = CP_API_KEY_AUTH_MODE
+        cp_front_door_address = auth_address
+        auth_address = None # cp_front_door_address set instead
     elif is_okta:
         auth_mode = OKTA_MODE
 
@@ -103,7 +116,8 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
             api_key=api_key,
             token=token,
             auth_mode=auth_mode,
-            auth_address=auth_address
+            auth_address=auth_address,
+            cp_front_door_address=cp_front_door_address
         )
     except ValidationError as e:
         logger.exception('Error creating TNCOEnvironment')
@@ -125,14 +139,12 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
         if not save_creds or token is not None:
             tnco_env_dict = {
                 'address': address,
-                'secure': True,
                 'token': access_token,
                 'auth_mode': TOKEN_AUTH_MODE
             }
         else:
             tnco_env_dict = {
                 'address': address,
-                'secure': True,
                 'auth_mode': auth_mode
             }
             if client_id is not None:
@@ -151,6 +163,8 @@ def login(ctx: click.Context, address: str, username: str = None, pwd: str = Non
                 tnco_env_dict['scope'] = scope
             if auth_server_id is not None:
                 tnco_env_dict['auth_server_id'] = auth_server_id
+            if cp_front_door_address is not None:
+                tnco_env_dict['cp_front_door_address'] = cp_front_door_address
         tnco_env = TNCOEnvironment(**tnco_env_dict)
 
         # Write

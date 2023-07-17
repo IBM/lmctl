@@ -14,6 +14,8 @@ class AuthenticationAPI(TNCOAPI):
     legacy_login_endpoint = 'ui/api/login'
     older_legacy_login_endpoint = 'api/login'
 
+    cp_auth_endpoint = 'icp4d-api/v1/authorize'
+
     def _build_client_basic_auth(self, client_id: str, client_secret: str) -> HTTPBasicAuth:
         return HTTPBasicAuth(client_id, client_secret)
 
@@ -57,8 +59,8 @@ class AuthenticationAPI(TNCOAPI):
                         .disable_auth_token()\
                         .add_form_data(body)\
                         .add_auth_handler(auth)
-        if okta_server:
-            request.override_address = okta_server
+        
+        request.override_address = okta_server
         auth_response = self.base_client.make_request_for_json(request)
         return auth_response
 
@@ -102,12 +104,19 @@ class AuthenticationAPI(TNCOAPI):
                 raise
         return auth_response
 
-    def request_zen_api_key_access(self, username: str, api_key: str, zen_auth_address: str = None) -> Dict:
+    def request_zen_api_key_access(self, username: str, api_key: str, zen_auth_address: str = None, override_auth_endpoint: str = None) -> Dict:
+        if zen_auth_address:
+            # Check backwards compatibility support where the endpoint was included in the address
+            if zen_auth_address.endswith(self.cp_auth_endpoint):
+                zen_auth_address = zen_auth_address[:-len(self.cp_auth_endpoint)]
+            elif zen_auth_address.endswith(self.cp_auth_endpoint + '/'):
+                zen_auth_address = zen_auth_address[:-len(self.cp_auth_endpoint + '/')]
+
         body = {
             'username': username,
             'api_key': api_key
         }
-        request = TNCOClientRequest(method='POST', endpoint=None)\
+        request = TNCOClientRequest(method='POST', endpoint=override_auth_endpoint if override_auth_endpoint else self.cp_auth_endpoint)\
                         .disable_auth_token()\
                         .add_json_body(body)
         request.override_address = zen_auth_address

@@ -5,6 +5,7 @@ import os
 from .common import build_address
 from .auth_modes import (OAUTH_MODE, OAUTH_CLIENT_MODE, OAUTH_LEGACY_USER_MODE, OAUTH_USER_MODE, 
                          OKTA_CLIENT_MODE, OKTA_USER_MODE, NO_AUTH_MODE, ZEN_AUTH_MODE, CP_API_KEY_AUTH_MODE,
+                         TOKEN_AUTH_MODE, OKTA_MODE,
                          is_no_auth_mode, is_oauth_mode, 
                          is_oauth_client_mode, is_oauth_user_mode, is_cp_api_key_mode, 
                          is_okta_mode, is_okta_client_mode, is_okta_user_mode, 
@@ -17,7 +18,7 @@ from pydantic import constr, root_validator
 
 from lmctl.utils.jwt import decode_jwt
 from lmctl.utils.dcutils.dc_capture import recordattrs
-from lmctl.client import TNCOClientBuilder, TOKEN_AUTH_MODE, ZEN_AUTH_MODE, OAUTH_MODE, OKTA_MODE, DEFAULT_CP_AUTH_ENDPOINT
+from lmctl.client import TNCOClientBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -141,11 +142,11 @@ class TNCOEnvironment:
 
         return values
 
-    def validate(self):
+    def validate(self, allow_no_token: bool = False):
         """
         Validate the environment properties are set to allow for a client to be constructed against this environment.
 
-        WARNING - the definition of valid includes empty/unset values for password, api_key and client_secret as we're not privy to the password policy rules for those, 
+        WARNING - the definition of valid includes empty/unset values for password, api_key and client_secret as we're not privy to the policy rules for those, 
         which, on the rare occassion, may include support for empty values
         """
         if not self.address:
@@ -176,7 +177,7 @@ class TNCOEnvironment:
             self._validate_okta_client()
 
         elif is_token_mode(self.auth_mode):
-            self._validate_token()
+            self._validate_token(allow_no_token)
 
         elif is_no_auth_mode(self.auth_mode):
             pass
@@ -244,8 +245,8 @@ class TNCOEnvironment:
         if not self.username:
             raise ValueError(f'Invalid CP4NA environment - must configure "username" when using "auth_mode={auth_mode_for_error}"')
 
-    def _validate_token(self):
-        if not self.token:
+    def _validate_token(self, allow_no_token: bool):
+        if not self.token and not allow_no_token:
             raise ValueError(f'Invalid CP4NA environment - must configure "token" when using "auth_mode={TOKEN_AUTH_MODE}"')
         
     def create_session(self):
@@ -278,7 +279,11 @@ class TNCOEnvironment:
             self._add_oauth_legacy_user(builder)
 
         elif is_cp_api_key_mode(self.auth_mode):
-            builder.zen_api_key_auth(username=self.username, api_key=self.api_key, zen_auth_address=self.get_usable_cp_front_door_address())
+            zen_address = self.get_usable_cp_front_door_address()
+            if zen_address is None and self.auth_address:
+                # Backward compatibility support for using "auth_address" which may have the authorise path already appended to it (Zen Auth handler deals with this)
+                zen_address = self._finalise_address(self.auth_address)
+            builder.zen_api_key_auth(username=self.username, api_key=self.api_key, zen_auth_address=zen_address, override_auth_endpoint=self.cp_auth_endpoint)
 
         elif is_okta_mode(self.auth_mode):
             if self.username and self.client_id:
@@ -301,21 +306,8 @@ class TNCOEnvironment:
         return self._finalise_address(self.address)
     
     def get_usable_cp_front_door_address(self):
-        address_to_use = None
         if self.cp_front_door_address:
-            address_to_use = self.cp_front_door_address
-        elif self.auth_address:
-            # Backward compatibility support for using "auth_address" which may have the authorise path already appended to it
-            address_to_use = self.auth_address
-        
-        if address_to_use:
-            if address_to_use.endswith('/' + DEFAULT_CP_AUTH_ENDPOINT):
-                address_to_use = address_to_use[:-len('/' + DEFAULT_CP_AUTH_ENDPOINT)]
-            elif address_to_use.endswith('/' + DEFAULT_CP_AUTH_ENDPOINT + '/'):
-                address_to_use = address_to_use[:-len('/' + DEFAULT_CP_AUTH_ENDPOINT + '/')]
-
-            return self._finalise_address(address_to_use)
-
+            return self._finalise_address(self.cp_front_door_address)
         else: 
             return None
     
@@ -393,6 +385,41 @@ class TNCOEnvironment:
                     user_str = client_str
 
             return user_str
+        
+    def is_using_no_auth(self):
+        return is_no_auth_mode(self.auth_mode)
+    
+    def is_using_okta_auth(self):
+        return is_okta_mode(self.auth_mode)
+    
+    def is_using_ambigious_okta_auth(self):
+        if is_okta_mode(self.auth_mode):
+            if not self.is_using_okta_user_auth() and not self.is_using_okta_client_auth():
+                return True
+        
+        return False
+
+    
+    def is_using_okta_user_auth(self):
+        return is_okta_user_mode(self.auth_mode) or (is_okta_mode(self.auth_mode) and self.username and not self.client_id)
+    
+    def is_using_okta_client_auth(self):
+        return is_okta_client_mode(self.auth_mode) or (is_okta_mode(self.auth_mode) and self.client_id and not self.username)
+    
+    def is_using_oauth_user_auth(self):
+        return is_oauth_user_mode(self.auth_mode)
+    
+    def is_using_oauth_client_auth(self):
+        return is_oauth_client_mode(self.auth_mode)
+    
+    def is_using_oauth_legacy_user_auth(self):
+        return is_oauth_legacy_user_mode(self.auth_mode)
+    
+    def is_using_cp_api_key_auth(self):
+        return is_cp_api_key_mode(self.auth_mode)
+    
+    def is_using_token_auth(self):
+        return is_token_mode(self.auth_mode)
 
 class LmSession:
 
@@ -400,6 +427,7 @@ class LmSession:
         if not env:
             raise ValueError('config not provided to session')
         self.env = env
+        self.env.validate()
         self.__lm_security_ctrl = None
         self.__descriptor_driver = None
         self.__onboard_rm_driver = None
@@ -415,7 +443,7 @@ class LmSession:
         self.__descriptor_template_driver = None
 
     def __get_lm_security_ctrl(self):
-        if not is_no_auth_mode(self.env.auth_mode):
+        if not self.env.is_using_no_auth():
             if not self.__lm_security_ctrl:
                 self.__lm_security_ctrl = lm_drivers.LmSecurityCtrl(self.env)
             return self.__lm_security_ctrl

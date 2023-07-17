@@ -5,7 +5,7 @@ from .auth_tracker import AuthTracker
 from .error_capture import tnco_error_capture
 from .client_test_result import TestResult, TestResults
 from .client_request import TNCOClientRequest
-from .utils import convert_dict_to_yaml, convert_dict_to_json
+from .utils import convert_dict_to_yaml, convert_dict_to_json, clean_address, append_endpoint
 
 from lmctl.utils.trace_ctx import trace_ctx
 
@@ -23,18 +23,12 @@ class TNCOClient:
     """
 
     def __init__(self, address: str, auth_type: AuthType = None, kami_address: str = None, use_sessions: bool = False):
-        self.address = self._parse_address(address)
+        self.address = clean_address(address)
         self.auth_type = auth_type
         self.kami_address = kami_address
         self.auth_tracker = AuthTracker() if self.auth_type is not None else None
         self._session = None
         self.use_sessions = use_sessions
-
-    def _parse_address(self, address: str) -> str:
-        if address is not None:
-            while address.endswith('/'):
-                address = address[:-1]
-        return address
 
     def close(self):
         if self._session is not None:
@@ -82,7 +76,7 @@ class TNCOClient:
     def make_request(self, request: TNCOClientRequest) -> requests.Response:
         url = request.override_address if request.override_address else self.address
         if request.endpoint is not None:
-            url = f'{url}/{request.endpoint}'
+            url = append_endpoint(url, request.endpoint)
             
         request_kwargs = {}
         if request.query_params is not None and len(request.query_params) > 0:

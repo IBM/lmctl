@@ -3,10 +3,7 @@ import requests
 import logging
 import time
 from .base import LmDriver
-# Temporarily use new client to control auth in order to support client_credential authentication
-# Eventually this class and all classes in the drivers section will be replaced by the new client
-from lmctl.client import TNCOClientBuilder, TNCOClient, AuthTracker, ZEN_AUTH_MODE, TOKEN_AUTH_MODE, OAUTH_MODE, \
-    OKTA_MODE
+from lmctl.client import  AuthTracker
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,6 @@
 
 __all__ = (
+    'ALL_AUTH_MODES',
     'NO_AUTH_MODE',
     'ZEN_AUTH_MODE',
     'CP_API_KEY_AUTH_MODE',
@@ -32,12 +33,14 @@ TOKEN_AUTH_MODE = 'token'
 
 OAUTH_MODE = 'oauth' #Deprecated - use OAUTH_USER_MODE, OAUTH_LEGACY_USER_MODE, OAUTH_CLIENT_MODE
 OAUTH_USER_MODE = 'user'
-OAUTH_LEGACY_USER_MODE = 'legacy-user'
+OAUTH_LEGACY_USER_MODE = 'user-login'
 OAUTH_CLIENT_MODE = 'client-credentials'
 
 OKTA_MODE = 'okta' #Deprecated - use OKTA_USER_MODE or OKTA_CLIENT_MODE
 OKTA_USER_MODE = 'okta-user'
 OKTA_CLIENT_MODE = 'okta-client'
+
+ALL_AUTH_MODES = [NO_AUTH_MODE, CP_API_KEY_AUTH_MODE, TOKEN_AUTH_MODE, OAUTH_USER_MODE, OAUTH_CLIENT_MODE, OAUTH_LEGACY_USER_MODE, OKTA_CLIENT_MODE, OKTA_USER_MODE]
 
 def is_no_auth_mode(mode: str):
     return mode == None or _check_if_mode(mode, NO_AUTH_MODE)
