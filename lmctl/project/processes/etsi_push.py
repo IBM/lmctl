@@ -26,8 +26,8 @@ class EtsiPushProcess:
             descriptor_path = etsi_ns_handler_api.EtsiNsPkgContentTree(self.push_workspace).descriptor_definitions_file_path
             descriptor, descriptor_yml_str = descriptors.DescriptorParser().read_from_file_with_raw(descriptor_path)
             descriptor_name = descriptor.get_name()            
-            self.journal.event('Removing any existing ETSI_NS assembly package named {0} (version: {1}) from TNC-O: {2} ({3})'
-                .format(descriptor_name, self.pkg_meta.version, lm_session.env.name, lm_session.env.address))
+            self.journal.event('Removing any existing ETSI_NS assembly package named {0} (version: {1}) from CP4NA: ({2})'
+                .format(descriptor_name, self.pkg_meta.version, lm_session.env.address))
             try:
                 pkg_driver.delete_nsd_package(descriptor_name)
             except lm_drivers.NotFoundException:
@@ -37,8 +37,8 @@ class EtsiPushProcess:
             descriptor_path = etsi_vnf_handler_api.EtsiVnfPkgContentTree(self.push_workspace).definitions_descriptor_file_path
             descriptor, descriptor_yml_str = descriptors.DescriptorParser().read_from_file_with_raw(descriptor_path)
             descriptor_name = descriptor.get_name()
-            self.journal.event('Removing any existing ETSI_NS assembly package named {0} (version: {1}) from TNC-O: {2} ({3})'
-                .format(descriptor_name, self.pkg_meta.version, lm_session.env.name, lm_session.env.address))
+            self.journal.event('Removing any existing ETSI_NS assembly package named {0} (version: {1}) from CP4NA: ({2})'
+                .format(descriptor_name, self.pkg_meta.version, lm_session.env.address))
             try:
                 pkg_driver.delete_package(descriptor_name)
             except lm_drivers.NotFoundException:
