@@ -20,3 +20,6 @@ class ObjectGroupsAPI(TNCOAPI):
 
     def all(self) -> List:
         return self._all()
+    
+    def get_default(self) -> Dict:
+        return self._get_json(self.endpoint + '/default')
