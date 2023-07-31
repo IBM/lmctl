@@ -16,6 +16,8 @@ import lmctl.project.processes.testing as test_exec
 import lmctl.project.handlers.manager as handler_manager
 import lmctl.drivers.lm.base as lm_drivers
 
+from typing import List
+
 
 ########################
 # Exceptions
@@ -55,18 +57,19 @@ class Options:
 
 class ValidateOptions(Options):
 
-    def __init__(self):
+    def __init__(self, allow_autocorrect: bool = False):
         super().__init__()
-        self.allow_autocorrect = False
+        self.allow_autocorrect = allow_autocorrect
 
 class PushOptions(ValidateOptions):
 
-    def __init__(self):
+    def __init__(self, object_group_id: str = None):
         super().__init__()
+        self.object_group_id = object_group_id
 
 class TestOptions(Options):
 
-    def __init__(self, tests = None):
+    def __init__(self, tests: List[str] = None):
         super().__init__()
         if tests is not None:
             self.selected_tests = tests
@@ -246,7 +249,7 @@ class Pkg:
         pkg_content = self.open(push_workspace)
 
         if self.__is_etsi_pkg(pkg_content.meta):
-            etsi_push_exec.EtsiPushProcess(self, pkg_content.meta, journal, env_sessions, push_workspace).execute()
+            etsi_push_exec.EtsiPushProcess(self, pkg_content.meta, options, journal, env_sessions, push_workspace).execute()
         else:
             pkg_content.push(env_sessions, options)
         return pkg_content

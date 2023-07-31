@@ -51,8 +51,8 @@ accepted_process_prefix = 'Accepted - Process: '
 @tnco_builder.make_generate_command()
 def generate_assembly():
     return {
-            'name': 'example',
-            'assemblyName': 'assembly::example::1.0',
+            'assemblyName': 'example',
+            'descriptorName': 'assembly::example::1.0',
             'intendedState': 'Active',
             'properties': {
                 'examplePropA': 'exampleValue'
@@ -69,16 +69,17 @@ The request can include the following parameters:
 
 @tnco_builder.make_create_command(
     result_prefix=accepted_process_prefix,
-    additional_help=create_help_str
+    additional_help=create_help_str,
+    allow_object_group=True
 )
 @set_param_option('--prop', 'prop_values', help='Directly set a property passed to the request')
-def create_assembly(tnco_client: TNCOClient, obj: Dict[str, Any], prop_values: Dict[str, Any] = None):
+def create_assembly(tnco_client: TNCOClient, obj: Dict[str, Any], prop_values: Dict[str, Any] = None, object_group_id: str = None):
     if prop_values is not None:
         if 'properties' not in obj:
             obj['properties'] = prop_values
         else:
             obj['properties'].update(prop_values)
-    process_id = tnco_client.assemblies.intent_create(obj)
+    process_id = tnco_client.assemblies.intent_create(obj, object_group_id=object_group_id)
     return process_id
 
 update_help_str = f'''\
@@ -113,19 +114,24 @@ def update_assembly(tnco_client: TNCOClient, identity: Identity, obj: Dict[str, 
 @tnco_builder.make_get_command(
     identifiers=[name_arg, id_opt, name_contains_opt, top_N_opt],
     identifier_required=True,
-    default_columns=default_columns
+    default_columns=default_columns,
+    allow_object_group=True,
+    object_group_mutex_with=[
+        (name_arg.param_name, name_arg.get_cli_display_name()), 
+        (id_opt.param_name, id_opt.get_cli_display_name())
+    ]
 )
 @click.argument(name_arg.param_name, required=False)
 @click.option(*id_opt.param_opts, help='Get by ID')
 @click.option(*name_contains_opt.param_opts, help='Partial name search string')
 @click.option(*top_N_opt.param_opts, is_flag=True, help=f'Get {tnco_builder.display_name} instances that have recently changed')
-def get_assembly(tnco_client: TNCOClient, identity: Identity):
+def get_assembly(tnco_client: TNCOClient, identity: Identity, object_group_id: str = None):
     api = tnco_client.assemblies
     identifier_param_used = identity.identifier.param_name
     if identifier_param_used == name_contains_opt.param_name:
-        return api.all_with_name_containing(identity.value).get('assemblies', [])
+        return api.all_with_name_containing(identity.value, object_group_id=object_group_id).get('assemblies', [])
     elif identifier_param_used == top_N_opt.param_name:
-        return api.get_topN()
+        return api.get_topN(object_group_id=object_group_id)
     elif identifier_param_used == id_opt.param_name:
         return api.get(identity.value)
     else:
@@ -205,15 +211,16 @@ Request an intent to adopt an {tnco_builder.display_name}. The request can inclu
     group=adopt,
     short_help=f'Request an intent to adopt an {tnco_builder.display_name}',
     help=adopt_help_str,
-    pass_file_content=True
+    pass_file_content=True,
+    allow_object_group=True,
 )
 @set_param_option('--prop', 'prop_values', help='Directly set a property passed to the request')
 @pass_io
-def adopt_assembly(tnco_client: TNCOClient, obj: Dict[str, Any], io: IOController, prop_values: Dict[str, Any]):
+def adopt_assembly(tnco_client: TNCOClient, obj: Dict[str, Any], io: IOController, prop_values: Dict[str, Any], object_group_id: str = None):
     if prop_values is not None:
         if 'properties' not in obj:
             obj['properties'] = prop_values
         else:
             obj['properties'].update(prop_values)
-    process_id = tnco_client.assemblies.intent_adopt(obj)
+    process_id = tnco_client.assemblies.intent_adopt(obj, object_group_id=object_group_id)
     io.print(f'{accepted_process_prefix}{process_id}')

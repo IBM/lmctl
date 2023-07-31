@@ -22,7 +22,7 @@ tnco_builder = TNCOCommandBuilder(
 @click.option('--type', 'intent_type', required=False, default='createAssembly', show_default=True, help='The type of intent to generate. Known options: createAssembly, upgradeAssembly, adoptAssembly, changeAssemblyState, healAssembly, scaleOutAssembly, scaleInAssembly')
 def generate_intent(intent_type: str):
     intent = {
-        'type': intent_type,
+        'intentType': intent_type,
         'assemblyName': 'example',
     }
     if intent_type in ['createAssembly', 'upgradeAssembly', 'adoptAssembly']:
@@ -49,14 +49,15 @@ def generate_intent(intent_type: str):
         \n\nKnown types: createAssembly, changeAssemblyState, upgradeAssembly, deleteAssembly, healAssembly, scaleOutAssembly, scaleInAssembly, adoptAssembly
         \n\nNote: your chosen type is not validated against this list so if a new type of intent has been added in CP4NA, this command is still usable
     ''',
-    pass_file_content=True
+    pass_file_content=True,
+    allow_object_group=True
 )
 @set_param_option()
 @pass_io
-def create_intent(tnco_client: TNCOClient, io: IOController, obj: Dict[str, Any], set_values: Dict[str, Any]):
+def create_intent(tnco_client: TNCOClient, io: IOController, obj: Dict[str, Any], set_values: Dict[str, Any], object_group_id: str = None):
     intent_request = shallow_merge_objs(obj, set_values)
     intent_name = intent_request.pop('intentType', None)
     if intent_name is None:
         raise click.UsageError(message='Must include "intentType" in contents of "-f, --file" or with "--set intentType=<type>"', ctx=click.get_current_context())
-    process_id = tnco_client.assemblies.intent(intent_name, intent_request)
+    process_id = tnco_client.assemblies.intent(intent_name, intent_request, object_group_id=object_group_id)
     io.print(f'{accepted_process_prefix}{process_id}')

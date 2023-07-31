@@ -96,7 +96,7 @@ class AnsibleRmContentHandlerDelegate(handlers_api.ResourceContentHandlerDelegat
             journal.event('Descriptor {0} not found'.format(descriptor_name))
         return descriptor_name, descriptor_version
 
-    def push_content(self, journal, env_sessions):
+    def push_content(self, journal, env_sessions, push_options):
         descriptor_name, descriptor_version = self.__clear_existing_descriptor(journal, env_sessions)
         self.__push_csar(journal, env_sessions, descriptor_version)
 

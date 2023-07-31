@@ -84,11 +84,11 @@ class TypeContentHandler(handlers_api.PkgContentHandler):
             journal.error_event(msg)
             errors.append(ValidationViolation(msg))
 
-    def push_content(self, journal, env_sessions):
-        project_id = self.__push_descriptor(journal, env_sessions)
+    def push_content(self, journal, env_sessions, push_options):
+        project_id = self.__push_descriptor(journal, env_sessions, push_options)
         self.__push_service_behaviour(journal, env_sessions, project_id)
 
-    def __push_descriptor(self, journal, env_sessions):
+    def __push_descriptor(self, journal, env_sessions, push_options):
         lm_session = env_sessions.lm
         descriptor_path = self.tree.descriptor_file_path
         descriptor, descriptor_yml_str = descriptors.DescriptorParser().read_from_file_with_raw(descriptor_path)
@@ -105,7 +105,7 @@ class TypeContentHandler(handlers_api.PkgContentHandler):
             descriptor_driver.update_descriptor(descriptor_name, descriptor_yml_str)
         else:
             journal.event('Not found, creating Descriptor {0}'.format(descriptor_name))
-            descriptor_driver.create_descriptor(descriptor_yml_str)
+            descriptor_driver.create_descriptor(descriptor_yml_str, object_group_id=push_options.object_group_id)
         env_sessions.mark_lm_updated()
         return descriptor_name
 

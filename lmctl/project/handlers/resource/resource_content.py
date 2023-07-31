@@ -34,8 +34,8 @@ class ResourceContentHandler(handlers_api.PkgContentHandler):
         warnings.extend(delegate_result.warnings)
         return ValidationResult(errors, warnings)
 
-    def push_content(self, journal, env_sessions):
-        self.delegate.push_content(journal, env_sessions)
+    def push_content(self, journal, env_sessions, push_options):
+        self.delegate.push_content(journal, env_sessions, push_options)
 
     def execute_tests(self, journal, env_sessions, selected_tests):
         journal.event('No tests to execute')

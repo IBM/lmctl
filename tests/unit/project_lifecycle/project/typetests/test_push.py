@@ -18,7 +18,7 @@ class TestPushTestPkgs(ProjectSimTestCase):
         result = pkg.push(env_sessions, push_options)
         self.assertIsInstance(result, PkgContent)
         lm_session.descriptor_driver.get_descriptor.assert_called_once_with('type::basic::1.0')
-        lm_session.descriptor_driver.create_descriptor.assert_called_once_with('name: type::basic::1.0\ndescription: descriptor for basic\n')
+        lm_session.descriptor_driver.create_descriptor.assert_called_once_with('name: type::basic::1.0\ndescription: descriptor for basic\n', object_group_id=None)
 
     def test_push_updates_descriptors_if_exists(self):
         pkg_sim = self.simlab.simulate_pkg_type_basic()

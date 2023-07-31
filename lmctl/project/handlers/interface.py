@@ -390,6 +390,10 @@ class ContentValidationOptions:
     def __init__(self, allow_autocorrect=False):
         self.allow_autocorrect = allow_autocorrect
 
+class ContentPushOptions:
+    def __init__(self, object_group_id=None):
+        self.object_group_id = object_group_id
+
 ############################
 # Content Handlers
 ############################
@@ -405,7 +409,7 @@ class PkgContentHandler(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def push_content(self, journal, env_sessions):
+    def push_content(self, journal, env_sessions, push_options):
         pass
 
     @abc.abstractmethod
@@ -426,5 +430,5 @@ class ResourceContentHandlerDelegate(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def push_content(self, journal, env_sessions):
+    def push_content(self, journal, env_sessions, push_options):
         pass

@@ -3,7 +3,7 @@ import logging
 from .utils import TNCOCommandBuilder, Identity, Identifier
 from lmctl.client import TNCOClient
 from lmctl.cli.format import Column
-from typing import Dict, Any, Type
+from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
@@ -46,9 +46,11 @@ def generate_deployment_location():
             }
         }
 
-@tnco_builder.make_create_command()
-def create_deployment_location(tnco_client: TNCOClient, obj: Dict[str, Any]):
-    tnco_client.deployment_locations.create(obj)
+@tnco_builder.make_create_command(
+    allow_object_group=True
+)
+def create_deployment_location(tnco_client: TNCOClient, obj: Dict[str, Any], object_group_id: str = None):
+    tnco_client.deployment_locations.create(obj, object_group_id=object_group_id)
     deployment_location_name = obj['name']
     return deployment_location_name
 
@@ -69,21 +71,25 @@ def update_deployment_location(tnco_client: TNCOClient, identity: Identity, obj:
 @tnco_builder.make_get_command(
     identifiers=[name, name_contains_opt],
     identifier_required=False,
-    default_columns=default_columns
+    default_columns=default_columns,
+    allow_object_group=True,
+    object_group_mutex_with=[
+        (name.param_name, name.get_cli_display_name()),
+    ]
 )
 @click.argument(name.param_name, required=False)
 @click.option(*name_contains_opt.param_opts, help='Partial name search string')
-def get_deployment_location(tnco_client: TNCOClient, identity: Identity):
+def get_deployment_location(tnco_client: TNCOClient, identity: Identity, object_group_id: str = None):
     api = tnco_client.deployment_locations
     if identity is None:
-        return api.all()
+        return api.all(object_group_id=object_group_id)
     else:
         if identity.identifier.param_name == name.param_name:
             deployment_location_name = identity.value
             return api.get(deployment_location_name)
         else:
             search_str = identity.value
-            return api.all_with_name(search_str)
+            return api.all_with_name(search_str, object_group_id=object_group_id)
 
 @tnco_builder.make_delete_command(identifiers=[name])
 @click.argument(name.param_name, required=False)

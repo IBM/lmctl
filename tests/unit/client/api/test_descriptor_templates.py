@@ -28,13 +28,13 @@ class TestDescriptorTemplatesAPI(unittest.TestCase):
         obj = {'name': 'assembly-template::Test::1.0'}
         response = self.descriptor_templates.create(obj)
         self.assertIsNone(response)
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/catalog/descriptorTemplates', body=yaml.safe_dump(obj), headers={'Content-Type': 'application/yaml'}, override_address='http://kami.example.com'))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/catalog/descriptorTemplates', body=obj, headers={'Content-Type': 'application/yaml'}, override_address='http://kami.example.com'))
 
     def test_update(self):
         obj = {'name': 'assembly-template::Test::1.0'}
         response = self.descriptor_templates.update(obj)
         self.assertIsNone(response)
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='PUT', endpoint='api/catalog/descriptorTemplates/assembly-template::Test::1.0', body=yaml.safe_dump(obj), headers={'Content-Type': 'application/yaml'}, override_address='http://kami.example.com'))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='PUT', endpoint='api/catalog/descriptorTemplates/assembly-template::Test::1.0', body=obj, headers={'Content-Type': 'application/yaml'}, override_address='http://kami.example.com'))
 
     def test_delete(self):
         response = self.descriptor_templates.delete('assembly-template::Test::1.0')
@@ -47,7 +47,7 @@ class TestDescriptorTemplatesAPI(unittest.TestCase):
         render_request = {'properties': {'propA': 'valueA'}}
         response = self.descriptor_templates.render('assembly-template::Test::1.0', render_request)
         self.assertEqual(response, {'name': 'assembly::Result::1.0'})
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/catalog/descriptorTemplates/assembly-template::Test::1.0/render', body=yaml.safe_dump(render_request), headers={'Accept': 'application/yaml', 'Content-Type': 'application/yaml'}, override_address='http://kami.example.com'))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/catalog/descriptorTemplates/assembly-template::Test::1.0/render', body=render_request, headers={'Accept': 'application/yaml', 'Content-Type': 'application/yaml'}, override_address='http://kami.example.com'))
 
     def test_render_raw(self):
         mock_response = 'name: assembly::Result::1.0'
@@ -55,4 +55,4 @@ class TestDescriptorTemplatesAPI(unittest.TestCase):
         render_request = {'properties': {'propA': 'valueA'}}
         response = self.descriptor_templates.render_raw('assembly-template::Test::1.0', render_request)
         self.assertEqual(response, mock_response)
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/catalog/descriptorTemplates/assembly-template::Test::1.0/render-raw', body=yaml.safe_dump(render_request), headers={'Accept': 'text/plain', 'Content-Type': 'application/yaml'}, override_address='http://kami.example.com'))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/catalog/descriptorTemplates/assembly-template::Test::1.0/render-raw', body=render_request, headers={'Accept': 'text/plain', 'Content-Type': 'application/yaml'}, override_address='http://kami.example.com'))

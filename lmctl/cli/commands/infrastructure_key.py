@@ -38,9 +38,11 @@ def generate_infrastructure_key():
             'publicKey': 'the-public-part'
         }
 
-@tnco_builder.make_create_command()
-def create_infrastructure_key(tnco_client: TNCOClient, obj: Dict[str, Any]):
-    tnco_client.shared_inf_keys.create(obj)
+@tnco_builder.make_create_command(
+    allow_object_group=True
+)
+def create_infrastructure_key(tnco_client: TNCOClient, obj: Dict[str, Any], object_group_id: str = None):
+    tnco_client.shared_inf_keys.create(obj, object_group_id=object_group_id)
     infrastructure_key_name = obj['name']
     return infrastructure_key_name
 
@@ -59,14 +61,18 @@ def update_infrastructure_key(tnco_client: TNCOClient, identity: Identity, obj: 
 @tnco_builder.make_get_command(
     identifiers=[name],
     identifier_required=False,
-    default_columns=default_columns
+    default_columns=default_columns,
+    allow_object_group=True,
+    object_group_mutex_with=[
+        (name.param_name, name.get_cli_display_name()),
+    ]
 )
 @click.argument(name.param_name, required=False)
 @click.option('--include-private', is_flag=True, help='Include private key value for each key in the response')
-def get_infrastructure_key(tnco_client: TNCOClient, identity: Identity, include_private: bool):
+def get_infrastructure_key(tnco_client: TNCOClient, identity: Identity, include_private: bool, object_group_id: str = None):
     api = tnco_client.shared_inf_keys
     if identity is None:
-        return api.all(include_private_key=include_private) 
+        return api.all(include_private_key=include_private, object_group_id=object_group_id)
     else:
         return api.get(identity.value, include_private_key=include_private)
 

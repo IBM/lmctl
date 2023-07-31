@@ -25,7 +25,7 @@ lmctl get config --print-path
 
 ## Documentation
 
-Documentation available in the source code: <a href="https://github.com/IBM/lmctl/blob/master/docs/index.md" target="_blank">https://github.com/IBM/lmctl/blob/master/docs/index.md</a>
+Documentation available in the source code: <a href="https://github.com/IBM/lmctl/blob/main/docs/index.md" target="_blank">https://github.com/IBM/lmctl/blob/main/docs/index.md</a>
 
 ## Links
 

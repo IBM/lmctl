@@ -191,7 +191,7 @@ class TNCOEnvironment:
         return final_address
 
     def create_session_config(self):
-        return LmSessionConfig(self, 
+        return LmSessionConfig(self,
                                 username=self.username, 
                                 password=self.password, 
                                 client_id=self.client_id, 

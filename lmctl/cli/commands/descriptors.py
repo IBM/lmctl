@@ -44,9 +44,11 @@ def generate_descriptor():
             }
         }
 
-@tnco_builder.make_create_command()
-def create_descriptor(tnco_client: TNCOClient, obj: Dict[str, Any]):
-    tnco_client.descriptors.create(obj)
+@tnco_builder.make_create_command(
+    allow_object_group=True
+)
+def create_descriptor(tnco_client: TNCOClient, obj: Dict[str, Any], object_group_id: str = None):
+    tnco_client.descriptors.create(obj, object_group_id=object_group_id)
     descriptor_name = obj['name']
     return descriptor_name
 
@@ -66,11 +68,15 @@ def update_descriptor(tnco_client: TNCOClient, identity: Identity, obj: Dict[str
 @tnco_builder.make_get_command(
     identifiers=[name],
     identifier_required=False,
-    default_columns=default_columns
+    default_columns=default_columns,
+    allow_object_group=True,
+    object_group_mutex_with=[
+        (name.param_name, name.get_cli_display_name()),
+    ]
 )
 @click.argument(name.param_name, required=False)
 @click.option('--effective', is_flag=True, show_default=True, help=f'Get effective version of a {tnco_builder.display_name}, which includes all inherited properties (can only be used when retrieving a single {tnco_builder.display_name} by name)')
-def get_descriptor(tnco_client: TNCOClient, identity: Identity, effective: bool):
+def get_descriptor(tnco_client: TNCOClient, identity: Identity, effective: bool, object_group_id: str = None):
     if identity is None and effective is True:
         raise click.UsageError(f'Cannot use "--effective" option when retrieving all {tnco_builder.display_name}s (which means the {name.param_name} argument was omitted)', ctx=click.get_current_context())
     api = tnco_client.descriptors
@@ -78,7 +84,7 @@ def get_descriptor(tnco_client: TNCOClient, identity: Identity, effective: bool)
         descriptor_name = identity.value
         return api.get(descriptor_name, effective=effective)
     else:
-        return api.all()
+        return api.all(object_group_id=object_group_id)
 
 @tnco_builder.make_delete_command(identifiers=[name])
 @click.argument(name.param_name, required=False)

@@ -3,7 +3,7 @@ import requests
 import json
 import jwt
 from unittest.mock import patch, MagicMock, Mock
-from lmctl.client import TNCOClient, TNCOClientError, TNCOClientHttpError, TNCOErrorCapture, TNCOClientRequest
+from lmctl.client import TNCOClient, TNCOClientError, TNCOClientRequest
 from datetime import datetime, timedelta
 
 class TestTNCOClient(unittest.TestCase):
@@ -105,6 +105,27 @@ class TestTNCOClient(unittest.TestCase):
             client.make_request(TNCOClientRequest(method='GET', endpoint='api/test', headers={'Accept': 'plain/text'}))
             mock_session = self._get_requests_session(requests_session_builder)
             mock_session.request.assert_called_with(method='GET', url='https://test.example.com/api/test', headers={'Accept': 'plain/text', 'Authorization': f'Bearer {self.token}', 'x-tracectx-transactionid': '123456789'}, verify=False)
+
+    @patch('lmctl.client.client.requests.Session')
+    def test_make_request_with_object_group_id_param(self, requests_session_builder):
+        client = TNCOClient('https://test.example.com', use_sessions=True)
+        client.make_request(TNCOClientRequest(method='GET', endpoint='api/test', object_group_id_param='123'))
+        mock_session = self._get_requests_session(requests_session_builder)
+        mock_session.request.assert_called_with(method='GET', url='https://test.example.com/api/test', params={'objectGroupId': '123'}, headers={}, verify=False)
+
+    @patch('lmctl.client.client.requests.Session')
+    def test_make_request_with_object_group_id_body(self, requests_session_builder):
+        client = TNCOClient('https://test.example.com', use_sessions=True)
+        client.make_request(TNCOClientRequest(method='POST', endpoint='api/test', body={}, object_group_id_body='123'))
+        mock_session = self._get_requests_session(requests_session_builder)
+        mock_session.request.assert_called_with(method='POST', url='https://test.example.com/api/test', data={'objectGroupId': '123'}, headers={}, verify=False)
+
+    @patch('lmctl.client.client.requests.Session')
+    def test_make_request_combines_object_group_id_and_user_supplied_params(self, requests_session_builder):
+        client = TNCOClient('https://test.example.com', use_sessions=True)
+        client.make_request(TNCOClientRequest(method='GET', endpoint='api/test', object_group_id_param='123', query_params={'test': 'true'}))
+        mock_session = self._get_requests_session(requests_session_builder)
+        mock_session.request.assert_called_with(method='GET', url='https://test.example.com/api/test', params={'objectGroupId': '123', 'test': 'true'}, headers={}, verify=False)
 
     @patch('lmctl.client.client.requests.Session')
     def test_make_request_raises_error(self, requests_session_builder):

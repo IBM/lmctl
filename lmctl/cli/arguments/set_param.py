@@ -1,5 +1,5 @@
 import click
-from typing import Dict, List, Any, Sequence
+from typing import Any, Sequence
 
 __all__ = (
     'SetParamOption',

@@ -26,12 +26,11 @@ class TestVIMDriversAPI(unittest.TestCase):
 
     def test_create(self):
         test_obj = {'type': 'Openstack'}
-        body = json.dumps(test_obj)
         mock_response = MagicMock(headers={'Location': '/api/resource-manager/vim-drivers/123'})
         self.mock_client.make_request.return_value = mock_response
         response = self.resource_drivers.create(test_obj)
         self.assertEqual(response, {'id': '123', 'type': 'Openstack'})
-        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/resource-manager/vim-drivers', headers={'Content-Type': 'application/json'}, body=body))
+        self.mock_client.make_request.assert_called_with(TNCOClientRequest(method='POST', endpoint='api/resource-manager/vim-drivers', headers={'Content-Type': 'application/json'}, body={'type': 'Openstack'}))
 
     def test_delete(self):
         response = self.resource_drivers.delete('123')

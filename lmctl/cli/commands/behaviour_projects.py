@@ -28,9 +28,11 @@ def generate_project():
             'name': f'assembly::example::1.0',
         }
 
-@tnco_builder.make_create_command()
-def create_project(tnco_client: TNCOClient, obj: Dict[str, Any]):
-    tnco_client.behaviour_projects.create(obj)
+@tnco_builder.make_create_command(
+        allow_object_group=True
+)
+def create_project(tnco_client: TNCOClient, obj: Dict[str, Any], object_group_id: str = None):
+    tnco_client.behaviour_projects.create(obj, object_group_id=object_group_id)
     return obj['name']
 
 @tnco_builder.make_update_command(identifiers=[name])
@@ -48,16 +50,18 @@ def update_project(tnco_client: TNCOClient, identity: Identity, obj: Dict[str, A
 @tnco_builder.make_get_command(
     identifiers=[name],
     identifier_required=False,
-    default_columns=default_columns
+    default_columns=default_columns,
+    allow_object_group=True,
+    object_group_mutex_with=[(name.param_name, name.get_cli_display_name())]
 )
 @click.argument(name.param_name, required=False)
-def get_project(tnco_client: TNCOClient, identity: Identity):
+def get_project(tnco_client: TNCOClient, identity: Identity, object_group_id: str = None):
     api = tnco_client.behaviour_projects
     if identity is not None:
         project_name = identity.value
         return api.get(project_name)
     else:
-        return api.all()
+        return api.all(object_group_id=object_group_id)
 
 @tnco_builder.make_delete_command(identifiers=[name])
 @click.argument(name.param_name, required=False)

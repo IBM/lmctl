@@ -114,3 +114,6 @@ test_workspace/
 
 # Test properties
 local_test_properties.yaml
+
+# Mac
+.DS_Store

@@ -11,7 +11,7 @@ class EnvironmentNameOption(click.Option):
             self, 
             param_decls: Sequence[str] = ['-e', '--environment', 'environment_name'],
             required: bool = False, 
-            help: str = 'Name of the environment from the configuration file to be used', 
+            help: str = 'Name of an environment from the configuration file to be used, otherwise the active environment is used by default)', 
             **kwargs):
         param_decls = [p for p in param_decls]
         super().__init__(

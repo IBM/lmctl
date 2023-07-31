@@ -33,7 +33,11 @@ default_columns = [
     identifiers=[id_arg],
     identifier_required=False,
     default_columns=default_columns,
-    allow_file_input=False
+    allow_file_input=False,
+    allow_object_group=True,
+    object_group_mutex_with=[
+        (id_arg.param_name, id_arg.get_cli_display_name()),
+    ]
 )
 @click.argument(id_arg.param_name, required=False)
 @click.option('--deep', is_flag=True, show_default=True, help='Retreive a deep copy of the process (this can only be used when retrieving a single process by ID)')
@@ -56,7 +60,8 @@ def get_process(
         end_time: str, 
         statuses: List[str], 
         intent_types: List[str], 
-        limit: int
+        limit: int,
+        object_group_id: str = None
     ):
     if identity is None and deep is True:
         raise click.UsageError(message=f'Do not use "--deep" option when retrieving multiple processes', ctx=click.get_current_context())
@@ -81,7 +86,7 @@ def get_process(
         query_params['intentTypes'] = ','.join(intent_types)
     if limit is not None:
         query_params['limit'] = limit
-    return api.query(**query_params)
+    return api.query(object_group_id=object_group_id, **query_params)
 
 accepted_process_prefix = 'Accepted -'
 

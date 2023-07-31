@@ -53,7 +53,7 @@ class TestAuthenticationAPI(unittest.TestCase):
             override_address=None,
             inject_current_auth=False, 
             headers={'Content-Type': 'application/json'}, 
-            body=json.dumps({'username': 'joe', 'password': 'secretpass'})
+            body={'username': 'joe', 'password': 'secretpass'}
         ))
 
     def test_legacy_login_older_environments(self):
@@ -73,7 +73,7 @@ class TestAuthenticationAPI(unittest.TestCase):
                     override_address=None,
                     inject_current_auth=False, 
                     headers={'Content-Type': 'application/json'}, 
-                    body=json.dumps({'username': 'joe', 'password': 'secretpass'})
+                    body={'username': 'joe', 'password': 'secretpass'}
                 )
             ),
             call(
@@ -83,7 +83,7 @@ class TestAuthenticationAPI(unittest.TestCase):
                     override_address=None,
                     inject_current_auth=False,
                     headers={'Content-Type': 'application/json'}, 
-                    body=json.dumps({'username': 'joe', 'password': 'secretpass'})
+                    body={'username': 'joe', 'password': 'secretpass'}
                 )
             )
         ])
@@ -97,10 +97,10 @@ class TestAuthenticationAPI(unittest.TestCase):
                                                                     inject_current_auth=False, 
                                                                     override_address='https://zen:80',
                                                                     headers={'Content-Type': 'application/json'},
-                                                                    body=json.dumps({
+                                                                    body={
                                                                             'username': 'joe', 
                                                                             'api_key': 'secretkey'
-                                                                        })
+                                                                        }
                                                                     ))
         # Without zen_auth_address
         response = self.authentication.request_zen_api_key_access('joe', 'secretkey')
@@ -110,8 +110,8 @@ class TestAuthenticationAPI(unittest.TestCase):
                                                                     inject_current_auth=False, 
                                                                     override_address=None,
                                                                     headers={'Content-Type': 'application/json'},
-                                                                    body=json.dumps({
+                                                                    body={
                                                                             'username': 'joe', 
                                                                             'api_key': 'secretkey'
-                                                                        })
+                                                                        }
                                                                     ))

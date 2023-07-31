@@ -8,7 +8,7 @@ from lmctl.client.models import (CreateAssemblyIntent, UpgradeAssemblyIntent, Ch
 
 from lmctl.client.client_request import TNCOClientRequest
 from .tnco_api_base import TNCOAPI
-from lmctl.client.utils import build_relative_endpoint, read_response_location_header
+from lmctl.client.utils import build_relative_endpoint
 
 INTENTS_WITHOUT_LOCATION_HEADER = ["retry", "rollback", "cancel"]
 
@@ -20,8 +20,8 @@ class AssembliesAPI(TNCOAPI):
             endpoint=build_relative_endpoint(base_endpoint=self.topology_endpoint, id_value=id)
         )
 
-    def get_topN(self) -> List:
-        return self._get_json(self.topology_endpoint)
+    def get_topN(self, object_group_id: str = None) -> List:
+        return self._get_json(self.topology_endpoint, object_group_id=object_group_id)
 
     def get_by_name(self, name: str) -> Dict:
         result = self.all_with_name(name)
@@ -30,11 +30,11 @@ class AssembliesAPI(TNCOAPI):
         else:
             return result[0]
 
-    def all_with_name(self, name: str) -> List:
-        return self._get_json(self.topology_endpoint, query_params={'name': name})
+    def all_with_name(self, name: str, object_group_id: str = None) -> List:
+        return self._get_json(self.topology_endpoint, query_params={'name': name}, object_group_id=object_group_id)
 
-    def all_with_name_containing(self, search_string: str) -> List:
-        return self._get_json(self.topology_endpoint, query_params={'nameContains': search_string})
+    def all_with_name_containing(self, search_string: str, object_group_id: str = None) -> List:
+        return self._get_json(self.topology_endpoint, query_params={'nameContains': search_string}, object_group_id=object_group_id)
 
     def intent(self, intent_name: str, intent_obj: Union[Dict, 
                                                         AdoptAssemblyIntent,
@@ -46,17 +46,18 @@ class AssembliesAPI(TNCOAPI):
                                                         UpgradeAssemblyIntent,
                                                         RetryAssemblyIntent,
                                                         CancelAssemblyIntent,
-                                                        RollbackAssemblyIntent]) -> str:
-        return self._intent_request_impl(intent_name, intent_obj)
+                                                        RollbackAssemblyIntent], 
+                     object_group_id: str = None) -> str:
+        return self._intent_request_impl(intent_name, intent_obj, object_group_id=object_group_id)
 
-    def intent_create(self, intent_obj: Union[Dict, CreateAssemblyIntent]) -> str:
-        return self._intent_request_impl('createAssembly', intent_obj)
+    def intent_create(self, intent_obj: Union[Dict, CreateAssemblyIntent], object_group_id: str = None) -> str:
+        return self._intent_request_impl('createAssembly', intent_obj, object_group_id=object_group_id)
 
     def intent_upgrade(self, intent_obj: Union[Dict, UpgradeAssemblyIntent]) -> str:
         return self._intent_request_impl('upgradeAssembly', intent_obj)
 
-    def intent_create_or_upgrade(self, intent_obj: Union[Dict, CreateOrUpgradeAssemblyIntent]) -> str:
-        return self._intent_request_impl('createOrUpgradeAssembly', intent_obj)
+    def intent_create_or_upgrade(self, intent_obj: Union[Dict, CreateOrUpgradeAssemblyIntent], object_group_id: str = None) -> str:
+        return self._intent_request_impl('createOrUpgradeAssembly', intent_obj, object_group_id=object_group_id)
 
     def intent_delete(self, intent_obj: Union[Dict, DeleteAssemblyIntent]) -> str:
         return self._intent_request_impl('deleteAssembly', intent_obj)
@@ -82,8 +83,8 @@ class AssembliesAPI(TNCOAPI):
     def intent_cancel(self, intent_obj: Union[Dict, CancelAssemblyIntent]) -> str:
         return self._intent_request_impl('cancel', intent_obj)
 
-    def intent_adopt(self, intent_obj: Union[Dict, AdoptAssemblyIntent]) -> str:
-        return self._intent_request_impl('adoptAssembly', intent_obj)   
+    def intent_adopt(self, intent_obj: Union[Dict, AdoptAssemblyIntent], object_group_id: str = None) -> str:
+        return self._intent_request_impl('adoptAssembly', intent_obj, object_group_id=object_group_id)   
 
     def intent_endpoint(self, intent_name: str) -> str:
         return f'api/intent/{intent_name}'
@@ -95,13 +96,17 @@ class AssembliesAPI(TNCOAPI):
                                                                         DeleteAssemblyIntent, 
                                                                         HealAssemblyIntent, 
                                                                         ScaleAssemblyIntent,
-                                                                        UpgradeAssemblyIntent]) -> str:
+                                                                        UpgradeAssemblyIntent],
+                                   object_group_id: str = None) -> str:
         endpoint = self.intent_endpoint(intent_name)
         if isinstance(intent_obj, Intent):
             intent_obj_data = intent_obj.to_dict()
         else:
             intent_obj_data = intent_obj
         request = TNCOClientRequest(method='POST', endpoint=endpoint).add_json_body(intent_obj_data)
+        if object_group_id is not None:
+            request.add_object_group_id_body(object_group_id)
+            
         if intent_name in INTENTS_WITHOUT_LOCATION_HEADER:
             return self._exec_request(request)
         return self._exec_request_and_get_location_header(request)

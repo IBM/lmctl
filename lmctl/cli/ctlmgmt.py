@@ -57,6 +57,7 @@ def create_lm_session(environment_group_name = None, lm_pwd=None, config_path=No
         output.printer.error('Error: CP4NA orchestration environment not configured on group: {0}'.format(environment_group_name))
     lm = env_group.tnco
     lm_session_config = lm.create_session_config()
+
     if lm.secure:
         if lm_session_config.is_using_zen_auth:
             if lm_session_config.username is not None:

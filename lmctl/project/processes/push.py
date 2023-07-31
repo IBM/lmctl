@@ -26,10 +26,13 @@ class PushWorker:
         self.__push_child_content()
         self.__push_content()
 
+    def __build_push_options(self):
+        return handlers_api.ContentPushOptions(object_group_id=self.options.object_group_id)
+
     def __push_content(self):
         self.journal.section('Push Content')
         try:
-            self.pkg_content.handler.push_content(self.journal, self.env_sessions)
+            self.pkg_content.handler.push_content(self.journal, self.env_sessions, self.__build_push_options())
         except handlers_api.ContentHandlerError as e:
             raise PushProcessError(str(e)) from e
 
