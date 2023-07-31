@@ -1,5 +1,14 @@
 # Change Log
 
+## [3.6.0](https://github.com/IBM/lmctl/tree/3.6.0) (2023-07-31)
+[Full Changelog](https://github.com/IBM/lmctl/compare/3.5.0...3.6.0)
+
+**Implemented Enhancements:**
+
+- Add new commands for Object Groups and permission types [\#166](https://github.com/IBM/lmctl/issues/166)
+- Add object group option to relevant commands and client methods [\#178](https://github.com/IBM/lmctl/issues/178)
+- Support client function and command for retrieving the default object group [\#189](https://github.com/IBM/lmctl/issues/189)
+
 ## [3.5.0](https://github.com/IBM/lmctl/tree/3.5.0) (2023-04-27)
 [Full Changelog](https://github.com/IBM/lmctl/compare/3.4.0...3.5.0)
 
