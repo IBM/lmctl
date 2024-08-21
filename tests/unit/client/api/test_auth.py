@@ -102,10 +102,11 @@ class TestAuthenticationAPI(unittest.TestCase):
                                                                             'api_key': 'secretkey'
                                                                         }
                                                                     ))
+
         # Without zen_auth_address
-        response = self.authentication.request_zen_api_key_access('joe', 'secretkey')
-        self.assertEqual(response, {'token': '123'})
-        self.mock_client.make_request_for_json.assert_called_with(TNCOClientRequest(
+        with self.assertRaises(ValueError) as context:
+            response = self.authentication.request_zen_api_key_access(username='joe', api_key='secretkey', zen_auth_address=None)
+            self.mock_client.make_request_for_json.assert_called_with(TNCOClientRequest(
                                                                     method='POST', 
                                                                     inject_current_auth=False, 
                                                                     override_address=None,
@@ -115,3 +116,5 @@ class TestAuthenticationAPI(unittest.TestCase):
                                                                             'api_key': 'secretkey'
                                                                         }
                                                                     ))
+        self.assertEqual(str(context.exception).split('[type=value_error')[0].strip(), '1 validation error for TNCOClientRequest\n  Value error, At least one of endpoint or override_address must be set')
+

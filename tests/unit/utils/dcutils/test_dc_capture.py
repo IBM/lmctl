@@ -2,7 +2,6 @@ import unittest
 from dataclasses import dataclass
 import pydantic.dataclasses as pydanticdc
 from lmctl.utils.dcutils.dc_capture import recordattrs, AttrRecord, attr_records, attr_records_dict, is_recording_attrs
-from pydantic import parse_obj_as
 
 @recordattrs
 @dataclass
@@ -117,7 +116,7 @@ class TestRecordAttrs(unittest.TestCase):
         self.assertFalse(is_recording_attrs(NotRecording()))
 
     def test_record_pydantic_dataclass(self):
-        inst = PydanticDataclass('A', 1)
+        inst = PydanticDataclass(first='A', second=1)
         records = attr_records(inst)
         self.assertEqual(records, (
                 AttrRecord(name='first', set_on='ON_INIT'),
@@ -127,7 +126,8 @@ class TestRecordAttrs(unittest.TestCase):
         )
 
     def test_pydantic_from_dict(self):
-        inst = parse_obj_as(PydanticDataclass, {'first': 'A', 'second': 1})
+        data = {'first': 'A', 'second': 1}
+        inst = PydanticDataclass(**data)
         records = attr_records(inst)
         self.assertEqual(records, (
                 AttrRecord(name='first', set_on='ON_INIT'),
@@ -135,7 +135,8 @@ class TestRecordAttrs(unittest.TestCase):
                 AttrRecord(name='third', set_on='NOT_SET')
             )
         )
-        inst = parse_obj_as(PydanticDataclass, {'first': 'A', 'second': 1, 'third': True})
+        data = {'first': 'A', 'second': 1, 'third': True}
+        inst = PydanticDataclass(**data)
         records = attr_records(inst)
         self.assertEqual(records, (
                 AttrRecord(name='first', set_on='ON_INIT'),

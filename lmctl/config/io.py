@@ -4,7 +4,7 @@ from .exceptions import ConfigError
 from .env_pre_parser import EnvironmentGroupPreParser
 from typing import Dict, Tuple
 from lmctl.utils.dcutils.dc_to_dict import asdict
-from pydantic import parse_obj_as, ValidationError
+from pydantic import TypeAdapter, ValidationError
 import yaml
 import os
 import shutil
@@ -57,7 +57,7 @@ class ConfigIO:
     def dict_to_config(self, config_dict: Dict) -> Config:
         self.__pre_parse_envs(config_dict)
         try:
-            config = parse_obj_as(Config, config_dict)
+            config = TypeAdapter(Config).validate_python(config_dict)
         except (TypeError, ValidationError) as e:
             raise ConfigError(f'Config error: {str(e)}') from e
         return config

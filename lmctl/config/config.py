@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from lmctl.environment.group import EnvironmentGroup
 from pydantic.dataclasses import dataclass
 from pydantic import Field
@@ -9,7 +9,7 @@ from lmctl.utils.dcutils.dc_to_dict import asdict
 @dataclass
 class Config:
     environments: Dict[str, EnvironmentGroup] = Field(default_factory=dict)
-    active_environment: str = Field(default=None)
+    active_environment: Optional[str ]= Field(default=None)
 
     @property
     def raw_environments(self):

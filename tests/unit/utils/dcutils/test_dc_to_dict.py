@@ -71,8 +71,7 @@ class TestAsDict(unittest.TestCase):
         dc = RegularDataclass('A', 1)
         self.assertEqual(asdict(dc), {
             'first': 'A',
-            'second': 1,
-            'third': False
+            'second': 1
         })
 
     def test_recorded_dataclass_as_dict(self):
@@ -87,8 +86,7 @@ class TestAsDict(unittest.TestCase):
         self.assertEqual(asdict(dc), {
             'the_dc': {
                 'first': 'A',
-                'second': 1,
-                'third': False
+                'second': 1
             }
         })
 
@@ -124,7 +122,7 @@ class TestAsDict(unittest.TestCase):
         dc = DataclassWithList([RegularDataclass('A', 1), RegularDataclass('B', 2, third=True)])
         self.assertEqual(asdict(dc), {
             'the_list': [
-                {'first': 'A', 'second': 1, 'third': False},
+                {'first': 'A', 'second': 1},
                 {'first': 'B', 'second': 2, 'third': True}
             ]
         })
@@ -153,7 +151,7 @@ class TestAsDict(unittest.TestCase):
         dc = DataclassWithTupleOfDataclass((RegularDataclass('A', 1), RegularDataclass('B', 2, third=True)))
         self.assertEqual(asdict(dc), {
             'the_tuple': (
-                {'first': 'A', 'second': 1, 'third': False},
+                {'first': 'A', 'second': 1},
                 {'first': 'B', 'second': 2, 'third': True}
             )
         })
@@ -182,7 +180,7 @@ class TestAsDict(unittest.TestCase):
         dc = DataclassWithDict({'A': RegularDataclass('A', 1), 'B': RegularDataclass('B', 2, third=True)})
         self.assertEqual(asdict(dc), {
             'the_dict': {
-                'A': {'first': 'A', 'second': 1, 'third': False},
+                'A': {'first': 'A', 'second': 1},
                 'B': {'first': 'B', 'second': 2, 'third': True}
             }
         })

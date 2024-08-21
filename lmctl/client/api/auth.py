@@ -107,9 +107,8 @@ class AuthenticationAPI(TNCOAPI):
             'username': username,
             'api_key': api_key
         }
-        request = TNCOClientRequest(method='POST', endpoint=None)\
+        request = TNCOClientRequest(method='POST', endpoint=None, override_address=zen_auth_address)\
                         .disable_auth_token()\
                         .add_json_body(body)
-        request.override_address = zen_auth_address
         auth_response = self.base_client.make_request_for_json(request)
         return auth_response

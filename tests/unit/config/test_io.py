@@ -233,7 +233,7 @@ class TestConfigIO(unittest.TestCase):
         }
         with self.assertRaises(ConfigError) as context:
             ConfigIO().dict_to_config(invalid_config)
-        self.assertEqual(str(context.exception), 'Config error: 1 validation error for ParsingModel[Config]\n__root__ -> environments -> test -> tnco -> __root__\n  Secure TNCO environment must be configured with either "client_id" or "username" property when using "auth_mode=oauth". If the TNCO environment is not secure then set "secure" to False (type=value_error)')
+        self.assertEqual(str(context.exception).split('[type=value_error')[0].strip(), 'Config error: 1 validation error for Config\nenvironments.test.tnco\n  Value error, Secure TNCO environment must be configured with either "client_id" or "username" property when using "auth_mode=oauth". If the TNCO environment is not secure then set "secure" to False')
 
     def test_parse_invalid_arm(self):
         invalid_config = {
@@ -248,7 +248,7 @@ class TestConfigIO(unittest.TestCase):
         }
         with self.assertRaises(ConfigError) as context:
             ConfigIO().dict_to_config(invalid_config)
-        self.assertEqual(str(context.exception), 'Config error: 1 validation error for ParsingModel[Config]\n__root__ -> environments -> test -> arms -> invalid -> __root__\n  AnsibleRM environment cannot be configured without "address" property or "host" property (type=value_error)')
+        self.assertEqual(str(context.exception).split('[type=value_error')[0].strip(), 'Config error: 1 validation error for Config\nenvironments.test.arms.invalid\n  Value error, AnsibleRM environment cannot be configured without "address" property or "host" property')
 
     def test_config_to_file(self):
         config = Config(environments={
@@ -263,7 +263,8 @@ class TestConfigIO(unittest.TestCase):
         })
 
         target_path = os.path.join(self.tmp_dir, 'write-config.yaml')
-        ConfigIO().config_to_file(config, target_path)
+        config_io = ConfigIO()
+        config_io.config_to_file(config, target_path)
 
         self.assertTrue(os.path.exists(target_path))
         config_dict = self.test_helper.read_workspace_yaml_file('write-config.yaml')

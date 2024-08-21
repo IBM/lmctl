@@ -516,7 +516,7 @@ class SimulatedLm:
 class SimulatedLmSession(LmSession):
 
     def __init__(self, lm_sim):
-        self.env = LmEnvironment('LmSim', 'sim')
+        self.env = LmEnvironment(address='LmSim', name='sim')
         self.username = None
         self.password = None
         self.sim = lm_sim

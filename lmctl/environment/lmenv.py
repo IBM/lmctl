@@ -3,10 +3,12 @@ import logging
 import os
 
 from typing import Union, Optional
+from typing_extensions import Annotated
+
 from .common import build_address
 from urllib.parse import urlparse
 from pydantic.dataclasses import dataclass
-from pydantic import constr, root_validator
+from pydantic import constr, model_validator, StringConstraints
 
 from lmctl.utils.jwt import decode_jwt
 from lmctl.utils.dcutils.dc_capture import recordattrs
@@ -28,8 +30,8 @@ DEFAULT_SECURE = False
 @recordattrs
 @dataclass
 class TNCOEnvironment:
-    address: constr(strip_whitespace=True, min_length=1) = None
-    name: str = None
+    address: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)] = None
+    name: Optional[str] = None
     secure: bool = DEFAULT_SECURE
 
     client_id: Optional[str] = None
@@ -49,7 +51,7 @@ class TNCOEnvironment:
 
     auth_address: Optional[str] = None
     auth_host: Optional[str] = None
-    auth_port: Optional[str] = None 
+    auth_port: Optional[Union[str, int]] = None 
     auth_protocol: Optional[str] = DEFAULT_PROTOCOL 
 
     brent_name: Optional[str] = DEFAULT_BRENT_NAME
@@ -57,16 +59,34 @@ class TNCOEnvironment:
     kami_port: Optional[Union[str,int]] = DEFAULT_KAMI_PORT 
     kami_protocol: Optional[str] = DEFAULT_KAMI_PROTOCOL
 
-    @root_validator(pre=True)
+
+    @model_validator(mode='before')
+    @classmethod
+    def combined_validator(cls, values):
+        """
+        Combined validator to ensure the order of validations.
+        
+        The check_security method is called first, 
+        followed by the normalize_addresses method.
+        """
+        values = cls.check_security(values)
+        values = cls.normalize_addresses(values)
+        return values
+
     @classmethod
     def check_security(cls, values):
-        secure = values.get('secure', DEFAULT_SECURE)
+        if hasattr(values, 'kwargs'):
+            values_dict = values.kwargs
+        elif isinstance(values, dict):
+            values_dict = values
+        else:
+            raise ValueError()
+        secure = values_dict.get('secure', DEFAULT_SECURE)
         if secure is True:
-
-            auth_mode = values.get('auth_mode', None)
+            auth_mode = values_dict.get('auth_mode', None)
             if auth_mode is None:
                 auth_mode = OAUTH_MODE
-                values['auth_mode'] = auth_mode
+                values_dict['auth_mode'] = auth_mode
 
             if auth_mode.lower() == OAUTH_MODE:
                 values = cls._validate_oauth(values)
@@ -83,86 +103,103 @@ class TNCOEnvironment:
 
     @classmethod
     def _validate_oauth(cls, values):
-        client_id = values.get('client_id', None)
-        client_secret = values.get('client_secret', None)
-        username = values.get('username', None)
-        password = values.get('password', None)
+        if hasattr(values, 'kwargs'):
+            values_dict = values.kwargs
+        else:
+            values_dict = values
+        client_id = values_dict.get('client_id', None)
+        client_secret = values_dict.get('client_secret', None)
+        username = values_dict.get('username', None)
+        password = values_dict.get('password', None)
         if not client_id and not username:
             raise ValueError(f'Secure TNCO environment must be configured with either "client_id" or "username" property when using "auth_mode={OAUTH_MODE}". If the TNCO environment is not secure then set "secure" to False')
         # Currently api_key can only be used with Zen, so we perform an extra check to let the user know 
-        api_key = values.get('api_key', None)
+        api_key = values_dict.get('api_key', None)
         if api_key is not None:
             raise ValueError(f'Secure TNCO environment cannot be configured with "api_key" when using "auth_mode={OAUTH_MODE}". Use "client_id/client_secret" or "username/password" combination or set "auth_mode" to "{ZEN_AUTH_MODE}". If the TNCO environment is not secure then set "secure" to False')
         return values
 
     @classmethod
     def _validate_okta(cls, values):
-        client_id = values.get('client_id', None)
-        username = values.get('username', None)
+        if hasattr(values, 'kwargs'):
+            values_dict = values.kwargs
+        else:
+            values_dict = values
+        client_id = values_dict.get('client_id', None)
+        username = values_dict.get('username', None)
         if not client_id and not username:
             raise ValueError(f'Secure TNCO environment must be configured with either "client_id" or "username" property when using "auth_mode={OKTA_MODE}". If the TNCO environment is not secure then set "secure" to False')
         # Currently api_key can only be used with Zen, so we perform an extra check to let the user know
-        api_key = values.get('api_key', None)
+        api_key = values_dict.get('api_key', None)
         if api_key is not None:
             raise ValueError(f'Secure TNCO environment cannot be configured with "api_key" when using "auth_mode={OKTA_MODE}". Use "client_id/client_secret" or "username/password" combination or set "auth_mode" to "{ZEN_AUTH_MODE}". If the TNCO environment is not secure then set "secure" to False')
-        if not values.get('auth_server_id', None):
+        if not values_dict.get('auth_server_id', None):
             raise ValueError(f'Secure TNCO environment must be configured with "auth_server_id" when using "auth_mode={OKTA_MODE}". If the TNCO environment is not secure then set "secure" to False')
-        if values.get('username', None) and not values.get('scope', None):
+        if values_dict.get('username', None) and not values_dict.get('scope', None):
             raise ValueError(f'Secure TNCO environment must be set with "scope" when using "auth_mode={OKTA_MODE}" with usename. If the TNCO environment is not secure then set "secure" to False')
 
         return values
-
+    
     @classmethod
     def _validate_zen(cls, values):
-        username = values.get('username', None)
+        if hasattr(values, 'kwargs'):
+            values_dict = values.kwargs
+        else:
+            values_dict = values
+        username = values_dict.get('username', None)
         if not username:
             raise ValueError(f'Secure TNCO environment must be configured with a "username" property when using "auth_mode={ZEN_AUTH_MODE}". If the TNCO environment is not secure then set "secure" to False')
         # Zen auth address must be provided
-        auth_address = values.get('auth_address', None)
-        auth_host = values.get('auth_host', None)
+        auth_address = values_dict.get('auth_address', None)
+        auth_host = values_dict.get('auth_host', None)
         if not auth_address and not auth_host:
             raise ValueError(f'Secure TNCO environment must be configured with Zen authentication address on the "auth_address" property (or "auth_host"/"auth_port"/"auth_protocol") when using "auth_mode={ZEN_AUTH_MODE}". If the TNCO environment is not secure then set "secure" to False')
         return values
 
-    @root_validator(pre=True)
     @classmethod
     def normalize_addresses(cls, values):
-        auth_mode = values.get('auth_mode', None)
-        address = values.get('address', None)
+        if hasattr(values, 'kwargs'):
+            values_dict = values.kwargs
+        elif isinstance(values, dict):
+            values_dict = values
+        else:
+            raise ValueError()
+        auth_mode = values_dict.get('auth_mode', None)
+        address = values_dict.get('address', None)
         if address is None:
-            host = values.get('host', None)
+            host = values_dict.get('host', None)
             host = host.strip() if host is not None else None
             if not host:
                 raise ValueError('TNCO environment cannot be configured without "address" property or "host" property')
-            protocol = values.get('protocol', DEFAULT_PROTOCOL)
-            port = values.get('port', None)
-            path = values.get('path', None)
+            protocol = values_dict.get('protocol', DEFAULT_PROTOCOL)
+            port = values_dict.get('port', None)
+            path = values_dict.get('path', None)
             address = build_address(host, protocol=protocol, port=port, path=path)
 
         address = cls._finalise_address(address)
-        values['address'] = address
+        values_dict['address'] = address
 
         # Auth host
-        auth_address = values.get('auth_address', None)
+        auth_address = values_dict.get('auth_address', None)
         if auth_address is None and (auth_mode is None or auth_mode.lower() != TOKEN_AUTH_MODE):
-            auth_host = values.get('auth_host', None)
+            auth_host = values_dict.get('auth_host', None)
             auth_host = auth_host.strip() if auth_host is not None else None
             if not auth_host:
                 auth_address = address
             else:
-                auth_protocol = values.get('auth_protocol', values.get('protocol', DEFAULT_PROTOCOL))
-                auth_port = values.get('auth_port', None)
-                auth_path = values.get('auth_path', None)
+                auth_protocol = values_dict.get('auth_protocol', values_dict.get('protocol', DEFAULT_PROTOCOL))
+                auth_port = values_dict.get('auth_port', None)
+                auth_path = values_dict.get('auth_path', None)
                 auth_address = build_address(auth_host, protocol=auth_protocol, port=auth_port, path=auth_path)
 
         if auth_address is not None:
             auth_address = cls._finalise_address(auth_address)
-            values['auth_address'] = auth_address
+            values_dict['auth_address'] = auth_address
 
         # Kami Address
-        kami_address = values.get('kami_address', None)
-        kami_port = values.get('kami_port', DEFAULT_KAMI_PORT)
-        kami_protocol = values.get('kami_protocol', DEFAULT_KAMI_PROTOCOL)
+        kami_address = values_dict.get('kami_address', None)
+        kami_port = values_dict.get('kami_port', DEFAULT_KAMI_PORT)
+        kami_protocol = values_dict.get('kami_protocol', DEFAULT_KAMI_PROTOCOL)
         if kami_address is None:
             parsed_url = urlparse(address)
             if parsed_url.port:
@@ -171,8 +208,7 @@ class TNCOEnvironment:
                 new_netloc = f'{parsed_url.netloc}:{kami_port}'
             parsed_url = parsed_url._replace(scheme=kami_protocol, netloc=new_netloc, path='')
             kami_address = parsed_url.geturl()
-            values['kami_address'] = kami_address
-
+            values_dict['kami_address'] = kami_address
         return values
     
     @classmethod
@@ -187,7 +223,6 @@ class TNCOEnvironment:
             allow_all_schemes = os.environ.get(ALLOW_ALL_SCHEMES_ENV_VAR, None)
             if allow_all_schemes is None or allow_all_schemes.lower() != 'true':
                 raise ValueError(f'Use of "{parsed_url.scheme}" scheme is not encouraged by lmctl, use "{HTTPS_PROTOCOL}" instead ({address})')
-
         return final_address
 
     def create_session_config(self):

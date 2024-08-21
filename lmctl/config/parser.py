@@ -6,7 +6,7 @@ from .exceptions import ConfigError
 from .rewriter import ConfigRewriter
 from .config import Config
 from .env_pre_parser import EnvironmentGroupPreParser
-from pydantic import parse_obj_as, ValidationError
+from pydantic import TypeAdapter, ValidationError
 from dataclasses import asdict
 
 class ConfigParser:
@@ -35,7 +35,7 @@ class ConfigParser:
     def from_dict(self, config_dict) -> Config:
         config_dict = self.__pre_parse(config_dict)
         try:
-            config = parse_obj_as(Config, config_dict)
+            config = TypeAdapter(Config).validate_python(config_dict)
         except (TypeError, ValidationError) as e:
             raise ConfigError('Config error: {0}'.format(str(e))) from e
         return config

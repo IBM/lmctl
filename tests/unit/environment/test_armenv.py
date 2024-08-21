@@ -8,7 +8,7 @@ class TestArmEnvironment(unittest.TestCase):
     def test_init_fails_when_address_and_host_are_none(self):
         with self.assertRaises(ValidationError) as context:
             config = ArmEnvironment(port=80)
-        self.assertEqual(str(context.exception), '1 validation error for ArmEnvironment\n__root__\n  AnsibleRM environment cannot be configured without "address" property or "host" property (type=value_error)')
+        self.assertEqual(str(context.exception).split('[type=value_error')[0].strip(), '1 validation error for ArmEnvironment\n  Value error, AnsibleRM environment cannot be configured without "address" property or "host" property')
 
     def test_init_with_all_as_parts(self):
         config = ArmEnvironment(host='test', port=31080, protocol='http', onboarding_addr='http://arm:80')

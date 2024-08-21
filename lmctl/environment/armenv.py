@@ -1,8 +1,8 @@
 from .common import build_address
-from typing import Union
+from typing import Union, Optional
 import lmctl.drivers.arm as arm_drivers
 from pydantic.dataclasses import dataclass
-from pydantic import root_validator
+from pydantic import model_validator
 from lmctl.utils.dcutils.dc_capture import recordattrs
 
 DEFAULT_PROTOCOL = 'https'
@@ -10,26 +10,30 @@ DEFAULT_PROTOCOL = 'https'
 @recordattrs
 @dataclass
 class ArmEnvironment:
-    name: str = None
-    address: str = None
-    host: str = None
-    port: Union[str,int] = None
+    name: Optional[str] = None
+    address: Optional[str] = None
+    host: Optional[str] = None
+    port: Optional[Union[str,int]] = None
     protocol: str = DEFAULT_PROTOCOL
     onboarding_addr: str = None
 
-    @root_validator(pre=True)
+    @model_validator(mode='before')
     @classmethod
     def normalize_addresses(cls, values):
-        address = values.get('address', None)
+        if hasattr(values, 'kwargs'):
+            values_dict = values.kwargs
+        else:
+            values_dict = values
+        address = values_dict.get('address', None)
         if address is None:
-            host = values.get('host', None)
+            host = values_dict.get('host', None)
             host = host.strip() if host is not None else None
             if not host:
                 raise ValueError('AnsibleRM environment cannot be configured without "address" property or "host" property')
-            protocol = values.get('protocol', DEFAULT_PROTOCOL)
-            port = values.get('port', None)
+            protocol = values_dict.get('protocol', DEFAULT_PROTOCOL)
+            port = values_dict.get('port', None)
             address = build_address(host, protocol=protocol, port=port)
-            values['address'] = address
+            values_dict['address'] = address
         return values
 
     @property

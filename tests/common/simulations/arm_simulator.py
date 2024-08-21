@@ -26,7 +26,7 @@ class SimulatedArm:
 class SimulatedArmSession(ArmSession):
     
     def __init__(self, arm_sim):
-        self.env = ArmEnvironment('ArmSim', 'sim')
+        self.env = ArmEnvironment(address='ArmSim', name='sim')
         self.sim = arm_sim
         self.__arm_driver = MagicMock()
         self.__arm_driver_sim = MockAnsibleRmDriver(self.sim)
