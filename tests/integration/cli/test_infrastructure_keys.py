@@ -1,9 +1,12 @@
 from .cli_test_base import CLIIntegrationTest
-from typing import List, Any, Callable, Dict
+from typing import Dict
 from lmctl.cli.entry import cli
 from lmctl.cli.format import TableFormat, Table
 from lmctl.client import TNCOClientHttpError
 from lmctl.cli.commands.infrastructure_key import default_columns
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa
+
 import yaml
 import json
 import time
@@ -12,11 +15,16 @@ class TestInfrastructureKeys(CLIIntegrationTest):
 
     @classmethod
     def before_test_case(cls, tester):
+        private_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=4096,
+            backend=default_backend()
+        )
+        public_key = private_key.public_key()
+
         cls.test_case_props = {}
-        with open(tester.test_file('dummy_key_rsa.pub'), 'r') as f:
-            cls.test_case_props['public_key'] = f.read()
-        with open(tester.test_file('dummy_key_rsa'), 'r') as f:
-            cls.test_case_props['private_key'] = f.read()
+        cls.test_case_props['public_key'] = public_key
+        cls.test_case_props['private_key'] = private_key
         cls.test_case_props['key_A'] = tester.default_client.shared_inf_keys.create({
             'name': tester.exec_prepended_name('inf-key-cmd-A'),
             'publicKey': cls.test_case_props['public_key'],
