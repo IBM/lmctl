@@ -32,7 +32,8 @@ setup(
         'PyYAML>=5.3.0,<7.0',
         'pydantic>=2.8.0,<3.0',
         'dataclasses>=0.6; python_version < "3.7"',
-        'pyjwt>=1.5.3,<3.0'
+        'pyjwt>=1.5.3,<3.0',
+        'cryptography>=47.0.0,<48.0.0',
     ],
     entry_points='''
         [console_scripts]
